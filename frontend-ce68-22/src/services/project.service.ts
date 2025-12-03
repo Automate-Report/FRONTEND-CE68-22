@@ -11,7 +11,7 @@ const apiClient = axios.create({
 
 export const projectService = {
   getAll: async () => {
-    // ยิง GET ไปที่ http://localhost:8000/projects/
+    // ยิง GET ไปที่ http://localhost:8000/projects/all
     const { data } = await apiClient.get<Project[]>("/projects/all");
     return data;
   },
