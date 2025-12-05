@@ -2,7 +2,7 @@
 import React from 'react'
 import { useState } from "react";
 import Link from 'next/link';
-import { LoginPayload } from "@/types/auth";
+import { LoginPayload } from "../types/auth";
 
 export default function LoginCard() {
     const [email, setEmail] = useState<string>("");
