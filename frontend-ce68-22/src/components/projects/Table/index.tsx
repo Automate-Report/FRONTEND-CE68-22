@@ -12,8 +12,8 @@ import EditProjectIcon from "../icon/EditProject";
 import DeleteProjectIcon from "../icon/DeleteProject";
 
 // Imported Components & Hooks
-import { TablePaginationActions } from "../TablePaginationAction"; // ไฟล์จากข้อ 1
-import { useProjectTable, SortColumn } from "./useProjectTable"; // ไฟล์จากข้อ 2
+import { TablePaginationActions } from "../TablePaginationAction"; 
+import { useProjectTable, SortColumn } from "./useProjectTable"; 
 
 interface ProjectTableProps {
   data: Project[];
@@ -36,6 +36,14 @@ export function ProjectTable({ data = [] }: ProjectTableProps) {
     if (sortOrder === "asc") return <AscIcon />;
     if (sortOrder === "desc") return <DescIcon />;
     return <DefaultSortIcon />;
+  };
+
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const day = d.getDate(); 
+    const month = d.getMonth() + 1; 
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
   };
 
   return (
@@ -70,13 +78,16 @@ export function ProjectTable({ data = [] }: ProjectTableProps) {
           </TableHead>
 
           <TableBody>
-            {visibleRows.map((project) => (
-              <TableRow key={project.name}>
+            {visibleRows.map((project, index) => (
+              <TableRow key={project.id} 
+              sx={{
+                backgroundColor: index % 2 === 0 ? "#FBFBFB" : "#EFF1F0", 
+              }}>
                 <TableCell>
                   <div className="pl-2">{project.name}</div>
                 </TableCell>
                 <TableCell align="left">
-                  {new Date(project.updated_at).toLocaleDateString("th-TH")}
+                  {formatDate(project.updated_at)}
                 </TableCell>
                 <TableCell align="right">
                   <div className="flex justify-around pr-2">
