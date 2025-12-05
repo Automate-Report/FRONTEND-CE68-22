@@ -2,7 +2,7 @@
 
 import { useProjects } from "../../hooks/use-projects";
 // import { ProjectCard } from "./ProjectCard"; <--- ไม่ใช้แล้ว หรือเก็บไว้เป็นทางเลือก
-import { ProjectTable } from "./ProjectTable"; // <--- Import อันใหม่มา
+import { ProjectTable } from "./Table"; // <--- Import อันใหม่มา
 
 export function ProjectList() {
   const { data: projects, isLoading, isError } = useProjects();
