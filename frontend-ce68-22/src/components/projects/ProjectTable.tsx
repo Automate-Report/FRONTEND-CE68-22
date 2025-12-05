@@ -13,71 +13,66 @@ export function ProjectTable({ data = []}: ProjectTableProps) {
   }
 
   return (
-    // 1. Wrapper: overflow-x-auto ช่วยให้เลื่อนซ้ายขวาได้ในมือถือ
-    <div className="overflow-x-auto border rounded-2xl border-[#E6F0E6] shadow-sm">
-      <table className=" text-left text-[24px]">
+    <div className="overflow-x-auto rounded-2xl border border-[#E6F0E6] shadow-sm">
+      <table className="w-full text-left text-[24px]">
 
-        {/* กำหนดความกว้างในแต่ละ column */}
+        {/* Column width rules */}
         <colgroup>
-          <col className="w-[65%]" /><col className="w-[25%] md:table-column hidden" /><col className="w-[10%]" />
+          <col className="w-[65%]" />
+          <col className="w-[25%] hidden md:table-column" />
+          <col className="w-[10%]" />
         </colgroup>
-        
-        {/* --- Header --- */}
-        <thead className=" text-[#EDF6EE]  bg-[#0F1518] border-b">
+
+        {/* Header */}
+        <thead className="bg-[#0F1518] text-[#EDF6EE] border-b">
           <tr>
-            <th  className="px-6 py-3d">
-              <div className="flex">
-                <div>Project Name</div>
-                <div>icon</div>
+            <th className="px-6 py-3">
+              <div className="flex items-center gap-2">
+                <span>Project Name</span>
+                <span>icon</span>
               </div>
             </th>
-            {/* ซ่อนในมือถือ แสดงเมื่อจอ md ขึ้นไป */}
 
-            <th  className="px-6 py-3">
-              <div className="flex text-center">
-                <div>Last Updated</div>
-                <div>icon</div>
-              </div>   
+            <th className="px-6 py-3 hidden md:table-cell">
+              <div className="flex items-center justify-center gap-2">
+                <span>Last Updated</span>
+                <span>icon</span>
+              </div>
             </th>
-            <th className="px-6 py-3 text-right">
-              
-            </th>
+
+            <th className="px-6 py-3 text-right"></th>
           </tr>
         </thead>
 
-        {/* --- Body --- */}
+        {/* Body */}
         <tbody className="bg-[#FBFBFB] text-[#404F57] divide-y divide-gray-200">
           {data.map((project) => (
-            <tr key={project.id} className="hover:bg-gray-50 transition-colors">
-        
-
-              {/* Name Column */}
+            <tr
+              key={project.id}
+              className="transition-colors hover:bg-gray-50"
+            >
+              {/* Name */}
               <td className="px-6 py-4">
                 <div>{project.name}</div>
-                {/* Mobile description (แสดงเฉพาะจอมือถือ) */}
-                {/* <div className="md:hidden text-xs text-gray-400 mt-1 truncate max-w-[120px]">
-                  {project.description}
-                </div> */}
               </td>
 
-
-              {/* Date Column */}
-              <td className="text-center px-6 py-4 whitespace-nowrap">
+              {/* Date */}
+              <td className="px-6 py-4 text-center whitespace-nowrap hidden md:table-cell">
                 {new Date(project.updated_at).toLocaleDateString("th-TH")}
               </td>
 
-              {/* Action Column */}
+              {/* Actions */}
               <td className="px-6 py-4 text-right">
                 <div className="flex justify-end gap-3">
                   <div>Edit Icon</div>
                   <div>Delete Icon</div>
                 </div>
               </td>
-
             </tr>
           ))}
         </tbody>
       </table>
     </div>
+
   );
 }
