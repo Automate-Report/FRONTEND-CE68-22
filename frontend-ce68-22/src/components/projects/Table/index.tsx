@@ -12,7 +12,7 @@ import EditProjectIcon from "../icon/EditProject";
 import DeleteProjectIcon from "../icon/DeleteProject";
 
 // Imported Components & Hooks
-import { TablePaginationActions } from "../../../components/projects/TablePaginationAction"; // ไฟล์จากข้อ 1
+import { TablePaginationActions } from "../TablePaginationAction"; // ไฟล์จากข้อ 1
 import { useProjectTable, SortColumn } from "./useProjectTable"; // ไฟล์จากข้อ 2
 
 interface ProjectTableProps {

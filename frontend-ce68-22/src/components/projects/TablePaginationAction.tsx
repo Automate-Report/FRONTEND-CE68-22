@@ -1,4 +1,3 @@
-// src/components/TablePaginationActions.tsx
 import { useTheme } from '@mui/material/styles';
 import { Box, IconButton } from "@mui/material";
 import FirstPageIcon from '@mui/icons-material/FirstPage';
