@@ -5,3 +5,4 @@ export interface Project {
   user_id: number;
   updated_at: string;
 }
+
