@@ -56,7 +56,7 @@ export function ProjectTable({
     {
       id: "updated_at",
       label: "Last Updated",
-      align: "left",
+      align: "center",
       sortable: true,
       width: "1%", // ให้หดเหลือพื้นที่เท่าที่จำเป็น
       render: (row) => {
