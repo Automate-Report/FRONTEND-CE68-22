@@ -35,18 +35,48 @@ export function TablePaginationActions(props: TablePaginationActionsProps) {
     onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
   };
 
+  const actionButtonStyle = {
+    color: "#E6F0E6", // สีไอคอนปกติ
+    "&:hover": {
+      backgroundColor: "rgba(230, 240, 230, 0.1)", // สีพื้นหลังตอนเอาเมาส์ชี้ (จางๆ)
+    },
+    "&.Mui-disabled": {
+      color: "rgba(230, 240, 230, 0.3)", // สีตอนกดไม่ได้ (Disabled) ให้จางลง
+    }
+  };
+
   return (
-    <Box sx={{ flexShrink: 0, ml: 2.5 }}>
-      <IconButton onClick={handleFirstPageButtonClick} disabled={page === 0}>
+    <Box sx={{ flexShrink: 0, ml: 2.5}}>
+      <IconButton 
+        onClick={handleFirstPageButtonClick} 
+        disabled={page === 0}
+        aria-label="first page"
+        sx={actionButtonStyle}
+      >
         {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
       </IconButton>
-      <IconButton onClick={handleBackButtonClick} disabled={page === 0}>
+      <IconButton 
+        onClick={handleBackButtonClick} 
+        disabled={page === 0}
+        aria-label="previous page"
+        sx={actionButtonStyle}
+      >
         {theme.direction === "rtl" ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
       </IconButton>
-      <IconButton onClick={handleNextButtonClick} disabled={page >= Math.ceil(count / rowsPerPage) - 1}>
+      <IconButton 
+        onClick={handleNextButtonClick} 
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="next page"
+        sx={actionButtonStyle}
+      >
         {theme.direction === "rtl" ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
       </IconButton>
-      <IconButton onClick={handleLastPageButtonClick} disabled={page >= Math.ceil(count / rowsPerPage) - 1}>
+      <IconButton 
+        onClick={handleLastPageButtonClick} 
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="last page"
+        sx={actionButtonStyle}
+      >
         {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
       </IconButton>
     </Box>
