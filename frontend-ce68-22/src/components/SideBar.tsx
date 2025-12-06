@@ -21,33 +21,33 @@ export function SideBar({ project_id }: SideBarProps) {
   const menuItems = [
     {
       name: "Overview",
-      href: `/projects/overview/${project_id}`,
+      href: `/projects/${project_id}overview`,
       icon: <OverviewIcon />,
     },
     {
       name: "Asset",
-      href: `/projects/asset/${project_id}`, // แก้ Link ให้ตรงกับหน้าจริง (สมมติ)
+      href: `/projects/${project_id}/asset`, // แก้ Link ให้ตรงกับหน้าจริง (สมมติ)
       icon: <AssetIcon />,
     },
     {
       name: "Schedule",
-      href: `/projects/schedule/${project_id}`, // แก้ Link
+      href: `/projects/${project_id}/schedule`, // แก้ Link
       icon: <ScheduleIcon />,
     },
     {
       name: "Report",
-      href: `/projects/report/${project_id}`, // แก้ Link
+      href: `/projects/${project_id}/report`, // แก้ Link
       icon: <ReportIcon />,
     },
     {
       name: "Log",
-      href: `/projects/log/${project_id}`, // แก้ Link
+      href: `/projects/${project_id}/log`, // แก้ Link
       icon: <LogIcon />,
     },
   ];
 
   return (
-    <div className="bg-[#0D1014] w-[400px] h-screen sticky top-0 text-[20px] font-medium pl-2 pt-4 pb-6 pr-6 flex flex-col">
+    <div className="bg-[#0D1014] w-[300px] h-screen sticky top-0 text-[20px] font-medium pl-2 pt-4 pb-6 pr-6 flex flex-col">
       {menuItems.map((item) => {
         // 5. เช็คว่า Path ปัจจุบัน ตรงกับ href ของปุ่มนี้หรือไม่
         // ใช้ .startsWith หรือ === ก็ได้ ขึ้นอยู่กับโครงสร้าง URL
