@@ -1,6 +1,7 @@
 import axios from "axios";
-import { Project } from "../types/project";
+import { Project, CreateProjectPayload } from "../types/project";
 import { PaginatedResult } from "../types/common";
+
 
 // สร้าง Instance Axios (ควรย้ายไป lib/axios.ts ในอนาคต)
 const apiClient = axios.create({
@@ -33,6 +34,11 @@ export const projectService = {
   getById: async (id: number) =>{
     const { data } = await apiClient.get<Project>(`/projects/${id}`);
     return data;
-  }
+  },
+
+  create: async (payload: CreateProjectPayload) => {
+    const { data } = await apiClient.post("/projects", payload);
+    return data;
+  },
 
 };

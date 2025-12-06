@@ -6,3 +6,7 @@ export interface Project {
   updated_at: string;
 }
 
+export interface CreateProjectPayload {
+  name: string;
+  description?: string;
+}
