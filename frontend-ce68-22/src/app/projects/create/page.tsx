@@ -58,128 +58,128 @@ export default function CreateProjectPage() {
 
   return (
     <div className="mx-auto w-11/12 py-8">
-                <GenericBreadcrums items={breadcrumbItems} />
+        <GenericBreadcrums items={breadcrumbItems} />
                 
-                <form onSubmit={handleSubmit}>
-                    {/* 1. Project Name */}
-                    <div className="pb-8">
-                        <div className="text-[#E6F0E6] font-bold text-[24px] pb-4">Project Name</div>
-                        <TextField
-                            variant="outlined"
-                            fullWidth
-                            required
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="e.g. CECompany"
-                            size="small"
-                            sx={{
-                                "& .MuiOutlinedInput-root": {
-                                    backgroundColor: "#FBFBFB",
-                                    borderRadius: "16px",
+            <form onSubmit={handleSubmit}>
+                {/* 1. Project Name */}
+                <div className="pb-8">
+                    <div className="text-[#E6F0E6] font-bold text-[24px] pb-4">Project Name</div>
+                    <TextField
+                        variant="outlined"
+                        fullWidth
+                        required
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="e.g. CECompany"
+                        size="small"
+                        sx={{
+                            "& .MuiOutlinedInput-root": {
+                                backgroundColor: "#FBFBFB",
+                                borderRadius: "16px",
                                     
-                                    "& fieldset": {
-                                        borderColor: "#FBFBFB",
-                                    },
-                                    "&.Mui-focused fieldset": {
-                                        borderColor: "#FBFBFB", // หรือสี Primary ที่ต้องการ
-                                    },
-                                    // ปรับ Font ของ input ข้างใน
-                                    "& input": {
-                                        fontSize: "16px",
-                                        fontWeight: 300,
-                                        color: "#000" // สีตัวอักษร
-                                    }
+                                "& fieldset": {
+                                    borderColor: "#FBFBFB",
+                                },
+                                "&.Mui-focused fieldset": {
+                                    borderColor: "#FBFBFB", // หรือสี Primary ที่ต้องการ
+                                },
+                                // ปรับ Font ของ input ข้างใน
+                                "& input": {
+                                    fontSize: "16px",
+                                    fontWeight: 300,
+                                    color: "#000" // สีตัวอักษร
                                 }
-                            }}
-                        />
-                    </div>
+                            }
+                        }}
+                    />
+                </div>
     
-                    {/* 2. Project Description */}
-                    <div className="pb-6">
-                        <div className="text-[#E6F0E6] font-bold text-[24px] pb-4">Project Description</div>
-                        <TextField
-                            variant="outlined"
-                            fullWidth
-                            multiline
-                            rows={4} // กำหนดจำนวนบรรทัดเริ่มต้น
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Brief details about this project..."
-                            size="small"
-                            sx={{
-                                "& .MuiOutlinedInput-root": {
-                                    backgroundColor: "#FBFBFB",
-                                    borderRadius: "16px",
-                                    padding: "12px", // เพิ่ม padding ให้สวยงามสำหรับ multiline
+                {/* 2. Project Description */}
+                <div className="pb-6">
+                    <div className="text-[#E6F0E6] font-bold text-[24px] pb-4">Project Description</div>
+                    <TextField
+                        variant="outlined"
+                        fullWidth
+                        multiline
+                        rows={4} // กำหนดจำนวนบรรทัดเริ่มต้น
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Brief details about this project..."
+                        size="small"
+                        sx={{
+                            "& .MuiOutlinedInput-root": {
+                                backgroundColor: "#FBFBFB",
+                                borderRadius: "16px",
+                                padding: "12px", // เพิ่ม padding ให้สวยงามสำหรับ multiline
     
-                                    "& fieldset": {
-                                        borderColor: "#FBFBFB",
-                                    },
-                                    "&.Mui-focused fieldset": {
-                                        borderColor: "#FBFBFB",
-                                    },
-                                    // สำหรับ Multiline ต้องปรับที่ textarea
-                                    "& textarea": {
-                                        fontSize: "16px",
-                                        fontWeight: 300,
-                                        color: "#000"
-                                    }
+                                "& fieldset": {
+                                    borderColor: "#FBFBFB",
+                                },
+                                "&.Mui-focused fieldset": {
+                                    borderColor: "#FBFBFB",
+                                },
+                                // สำหรับ Multiline ต้องปรับที่ textarea
+                                "& textarea": {
+                                    fontSize: "16px",
+                                    fontWeight: 300,
+                                    color: "#000"
                                 }
-                            }}
-                        />
-                    </div>
+                            }
+                        }}
+                    />
+                </div>
     
-                    {/* Error Message */}
-                    {error && (
-                        <Typography color="error" variant="body2" sx={{ mb: 2 }}>
-                            {error}
-                        </Typography>
-                    )}
+                {/* Error Message */}
+                {error && (
+                    <Typography color="error" variant="body2" sx={{ mb: 2 }}>
+                        {error}
+                    </Typography>
+                )}
     
-                    {/* Action Buttons */}
-                    <Box sx={{ display: "flex", gap: 6, mt: 2 }}>
-                        <Button
-                            variant="outlined"
-                            onClick={() => router.back()}
-                            disabled={loading}
-                            sx={{
-                                px: 3,
-                                textTransform: "none",
-                                fontSize: 16,
-                                fontWeight: 400,
-                                borderColor: "#FE3B46",
-                                color: "#FE3B46",
-                                borderRadius: "10px",
-                                "&:hover": {
-                                    borderColor: "#D32F2F",
-                                    backgroundColor: "rgba(254, 59, 70, 0.04)"
-                                }
-                            }}
-                        >
-                            Cancel
-                        </Button>
+                {/* Action Buttons */}
+                <Box sx={{ display: "flex", gap: 6, mt: 2 }}>
+                    <Button
+                        variant="outlined"
+                        onClick={() => router.back()}
+                        disabled={loading}
+                        sx={{
+                            px: 3,
+                            textTransform: "none",
+                            fontSize: 16,
+                            fontWeight: 400,
+                            borderColor: "#FE3B46",
+                            color: "#FE3B46",
+                            borderRadius: "10px",
+                            "&:hover": {
+                                borderColor: "#D32F2F",
+                                backgroundColor: "rgba(254, 59, 70, 0.04)"
+                            }
+                        }}
+                    >
+                        Cancel
+                    </Button>
     
-                        <Button
-                            variant="contained"
-                            type="submit"
-                            disabled={loading}
-                            sx={{
-                                px: 3,
-                                textTransform: "none",
-                                fontSize: 16,
-                                fontWeight: 400,
-                                backgroundColor: "#8FFF9C",
-                                color: "#0B0F12",
-                                borderRadius: "10px",
-                                "&:hover": {
-                                    backgroundColor: "#76E085"
-                                }
-                            }}
-                        >
-                            {loading ? "Saving..." : "Create Project"}
-                        </Button>
-                    </Box>
-                </form>
-            </div>
+                    <Button
+                        variant="contained"
+                        type="submit"
+                        disabled={loading}
+                        sx={{
+                            px: 3,
+                            textTransform: "none",
+                            fontSize: 16,
+                            fontWeight: 400,
+                            backgroundColor: "#8FFF9C",
+                            color: "#0B0F12",
+                            borderRadius: "10px",
+                            "&:hover": {
+                                backgroundColor: "#76E085"
+                            }
+                        }}
+                    >
+                        {loading ? "Saving..." : "Create Project"}
+                    </Button>
+                </Box>
+            </form>
+    </div>
   );
 }
