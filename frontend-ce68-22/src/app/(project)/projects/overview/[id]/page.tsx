@@ -29,8 +29,8 @@ export default function ProjectsOverviewPage({ params }: PageProps) {
 
 
     return (
-        <div className="flex mx-auto w-11/12 bg-[#0F1518] text-[#E6F0E6]">
-            <SideBar />
+        <div className="flex mx-auto  bg-[#0F1518] text-[#E6F0E6] gap-4">
+            <SideBar project_id={projectId}/>
             <div className="flex flex-col px-4">
                 <GenericBreadcrums items={breadcrumbItems}/>
                 <div className="">
