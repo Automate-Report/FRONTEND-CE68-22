@@ -45,7 +45,7 @@ export function ProjectTable({
       // ถ้าไม่ใส่ render มันจะโชว์ row.name ให้เอง
       render: (row) => (
         <Link
-          href={`/projects/${row.id}overview`}
+          href={`/projects/${row.id}/overview`}
         >
           <div>
             {row.name}
