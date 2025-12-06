@@ -41,4 +41,9 @@ export const projectService = {
     return data;
   },
 
+  edit: async (id: number, payload: CreateProjectPayload) => {
+    const { data } = await apiClient.put(`/projects/${id}`, payload);
+    return data;
+  },
+
 };
