@@ -1,11 +1,26 @@
 "use client";
 
 import { useProjects } from "../../hooks/use-projects";
-// import { ProjectCard } from "./ProjectCard"; <--- ไม่ใช้แล้ว หรือเก็บไว้เป็นทางเลือก
 import { ProjectTable } from "./Table"; // <--- Import อันใหม่มา
+import { useProjectTable } from "./Table/useProjectTable";
 
 export function ProjectList() {
-  const { data: projects, isLoading, isError } = useProjects();
+
+  const {
+    page,
+    rowsPerPage,
+    sortBy,
+    sortOrder,
+    handleChangePage,
+    handleChangeRowsPerPage,
+    cycleSort,
+  } = useProjectTable([]);
+
+  const { data: response, isLoading, isError } = useProjects(page + 1, rowsPerPage);
+
+  // ดึง items และ total จาก response (Handle กรณี response เป็น undefined)
+  const projs = response?.items || [];
+  const totalCnt = response?.total || 0;
 
   if (isLoading) {
     return (
@@ -26,18 +41,28 @@ export function ProjectList() {
     );
   }
 
-  if (!projects || projects.length === 0) {
-    return (
-      <div className="text-center py-10 border-2 border-dashed border-gray-300 rounded-lg">
-        <p className="text-gray-500 mb-2">ยังไม่มีโปรเจกต์</p>
-        <p className="text-sm text-gray-400">กดปุ่มสร้างด้านบนเพื่อเริ่มต้น</p>
-      </div>
-    );
+  if (totalCnt === 0) {
+     // ... แสดงหน้า Empty State ตามเดิม ...
+     return <div className="text-center py-10">ไม่พบโปรเจกต์</div>;
   }
+
   return (
     <div>
-      {/* ส่งข้อมูล projects ไปให้ Table แสดงผล */}
-      <ProjectTable data={projects} />
+      <ProjectTable 
+        data={projs}           // ข้อมูล Array ของหน้านั้นๆ
+        totalCount={totalCnt}   // จำนวนข้อมูลทั้งหมดใน DB (เพื่อคำนวณจำนวนหน้า)
+        
+        // State
+        page={page}
+        rowsPerPage={rowsPerPage}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        
+        // Functions (Actions)
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        onSort={cycleSort}
+      />
     </div>
   );
 }

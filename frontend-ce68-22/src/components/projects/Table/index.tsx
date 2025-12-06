@@ -13,24 +13,34 @@ import DeleteProjectIcon from "../icon/DeleteProject";
 
 // Imported Components & Hooks
 import { TablePaginationActions } from "../TablePaginationAction"; 
-import { useProjectTable, SortColumn } from "./useProjectTable"; 
+import { SortOrder, SortColumn, useProjectTable } from "./useProjectTable"; 
 
 interface ProjectTableProps {
   data: Project[];
+  totalCount: number;
+  page: number;
+  rowsPerPage: number;
+  sortBy: SortColumn | null;
+  sortOrder: SortOrder;
+  onPageChange: (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => void;
+  onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSort: (column: SortColumn) => void;
 }
 
-export function ProjectTable({ data = [] }: ProjectTableProps) {
-  const {
-    page,
-    rowsPerPage,
-    sortBy,
-    sortOrder,
-    visibleRows,
-    handleChangePage,
-    handleChangeRowsPerPage,
-    cycleSort,
-  } = useProjectTable(data);
-
+export function ProjectTable({ 
+  data = [], 
+  totalCount,
+  page,
+  rowsPerPage,
+  sortBy,
+  sortOrder,
+  onPageChange,        // รับมาแทน handleChangePage
+  onRowsPerPageChange, // รับมาแทน handleChangeRowsPerPage
+  onSort               // รับมาแทน cycleSort
+}: ProjectTableProps){
+  
+  // ไม่เรียก useProjectTable ในนี้แล้ว รับค่ามาจาก Props แทน
+  
   const sortIndicator = (column: SortColumn) => {
     if (sortBy !== column) return <DefaultSortIcon />;
     if (sortOrder === "asc") return <AscIcon />;
@@ -40,8 +50,8 @@ export function ProjectTable({ data = [] }: ProjectTableProps) {
 
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
-    const day = d.getDate(); 
-    const month = d.getMonth() + 1; 
+    const day = d.getDate();
+    const month = d.getMonth() + 1;
     const year = d.getFullYear();
     return `${day}-${month}-${year}`;
   };
@@ -54,7 +64,7 @@ export function ProjectTable({ data = [] }: ProjectTableProps) {
             <TableRow>
               <TableCell
                 sx={{ cursor: "pointer", whiteSpace: "nowrap" }}
-                onClick={() => cycleSort("name")}
+                onClick={() => onSort("name")}
               >
                 <div className="flex items-center pl-2">
                   <div className="text-[#E6F0E6]">Project Name</div>
@@ -64,7 +74,7 @@ export function ProjectTable({ data = [] }: ProjectTableProps) {
 
               <TableCell
                 align="left"
-                onClick={() => cycleSort("updated_at")}
+                onClick={() => onSort("updated_at")}
                 sx={{ cursor: "pointer", width: "1%", whiteSpace: "nowrap" }}
               >
                 <div className="flex items-center">
@@ -78,7 +88,7 @@ export function ProjectTable({ data = [] }: ProjectTableProps) {
           </TableHead>
 
           <TableBody>
-            {visibleRows.map((project, index) => (
+            {data.map((project, index) => (
               <TableRow key={project.id} 
               sx={{
                 backgroundColor: index % 2 === 0 ? "#FBFBFB" : "#EFF1F0", 
@@ -104,11 +114,12 @@ export function ProjectTable({ data = [] }: ProjectTableProps) {
       <TablePagination
         rowsPerPageOptions={[5, 10, 20]}
         component="div"
-        count={data.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+        count={totalCount} 
+        rowsPerPage={rowsPerPage} 
+        page={page} 
+        // 5. เชื่อม Event Handlers ให้ถูกต้อง
+        onPageChange={onPageChange}
+        onRowsPerPageChange={onRowsPerPageChange}
         ActionsComponent={TablePaginationActions}
       />
     </Paper>
