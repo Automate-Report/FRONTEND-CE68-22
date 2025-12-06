@@ -111,7 +111,11 @@ export function GenericTable<T extends { id: number | string }>({
                 }}
               >
                 {columns.map((col) => (
-                  <TableCell key={`${row.id}-${col.id}`} align={col.align || "left"}>
+                  <TableCell 
+                    key={`${row.id}-${col.id}`} 
+                    align={col.align || "left"}
+                    sx = {{ color: "#404F57" }}
+                  >
                     {/* ถ้ามี function render ให้ใช้ render, ถ้าไม่มีให้ดึงค่าจาก object ตรงๆ */}
                     {col.render 
                       ? col.render(row) 
