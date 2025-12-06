@@ -74,10 +74,10 @@ export function ProjectTable({
       sortable: false,
       width: "1%",
       render: (row) => (
-        <div className="flex justify-around pr-2">
+        <div className="flex justify-around pr-2 gap-6">
            {/* ตรงนี้คุณอาจจะใส่ onClick handler ในอนาคต */}
-          <div className="pl-6 cursor-pointer"><EditProjectIcon /></div>
-          <div className="pl-6 cursor-pointer"><DeleteProjectIcon /></div>
+          <Link href={`/projects/${row.id}/edit`} className="cursor-pointer"><EditProjectIcon /></Link>
+          <Link href={`/projects/${row.id}/edit`} className="cursor-pointer"><DeleteProjectIcon /></Link>
         </div>
       )
     }
