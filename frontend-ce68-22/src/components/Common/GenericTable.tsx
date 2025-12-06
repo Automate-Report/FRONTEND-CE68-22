@@ -72,7 +72,7 @@ export function GenericTable<T extends { id: number | string }>({
   };
 
   return (
-    <Paper elevation={0} sx={{ borderRadius: 3, overflow: "hidden", border: "1px solid #e5e7eb" }}>
+    <Paper elevation={0} sx={{ borderRadius: 3, overflow: "hidden", border: "1px solid #e5e7eb", bgcolor: "#0F1518", color: "#E6F0E6" }}>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }}>
           {/* --- Table Head (Dynamic) --- */}
