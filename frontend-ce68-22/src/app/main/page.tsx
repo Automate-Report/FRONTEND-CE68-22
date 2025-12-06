@@ -7,7 +7,7 @@ import Link from "next/link";
 export default function ProjectsPage() {
   return (
     <div className="mx-auto w-11/12 bg-[#0F1518]">
-      <div className="text-4xl text-[#E6F0E6] font-bold">
+      <div className="text-4xl text-[#E6F0E6] font-bold pb-10">
         Welcome Back! user_name
       </div>
       <div className="flex justify-between items-center mb-6 text-[#E6F0E6]">
@@ -15,7 +15,7 @@ export default function ProjectsPage() {
         <div>filter</div>
 
         <Link href="/projects/create">
-          <button className="flex items-center justify-center bg-[#8FFF9C] text-[#0B0F12] rounded-lg shadow-sm px-6 py-2 gap-3 cursor-pointer">
+          <button className="flex items-center justify-center bg-[#8FFF9C] text-[#0B0F12] text-[16px] font-medium rounded-lg shadow-sm px-6 py-2 gap-3 cursor-pointer">
             <div className="text-base font-medium">New Project</div>
             <div>
               <CreateProjectIcon />
