@@ -22,9 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${ibmPlexSansThai.variable} font-sans antialiased`}
-      >
+      <body className={`${ibmPlexSansThai.variable} font-sans antialiased`}>
         <QueryProvider>
           {children}
         </QueryProvider>
