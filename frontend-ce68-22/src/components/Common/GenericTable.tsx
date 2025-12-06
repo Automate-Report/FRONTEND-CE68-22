@@ -73,7 +73,7 @@ export function GenericTable<T extends { id: number | string }>({
 
   return (
     <Paper elevation={0} sx={{ borderRadius: 3, overflow: "hidden", border: "1px solid #e5e7eb", bgcolor: "#0F1518", color: "#E6F0E6" }}>
-      <TableContainer component={Paper}>
+      <TableContainer>
         <Table sx={{ minWidth: 650 }}>
           {/* --- Table Head (Dynamic) --- */}
           <TableHead className="bg-[#0F1518]">
@@ -108,6 +108,7 @@ export function GenericTable<T extends { id: number | string }>({
                 key={row.id} // ต้องมั่นใจว่า T มี id
                 sx={{
                   backgroundColor: index % 2 === 0 ? "#FBFBFB" : "#EFF1F0",
+                  border: 0
                 }}
               >
                 {columns.map((col) => (
