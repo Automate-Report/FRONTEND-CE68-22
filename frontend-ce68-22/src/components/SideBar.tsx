@@ -21,7 +21,7 @@ export function SideBar({ project_id }: SideBarProps) {
   const menuItems = [
     {
       name: "Overview",
-      href: `/projects/${project_id}overview`,
+      href: `/projects/${project_id}/overview`,
       icon: <OverviewIcon />,
     },
     {
