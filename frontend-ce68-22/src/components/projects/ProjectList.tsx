@@ -17,7 +17,7 @@ export function ProjectList() {
     handleSort,
   } = useTable<Project>([]);
 
-  const { data: response, isLoading, isError } = useProjects(page + 1, rowsPerPage);
+  const { data: response, isLoading, isError } = useProjects(page + 1, rowsPerPage, sortBy, sortOrder);
 
   // ดึง items และ total จาก response (Handle กรณี response เป็น undefined)
   const projs = response?.items || [];
