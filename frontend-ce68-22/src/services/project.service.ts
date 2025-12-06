@@ -13,7 +13,6 @@ const apiClient = axios.create({
 export const projectService = {
   // รับค่า page และ size (กำหนด default ไว้กันเหนียว)
   getAll: async (page: number = 1, size: number = 10) => {
-    
     // เปลี่ยน Type การรับค่าเป็น PaginatedResponse<Project>
     const { data } = await apiClient.get<PaginatedResult<Project>>("/projects/all", {
       // Axios มี property 'params' ช่วยจัดการ Query String ให้ (ไม่ต้องพิมพ์ ?page=... เอง)
@@ -25,4 +24,10 @@ export const projectService = {
 
     return data; 
   },
+
+  getById: async (id: number) =>{
+    const { data } = await apiClient.get<Project>(`/projects/${id}`);
+    return data;
+  }
+
 };
