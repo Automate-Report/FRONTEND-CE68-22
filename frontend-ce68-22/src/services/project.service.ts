@@ -37,7 +37,7 @@ export const projectService = {
   },
 
   create: async (payload: CreateProjectPayload) => {
-    const { data } = await apiClient.post("/projects", payload);
+    const { data } = await apiClient.post("/projects/", payload);
     return data;
   },
 
