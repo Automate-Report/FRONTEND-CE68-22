@@ -1,6 +1,6 @@
 // src/components/ProjectTable/index.tsx
 import { Project } from "../../types/project";
-import { GenericTable, ColumnDef } from "../Table/GenericTable"; // Import ตัวใหม่
+import { GenericTable, ColumnDef } from "../Common/GenericTable"; // Import ตัวใหม่
 
 
 // Icons (สำหรับใช้ใน render)
