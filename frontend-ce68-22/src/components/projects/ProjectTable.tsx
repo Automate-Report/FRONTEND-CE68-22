@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Project } from "../../types/project";
 import Link from "next/link";
-import { useTheme } from '@mui/material/styles';
+import { useTheme } from "@mui/material/styles";
 
 import {
   Table,
@@ -16,16 +16,16 @@ import {
   IconButton,
 } from "@mui/material";
 
-import FirstPageIcon from '@mui/icons-material/FirstPage';
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import LastPageIcon from '@mui/icons-material/LastPage';
+import FirstPageIcon from "@mui/icons-material/FirstPage";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
+import LastPageIcon from "@mui/icons-material/LastPage";
 
-import DefaultSortIcon from "./icon/DefaultSort";
-import AscIcon from "./icon/AscIcon";
-import DescIcon from "./icon/DescIcon";
-import EditProjectIcon from "./icon/EditProject";
-import DeleteProjectIcon from "./icon/DeleteProject";
+import DefaultSortIcon from "../icon/DefaultSort";
+import AscIcon from "../icon/AscIcon";
+import DescIcon from "../icon/DescIcon";
+import EditProjectIcon from "../icon/Edit";
+import DeleteProjectIcon from "../icon/Delete";
 
 type SortOrder = "none" | "asc" | "desc";
 
@@ -39,7 +39,7 @@ interface TablePaginationActionsProps {
   rowsPerPage: number;
   onPageChange: (
     event: React.MouseEvent<HTMLButtonElement>,
-    newPage: number,
+    newPage: number
   ) => void;
 }
 
@@ -47,19 +47,27 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
   const theme = useTheme();
   const { count, page, rowsPerPage, onPageChange } = props;
 
-  const handleFirstPageButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleFirstPageButtonClick = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     onPageChange(event, 0);
   };
 
-  const handleBackButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleBackButtonClick = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     onPageChange(event, page - 1);
   };
 
-  const handleNextButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleNextButtonClick = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     onPageChange(event, page + 1);
   };
 
-  const handleLastPageButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleLastPageButtonClick = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
     onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
   };
 
@@ -70,11 +78,22 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
       </IconButton>
 
       <IconButton onClick={handleBackButtonClick} disabled={page === 0}>
-        {theme.direction === "rtl" ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowRight />
+        ) : (
+          <KeyboardArrowLeft />
+        )}
       </IconButton>
 
-      <IconButton onClick={handleNextButtonClick} disabled={page >= Math.ceil(count / rowsPerPage) - 1}>
-        {theme.direction === "rtl" ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+      <IconButton
+        onClick={handleNextButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+      >
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowLeft />
+        ) : (
+          <KeyboardArrowRight />
+        )}
       </IconButton>
 
       <IconButton
@@ -126,14 +145,10 @@ export function ProjectTable({ data = [] }: ProjectTableProps) {
   if (sortOrder !== "none" && sortBy) {
     sortedData.sort((a, b) => {
       const valueA =
-        sortBy === "updated_at"
-          ? new Date(a.updated_at).getTime()
-          : a[sortBy];
+        sortBy === "updated_at" ? new Date(a.updated_at).getTime() : a[sortBy];
 
       const valueB =
-        sortBy === "updated_at"
-          ? new Date(b.updated_at).getTime()
-          : b[sortBy];
+        sortBy === "updated_at" ? new Date(b.updated_at).getTime() : b[sortBy];
 
       if (valueA < valueB) return sortOrder === "asc" ? -1 : 1;
       if (valueA > valueB) return sortOrder === "asc" ? 1 : -1;
@@ -164,7 +179,6 @@ export function ProjectTable({ data = [] }: ProjectTableProps) {
     >
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }}>
-
           <TableHead className="bg-[#0F1518]">
             <TableRow>
               <TableCell
@@ -216,7 +230,6 @@ export function ProjectTable({ data = [] }: ProjectTableProps) {
               </TableRow>
             ))}
           </TableBody>
-
         </Table>
       </TableContainer>
 
