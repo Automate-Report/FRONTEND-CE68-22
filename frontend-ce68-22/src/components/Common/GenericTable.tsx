@@ -140,6 +140,7 @@ export function GenericTable<T extends { id: number | string }>({
 
       {/* Pagination Reuse */}
       <TablePagination
+        sx = {{ color: "#E6F0E6" }}
         rowsPerPageOptions={[5, 10, 20]}
         component="div"
         count={totalCount}
