@@ -1,8 +1,9 @@
 "use client";
 
 import { useProjects } from "../../hooks/use-projects";
-import { ProjectTable } from "./Table"; // <--- Import อันใหม่มา
-import { useProjectTable } from "./Table/useProjectTable";
+import { ProjectTable } from "./ProjectTable"; 
+import { useTable } from "@/src/hooks/use-table";
+import { Project } from "@/src/types/project";
 
 export function ProjectList() {
 
@@ -13,8 +14,8 @@ export function ProjectList() {
     sortOrder,
     handleChangePage,
     handleChangeRowsPerPage,
-    cycleSort,
-  } = useProjectTable([]);
+    handleSort,
+  } = useTable<Project>([]);
 
   const { data: response, isLoading, isError } = useProjects(page + 1, rowsPerPage);
 
@@ -61,7 +62,7 @@ export function ProjectList() {
         // Functions (Actions)
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
-        onSort={cycleSort}
+        onSort={handleSort}
       />
     </div>
   );
