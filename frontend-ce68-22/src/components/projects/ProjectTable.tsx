@@ -1,6 +1,7 @@
 // src/components/ProjectTable/index.tsx
 import { Project } from "../../types/project";
 import { GenericTable, ColumnDef } from "../Common/GenericTable"; // Import ตัวใหม่
+import Link from "next/link";
 
 
 // Icons (สำหรับใช้ใน render)
@@ -42,7 +43,15 @@ export function ProjectTable({
       align: "left",
       sortable: true,
       // ถ้าไม่ใส่ render มันจะโชว์ row.name ให้เอง
-      render: (row) => <div className="pl-2 font-medium">{row.name}</div>
+      render: (row) => (
+        <Link
+          href={`/projects/overview/${row.id}`}
+        >
+          <div>
+            {row.name}
+          </div>
+        </Link>
+      )
     },
     {
       id: "updated_at",
