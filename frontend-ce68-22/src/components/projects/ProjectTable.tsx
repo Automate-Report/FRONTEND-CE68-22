@@ -21,6 +21,7 @@ interface ProjectTableProps {
   onPageChange: (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => void;
   onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onSort: (columnId: string) => void;
+  onDeleteClick: (project: Project) => void;
 }
 
 export function ProjectTable({
@@ -33,6 +34,7 @@ export function ProjectTable({
   onPageChange,
   onRowsPerPageChange,
   onSort,
+  onDeleteClick,
 }: ProjectTableProps) {
 
   // --- 1. กำหนด Columns Definition ---
@@ -77,7 +79,12 @@ export function ProjectTable({
         <div className="flex justify-around pr-2 gap-6">
            {/* ตรงนี้คุณอาจจะใส่ onClick handler ในอนาคต */}
           <Link href={`/projects/${row.id}/edit`} className="cursor-pointer"><EditProjectIcon /></Link>
-          <Link href={`/projects/${row.id}/edit`} className="cursor-pointer"><DeleteProjectIcon /></Link>
+          <div 
+            className="cursor-pointer"
+            onClick={() => onDeleteClick(row)}
+          >
+            <DeleteProjectIcon />
+          </div>
         </div>
       )
     }

@@ -1,9 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useProjects } from "../../hooks/use-projects";
 import { ProjectTable } from "./ProjectTable"; 
 import { useTable } from "@/src/hooks/use-table";
 import { Project } from "@/src/types/project";
+import { GenericDeleteModal } from "../Common/GenericDeleteModal";
+import { projectService } from "../../services/project.service";
 
 export function ProjectList() {
 
@@ -17,7 +20,42 @@ export function ProjectList() {
     handleSort,
   } = useTable<Project>([]);
 
-  const { data: response, isLoading, isError } = useProjects(page + 1, rowsPerPage, sortBy, sortOrder);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+
+
+  const { data: response, isLoading, isError, refetch } = useProjects(page + 1, rowsPerPage, sortBy, sortOrder);
+
+
+  const handleDeleteClick = (project: Project) => {
+    setProjectToDelete(project);
+    setDeleteModalOpen(true);
+  };
+
+  // 2. เมื่อกดยืนยันใน Modal
+  const handleConfirmDelete = async () => {
+    if (!projectToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      await projectService.delete(projectToDelete.id);
+      
+      // ลบสำเร็จ -> ปิด Modal -> โหลดตารางใหม่
+      setDeleteModalOpen(false);
+      setProjectToDelete(null);
+      refetch(); // *สำคัญ* ดึงข้อมูลใหม่
+      
+    } catch (error) {
+      console.error("Failed to delete", error);
+      alert("Failed to delete project"); // หรือใช้ Snackbar/Toast
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+
 
   // ดึง items และ total จาก response (Handle กรณี response เป็น undefined)
   const projs = response?.items || [];
@@ -63,7 +101,21 @@ export function ProjectList() {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
         onSort={handleSort}
+        onDeleteClick={handleDeleteClick}
       />
+      {/* เรียกใช้ Generic Modal */}
+      {projectToDelete && (
+        <GenericDeleteModal
+          open={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          onConfirm={handleConfirmDelete}
+          
+          // --- จุดที่ส่งข้อมูล ---
+          entityType="Project"             // บอกว่าเป็น "Project"
+          entityName={projectToDelete.name} // ส่งชื่อโปรเจกต์ไป
+          loading={isDeleting}
+        />
+      )}
     </div>
   );
 }
