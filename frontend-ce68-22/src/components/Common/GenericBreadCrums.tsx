@@ -61,7 +61,8 @@ export function GenericBreadcrums({ items }: GenericBreadcrumbsProps)
             <Divider 
                 sx={{ 
                     mt: 2,           // margin-top: เว้นระยะห่างจากตัวหนังสือลงมาหน่อย (2 = 16px)
-                    borderColor: "#D8D4D4" // กำหนดสีของเส้น (ถ้าพื้นหลังดำ ควรใช้สีเทาเข้ม)
+                    borderColor: "#D8D4D4", // กำหนดสีของเส้น (ถ้าพื้นหลังดำ ควรใช้สีเทาเข้ม)
+                    borderBottomWidth: 2
                 }} 
             />
         </Box>

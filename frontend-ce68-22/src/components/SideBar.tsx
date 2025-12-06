@@ -1,4 +1,4 @@
-"use client"; // 1. จำเป็นต้องใส่ เพราะเราจะใช้ usePathname
+  "use client"; // 1. จำเป็นต้องใส่ เพราะเราจะใช้ usePathname
 
 import Link from "next/link";
 import { usePathname } from "next/navigation"; // 2. import hook นี้
