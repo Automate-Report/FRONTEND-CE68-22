@@ -46,4 +46,9 @@ export const projectService = {
     return data;
   },
 
+  delete: async (id: number) => {
+    // method delete ปกติจะไม่ return content
+    await apiClient.delete(`/projects/${id}`);
+  },
+
 };
