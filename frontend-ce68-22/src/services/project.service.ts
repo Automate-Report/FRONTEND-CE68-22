@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Project } from "../types/project";
+import { PaginatedResult } from "../types/common";
 
 // สร้าง Instance Axios (ควรย้ายไป lib/axios.ts ในอนาคต)
 const apiClient = axios.create({
@@ -10,9 +11,18 @@ const apiClient = axios.create({
 });
 
 export const projectService = {
-  getAll: async () => {
-    // ยิง GET ไปที่ http://localhost:8000/projects/all
-    const { data } = await apiClient.get<Project[]>("/projects/all");
-    return data;
+  // รับค่า page และ size (กำหนด default ไว้กันเหนียว)
+  getAll: async (page: number = 1, size: number = 10) => {
+    
+    // เปลี่ยน Type การรับค่าเป็น PaginatedResponse<Project>
+    const { data } = await apiClient.get<PaginatedResult<Project>>("/projects/all", {
+      // Axios มี property 'params' ช่วยจัดการ Query String ให้ (ไม่ต้องพิมพ์ ?page=... เอง)
+      params: {
+        page: page,
+        size: size,
+      },
+    });
+
+    return data; 
   },
 };
