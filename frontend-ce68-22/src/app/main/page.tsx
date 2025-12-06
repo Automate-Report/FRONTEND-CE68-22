@@ -2,6 +2,7 @@
 
 import { ProjectList } from "../../components/projects/ProjectList";
 import CreateProjectIcon from "@/src/components/icon/CreateProject";
+import Link from "next/link";
 
 export default function ProjectsPage() {
   return (
@@ -13,12 +14,15 @@ export default function ProjectsPage() {
         <div>search box</div>
         <div>filter</div>
 
-        <button className="flex items-center justify-center bg-[#8FFF9C] text-[#0B0F12] rounded-lg shadow-sm px-6 py-2 gap-3">
-          <div className="text-base font-medium">New Project</div>
-          <div>
-            <CreateProjectIcon />
-          </div>
-        </button>
+        <Link href="/projects/create">
+          <button className="flex items-center justify-center bg-[#8FFF9C] text-[#0B0F12] rounded-lg shadow-sm px-6 py-2 gap-3 cursor-pointer">
+            <div className="text-base font-medium">New Project</div>
+            <div>
+              <CreateProjectIcon />
+            </div>
+          </button>
+        </Link>
+        
       </div>
 
       {/* เรียกใช้ Component แค่บรรทัดเดียว */}
