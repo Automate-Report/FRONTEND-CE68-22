@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useProjects } from "../../hooks/use-projects";
 import { ProjectTable } from "./ProjectTable"; 
 import { useTable } from "@/src/hooks/use-table";
@@ -8,7 +8,14 @@ import { Project } from "@/src/types/project";
 import { GenericDeleteModal } from "../Common/GenericDeleteModal";
 import { projectService } from "../../services/project.service";
 
-export function ProjectList() {
+//นิยาม Interface สำหรับ Props
+interface ProjectListProps {
+  searchQuery: string;
+  filterStatus: string;
+}
+
+
+export function ProjectList({ searchQuery, filterStatus }: ProjectListProps) {
 
   const {
     page,
@@ -24,9 +31,21 @@ export function ProjectList() {
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  //(สำคัญ) เมื่อ Search หรือ Filter เปลี่ยน ควร reset page กลับไปหน้าแรก
+  useEffect(() => {
+     handleChangePage(null, 0); 
+     // หมายเหตุ: ต้องเช็คว่า handleChangePage ของคุณรองรับ event null หรือไม่ 
+     // ถ้าไม่รองรับ อาจต้องใช้ setPage(0) ตรงๆ (ถ้า useTable expose ออกมา)
+  }, [searchQuery, filterStatus]);
 
-
-  const { data: response, isLoading, isError, refetch } = useProjects(page + 1, rowsPerPage, sortBy, sortOrder);
+  const { data: response, isLoading, isError, refetch } = useProjects(
+    page + 1, 
+    rowsPerPage, 
+    sortBy, 
+    sortOrder, 
+    searchQuery,
+    filterStatus
+  );
 
 
   const handleDeleteClick = (project: Project) => {
