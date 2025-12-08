@@ -167,12 +167,12 @@ export default function CreateProjectPage() {
                             px: 3,
                             textTransform: "none",
                             fontSize: 16,
-                            fontWeight: 400,
+                            fontWeight: 600,
                             backgroundColor: "#8FFF9C",
                             color: "#0B0F12",
                             borderRadius: "10px",
                             "&:hover": {
-                                backgroundColor: "#76E085"
+                                backgroundColor: "#AFFFB9"
                             }
                         }}
                     >
