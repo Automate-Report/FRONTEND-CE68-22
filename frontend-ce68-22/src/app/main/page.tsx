@@ -47,11 +47,9 @@ export default function ProjectsPage() {
         </div>
 
         <Link href="/projects/create">
-          <button className="flex items-center justify-center bg-[#8FFF9C] text-[#0B0F12] text-[16px] font-medium rounded-lg shadow-sm px-6 py-2 gap-3 cursor-pointer">
-            <div className="text-base font-medium">New Project</div>
-            <div>
-              <CreateProjectIcon />
-            </div>
+          <button className="flex items-center justify-center bg-[#8FFF9C] text-[#0B0F12] text-[16px] font-semibold rounded-lg shadow-sm px-6 py-2 gap-3 cursor-pointer">
+            New Project
+            <CreateProjectIcon />
           </button>
         </Link>
         
