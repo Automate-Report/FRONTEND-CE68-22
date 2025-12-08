@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans_Thai } from "next/font/google";
 import "../styles/globals.css";
+import QueryProvider from "../providers/query-provider";
 
 const ibmPlexSansThai = IBM_Plex_Sans_Thai({
   subsets: ["latin", "thai"],
@@ -21,10 +22,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${ibmPlexSansThai.variable} font-sans antialiased`}
-      >
-        {children}
+      <body className={`${ibmPlexSansThai.variable} font-sans antialiased`}>
+        <QueryProvider>
+          {children}
+        </QueryProvider>
       </body>
     </html>
   );
