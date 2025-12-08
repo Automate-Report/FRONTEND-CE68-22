@@ -146,7 +146,7 @@ export default function CreateProjectPage() {
                             px: 3,
                             textTransform: "none",
                             fontSize: 16,
-                            fontWeight: 400,
+                            fontWeight: 600,
                             borderColor: "#FE3B46",
                             color: "#FE3B46",
                             borderRadius: "10px",
