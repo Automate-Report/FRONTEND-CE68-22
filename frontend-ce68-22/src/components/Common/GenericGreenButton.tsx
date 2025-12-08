@@ -4,7 +4,7 @@ import Link from "next/link";
 interface GenericGreenButton{
     name: string;
     href: string;
-    icon: React.ReactNode;
+    icon?: React.ReactNode | null;
 }
 
 export function GenericGreenButton({name, href, icon}: GenericGreenButton)
