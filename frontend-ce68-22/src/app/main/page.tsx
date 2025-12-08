@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ProjectList } from "../../components/projects/ProjectList";
 import CreateProjectIcon from "@/src/components/icon/CreateProject";
 import Link from "next/link";
+import { GenericGreenButton } from "@/src/components/Common/GenericGreenBotton";
 
 
 export default function ProjectsPage() {
@@ -46,12 +47,12 @@ export default function ProjectsPage() {
 
         </div>
 
-        <Link href="/projects/create">
-          <button className="flex items-center justify-center bg-[#8FFF9C] text-[#0B0F12] text-[16px] font-semibold rounded-lg shadow-sm px-6 py-2 gap-3 cursor-pointer">
-            New Project
-            <CreateProjectIcon />
-          </button>
-        </Link>
+        {/* ปุ่ม New Project */}
+        < GenericGreenButton
+          name="New Project"
+          href="/projects/create"
+          icon={<CreateProjectIcon />}
+        />
         
       </div>
 
