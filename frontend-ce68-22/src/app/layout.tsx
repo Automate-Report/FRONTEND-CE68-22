@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${ibmPlexSansThai.variable} font-sans antialiased`}>
+      <body className={`${ibmPlexSansThai.variable} font-sans antialiased`} suppressHydrationWarning={true}> {/*แก้ไขเรื่องไปตีกับ extension ใน chrome */}
         <QueryProvider>
           {children}
         </QueryProvider>
