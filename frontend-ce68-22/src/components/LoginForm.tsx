@@ -1,5 +1,5 @@
 "use client";
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useState } from "react";
 import Link from 'next/link';
 import { LoginPayload } from "../types/auth";
@@ -14,6 +14,15 @@ export default function LoginCard() {
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
     const setUserNow = useAuthStore((state) => state.setUserNow);
+
+    // redirect if already logged in
+    const userNow = useAuthStore((state) => state.userNow);
+    useEffect(() => {
+        if (userNow) {
+            router.push("/main");
+        }
+    }, [userNow, router]);
+
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
 
@@ -27,6 +36,10 @@ export default function LoginCard() {
         } catch (err) {
             setError("Invalid email or password");
         }
+    }
+
+    async function handleGoogleLogin() {
+        console.log("call backend api for google oauth");
     }
 
     return (
@@ -89,6 +102,7 @@ export default function LoginCard() {
             </form>
 
             <button
+                onClick={handleGoogleLogin}
                 type="button"
                 className="mt-6 w-full py-2 flex justify-center items-center gap-3 rounded-md bg-[#FBFBFB] text-[#404F57] font-bold 
                 hover:bg-[#DCDCDC]"
