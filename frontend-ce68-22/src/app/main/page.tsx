@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ProjectList } from "../../components/projects/ProjectList";
 import CreateProjectIcon from "@/src/components/icon/CreateProject";
+import MagIcon from "@/src/components/icon/MagnifyingGlass"
 import Link from "next/link";
 
 
@@ -18,30 +19,31 @@ export default function ProjectsPage() {
       <div className="flex justify-between items-center mb-6 text-[#E6F0E6]">
         {/* ส่วน Search และ Filter */}
         <div className="flex gap-4 items-center flex-1">
-          
+
           {/* 3. Search Box Implementation */}
-          <div className="relative w-1/3">
-             <input 
-                type="text"
-                placeholder="Search projects..."
-                className="w-full bg-[#1A2023] border border-[#2A3033] rounded-lg px-4 py-2 text-[#E6F0E6] focus:outline-none focus:border-[#8FFF9C]"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-             />
+          <div className="relative w-1/3 flex items-center h-[40px] gap-3 max-w-md bg-white rounded-xl pl-2 shadow-sm">
+            <MagIcon />
+            <input
+              type="text"
+              placeholder="Search Projects"
+              className="w-full h-full rounded-lg text-[#4F4057] placeholder-[#9AA6A8] focus:outline-none focus:border-[#8FFF9C]"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
 
           {/* 4. Filter Implementation */}
           <div className="relative">
-             <select 
-                className="bg-[#1A2023] border border-[#2A3033] rounded-lg px-4 py-2 text-[#E6F0E6] focus:outline-none focus:border-[#8FFF9C] cursor-pointer"
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-             >
-                <option value="ALL">All Status</option>
-                <option value="ACTIVE">Active</option>
-                <option value="COMPLETED">Completed</option>
-                <option value="ARCHIVED">Archived</option>
-             </select>
+            <select
+              className="bg-[#1A2023] border border-[#2A3033] rounded-lg px-4 py-2 text-[#E6F0E6] focus:outline-none focus:border-[#8FFF9C] cursor-pointer"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="ALL">All Status</option>
+              <option value="ACTIVE">Active</option>
+              <option value="COMPLETED">Completed</option>
+              <option value="ARCHIVED">Archived</option>
+            </select>
           </div>
 
         </div>
@@ -56,13 +58,13 @@ export default function ProjectsPage() {
             </div>
           </button>
         </Link>
-        
+
       </div>
 
       {/* 5. ส่งค่า Search และ Filter เป็น Props ไปให้ ProjectList */}
-      <ProjectList 
-        searchQuery={searchQuery} 
-        filterStatus={filterStatus} 
+      <ProjectList
+        searchQuery={searchQuery}
+        filterStatus={filterStatus}
       />
     </div>
   );
