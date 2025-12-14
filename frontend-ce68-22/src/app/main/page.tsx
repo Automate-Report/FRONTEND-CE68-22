@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ProjectList } from "../../components/projects/ProjectList";
 import CreateProjectIcon from "@/src/components/icon/CreateProject";
-import MagIcon from "@/src/components/icon/MagnifyingGlass"
+import MagIcon from "@/src/components/icon/MagnifyingGlass";
 import Link from "next/link";
 
 
