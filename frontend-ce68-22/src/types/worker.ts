@@ -3,3 +3,7 @@ export interface Worker {
   name: string;
   status: string;
 }
+
+export interface CreateWorkerPayload {
+  name: string;
+}

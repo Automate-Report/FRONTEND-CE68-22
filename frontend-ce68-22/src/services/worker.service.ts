@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Worker } from "../types/worker";
+import { CreateWorkerPayload, Worker } from "../types/worker";
 import { PaginatedResult } from "../types/common";
 
 
@@ -27,6 +27,11 @@ export const workerService = {
         order: orderParam
       },
     });
+    return data;
+  },
+
+  create: async (payload: CreateWorkerPayload) => {
+    const { data } = await apiClient.post("/workers/", payload);
     return data;
   },
 
