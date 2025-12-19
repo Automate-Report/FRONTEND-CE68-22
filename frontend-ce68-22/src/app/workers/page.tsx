@@ -133,7 +133,7 @@ export default function WorkersPage() {
           onClick={()=> setIsCreateModalOpen(true)}
           sx={{
             borderRedius: "8px",
-            padding: "16px 24px",
+            padding: "12px 24px",
             backgroundColor: "#8FFF9C",
             color: "#0B0F12"
           }}
