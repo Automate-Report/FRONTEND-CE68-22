@@ -9,7 +9,7 @@ import EditIcon from "../icon/Edit";
 import DeleteIcon from "../icon/Delete";
 
 type SortOrder = "none" | "asc" | "desc";
-type SortColumn = "name" | "updated_at";
+type SortColumn = "name" | "Status";
 
 interface WorkerTableProps {
   data: Worker[];
