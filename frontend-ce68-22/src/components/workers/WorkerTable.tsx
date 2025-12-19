@@ -1,0 +1,106 @@
+
+import { Worker } from "../../types/worker";
+import { GenericTable, ColumnDef } from "../Common/GenericTable"; // Import ตัวใหม่
+import Link from "next/link";
+
+
+// Icons (สำหรับใช้ใน render)
+import EditIcon from "../icon/Edit";
+import DeleteIcon from "../icon/Delete";
+
+type SortOrder = "none" | "asc" | "desc";
+type SortColumn = "name" | "updated_at";
+
+interface WorkerTableProps {
+  data: Worker[];
+  totalCount: number;
+  page: number;
+  rowsPerPage: number;
+  sortBy: string | null;
+  sortOrder: SortOrder;
+  onPageChange: (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => void;
+  onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSort: (columnId: string) => void;
+  onDeleteClick: (project: Worker) => void;
+}
+
+export function WorkerTable({
+  data,
+  totalCount,
+  page,
+  rowsPerPage,
+  sortBy,
+  sortOrder,
+  onPageChange,
+  onRowsPerPageChange,
+  onSort,
+  onDeleteClick,
+}: WorkerTableProps) {
+
+  // --- 1. กำหนด Columns Definition ---
+  const columns: ColumnDef<Worker>[] = [
+    {
+      id: "name",
+      label: "Worker Name",
+      align: "left",
+      sortable: true,
+      // ถ้าไม่ใส่ render มันจะโชว์ row.name ให้เอง
+      render: (row) => (
+        <Link
+          href={`/workers`}
+        >
+          <div>
+            {row.name}
+          </div>
+        </Link>
+      )
+    },
+    {
+      id: "status",
+      label: "Status",
+      align: "center",
+      sortable: true,
+      width: "1%", // ให้หดเหลือพื้นที่เท่าที่จำเป็น
+      render: (row) => (
+        <div>
+          {row.id}
+        </div>
+      )
+    },
+    {
+      id: "actions",
+      label: "", // หัวตารางว่าง
+      align: "right",
+      sortable: false,
+      width: "1%",
+      render: (row) => (
+        <div className="flex justify-around pr-2 gap-6">
+           {/* ตรงนี้คุณอาจจะใส่ onClick handler ในอนาคต */}
+          <Link href={`/projects/${row.id}/edit`} className="cursor-pointer"><EditIcon /></Link>
+          <div 
+            className="cursor-pointer"
+            onClick={() => onDeleteClick(row)}
+          >
+            <DeleteIcon />
+          </div>
+        </div>
+      )
+    }
+  ];
+
+  // --- 2. เรียกใช้ Generic Table ---
+  return (
+    <GenericTable<Worker>
+      columns={columns}
+      data={data}
+      totalCount={totalCount}
+      page={page}
+      rowsPerPage={rowsPerPage}
+      sortBy={sortBy as string} // Cast type นิดหน่อยให้ Generic รับได้
+      sortOrder={sortOrder}
+      onSort={(id) => onSort(id as SortColumn)}
+      onPageChange={onPageChange}
+      onRowsPerPageChange={onRowsPerPageChange}
+    />
+  );
+}
