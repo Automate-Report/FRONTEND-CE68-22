@@ -89,11 +89,24 @@ export function CreateWorkerModal({
 
       <DialogActions sx={{ px: 3, pb: 3, pt: 1 }}>
         <Button 
-            onClick={onClose} 
-            disabled={loading} 
-            color="inherit"
-            variant="outlined"
-            sx={{ borderRadius: "8px", textTransform: "none" }}
+          onClick={onClose} 
+          disabled={loading} 
+          color="inherit"
+          variant="outlined"
+          sx={{
+            px: 3,
+            textTransform: "none",
+            fontSize: 16,
+            fontWeight: 600,
+            borderColor: "#FE3B46",
+            color: "#FE3B46",
+            borderRadius: "10px",
+            "&:hover": {
+              borderColor: "#FE3B46",
+              backgroundColor: "#FE3B46",
+              color: "#FBFBFB"
+            }
+          }}
         >
           Cancel
         </Button>
@@ -103,11 +116,36 @@ export function CreateWorkerModal({
           color="primary"      // 2. เปลี่ยนเป็นสีหลัก (น้ำเงิน) แทนสีแดง
           onClick={handleConfirm}
           disabled={!inputValue.trim() || loading}
-          sx={{ 
-            borderRadius: "8px", 
-            textTransform: "none", 
-            fontWeight: "bold",
-            boxShadow: "none" // อันนี้ใส่ไว้ได้ถ้าใช้ contained เพื่อลบเงาให้ดูแบน (Flat)
+          sx={{
+            // Layout (flex items-center justify-center)
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 1.5, // gap-3 (12px)
+
+            // Colors (bg-[#8FFF9C] text-[#0B0F12])
+            backgroundColor: "#8FFF9C",
+            color: "#0B0F12",
+
+            // Typography (text-[16px] font-semibold)
+            fontSize: "16px",
+            fontWeight: 600, // semibold
+            textTransform: "none", // สำคัญ! ป้องกัน MUI แปลงเป็นตัวใหญ่หมด
+
+            // Spacing (px-6 py-2)
+            px: 3, // 24px (MUI default spacing 1 = 8px)
+            py: 1, // 8px
+
+            // Border & Shadow (rounded-lg shadow-sm)
+            borderRadius: "8px", // rounded-lg
+            boxShadow: "none",
+
+            // Interaction (cursor-pointer hover:bg-[#AFFFB9])
+            cursor: "pointer",
+            "&:hover": {
+              backgroundColor: "#AFFFB9",
+              boxShadow: "none"
+            },
           }}
         >
           {loading ? "Creating..." : "Create"}
