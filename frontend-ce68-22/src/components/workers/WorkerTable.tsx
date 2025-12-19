@@ -83,9 +83,9 @@ export function WorkerTable({
       label: "", // หัวตารางว่าง
       align: "right",
       sortable: false,
-      width: "1%",
+      width: "10%",
       render: (row) => (
-        <div className="flex justify-around pr-2 gap-6">
+        <div className="flex justify-end gap-6 pr-4">
            {/* ตรงนี้คุณอาจจะใส่ onClick handler ในอนาคต */}
           <Link href={`/workers`} className="cursor-pointer"><EditIcon /></Link>
           <div 
