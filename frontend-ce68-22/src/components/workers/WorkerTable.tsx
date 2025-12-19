@@ -61,11 +61,22 @@ export function WorkerTable({
       align: "center",
       sortable: true,
       width: "1%", // ให้หดเหลือพื้นที่เท่าที่จำเป็น
-      render: (row) => (
-        <div>
-          {row.id}
-        </div>
-      )
+      render: (row) => {
+        if (row.status === 'offline'){
+          return (
+            <div className="text-[#DD6E6E] text-[16px] font-semibold px-3 py-1.5 bg-[#FFDEDE] rounded-lg">
+              Offline
+            </div>
+          );
+        }
+        else{
+          return (
+            <div className="text-[#6EDD99] text-[16px] font-semibold px-3 py-1.5 bg-[#DEFFE2] rounded-lg">
+              Online
+            </div>
+          );
+        }
+      }
     },
     {
       id: "actions",
