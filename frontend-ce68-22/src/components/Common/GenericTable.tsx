@@ -16,7 +16,7 @@ import DefaultSortIcon from "../icon/DefaultSort";
 import AscIcon from "../icon/AscIcon";
 import DescIcon from "../icon/DescIcon";
 
-import { TablePaginationActions } from "../projects/TablePaginationAction";
+import { TablePaginationActions } from "./TablePaginationAction";
 
 // --- Type Definitions ---
 
