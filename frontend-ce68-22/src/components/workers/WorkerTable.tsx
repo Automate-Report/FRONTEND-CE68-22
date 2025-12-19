@@ -76,7 +76,7 @@ export function WorkerTable({
       render: (row) => (
         <div className="flex justify-around pr-2 gap-6">
            {/* ตรงนี้คุณอาจจะใส่ onClick handler ในอนาคต */}
-          <Link href={`/projects/${row.id}/edit`} className="cursor-pointer"><EditIcon /></Link>
+          <Link href={`/workers`} className="cursor-pointer"><EditIcon /></Link>
           <div 
             className="cursor-pointer"
             onClick={() => onDeleteClick(row)}
