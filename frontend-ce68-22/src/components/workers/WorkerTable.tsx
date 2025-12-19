@@ -37,7 +37,7 @@ export function WorkerTable({
   onDeleteClick,
 }: WorkerTableProps) {
 
-  // --- 1. กำหนด Columns Definition ---
+  // --- กำหนด Columns Definition ---
   const columns: ColumnDef<Worker>[] = [
     {
       id: "name",
@@ -99,7 +99,8 @@ export function WorkerTable({
     }
   ];
 
-  // --- 2. เรียกใช้ Generic Table ---
+
+  // --- เรียกใช้ Generic Table ---
   return (
     <GenericTable<Worker>
       columns={columns}
