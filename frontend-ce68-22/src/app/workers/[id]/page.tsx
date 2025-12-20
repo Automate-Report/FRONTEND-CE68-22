@@ -5,6 +5,7 @@ import { useWorker } from "@/src/hooks/use-worker";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
+import { AccessKeyBox } from "@/src/components/workers/AccessKeyBox";
 import EditIcon from "@/src/components/icon/Edit";
 
 interface PageProps{
@@ -40,8 +41,9 @@ export default function WorkerDetailPage({ params }: PageProps)
             </div>
 
             {/* Access Key */}
-            <div className="flex justify-between  text-[32px] text-[#E6F0E6] font-bold" >
+            <div className="flex flex-col justify-between  text-[32px] text-[#E6F0E6] font-bold" >
                 Access Key
+                <AccessKeyBox worker={worker} />
             </div>
 
             {/* Job Assigned */}
