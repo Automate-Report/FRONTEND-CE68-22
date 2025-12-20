@@ -30,6 +30,11 @@ export const workerService = {
     return data;
   },
 
+  getById: async (id: number) =>{
+    const { data } = await apiClient.get<Worker>(`/workers/${id}`);
+    return data;
+  },
+
   create: async (payload: CreateWorkerPayload) => {
     const { data } = await apiClient.post("/workers/", payload);
     return data;

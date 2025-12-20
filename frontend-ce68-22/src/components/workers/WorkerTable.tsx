@@ -47,7 +47,7 @@ export function WorkerTable({
       // ถ้าไม่ใส่ render มันจะโชว์ row.name ให้เอง
       render: (row) => (
         <Link
-          href={`/workers`}
+          href={`/workers/${row.id}`}
         >
           <div>
             {row.name}
