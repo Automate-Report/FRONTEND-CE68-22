@@ -5,7 +5,7 @@ import { useWorker } from "@/src/hooks/use-worker";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
-import { AccessKeyBox } from "@/src/components/workers/AccessKeyBox";
+import { AccessKeyBox } from "@/src/components/workers/AccessKeyBoxSection";
 import EditIcon from "@/src/components/icon/Edit";
 
 interface PageProps{
