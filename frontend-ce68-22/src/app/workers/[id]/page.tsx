@@ -5,7 +5,7 @@ import { useWorker } from "@/src/hooks/use-worker";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
-import { AccessKeyBox } from "@/src/components/workers/AccessKeyBoxSection";
+import { AccessKeyBoxSection } from "@/src/components/workers/AccessKeyBoxSection";
 import EditIcon from "@/src/components/icon/Edit";
 
 interface PageProps{
@@ -16,7 +16,7 @@ export default function WorkerDetailPage({ params }: PageProps)
 {
     const resolvePrams = use(params);
     const workerId = parseInt(resolvePrams.id);
-    const { data: worker, isLoading, isError } = useWorker(workerId);
+    const { data: worker, isLoading, isError, refetch } = useWorker(workerId);
 
     if (isLoading) return <div className="p-8">Loading...</div>;
     if (isError || !worker) return <div className="p-8 text-red-500">Worker not found</div>;
@@ -43,7 +43,10 @@ export default function WorkerDetailPage({ params }: PageProps)
             {/* Access Key */}
             <div className="flex flex-col justify-between  text-[32px] text-[#E6F0E6] font-bold" >
                 Access Key
-                <AccessKeyBox worker={worker} />
+                <AccessKeyBoxSection 
+                    worker={worker} 
+                    onRefresh={refetch}
+                />
             </div>
 
             {/* Job Assigned */}

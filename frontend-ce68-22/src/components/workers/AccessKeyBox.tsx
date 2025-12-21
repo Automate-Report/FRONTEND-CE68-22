@@ -2,19 +2,23 @@
 
 import { useState } from "react";
 import { Box, Typography, IconButton, Tooltip } from "@mui/material";
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import Skeleton from "@mui/material/Skeleton";
 
 import EyeIcon from "../icon/EyeIcon";
 import CloseEyeIcon from "../icon/CloseEyeIcon";
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { useAccessKey } from "@/src/hooks/use-accessKey";
 
 interface AccessKeyBoxProps {
-  accessKey: string;
+  accessKeyId: number;
 }
 
-export function AccessKeyBox({ accessKey }: AccessKeyBoxProps)
+export function AccessKeyBox({ accessKeyId }: AccessKeyBoxProps)
 {
     const [showKey, setShowKey] = useState(false);
     const [copied, setCopied] = useState(false);
+
+    const { data, isLoading } = useAccessKey(accessKeyId);
 
     // ฟังก์ชันสลับสถานะตา (เปิด/ปิด)
     const toggleVisibility = () => {
@@ -23,9 +27,14 @@ export function AccessKeyBox({ accessKey }: AccessKeyBoxProps)
 
     // ฟังก์ชันแถม: กด Copy
     const handleCopy = () => {
-        navigator.clipboard.writeText(accessKey);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000); // รีเซ็ตสถานะหลัง 2 วิ
+        const accessKey = data?.key;
+
+        if (accessKey)
+        {
+            navigator.clipboard.writeText(accessKey);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000); // รีเซ็ตสถานะหลัง 2 วิ
+        } 
     };
 
     return (
@@ -38,7 +47,7 @@ export function AccessKeyBox({ accessKey }: AccessKeyBoxProps)
                 borderRadius: "8px",
                 padding: "12px 16px",
                 width: "100%", // หรือกำหนด width: "400px" ตามต้องการ
-                maxWidth: "450px" 
+                maxWidth: "580px" 
             }}
         >
             {/* ส่วนแสดงข้อความ Key */}
@@ -52,8 +61,12 @@ export function AccessKeyBox({ accessKey }: AccessKeyBoxProps)
                     marginRight: 2
                 }}
             >
-                {/* Logic: ถ้า showKey เป็น true ให้โชว์ key จริง, ถ้าไม่ ให้โชว์จุดไข่ปลา */}
-                {showKey ? accessKey : "••••••••••••••••••••••••••••••••"}
+                {isLoading ? (
+                    <Skeleton sx={{ bgcolor: 'grey.800' }} width="80%" />
+                ) : (
+                    showKey ? (data?.key || "ไม่พบข้อมูล Key") : "••••••••••••••••••••••••••••••••"
+                )}
+                
             </Typography>
 
             {/* ส่วนปุ่ม Action ด้านขวา */}
@@ -64,6 +77,7 @@ export function AccessKeyBox({ accessKey }: AccessKeyBoxProps)
                     <IconButton 
                         onClick={toggleVisibility} 
                         size="small"
+                        disabled={isLoading || !data?.key}
                         sx={{ color: "#a0a0a0", "&:hover": { color: "#8FFF9C" } }}
                     >
                         {showKey ? <CloseEyeIcon/> : <EyeIcon/>}

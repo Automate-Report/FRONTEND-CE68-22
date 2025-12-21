@@ -35,6 +35,16 @@ export const workerService = {
     return data;
   },
 
+  updateKey: async (workerId: number, accessKeyId:number) =>{
+    const { data } = await apiClient.post<Worker>(`/workers/key`,
+      {
+        worker_id: workerId,
+        access_key_id: accessKeyId
+      }
+    );
+    return data;
+  },
+
   create: async (payload: CreateWorkerPayload) => {
     const { data } = await apiClient.post("/workers/", payload);
     return data;
