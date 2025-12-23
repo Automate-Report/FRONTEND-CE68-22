@@ -86,10 +86,15 @@ export function GenericTable<T extends { id: number | string }>({
                   sx={{
                     whiteSpace: "nowrap",
                     cursor: col.sortable ? "pointer" : "default",
+                    
                   }}
                   onClick={() => col.sortable && onSort(col.id)}
                 >
-                  <div className={`flex items-center ${col.align === "right" ? "justify-end" : ""}`}>
+                  <div className={`flex items-center ${
+                      col.align === "center" ? "justify-center" : 
+                      col.align === "right" ? "justify-end" : "justify-start"
+                    }`}
+                  >
                     {/* Label */}
                     <span className="text-[#E6F0E6]">{col.label}</span>
                     
@@ -115,7 +120,13 @@ export function GenericTable<T extends { id: number | string }>({
                   <TableCell 
                     key={`${row.id}-${col.id}`} 
                     align={col.align || "left"}
-                    sx = {{ color: "#404F57" }}
+                    sx = {{ 
+                      color: "#404F57", 
+                      whiteSpace: "nowrap" ,
+                      fontSize: "16px",
+                      fontWeight: "400"
+
+                    }}
                   >
                     {/* ถ้ามี function render ให้ใช้ render, ถ้าไม่มีให้ดึงค่าจาก object ตรงๆ */}
                     {col.render 

@@ -59,6 +59,29 @@ export function WorkerTable({
       )
     },
     {
+      id: "activate",
+      label: "Activated",
+      align: "center",
+      sortable: true,
+      width: "1%", // ให้หดเหลือพื้นที่เท่าที่จำเป็น
+      render: (row) => {
+        if (row.isActive === false){
+          return (
+            <div className="text-[#DD6E6E] text-[16px] font-semibold px-3 py-1.5 bg-[#FFDEDE] rounded-lg">
+              Not Activated
+            </div>
+          );
+        }
+        else{
+          return (
+            <div className="text-[#6EDD99] text-[16px] font-semibold px-3 py-1.5 bg-[#DEFFE2] rounded-lg">
+              Activated
+            </div>
+          );
+        }
+      }
+    },
+    {
       id: "status",
       label: "Status",
       align: "center",
