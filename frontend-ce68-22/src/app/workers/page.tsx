@@ -124,8 +124,8 @@ export default function WorkersPage() {
 
 
   return (
-    <div className="mt-6 mx-12 bg-[#0F1518]">
-      <div className="flex justify-between items-center text-4xl text-[#E6F0E6] font-bold pb-10">
+    <div className="mx-12 bg-[#0F1518]">
+      <div className="flex justify-between items-center text-4xl text-[#E6F0E6] font-bold my-6">
         Worker
         
         <Button
