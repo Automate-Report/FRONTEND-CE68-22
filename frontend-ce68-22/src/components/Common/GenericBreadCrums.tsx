@@ -14,14 +14,14 @@ import { GenericBreadcrumbsProps } from "@/src/types/common";
 export function GenericBreadcrums({ items }: GenericBreadcrumbsProps)
 {
     return (
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 3}}>
             <Breadcrumbs 
                 aria-label="breadcrumb" 
                 separator={<NavigateNextIcon fontSize="small"/>} 
                 sx={{ 
                     color: "#E6F0E6", 
                     fontSize: "16px",
-                    fontWeight: 400
+                    fontWeight: 400,
             }}
             >
                 {items.map((item, index) => {
