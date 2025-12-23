@@ -103,7 +103,7 @@ export function WorkerTable({
               padding: 0,
               margin: 0,
               
-              color: "#0B0F12",
+              color: "#404F57",
               "&:hover": { backgroundColor: "transparent" } 
             }}
             disableRipple

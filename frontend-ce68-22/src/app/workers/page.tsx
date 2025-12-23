@@ -124,7 +124,7 @@ export default function WorkersPage() {
 
 
   return (
-    <div className="mx-auto w-11/12 bg-[#0F1518]">
+    <div className="mt-6 mx-12 bg-[#0F1518]">
       <div className="flex justify-between items-center text-4xl text-[#E6F0E6] font-bold pb-10">
         Worker
         
@@ -132,10 +132,12 @@ export default function WorkersPage() {
           variant="contained"
           onClick={()=> setIsCreateModalOpen(true)}
           sx={{
-            borderRedius: "8px",
+            borderRadius: "8px",
             padding: "12px 24px",
             backgroundColor: "#8FFF9C",
-            color: "#0B0F12"
+            color: "#0B0F12",
+            textTransform: "none",
+            fontFamily: "inherit"
           }}
         >
           <div className="flex justify-around gap-3 font-bold">
