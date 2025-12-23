@@ -57,7 +57,7 @@ export default function CreateProjectPage() {
     ];
 
   return (
-    <div className="mx-auto w-11/12 py-8">
+    <div className="mx-12 py-8">
         <GenericBreadcrums items={breadcrumbItems} />
                 
             <form onSubmit={handleSubmit}>
