@@ -12,7 +12,7 @@ export default function ProjectsPage() {
   const [filterStatus, setFilterStatus] = useState("ALL");
 
   return (
-    <div className="mx-auto w-11/12 bg-[#0F1518]">
+    <div className="mx-auto w-11/12 bg-[#0F1518] mt-6">
       <div className="text-4xl text-[#E6F0E6] font-bold pb-10">
         Welcome Back! user_name
       </div>
