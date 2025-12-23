@@ -23,7 +23,7 @@ export const accessKeyService = {
     return data;
   },
 
-  delete: async (id: number) => {
+  revoke: async (id: number) => {
     await apiClient.delete(`/access-keys/${id}`);
   }
 

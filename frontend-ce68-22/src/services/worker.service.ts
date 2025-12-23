@@ -35,13 +35,18 @@ export const workerService = {
     return data;
   },
 
-  updateKey: async (workerId: number, accessKeyId:number) =>{
-    const { data } = await apiClient.post<Worker>(`/workers/key`,
+  addKey: async (workerId: number, accessKeyId:number) =>{
+    const { data } = await apiClient.post<Worker>(`/workers/add-key`,
       {
         worker_id: workerId,
-        access_key_id: accessKeyId
+        access_key_id: accessKeyId,
       }
     );
+    return data;
+  },
+
+  removeKey: async (workerId: number) =>{
+    const { data } = await apiClient.post<Worker>(`/workers/remove-key/${workerId}`);
     return data;
   },
 

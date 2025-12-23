@@ -24,7 +24,7 @@ export function AccessKeyBoxSection({ worker, onRefresh }: WorkerItemProps)
             const data = await accessKeyService.create();
 
 
-            await workerService.updateKey(worker.id, data.id);
+            await workerService.addKey(worker.id, data.id);
 
             onRefresh();
 
@@ -35,6 +35,14 @@ export function AccessKeyBoxSection({ worker, onRefresh }: WorkerItemProps)
             setLoading(false);
         }
     }
+
+    const handleRevokeSuccess = async () => {
+        // อัปเดตฝั่ง worker ว่าไม่มี key แล้ว (ถ้า Backend ไม่ได้ทำให้)
+        // แต่ปกติแค่เรียก onRefresh() ก็พอ ถ้า Backend เคลียร์ค่า worker.access_key_id ให้แล้ว
+        await workerService.removeKey(worker.id); // ส่ง null ไปอัปเดต (ถ้าจำเป็น)
+        
+        onRefresh(); // ดึงข้อมูล worker ใหม่ -> access_key_id จะหายไป -> ปุ่ม Generate จะกลับมา
+    };
 
     return (
         <div className="pt-3">
@@ -59,7 +67,10 @@ export function AccessKeyBoxSection({ worker, onRefresh }: WorkerItemProps)
                     {loading ? "Generating..." : "Generate Access Key"}
                 </Button>
             ) : (
-                <AccessKeyBox accessKeyId={worker.access_key_id}/>
+                <AccessKeyBox 
+                    accessKeyId={worker.access_key_id}
+                    onRevokeSuccess={handleRevokeSuccess}
+                />
             )}
         </div>
     );
