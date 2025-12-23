@@ -6,7 +6,10 @@ import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { AccessKeyBoxSection } from "@/src/components/workers/AccessKeyBoxSection";
+
 import EditIcon from "@/src/components/icon/Edit";
+import DeleteIcon from '@mui/icons-material/Delete';
+import DownloadIcon from '@mui/icons-material/Download';
 
 interface PageProps{
     params: Promise<{ id: string}>
@@ -33,11 +36,24 @@ export default function WorkerDetailPage({ params }: PageProps)
             {/* ชื่อ + แก้ไข */}
             <div className="flex justify-between py-6 text-[32px] text-[#E6F0E6] font-bold">
                 {worker.name}
-                < GenericGreenButton
-                    name="Edit"
-                    href="/workers"
-                    icon={<EditIcon />}
-                />
+                <div className="flex gap-6">
+                    < GenericGreenButton
+                        name="Edit"
+                        href="/workers"
+                        icon={<EditIcon />}
+                    />
+                    < GenericGreenButton
+                        name="Download"
+                        href="/workers"
+                        icon={<DownloadIcon />}
+                    />
+                    
+                    <button className="flex items-center justify-center bg-[#0B0F12] text-[#FE3B46] border border-[#FE3B46] text-[16px] font-semibold rounded-lg shadow-sm px-6 py-3 gap-3 cursor-pointer hover:bg-[#FE3B46] hover:text-[#FBFBFB]">
+                        Delete
+                        <DeleteIcon />
+                    </button>
+                </div>
+                
             </div>
 
             {/* Access Key */}
