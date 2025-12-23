@@ -29,21 +29,34 @@ export default function ProjectsOverviewPage({ params }: PageProps) {
 
 
     return (
-        <div className="flex mx-auto  bg-[#0F1518] text-[#E6F0E6] gap-4">
-            <div className="flex flex-col px-4">
-                <GenericBreadcrums items={breadcrumbItems}/>
-                <div className="">
-                    <div className="font-bold text-[36px] pb-3">
-                        What's this project about?
-                    </div>
-                    <div className="bg-[#FBFBFB] text-[#404F57] border rounded-2xl p-5 wrap-break-word">
-                        {project.description}
-                    </div>
-                </div>
-                <div>
-                    Dashboard
+        <div className="flex flex-col w-full text-[#E6F0E6] max-w-7xl">
+            
+            {/* Section 1: Breadcrumbs */}
+            <div className="w-full">
+                <GenericBreadcrums items={breadcrumbItems} />
+            </div>
+
+            {/* Section 2: Description */}
+            <div className="w-full flex flex-col gap-3">
+                <h1 className="font-bold text-[36px]">
+                    What's this project about?
+                </h1>
+                
+                {/* แก้ wrap-break-word เป็น break-words */}
+                <div className="bg-[#FBFBFB] text-[#404F57] border border-gray-200 rounded-2xl p-6 wrap-break-word shadow-sm">
+                    {project.description}
                 </div>
             </div>
+
+            {/* Section 3: Dashboard */}
+            <div className="w-full mt-6">
+                <h2 className="text-[36px] font-bold mb-6">Recent Scan</h2>
+                <div className="border border-gray-700 rounded-xl p-8 text-center text-gray-500">
+                    {/* พื้นที่สำหรับใส่ Dashboard Content */}
+                    Dashboard Content Here
+                </div>
+            </div>
+
         </div>
   );
 }
