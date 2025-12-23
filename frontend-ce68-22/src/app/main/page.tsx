@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { ProjectList } from "../../components/projects/ProjectList";
 import CreateProjectIcon from "@/src/components/icon/CreateProject";
-import Link from "next/link";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 
 
