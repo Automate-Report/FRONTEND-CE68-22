@@ -14,7 +14,7 @@ import Link from 'next/link';
 export function NavBar() {
 
   return (
-    <div className="bg-[#0D1014] text-[#E6F0E6] w-full">
+    <div className="bg-[#0D1014] text-[#E6F0E6] w-full mb-6">
         <div className=" flex justify-between items-center px-[53px] py-3 r">
             <Link href="/main">Logo</Link>
             <div className="flex items-center gap-6">
