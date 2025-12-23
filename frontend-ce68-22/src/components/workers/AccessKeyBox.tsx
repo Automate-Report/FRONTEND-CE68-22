@@ -93,7 +93,7 @@ export function AccessKeyBox({ accessKeyId, onRevokeSuccess }: AccessKeyBoxProps
                     borderRadius: "8px",
                     padding: "12px 16px",
                     width: "100%", // หรือกำหนด width: "400px" ตามต้องการ
-                    maxWidth: "580px" 
+                    maxWidth: "600px" 
                 }}
             >
                 {/* ส่วนแสดงข้อความ Key */}
@@ -122,7 +122,6 @@ export function AccessKeyBox({ accessKeyId, onRevokeSuccess }: AccessKeyBoxProps
                     <Tooltip title={showKey ? "Hide Key" : "Show Key"}>
                         <IconButton 
                             onClick={toggleVisibility} 
-                            size="small"
                             disabled={isLoading || !data?.key}
                             sx={{ color: "#a0a0a0", "&:hover": { color: "#8FFF9C" } }}
                         >
@@ -134,7 +133,6 @@ export function AccessKeyBox({ accessKeyId, onRevokeSuccess }: AccessKeyBoxProps
                     <Tooltip title={copied ? "Copied!" : "Copy Key"}>
                         <IconButton 
                             onClick={handleCopy}
-                            size="small"
                             sx={{ color: "#a0a0a0", "&:hover": { color: "#8FFF9C" } }}
                         >
                             <ContentCopyIcon fontSize="small" />
@@ -145,7 +143,6 @@ export function AccessKeyBox({ accessKeyId, onRevokeSuccess }: AccessKeyBoxProps
                     <Tooltip title="Revoke Key">
                         <IconButton 
                             onClick={handleRevokeClick}
-                            size="small"
                             disabled={isLoading}
                             sx={{ 
                                 color: "#a0a0a0", 
