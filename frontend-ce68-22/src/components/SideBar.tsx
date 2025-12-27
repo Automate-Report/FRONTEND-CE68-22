@@ -1,23 +1,59 @@
-  "use client"; // 1. จำเป็นต้องใส่ เพราะเราจะใช้ usePathname
+  "use client"; 
 
 import Link from "next/link";
-import { usePathname } from "next/navigation"; // 2. import hook นี้
+import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation"; 
+
+import { projectService } from "../services/project.service";
+import { GenericDeleteModal } from "./Common/GenericDeleteModal";
+
 import OverviewIcon from "./icon/OverviewIcon";
 import AssetIcon from "./icon/AssetIcon";
 import ScheduleIcon from "./icon/ScheduleIcon";
 import ReportIcon from "./icon/ReportIcon";
 import LogIcon from "./icon/LogIcon";
 import { Divider } from "@mui/material";
-import LogOutIcon from "./icon/LogoutIcon";
+import EditProjectIcon from "./icon/Edit";
+import DeleteProjectIcon from "./icon/Delete";
 
 interface SideBarProps {
   project_id: number;
+  project_name: string;
 }
 
-export function SideBar({ project_id }: SideBarProps) {
-  const pathname = usePathname(); // 3. ดึง path ปัจจุบัน (เช่น /projects/overview/1)
+export function SideBar({ project_id, project_name }: SideBarProps) {
 
-  // 4. สร้าง config ของเมนูเพื่อลดโค้ดซ้ำ และกำหนด Link ให้ถูกต้องตามแต่ละหน้า
+  const router = useRouter();
+
+  const pathname = usePathname(); //ดึง path ปัจจุบัน (/projects/overview/1)
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // ส่วนของการ delelte project
+  const handleDeleteClick = (id: number) => {
+    setDeleteModalOpen(true);
+  }
+
+  const handleConfirmDelete = async () => {
+      setIsDeleting(true);
+      try {
+          await projectService.delete(project_id);
+          
+          // ลบเสร็จ ปิด Modal และย้ายกลับหน้า Dashboard รวม
+          setDeleteModalOpen(false);
+          router.replace('/main'); 
+          router.refresh();
+
+      } catch (error) {
+          console.error("Failed to delete project", error);
+          alert("Failed to delete project");
+      } finally {
+          setIsDeleting(false);
+      }
+  };
+
+  // ส่วนของ side bar items
   const menuItems = [
     {
       name: "Overview",
@@ -26,22 +62,22 @@ export function SideBar({ project_id }: SideBarProps) {
     },
     {
       name: "Asset",
-      href: `/projects/${project_id}/asset`, // แก้ Link ให้ตรงกับหน้าจริง (สมมติ)
+      href: `/projects/${project_id}/asset`, 
       icon: <AssetIcon />,
     },
     {
       name: "Schedule",
-      href: `/projects/${project_id}/schedule`, // แก้ Link
+      href: `/projects/${project_id}/schedule`, 
       icon: <ScheduleIcon />,
     },
     {
       name: "Report",
-      href: `/projects/${project_id}/report`, // แก้ Link
+      href: `/projects/${project_id}/report`, 
       icon: <ReportIcon />,
     },
     {
       name: "Log",
-      href: `/projects/${project_id}/log`, // แก้ Link
+      href: `/projects/${project_id}/log`, 
       icon: <LogIcon />,
     },
   ];
@@ -49,7 +85,7 @@ export function SideBar({ project_id }: SideBarProps) {
   return (
     <div className="bg-[#0D1014] w-[300px] h-screen sticky top-0 text-[20px] font-medium pl-2 pt-4 pb-6 pr-6 flex flex-col">
       {menuItems.map((item) => {
-        // 5. เช็คว่า Path ปัจจุบัน ตรงกับ href ของปุ่มนี้หรือไม่
+        // เช็คว่า Path ปัจจุบัน ตรงกับ href ของปุ่มนี้หรือไม่
         // ใช้ .startsWith หรือ === ก็ได้ ขึ้นอยู่กับโครงสร้าง URL
         const isActive = pathname === item.href; 
 
@@ -81,11 +117,36 @@ export function SideBar({ project_id }: SideBarProps) {
                 borderBottomWidth: 3
             }} 
         />
-        <div className="flex items-center p-2 gap-2 text-[#FF3B30] cursor-pointer hover:bg-[#1F1F1F] rounded-lg transition-colors">
-            <LogOutIcon />
-            <div>Logout Accout</div>
+        <div>
+          <Link
+            key="Edit"
+            href={`/projects/${project_id}/edit`}
+            className="flex items-center p-2 gap-3 text-[#E6F0E6] cursor-pointer hover:bg-[#1F1F1F] rounded-lg transition-colors"
+          >
+              <EditProjectIcon />
+              <div>Edit Project</div>
+          </Link>
+          
+          <div 
+            onClick={() => handleDeleteClick(project_id)}
+            className="flex items-center p-2 gap-3 text-[#FF3B30] cursor-pointer hover:bg-[#1F1F1F] rounded-lg transition-colors"
+          >
+              <DeleteProjectIcon />
+              <div>Delete Project</div>
+          </div>
         </div>
       </div>
+      {/* เรียกใช้ Generic Modal */}
+      <GenericDeleteModal
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+          
+        // --- จุดที่ส่งข้อมูล ---
+        entityType="Project"             // บอกว่าเป็น "Project"
+        entityName={project_name} // ส่งชื่อโปรเจกต์ไป
+        loading={isDeleting}
+      />
     </div>
   );
 }
