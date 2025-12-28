@@ -70,7 +70,7 @@ export default function ProjectsAssetsPage({ params }: PageProps) {
                 <div>filter</div>
                 <GenericGreenButton 
                   name="New Asset" 
-                  href="/main"
+                  href={`/projects/${projectId}/asset/create`}
                   icon={<CreateAssetIcon />}
                 />
               </div>
