@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans_Thai } from "next/font/google";
 import "../styles/globals.css";
 import QueryProvider from "../providers/query-provider";
+import { NavBar } from "../components/NavBar";
 
 const ibmPlexSansThai = IBM_Plex_Sans_Thai({
   subsets: ["latin", "thai"],
@@ -22,8 +23,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${ibmPlexSansThai.variable} font-sans antialiased`}>
+      <body className={`${ibmPlexSansThai.variable} font-sans antialiased`} suppressHydrationWarning={true}> {/*แก้ไขเรื่องไปตีกับ extension ใน chrome */}
         <QueryProvider>
+          <NavBar />
           {children}
         </QueryProvider>
       </body>
