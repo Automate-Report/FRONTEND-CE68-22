@@ -83,7 +83,7 @@ export function SideBar({ project_id, project_name }: SideBarProps) {
   ];
 
   return (
-    <div className="bg-[#0D1014] w-[300px] h-screen sticky top-0 text-[20px] font-medium pl-2 pt-4 pb-6 pr-6 flex flex-col">
+    <div className="h-full bg-[#0D1014] p-6 flex flex-col">
       {menuItems.map((item) => {
         // เช็คว่า Path ปัจจุบัน ตรงกับ href ของปุ่มนี้หรือไม่
         // ใช้ .startsWith หรือ === ก็ได้ ขึ้นอยู่กับโครงสร้าง URL
@@ -93,11 +93,11 @@ export function SideBar({ project_id, project_name }: SideBarProps) {
           <Link
             key={item.name}
             href={item.href}
-            className={`flex gap-2 items-center px-3 py-3 rounded-lg transition-colors duration-200
+            className={`w-[252px] flex gap-3 px-4 py-3
               ${
                 isActive
-                  ? "bg-[#272D31] text-[#E6F0E6]" // สีตอน Active (เปลี่ยนได้ตาม Theme)
-                  : "text-[#AAAAAA] hover:bg-[#1F1F1F] hover:text-white" // สีตอนปกติ และตอน Hover
+                  ? "bg-[#272D31] text-[#E6F0E6] rounded-lg" // สีตอน Active (เปลี่ยนได้ตาม Theme)
+                  : "text-[#AAAAAA] hover:bg-[#1F1F1F] hover:text-white hover:rounded-lg" // สีตอนปกติ และตอน Hover
               }
             `}
           >

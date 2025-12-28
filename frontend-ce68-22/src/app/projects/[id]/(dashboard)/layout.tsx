@@ -23,7 +23,7 @@ export default async function ProjectLayout({ children, params }: ProjectLayoutP
 
   return (
     // จัด Layout ให้ Sidebar อยู่ซ้าย Content อยู่ขวา
-    <div className="flex h-screen w-full bg-[#0F1518] overflow-hidden"> 
+    <div className="flex h-full w-full bg-[#0F1518] overflow-hidden"> 
       
       {/* 2. Sidebar จะถูก Render ครั้งเดียวตรงนี้และ Fix อยู่กับที่ */}
       <SideBar 

@@ -25,8 +25,15 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${ibmPlexSansThai.variable} font-sans antialiased`} suppressHydrationWarning={true}> {/*แก้ไขเรื่องไปตีกับ extension ใน chrome */}
         <QueryProvider>
-          <NavBar />
-          {children}
+
+          <div className="flex-shrink-0">
+             <NavBar />
+          </div>
+
+
+          <div className="flex-1 w-full overflow-hidden relative">
+             {children}
+          </div>
         </QueryProvider>
       </body>
     </html>
