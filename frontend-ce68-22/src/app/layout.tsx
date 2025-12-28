@@ -23,15 +23,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${ibmPlexSansThai.variable} font-sans antialiased`} suppressHydrationWarning={true}> {/*แก้ไขเรื่องไปตีกับ extension ใน chrome */}
+      <body className={`${ibmPlexSansThai.variable} font-sans antialiased h-screen grid grid-rows-[auto_1fr] overflow-hidden`} suppressHydrationWarning={true}> {/*แก้ไขเรื่องไปตีกับ extension ใน chrome */}
         <QueryProvider>
 
-          <div className="flex-shrink-0">
-             <NavBar />
-          </div>
+          <NavBar />
 
-
-          <div className="flex-1 w-full overflow-hidden relative">
+          <div className="overflow-hidden">
              {children}
           </div>
         </QueryProvider>
