@@ -111,10 +111,24 @@ export function WorkerTable({
             </div>
           );
         }
-        else{
+        else if (row.status === 'online'){
           return (
             <div className="text-[#6EDD99] text-[16px] font-semibold px-3 py-1.5 bg-[#DEFFE2] rounded-lg">
               Online
+            </div>
+          );
+        }
+        else if (row.status === 'Revoked'){
+          return (
+            <div className="text-[#6B7280] text-[16px] font-semibold px-3 py-1.5 bg-[#F3F4F6] rounded-lg">
+                Revoke Key
+            </div>
+          );
+        }
+        else{
+          return (
+            <div className="text-[#D97706] text-[16px] font-semibold px-3 py-1.5 bg-[#FEF3C7] rounded-lg">
+                Unknow
             </div>
           );
         }
