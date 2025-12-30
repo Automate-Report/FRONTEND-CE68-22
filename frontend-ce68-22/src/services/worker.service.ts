@@ -1,5 +1,7 @@
 import axios from "axios";
-import { CreateWorkerPayload, Worker } from "../types/worker";
+import { AxiosResponse } from "axios";
+
+import { CreateWorkerPayload, DownloadReponse, Worker } from "../types/worker";
 import { PaginatedResult } from "../types/common";
 
 
@@ -60,5 +62,12 @@ export const workerService = {
     await apiClient.delete(`/workers/${id}`);
   },
 
+  download_worker: async (workerId: number): Promise<AxiosResponse<Blob>> =>{
+    return apiClient.get<Blob>(`workers/download/${workerId}`,
+      {
+        responseType: "blob", // ขอเป็น Binary File
+      }
+    );
+  }
 
 };

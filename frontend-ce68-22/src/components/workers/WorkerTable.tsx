@@ -3,13 +3,10 @@ import { Worker } from "../../types/worker";
 import { GenericTable, ColumnDef } from "../Common/GenericTable"; // Import ตัวใหม่
 import Link from "next/link";
 
+import { useWorkerDownload } from "@/src/hooks/use-WorkerDownload";
 
-
-// Icons 
-import DownloadIcon from '@mui/icons-material/Download';
-import EditIcon from "../icon/Edit";
-import DeleteIcon from "../icon/Delete";
-import { Button } from "@mui/material";
+// Worker Row Action
+import WorkerRowActions from "./WorkerRowAction";
 
 type SortOrder = "none" | "asc" | "desc";
 type SortColumn = "name" | "Status";
@@ -40,6 +37,9 @@ export function WorkerTable({
   onDeleteClick,
 }: WorkerTableProps) {
 
+  // Download Worker
+  const { downloadWorker, isLoading, error } = useWorkerDownload();
+
   // --- กำหนด Columns Definition ---
   const columns: ColumnDef<Worker>[] = [
     {
@@ -57,6 +57,22 @@ export function WorkerTable({
           </div>
         </Link>
       )
+    },
+    {
+      id: "hostname",
+      label: "Hostname",
+      align: "center",
+      sortable: false,
+      width: "1%",
+      render: (row) => {
+        if (row.hostname !== null){
+          return (
+            <div className="text-[16px] px-3 py-1.5">
+              {row.hostname}
+            </div>
+          );
+        }
+      }
     },
     {
       id: "activate",
@@ -111,29 +127,10 @@ export function WorkerTable({
       sortable: false,
       width: "10%",
       render: (row) => (
-        <div className="flex items-center justify-end gap-6 pr-4">
-           {/* ตรงนี้คุณอาจจะใส่ onClick handler ในอนาคต */}
-          <Link href={`/workers`} className="cursor-pointer"><EditIcon /></Link>
-          <div 
-            className="cursor-pointer"
-            onClick={() => onDeleteClick(row)}
-          >
-            <DeleteIcon />
-          </div>
-          <Button 
-            sx={{ 
-              minWidth: 0,
-              padding: 0,
-              margin: 0,
-              
-              color: "#404F57",
-              "&:hover": { backgroundColor: "transparent" } 
-            }}
-            disableRipple
-          >
-            <DownloadIcon />
-          </Button>
-        </div>
+        <WorkerRowActions 
+          row={row}
+          onDeleteClick={onDeleteClick}
+        />
       )
     }
   ];

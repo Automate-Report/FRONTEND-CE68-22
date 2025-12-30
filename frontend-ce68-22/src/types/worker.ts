@@ -10,3 +10,8 @@ export interface Worker {
 export interface CreateWorkerPayload {
   name: string;
 }
+
+export interface DownloadReponse {
+  blob: Blob;
+  filename: string | null;
+}
