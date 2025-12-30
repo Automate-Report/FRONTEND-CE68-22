@@ -22,7 +22,7 @@ interface PageProps{
     params: Promise<{ id: string}>
 }
 
-export default function WorkerDetailPage({ params }: PageProps)
+export default function WorkerEditPage({ params }: PageProps)
 {
     const router = useRouter();
 
