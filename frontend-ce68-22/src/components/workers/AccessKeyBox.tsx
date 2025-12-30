@@ -93,7 +93,8 @@ export function AccessKeyBox({ accessKeyId, onRevokeSuccess }: AccessKeyBoxProps
                     borderRadius: "8px",
                     padding: "12px 16px",
                     width: "100%", // หรือกำหนด width: "400px" ตามต้องการ
-                    maxWidth: "600px" 
+                    maxWidth: "600px", 
+                    height: "40px"
                 }}
             >
                 {/* ส่วนแสดงข้อความ Key */}
