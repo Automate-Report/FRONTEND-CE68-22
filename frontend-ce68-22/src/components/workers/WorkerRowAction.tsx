@@ -21,7 +21,7 @@ export default function WorkerRowActions({ row, onDeleteClick }: Props) {
     <div className="flex items-center justify-end gap-6 pr-4">
       
       {/* Edit Link */}
-      <Link href={`/workers`} className="cursor-pointer"><EditIcon /></Link>
+      <Link href={`/workers/${row.id}/edit`} className="cursor-pointer"><EditIcon /></Link>
 
       {/* Delete Button */}
       <div 
