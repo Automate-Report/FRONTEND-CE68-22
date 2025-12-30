@@ -86,7 +86,7 @@ export default function WorkerDetailPage({ params }: PageProps)
                 <div className="flex gap-6">
                     < GenericGreenButton
                         name="Edit"
-                        href="/workers"
+                        href={`/workers/${worker.id}/edit`}
                         icon={<EditIcon />}
                     />
                     <button

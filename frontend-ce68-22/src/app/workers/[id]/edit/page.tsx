@@ -1,23 +1,22 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 
 import { useRouter } from "next/navigation";
 import { useWorker } from "@/src/hooks/use-worker";
-import { useWorkerDownload } from "@/src/hooks/use-WorkerDownload";
 
 import { workerService } from "@/src/services/worker.service";
-import { Worker } from "@/src/types/worker";
 
+
+import { AccessKeyBoxSection } from "@/src/components/workers/AccessKeyBoxSection";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 
-import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
-import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
-import { AccessKeyBoxSection } from "@/src/components/workers/AccessKeyBoxSection";
-
-import EditIcon from "@/src/components/icon/Edit";
-import DeleteIcon from '@mui/icons-material/Delete';
-import DownloadIcon from '@mui/icons-material/Download';
+import { 
+    Box, 
+    Typography, 
+    TextField, 
+    Button 
+} from "@mui/material";
 
 interface PageProps{
     params: Promise<{ id: string}>
@@ -29,137 +28,143 @@ export default function WorkerDetailPage({ params }: PageProps)
 
     const resolvePrams = use(params);
     const workerId = parseInt(resolvePrams.id);
-    const { data: worker, isLoading, isError, refetch } = useWorker(workerId);
+    const { data: worker, isLoading: isFetching, isError, refetch } = useWorker(workerId);
 
-    // download worker
-    const { downloadWorker, isLoading: isDownloading } = useWorkerDownload();
 
-    // ใช้ตอน delete worker 
-    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [workerToDelete, setWorkerToDelete] = useState<Worker | null>(null);
-    const [isDeleting, setIsDeleting] = useState(false);
-
-    if (isLoading) return <div className="p-8">Loading...</div>;
-    if (isError || !worker) return <div className="p-8 text-red-500">Worker not found</div>;
+    // State สำหรับเก็บค่าใน Form
+    const [name, setName] = useState("");
+      
+    // State สำหรับ UI interaction
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    
+    useEffect(() => {
+        if (worker) {
+            setName(worker.name);
+        }
+    }, [worker]);
+    
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+        
+        try {
+            // เรียก Service edit
+            await workerService.edit(workerId, {
+                name
+            });
+          
+            // สำเร็จ -> กลับไปหน้า worker นั้น 
+            router.push(`/workers/${workerId}`);
+        } catch (err: any) {
+            console.error(err);
+            setError("Failed to update worker");
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    if (isFetching) return <div className="p-8">Loading project data...</div>;
 
     const breadcrumbItems = [
         { label: "Worker", href: "/workers"},
-        { label: worker.name , href: undefined}
+        { label: worker?.name || "Worker" , href: `/workers/${workerId}`},
+        { label: "Edit Worker", href: undefined }
     ];
 
-    // --- Function Delete ---
-    const handleDeleteClick = (targetWorker: Worker) => {
-        setWorkerToDelete(targetWorker);
-        setDeleteModalOpen(true);
-    };
-
-    const handleConfirmDelete = async () => {
-        if (!workerToDelete) return;
-
-        setIsDeleting(true);
-        try {
-            await workerService.delete(workerToDelete.id); // ใช้ id จาก state เพื่อความชัวร์
-
-            // ลบสำเร็จ -> ปิด Modal
-            setDeleteModalOpen(false);
-            setWorkerToDelete(null);
-
-            // 3. ย้ายกลับไปหน้า list แทนการ refetch
-            router.push('/workers'); 
-            router.refresh(); // บังคับให้หน้า list โหลดข้อมูลใหม่
-
-        } catch (error) {
-            console.error("Failed to delete", error);
-            alert("Failed to delete worker"); 
-        } finally {
-            setIsDeleting(false);
-        }
-    };
+    
 
     return (
         <div className="px-12 py-6 bg-[#0F1518] text-[#E6F0E6]">
             <GenericBreadcrums items={breadcrumbItems}/>
 
-            {/* ชื่อ + แก้ไข */}
-            <div className="flex justify-between py-6 text-[32px] text-[#E6F0E6] font-bold">
-                {worker.name}
-                <div className="flex gap-6">
-                    < GenericGreenButton
-                        name="Edit"
-                        href="/workers"
-                        icon={<EditIcon />}
+            <form onSubmit={handleSubmit}>
+                {/* 1. Worker Name */}
+                <div className="pb-8 w-1/3">
+                    <div className="text-[#E6F0E6] font-bold text-[24px] pb-4">Worker Name</div>
+                    <TextField
+                        variant="outlined"
+                        fullWidth
+                        required
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="e.g. CECompany"
+                        size="small"
+                        sx={{
+                            "& .MuiOutlinedInput-root": {
+                                backgroundColor: "#FBFBFB",
+                                borderRadius: "16px",
+                                                
+                                "& fieldset": {
+                                    borderColor: "#FBFBFB",
+                                },
+                                "&.Mui-focused fieldset": {
+                                    borderColor: "#FBFBFB", // หรือสี Primary ที่ต้องการ
+                                },
+                                // ปรับ Font ของ input ข้างใน
+                                "& input": {
+                                    fontSize: "16px",
+                                    fontWeight: 300,
+                                    color: "#000" // สีตัวอักษร
+                                }
+                            }
+                        }}
                     />
-                    <button
-                        type="button"
-                        onClick={() => downloadWorker(worker.id, worker.name)}
-                        disabled={isDownloading}
-                        className={`
-                            flex items-center justify-center gap-3
-                            px-6 h-10
-                            rounded-lg
-                            text-[16px] font-semibold text-[#0B0F12] 
-                            bg-[#8FFF9C] 
-                            cursor-pointer
-                            
-                            /* Hover State */
-                            hover:bg-[#AFFFB9]
-                            
-                            /* Disabled State */
-                            disabled:opacity-70 
-                            disabled:cursor-not-allowed 
-                            disabled:bg-[#8FFF9C]
-                        `}
-                    >
-                        {isDownloading ? (
-                            /* สร้าง Loading Spinner ด้วย Tailwind */
-                            <div className="w-5 h-5 border-2 border-[#0B0F12] border-t-transparent rounded-full animate-spin"></div>
-                        ) : (
-                            /* Normal State */
-                            <>
-                                Download <DownloadIcon fontSize="small" />
-                            </>
-                        )}
-                    </button>
-                    
-                    <button 
-                        type="button"
-                        onClick={() => handleDeleteClick(worker)}
-                        className="flex items-center justify-center bg-[#0B0F12] text-[#FE3B46] border border-[#FE3B46] text-[16px] font-semibold rounded-lg px-6 h-10 gap-3 cursor-pointer 
-                                hover:bg-[#FE3B46] hover:text-[#FBFBFB]"
-                    >
-                        Delete
-                        <DeleteIcon />
-                    </button>
                 </div>
-                
-            </div>
 
-            {/* Access Key */}
-            <div className="flex flex-col justify-between  text-[32px] text-[#E6F0E6] font-bold" >
-                Access Key
-                <AccessKeyBoxSection 
-                    worker={worker} 
-                    onRefresh={refetch}
-                />
-            </div>
-
-            {/* Job Assigned */}
-            <div className="flex justify-between py-6 text-[32px] text-[#E6F0E6] font-bold" >
-                Job Assigned
-            </div>
-
-            {workerToDelete && (
-                <GenericDeleteModal
-                    open={deleteModalOpen}
-                    onClose={() => setDeleteModalOpen(false)}
-                    onConfirm={handleConfirmDelete}
-                            
-                    // --- จุดที่ส่งข้อมูล ---
-                    entityType="Worker"             // บอกว่าเป็น "Project"
-                    entityName={workerToDelete.name} // ส่งชื่อโปรเจกต์ไป
-                    loading={isDeleting}
-                />
-            )}
+                {/* Error Message */}
+                {error && (
+                    <Typography color="error" variant="body2" sx={{ mb: 2 }}>
+                        {error}
+                    </Typography>
+                )}
+            
+                {/* Action Buttons */}
+                <Box sx={{ display: "flex", gap: "32px", mt: "32px" }}>
+                    <Button
+                        variant="outlined"
+                        onClick={() => router.back()}
+                        disabled={loading}
+                        sx={{
+                            px: 3,
+                            textTransform: "none",
+                            fontSize: 16,
+                            fontWeight: 600,
+                            borderColor: "#FE3B46",
+                            color: "#FE3B46",
+                            borderRadius: "10px",
+                            "&:hover": {
+                                borderColor: "#FE3B46",
+                                backgroundColor: "#FE3B46",
+                                color: "#FBFBFB"
+                            }
+                        }}
+                    >
+                        Cancel
+                    </Button>
+            
+                    <Button
+                        variant="contained"
+                        type="submit"
+                        disabled={loading}
+                        sx={{
+                            px: 3,
+                            textTransform: "none",
+                            fontSize: 16,
+                            fontWeight: 600,
+                            backgroundColor: "#8FFF9C",
+                            color: "#0B0F12",
+                            borderRadius: "10px",
+                            "&:hover": {
+                                backgroundColor: "#AFFFB9"
+                            }
+                        }}
+                    >
+                        {loading ? "Saving..." : "Save Changes"}
+                    </Button>
+                </Box>
+            </form>
             
         </div>
     );

@@ -57,6 +57,11 @@ export const workerService = {
     return data;
   },
 
+  edit: async (id: number, payload: CreateWorkerPayload) => {
+      const { data } = await apiClient.put(`/workers/${id}`, payload);
+      return data;
+    },
+
   delete: async (id: number) => {
     // method delete ปกติจะไม่ return content
     await apiClient.delete(`/workers/${id}`);
