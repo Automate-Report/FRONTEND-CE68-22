@@ -1,8 +1,11 @@
 "use client";
 
 import { use, useState } from "react";
+
 import { useRouter } from "next/navigation";
 import { useWorker } from "@/src/hooks/use-worker";
+import { useWorkerDownload } from "@/src/hooks/use-WorkerDownload";
+
 import { workerService } from "@/src/services/worker.service";
 import { Worker } from "@/src/types/worker";
 
@@ -27,6 +30,9 @@ export default function WorkerDetailPage({ params }: PageProps)
     const resolvePrams = use(params);
     const workerId = parseInt(resolvePrams.id);
     const { data: worker, isLoading, isError, refetch } = useWorker(workerId);
+
+    // download worker
+    const { downloadWorker, isLoading: isDownloading } = useWorkerDownload();
 
     // ใช้ตอน delete worker 
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -83,16 +89,43 @@ export default function WorkerDetailPage({ params }: PageProps)
                         href="/workers"
                         icon={<EditIcon />}
                     />
-                    < GenericGreenButton
-                        name="Download"
-                        href="/workers"
-                        icon={<DownloadIcon />}
-                    />
+                    <button
+                        type="button"
+                        onClick={() => downloadWorker(worker.id, worker.name)}
+                        disabled={isDownloading}
+                        className={`
+                            flex items-center justify-center gap-3
+                            px-6 h-10
+                            rounded-lg
+                            text-[16px] font-semibold text-[#0B0F12] 
+                            bg-[#8FFF9C] 
+                            cursor-pointer
+                            
+                            /* Hover State */
+                            hover:bg-[#AFFFB9]
+                            
+                            /* Disabled State */
+                            disabled:opacity-70 
+                            disabled:cursor-not-allowed 
+                            disabled:bg-[#8FFF9C]
+                        `}
+                    >
+                        {isDownloading ? (
+                            /* สร้าง Loading Spinner ด้วย Tailwind */
+                            <div className="w-5 h-5 border-2 border-[#0B0F12] border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                            /* Normal State */
+                            <>
+                                Download <DownloadIcon fontSize="small" />
+                            </>
+                        )}
+                    </button>
                     
                     <button 
                         type="button"
                         onClick={() => handleDeleteClick(worker)}
-                        className="flex items-center justify-center bg-[#0B0F12] text-[#FE3B46] border border-[#FE3B46] text-[16px] font-semibold rounded-lg shadow-sm px-6 py-3 gap-3 cursor-pointer hover:bg-[#FE3B46] hover:text-[#FBFBFB]"
+                        className="flex items-center justify-center bg-[#0B0F12] text-[#FE3B46] border border-[#FE3B46] text-[16px] font-semibold rounded-lg px-6 h-10 gap-3 cursor-pointer 
+                                hover:bg-[#FE3B46] hover:text-[#FBFBFB]"
                     >
                         Delete
                         <DeleteIcon />
