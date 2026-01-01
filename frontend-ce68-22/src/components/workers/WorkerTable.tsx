@@ -62,7 +62,7 @@ export function WorkerTable({
       id: "hostname",
       label: "Hostname",
       align: "center",
-      sortable: false,
+      sortable: true,
       width: "1%",
       render: (row) => {
         if (row.hostname !== null){
@@ -78,7 +78,7 @@ export function WorkerTable({
       id: "activate",
       label: "Activated",
       align: "center",
-      sortable: true,
+      sortable: false,
       width: "1%", // ให้หดเหลือพื้นที่เท่าที่จำเป็น
       render: (row) => {
         if (row.isActive === false){
