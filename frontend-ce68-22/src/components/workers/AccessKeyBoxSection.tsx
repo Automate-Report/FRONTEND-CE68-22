@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Box, CircularProgress } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 
 import { Worker } from "@/src/types/worker";
@@ -21,10 +21,7 @@ export function AccessKeyBoxSection({ worker, onRefresh }: WorkerItemProps)
     const handleGenerateKey = async () => {
         setLoading(true);
         try {
-            const data = await accessKeyService.create();
-
-
-            await workerService.addKey(worker.id, data.id);
+            await workerService.genKey(worker.id);
 
             onRefresh();
 

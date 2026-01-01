@@ -36,14 +36,9 @@ export const workerService = {
     const { data } = await apiClient.get<Worker>(`/workers/${id}`);
     return data;
   },
-
-  addKey: async (workerId: number, accessKeyId:number) =>{
-    const { data } = await apiClient.post<Worker>(`/workers/add-key`,
-      {
-        worker_id: workerId,
-        access_key_id: accessKeyId,
-      }
-    );
+  
+  genKey: async (workerId: number) =>{
+    const { data } = await apiClient.post<Worker>(`/workers/gen-key/${workerId}`);
     return data;
   },
 
