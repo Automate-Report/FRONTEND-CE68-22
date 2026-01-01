@@ -1,3 +1,5 @@
+"use client"
+
 import { useWorkerPage } from "@/src/hooks/worker/use-workerPage";
 import { useWorkers } from "@/src/hooks/worker/use-workers";
 import { useTable } from "@/src/hooks/use-table";
@@ -8,8 +10,6 @@ import { CreateWorkerModal } from "@/src/components/workers/CreateModal";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 
 import CreateWorkerIcon from "@/src/components/icon/CreateWorker";
-
-import { Worker } from "@/src/types/worker";
 
 import { Button } from "@mui/material";
 
@@ -25,7 +25,7 @@ export default function WorkersPage() {
     handleChangePage,
     handleChangeRowsPerPage,
     handleSort,
-  } = useTable<Worker>([]);
+  } = useTable();
 
   const { data: response, isLoading, isError, refetch } = useWorkers(
     page + 1, 
