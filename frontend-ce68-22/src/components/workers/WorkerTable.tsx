@@ -1,3 +1,5 @@
+"use client";
+
 import { Worker } from "../../types/worker";
 import { GenericTable, ColumnDef } from "../Common/GenericTable"; // Import ตัวใหม่
 import Link from "next/link";
