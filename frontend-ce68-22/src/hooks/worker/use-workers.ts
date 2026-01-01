@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { workerService } from "../services/worker.service";
+import { workerService } from "@/src/services/worker.service";
 
 export function useWorkers(
   page: number, 

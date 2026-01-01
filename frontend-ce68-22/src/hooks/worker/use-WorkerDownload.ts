@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { workerService } from "../services/worker.service";
+import { workerService } from "@/src/services/worker.service";
 
 export const useWorkerDownload = () => {
   const [isLoading, setIsLoading] = useState(false);

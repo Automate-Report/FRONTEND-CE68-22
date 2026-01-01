@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useWorkerDownload } from "@/src/hooks/use-WorkerDownload";
+import { useWorkerDownload } from "@/src/hooks/worker/use-WorkerDownload";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import DownloadIcon from '@mui/icons-material/Download';

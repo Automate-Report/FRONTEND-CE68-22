@@ -1,17 +1,15 @@
-"use client";
-
-import { useState } from "react";
+import { useWorkerPage } from "@/src/hooks/worker/use-workerPage";
 import { useWorkers } from "@/src/hooks/worker/use-workers";
-import { WorkerTable } from "@/src/components/workers/WorkerTable"; 
 import { useTable } from "@/src/hooks/use-table";
-import { Worker } from "@/src/types/worker";
+
+import { WorkerTable } from "@/src/components/workers/WorkerTable"; 
+import { CreateWorkerModal } from "@/src/components/workers/CreateModal";
+
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
-import { workerService } from "../../services/worker.service";
 
 import CreateWorkerIcon from "@/src/components/icon/CreateWorker";
-import { CreateWorkerModal } from "@/src/components/workers/CreateModal";
-import { CreateWorkerPayload } from "@/src/types/worker";
 
+import { Worker } from "@/src/types/worker";
 
 import { Button } from "@mui/material";
 
@@ -37,61 +35,7 @@ export default function WorkersPage() {
 
   );
 
-  // ใช้ตอนสร้าง worker เป็น modal
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [createLoading, setCreateLoading] = useState(false);
-
-  // ใช้ตอน delete worker ใน table
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [workerToDelete, setWorkerToDelete] = useState<Worker | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-
-  // function create worker
-  const handleCreateWorker = async (workerName: string) => {
-    setCreateLoading(true);
-    try {
-      const payload: CreateWorkerPayload = {
-        name: workerName
-      }
-      await workerService.create(payload);
-          
-      refetch(); // *สำคัญ* ดึงข้อมูลใหม่
-      setIsCreateModalOpen(false);
-          
-    } catch (error) {
-      console.error("Failed to create", error);
-      alert("Failed to create worker"); // หรือใช้ Snackbar/Toast
-    }
-    setIsCreateModalOpen(false);
-  };
-
-  // function delete worker
-  const handleDeleteClick = (worker: Worker) => {
-    setWorkerToDelete(worker);
-    setDeleteModalOpen(true);
-  };
-
-  // เมื่อกดยืนยันใน Modal
-  const handleConfirmDelete = async () => {
-    if (!workerToDelete) return;
-    
-    setIsDeleting(true);
-    try {
-      await workerService.delete(workerToDelete.id);
-      
-      // ลบสำเร็จ -> ปิด Modal -> โหลดตารางใหม่
-      setDeleteModalOpen(false);
-      setWorkerToDelete(null);
-      refetch(); // *สำคัญ* ดึงข้อมูลใหม่
-      
-    } catch (error) {
-      console.error("Failed to delete", error);
-      alert("Failed to delete project"); // หรือใช้ Snackbar/Toast
-    } finally {
-      setIsDeleting(false);
-    }
-  };
+  const { createState, deleteState } = useWorkerPage(refetch);
 
   // ดึง items และ total จาก response (Handle กรณี response เป็น undefined)
   const workers = response?.items || [];
@@ -123,7 +67,7 @@ export default function WorkersPage() {
         
         <Button
           variant="contained"
-          onClick={()=> setIsCreateModalOpen(true)}
+          onClick={()=> createState.setIsOpen(true)}
           sx={{
             borderRadius: "8px",
             padding: "12px 24px",
@@ -141,10 +85,10 @@ export default function WorkersPage() {
       </div>
 
       <CreateWorkerModal
-        open={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onConfirm={handleCreateWorker} // ส่งฟังก์ชันไป
-        loading={createLoading}
+        open={createState.isOpen}
+        onClose={() => createState.setIsOpen(false)}
+        onConfirm={createState.handleCreate} // ส่งฟังก์ชันไป
+        loading={createState.isLoading}
       />
 
       {totalCnt === 0 ? (
@@ -166,22 +110,22 @@ export default function WorkersPage() {
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           onSort={handleSort}
-          onDeleteClick={handleDeleteClick}
+          onDeleteClick={deleteState.handleDeleteClick}
         />
       )}
 
       
       {/* เรียกใช้ Generic Modal */}
-      {workerToDelete && (
+      {deleteState.target && (
         <GenericDeleteModal
-          open={deleteModalOpen}
-          onClose={() => setDeleteModalOpen(false)}
-          onConfirm={handleConfirmDelete}
+          open={deleteState.isOpen}
+          onClose={() => deleteState.setIsOpen(false)}
+          onConfirm={deleteState.handleConfirmDelete}
                 
           // --- จุดที่ส่งข้อมูล ---
           entityType="Worker"             // บอกว่าเป็น "Project"
-          entityName={workerToDelete.name} // ส่งชื่อโปรเจกต์ไป
-          loading={isDeleting}
+          entityName={deleteState.target.name} // ส่งชื่อโปรเจกต์ไป
+          loading={deleteState.isLoading}
         />
       )}
     </div>
