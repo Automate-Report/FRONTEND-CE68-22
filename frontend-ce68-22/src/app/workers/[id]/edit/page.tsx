@@ -3,7 +3,7 @@
 import { use, useState, useEffect } from "react";
 
 import { useRouter } from "next/navigation";
-import { useWorker } from "@/src/hooks/use-worker";
+import { useWorker } from "@/src/hooks/worker/use-worker";
 
 import { workerService } from "@/src/services/worker.service";
 

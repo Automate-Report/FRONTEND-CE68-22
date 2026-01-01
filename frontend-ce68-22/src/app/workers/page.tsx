@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useWorkers } from "../../hooks/use-workers";
+import { useWorkers } from "@/src/hooks/worker/use-workers";
 import { WorkerTable } from "@/src/components/workers/WorkerTable"; 
 import { useTable } from "@/src/hooks/use-table";
 import { Worker } from "@/src/types/worker";
@@ -39,7 +39,7 @@ export default function WorkersPage() {
 
   // ใช้ตอนสร้าง worker เป็น modal
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
 
   // ใช้ตอน delete worker ใน table
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -49,15 +49,15 @@ export default function WorkersPage() {
 
   // function create worker
   const handleCreateWorker = async (workerName: string) => {
-    console.log("Creating worker:", workerName);
+    setCreateLoading(true);
     try {
       const payload: CreateWorkerPayload = {
         name: workerName
       }
       await workerService.create(payload);
           
-      setIsCreateModalOpen(false);
       refetch(); // *สำคัญ* ดึงข้อมูลใหม่
+      setIsCreateModalOpen(false);
           
     } catch (error) {
       console.error("Failed to create", error);
@@ -116,13 +116,6 @@ export default function WorkersPage() {
     );
   }
 
-  if (totalCnt === 0) {
-     // ... แสดงหน้า Empty State ตามเดิม ...
-     return <div className="text-center py-10">ไม่พบ Worker</div>;
-  }
-
-
-
   return (
     <div className="mx-12 bg-[#0F1518]">
       <div className="flex justify-between items-center text-4xl text-[#E6F0E6] font-bold my-6">
@@ -151,25 +144,33 @@ export default function WorkersPage() {
         open={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onConfirm={handleCreateWorker} // ส่งฟังก์ชันไป
-        loading={loading}
+        loading={createLoading}
       />
 
-      <WorkerTable 
-        data={workers}           // ข้อมูล Array ของหน้านั้นๆ
-        totalCount={totalCnt}   // จำนวนข้อมูลทั้งหมดใน DB (เพื่อคำนวณจำนวนหน้า)
-              
-        // State
-        page={page}
-        rowsPerPage={rowsPerPage}
-        sortBy={sortBy}
-        sortOrder={sortOrder}
-              
-        // Functions (Actions)
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        onSort={handleSort}
-        onDeleteClick={handleDeleteClick}
-      />
+      {totalCnt === 0 ? (
+        <div className="text-center py-20 bg-gray-800 rounded-lg text-gray-400">
+             ยังไม่มีข้อมูล Worker กดปุ่มด้านบนเพื่อเพิ่มรายการใหม่
+        </div>
+      ) : (
+        <WorkerTable 
+          data={workers}           // ข้อมูล Array ของหน้านั้นๆ
+          totalCount={totalCnt}   // จำนวนข้อมูลทั้งหมดใน DB (เพื่อคำนวณจำนวนหน้า)
+                
+          // State
+          page={page}
+          rowsPerPage={rowsPerPage}
+          sortBy={sortBy}
+          sortOrder={sortOrder}
+                
+          // Functions (Actions)
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          onSort={handleSort}
+          onDeleteClick={handleDeleteClick}
+        />
+      )}
+
+      
       {/* เรียกใช้ Generic Modal */}
       {workerToDelete && (
         <GenericDeleteModal

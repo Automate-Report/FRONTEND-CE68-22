@@ -3,8 +3,8 @@
 import { use, useState } from "react";
 
 import { useRouter } from "next/navigation";
-import { useWorker } from "@/src/hooks/use-worker";
-import { useWorkerDownload } from "@/src/hooks/use-WorkerDownload";
+import { useWorker } from "@/src/hooks/worker/use-worker";
+import { useWorkerDownload } from "@/src/hooks/worker/use-WorkerDownload";
 
 import { workerService } from "@/src/services/worker.service";
 import { Worker } from "@/src/types/worker";

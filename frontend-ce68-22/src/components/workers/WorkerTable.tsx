@@ -3,7 +3,7 @@ import { Worker } from "../../types/worker";
 import { GenericTable, ColumnDef } from "../Common/GenericTable"; // Import ตัวใหม่
 import Link from "next/link";
 
-import { useWorkerDownload } from "@/src/hooks/use-WorkerDownload";
+import { useWorkerDownload } from "@/src/hooks/worker/use-WorkerDownload";
 
 // Worker Row Action
 import WorkerRowActions from "./WorkerRowAction";
