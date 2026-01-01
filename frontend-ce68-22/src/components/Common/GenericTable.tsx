@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   Table,
@@ -8,7 +10,6 @@ import {
   TableRow,
   TablePagination,
   Paper,
-  Box,
 } from "@mui/material";
 
 // Icons (Reuse ของเดิม)
@@ -131,7 +132,7 @@ export function GenericTable<T extends { id: number | string }>({
                     {/* ถ้ามี function render ให้ใช้ render, ถ้าไม่มีให้ดึงค่าจาก object ตรงๆ */}
                     {col.render 
                       ? col.render(row) 
-                      : (row as any)[col.id]
+                      : (row[col.id as keyof T] as React.ReactNode)
                     }
                   </TableCell>
                 ))}
