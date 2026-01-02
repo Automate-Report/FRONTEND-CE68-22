@@ -6,6 +6,8 @@ import { useProject } from "@/src/hooks/use-project";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 
+import { AssetList } from "@/src/components/assets/AssetList";
+
 import CreateAssetIcon from "@/src/components/icon/CreateAssertIcon";
 import SearchIcon from '@mui/icons-material/Search';
 
@@ -26,7 +28,7 @@ export default function ProjectsAssetsPage({ params }: PageProps) {
     const { data: project, isLoading, isError} = useProject(projectId);
 
     if (isLoading) return <div className="p-8">Loading...</div>;
-    if (isError || !project) return <div className="p-8 text-red-500">Project not found</div>;
+    if (isError || !project) return <div className="p-8 text-red-500">Asset not found</div>;
 
     const breadcrumbItems = [
         { label: "Home", href: "/main"},
@@ -76,9 +78,11 @@ export default function ProjectsAssetsPage({ params }: PageProps) {
               </div>
             </div>
 
-            <div>
-              Assets Table
-            </div>
+            <AssetList 
+              searchQuery={searchQuery}
+              filterStatus={filterStatus}
+              project_id={projectId}
+            />
                 
 
         </div>

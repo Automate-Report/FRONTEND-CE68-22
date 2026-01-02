@@ -103,29 +103,32 @@ export function GenericTable<T extends { id: number | string }>({
 
           {/* --- Table Body (Dynamic) --- */}
           <TableBody>
-            {data.map((row, index) => (
-              <TableRow
-                key={row.id} // ต้องมั่นใจว่า T มี id
-                sx={{
-                  backgroundColor: index % 2 === 0 ? "#FBFBFB" : "#EFF1F0",
-                  border: 0
-                }}
-              >
-                {columns.map((col) => (
-                  <TableCell 
-                    key={`${row.id}-${col.id}`} 
-                    align={col.align || "left"}
-                    sx = {{ color: "#404F57" }}
-                  >
-                    {/* ถ้ามี function render ให้ใช้ render, ถ้าไม่มีให้ดึงค่าจาก object ตรงๆ */}
-                    {col.render 
-                      ? col.render(row) 
-                      : (row as any)[col.id]
-                    }
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))}
+            {data.map((row, index) => {
+              const rowKey = row.id ? row.id : `row-${index}`;
+              return (
+                <TableRow
+                  key={rowKey} 
+                  sx={{
+                    backgroundColor: index % 2 === 0 ? "#FBFBFB" : "#EFF1F0",
+                    border: 0
+                  }}
+                >
+                  {columns.map((col) => (
+                    <TableCell 
+                      key={`${row.id}-${col.id}`} 
+                      align={col.align || "left"}
+                      sx = {{ color: "#404F57" }}
+                    >
+                      {/* ถ้ามี function render ให้ใช้ render, ถ้าไม่มีให้ดึงค่าจาก object ตรงๆ */}
+                      {col.render 
+                        ? col.render(row) 
+                        : (row as any)[col.id]
+                      }
+                    </TableCell>
+                  ))}
+                </TableRow>
+              );
+            })}
 
             {/* Empty State */}
             {data.length === 0 && (
