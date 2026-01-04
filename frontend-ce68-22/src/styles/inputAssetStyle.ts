@@ -3,15 +3,19 @@ export const commonInputStyles = {
     borderRadius: "8px",
     backgroundColor: "#FBFBFB",
     "& .MuiOutlinedInput-root": {
-      color: "#000",
-      "& fieldset": { borderColor: "rgba(230, 240, 230, 0.3)" },
-      "&:hover fieldset": { borderColor: "#E6F0E6" },
-      "& input": {
-         fontSize: "16px",
-         fontWeight: 300,
-         color: "#000",
-         padding: "8.5px 14px"
-      }
+        color: "#404F57",
+        borderRadius: "8px",
+      "& fieldset": { borderColor: "#E6F0E6" },
+      "&:hover fieldset": { borderColor: "#8FFF9C" },
+        "& input": {
+            fontSize: "16px",
+            fontWeight: 300,
+            color: "#404F57",
+            padding: "8.5px 14px"
+        }
     },
-    "& .MuiInputLabel-root": { color: "rgba(230, 240, 230, 0.7)" },
+    "& .MuiInputLabel-root": { 
+        color: "#8FFF9C" ,
+        borderRadius: "8px"
+    },
 };
