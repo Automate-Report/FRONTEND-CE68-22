@@ -55,6 +55,18 @@ export function AssetTable({
       )
     },
     {
+      id: "type",
+      "label": "Type",
+      align: "center",
+      sortable: true,
+      width: "1%",
+      render: (row) => (
+        <div>
+          {row.type}
+        </div>
+      )
+    },
+    {
       id: "actions",
       label: "", // หัวตารางว่าง
       align: "right",
