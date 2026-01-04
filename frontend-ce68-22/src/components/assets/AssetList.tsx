@@ -29,7 +29,7 @@ export function AssetList({ searchQuery, filterStatus, project_id }: AssetListPr
   } = useTable<Asset>([]);
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [projectToDelete, setProjectToDelete] = useState<Asset | null>(null);
+  const [assetToDelete, setAssetToDelete] = useState<Asset | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   //(สำคัญ) เมื่อ Search หรือ Filter เปลี่ยน ควร reset page กลับไปหน้าแรก
@@ -51,26 +51,26 @@ export function AssetList({ searchQuery, filterStatus, project_id }: AssetListPr
 
 
   const handleDeleteClick = (asset: Asset) => {
-    setProjectToDelete(asset);
+    setAssetToDelete(asset);
     setDeleteModalOpen(true);
   };
 
   // 2. เมื่อกดยืนยันใน Modal
   const handleConfirmDelete = async () => {
-    if (!projectToDelete) return;
+    if (!assetToDelete) return;
     
     setIsDeleting(true);
     try {
-      await assetService.delete(projectToDelete.id);
+      await assetService.delete(assetToDelete.id);
       
       // ลบสำเร็จ -> ปิด Modal -> โหลดตารางใหม่
       setDeleteModalOpen(false);
-      setProjectToDelete(null);
+      setAssetToDelete(null);
       refetch(); // *สำคัญ* ดึงข้อมูลใหม่
       
     } catch (error) {
       console.error("Failed to delete", error);
-      alert("Failed to delete project"); // หรือใช้ Snackbar/Toast
+      alert("Failed to delete asset"); // หรือใช้ Snackbar/Toast
     } finally {
       setIsDeleting(false);
     }
@@ -125,15 +125,15 @@ export function AssetList({ searchQuery, filterStatus, project_id }: AssetListPr
         onDeleteClick={handleDeleteClick}
       />
       {/* เรียกใช้ Generic Modal */}
-      {projectToDelete && (
+      {assetToDelete && (
         <GenericDeleteModal
           open={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
           onConfirm={handleConfirmDelete}
           
           // --- จุดที่ส่งข้อมูล ---
-          entityType="Project"             // บอกว่าเป็น "Project"
-          entityName={projectToDelete.name} // ส่งชื่อโปรเจกต์ไป
+          entityType="Asset"            
+          entityName={assetToDelete.name} 
           loading={isDeleting}
         />
       )}
