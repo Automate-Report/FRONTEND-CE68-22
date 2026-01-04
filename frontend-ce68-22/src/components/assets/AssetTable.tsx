@@ -46,7 +46,7 @@ export function AssetTable({
       // ถ้าไม่ใส่ render มันจะโชว์ row.name ให้เอง
       render: (row) => (
         <Link
-          href={`/projects/${row.project_id}/assets/${row.id}`}
+          href={`/projects/${row.project_id}/asset/${row.id}`}
         >
           <div>
             {row.name}
@@ -89,7 +89,7 @@ export function AssetTable({
       render: (row) => (
         <div className="flex justify-around pr-2 gap-6">
            {/* ตรงนี้คุณอาจจะใส่ onClick handler ในอนาคต */}
-          <Link href={`/projects/${row.project_id}/assets/${row.id}/edit`} className="cursor-pointer"><EditProjectIcon /></Link>
+          <Link href={`/projects/${row.project_id}/asset/${row.id}/edit`} className="cursor-pointer"><EditProjectIcon /></Link>
           <div 
             className="cursor-pointer"
             onClick={() => onDeleteClick(row)}

@@ -18,6 +18,11 @@ export const credentialService = {
     return data;
   },
 
+  getByAssetId: async (assetId: number) =>{
+    const { data } = await apiClient.get<Credential>(`/credentials/byAsset/${assetId}`);
+    return data;
+  },
+
   create: async (payload: CreateCredentialPayload) => {
     const { data } = await apiClient.post("/credentials/", payload);
     return data;

@@ -5,7 +5,7 @@ export function useAsset(id: number) {
   return useQuery({
     // Key ต้องมี ID เพื่อให้แยก cache ของแต่ละโปรเจกต์
     queryKey: ["asset", id],
-    // queryFn: () => assetService.getById(id), // รอกลับมาทำ
+    queryFn: () => assetService.getById(id), // รอกลับมาทำ
     
     // enabled: !!id คือถ้าไม่มี id (เช่นเป็น null/0) จะไม่ยิง API
     enabled: !!id, 
