@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 
 import { assetService } from "@/src/services/asset.service";
+import { credentialService } from "@/src/services/credential.service";
 
 import { InputAdornment } from "@mui/material";
 import Visibility from '@mui/icons-material/Visibility';
@@ -88,52 +89,73 @@ export default function CreateAssetPage() {
   const currentAssetType = watch("type");
 
   const onSubmit: SubmitHandler<AssetFormInputs> = async (data) => {
+    // ตัวแปรสำหรับเก็บ ID ของ Asset ที่สร้างเสร็จแล้ว (เอาไว้ลบถ้าเกิด Error)
+    let createdAssetId: number | null = null;
+
     try {
-        // ประกาศตัวแปร ID ไว้ก่อน โดยให้ค่าเริ่มต้นเป็น undefined (กรณีไม่มี Credential)
-        let newCredentialId: number | undefined = undefined;
+      // -------------------------------------------------------
+      // STEP 1: สร้าง Asset
+      // -------------------------------------------------------
+      const assetPayload = {
+        name: data.name,
+        target: data.target,
+        type: data.type,
+        project_id: projectId,
+        description: "",
+      };
 
-        // 1. ตรวจสอบว่า User เปิดใช้ Credential ไหม?
-        if (showCredential) {
-            // กรณี: ต้องการ Credential
-            // ให้ยิง API สร้าง Credential ก่อน เพื่อเอา ID
-            console.log("Creating Credential...");
-            
-            // สมมติว่ามี Service ชื่อ credentialService
-            // const credResponse = await credentialService.create({
-            //     username: data.username, // ส่งไปเฉพาะตอนเปิดใช้
-            //     password: data.password,
-            //     project_id: projectId
-            // });
+      console.log("1. Creating Asset...");
+      const newAsset = await assetService.create(assetPayload);
+      
+      // บันทึก ID ไว้ทันทีที่สร้างเสร็จ
+      createdAssetId = parseInt(newAsset.id); 
 
-            // ได้ ID มาแล้ว เก็บใส่ตัวแปร
-            // newCredentialId = credResponse.id; 
-        }
+      // -------------------------------------------------------
+      // STEP 2: สร้าง Credential (ถ้าเลือก)
+      // -------------------------------------------------------
+      if (showCredential) {
+        console.log(`2. Creating Credential for Asset ID: ${createdAssetId}`);
+        
+        // จุดเสี่ยง: ถ้าบรรทัดนี้ Error มันจะกระโดดไป catch ทันที
+        await credentialService.create({
+            username: data.username || "",
+            password: data.password || "",
+            asset_id: createdAssetId
+        });
+      }
 
-        // 2. เตรียม Payload สำหรับสร้าง Asset
-        // สังเกตว่า credential_id จะเอาค่าจากตัวแปรข้างบนมาใส่
-        // ถ้าไม่เข้า if ข้างบน ค่าจะเป็น undefined ซึ่งถูกต้องแล้วสำหรับการสร้างแบบไม่มี Credential
-        const assetPayload: CreateAssetPayload = {
-            name: data.name,
-            target: data.target,
-            type: data.type,
-            project_id: projectId,
-            description: "",
-            credential_id: newCredentialId, // <--- จุดสำคัญอยู่ตรงนี้
-        };
-
-        console.log("Creating Asset with Payload:", assetPayload);
-
-        // 3. ยิง API สร้าง Asset
-        await assetService.create(assetPayload);
-
-        // 4. สำเร็จ -> ย้ายหน้า หรือ แจ้งเตือน
-        router.push(`/projects/${projectId}/asset`);
+      // -------------------------------------------------------
+      // STEP 3: สำเร็จทุกขั้นตอน
+      // -------------------------------------------------------
+      // อาจจะแสดง Toast Success ตรงนี้
+      // alert("Create Asset Success!"); 
+      router.push(`/projects/${projectId}/asset`);
 
     } catch (error) {
-        console.error("Error creating asset:", error);
-        // แสดง Error notification ให้ User ทราบ
+      console.error("Critical Error during creation process:", error);
+
+      // -------------------------------------------------------
+      // ERROR HANDLING & ROLLBACK
+      // -------------------------------------------------------
+      
+      // เช็คว่า Asset ถูกสร้างไปแล้วหรือยัง? ถ้าสร้างแล้วต้องลบทิ้ง
+      if (createdAssetId) {
+          try {
+              console.warn(`Rolling back: Deleting orphan asset ID ${createdAssetId}...`);
+              // await assetService.delete(createdAssetId); // เรียก API ลบ
+              console.log("Rollback successful.");
+          } catch (deleteError) {
+              // กรณีซวยซ้ำซ้อน: สร้าง Credential พัง แล้วตอนจะลบ Asset คืนก็พังอีก (Server อาจจะล่มไปเลย)
+              // ตรงนี้ทำอะไรไม่ได้มาก นอกจาก Log ไว้ให้ Admin มาเคลียร์ Data ขยะ
+              console.error("FATAL: Rollback failed. Orphan asset exists.", deleteError);
+          }
+      }
+
+      // แจ้งเตือน User
+      alert("เกิดข้อผิดพลาดในการสร้าง Asset กรุณาลองใหม่อีกครั้ง");
+      // หรือ set error state เพื่อแสดงข้อความสีแดงบนหน้าจอ
     }
-};
+  };
 
   const breadcrumbItems = [
     { label: "Home", href: "/main" },
