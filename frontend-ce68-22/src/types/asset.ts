@@ -6,6 +6,7 @@ export interface Asset {
   credential_id?: number;
   target: string;
   type: string;
+  updated_at: string;
 }
 
 export interface CreateAssetPayload {

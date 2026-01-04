@@ -67,6 +67,20 @@ export function AssetTable({
       )
     },
     {
+      id: "updated_at",
+      label: "Last Updated",
+      align: "center",
+      sortable: true,
+      width: "1%", // ให้หดเหลือพื้นที่เท่าที่จำเป็น
+      render: (row) => {
+        const d = new Date(row.updated_at);
+        const day = d.getDate();
+        const month = d.getMonth() + 1;
+        const year = d.getFullYear();
+        return `${day}-${month}-${year}`;
+      }
+    },
+    {
       id: "actions",
       label: "", // หัวตารางว่าง
       align: "right",
