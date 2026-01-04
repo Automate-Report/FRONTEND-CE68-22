@@ -35,6 +35,10 @@ export const assetService = {
     return data;
   },
 
+  create: async (payload: CreateAssetPayload) => {
+      const { data } = await apiClient.post("/assets/", payload);
+      return data;
+  },
  
 
 };
