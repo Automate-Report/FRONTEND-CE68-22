@@ -34,11 +34,23 @@ export const assetService = {
 
     return data;
   },
+  getById: async (id: number) =>{
+    const { data } = await apiClient.get<Asset>(`/assets/${id}`);
+    return data;
+  },
 
   create: async (payload: CreateAssetPayload) => {
-      const { data } = await apiClient.post("/assets/", payload);
-      return data;
+    const { data } = await apiClient.post("/assets/", payload);
+    return data;
   },
- 
+  edit: async (id: number, payload: CreateAssetPayload) => {
+    const { data } = await apiClient.put(`/assets/${id}`, payload);
+    return data;
+  },
+  
+  delete: async (id: number) => {
+    // method delete ปกติจะไม่ return content
+    await apiClient.delete(`/assets/${id}`);
+  },
 
 };
