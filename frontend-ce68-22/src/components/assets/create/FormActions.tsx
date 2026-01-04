@@ -5,7 +5,7 @@ export const FormActions = () => {
     const router = useRouter();
 
     return (
-        <Stack direction="row" spacing={"32px"} justifyContent="flex-start" alignItems={"center"} marginTop={"16px"}>
+        <Stack direction="row" spacing={"32px"} justifyContent="flex-start" alignItems={"center"} paddingTop={"16px"}>
             <Button
                 variant="outlined"
                 onClick={() => router.back()}

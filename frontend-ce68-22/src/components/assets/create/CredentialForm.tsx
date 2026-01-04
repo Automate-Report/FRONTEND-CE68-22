@@ -21,8 +21,8 @@ export const CredentialForm = ({ formMethods, showCredential, setShowCredential,
     const { register } = formMethods;
 
     return (
-        <Box sx={{ mt: 4 }}>
-            <Typography sx={{ color: "#E6F0E6", fontWeight: "bold", mb: "12px", fontSize: "24px" }}>
+        <Box sx={{ mt: "24px", mb: "16px" }}>
+            <Typography sx={{ color: "#E6F0E6", fontWeight: "bold", mb: "16px", fontSize: "24px" }}>
                 Credentials
             </Typography>
 
@@ -33,23 +33,31 @@ export const CredentialForm = ({ formMethods, showCredential, setShowCredential,
                     variant="outlined"
                     sx={{
                         color: "#E6F0E6", borderColor: "#E6F0E6", borderRadius: "8px",
-                        textTransform: "none", fontFamily: "inherit",
+                        textTransform: "none", fontFamily: "inherit", p: "10px 24px"
                     }}
                 >
                     Add New Credentials
                 </Button>
             ) : (
-                <TableContainer component={Paper} sx={{ backgroundColor: "transparent", boxShadow: "none", border: "1px solid rgba(255,255,255,0.1)" }}>
+                <TableContainer component={Paper} sx={{ backgroundColor: "transparent", boxShadow: "none", border: "1px solid #E6F0E6", borderRadius: "16px" }}>
                     <Table sx={{ minWidth: 650 }}>
                         <TableHead>
-                            <TableRow>
-                                <TableCell sx={{ color: "#9AA6A8", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>Username</TableCell>
-                                <TableCell sx={{ color: "#9AA6A8", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>Password</TableCell>
-                                <TableCell align="right" sx={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}></TableCell>
+                            <TableRow sx={{height: "40px"}}>
+                                <TableCell align="center" sx={{ color: "#E6F0E6", backgroundColor: "#0F1518", fontSize: "16px" }}>Username</TableCell>
+                                <TableCell align="center" sx={{ color: "#E6F0E6", backgroundColor: "#0F1518", fontSize: "16px" }}>Password</TableCell>
+                                <TableCell align="right"></TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                            <TableRow 
+                                sx={{ 
+                                    backgroundColor: "#FBFBFB",
+                                    color: "#404F57",
+                                    '&:last-child td, &:last-child th': { 
+                                        border: 0 
+                                    } 
+                                }}
+                            >
                                 <TableCell component="th" scope="row">
                                     <TextField
                                         placeholder="Username" fullWidth sx={commonInputStyles}
@@ -65,7 +73,7 @@ export const CredentialForm = ({ formMethods, showCredential, setShowCredential,
                                         InputProps={{
                                             endAdornment: (
                                                 <InputAdornment position="end">
-                                                    <IconButton onClick={() => setShowPassword(!showPassword)} sx={{ color: "#9AA6A8" }}>
+                                                    <IconButton onClick={() => setShowPassword(!showPassword)} sx={{ color: "#404F57" }}>
                                                         {showPassword ? <Visibility /> : <VisibilityOff />}
                                                     </IconButton>
                                                 </InputAdornment>

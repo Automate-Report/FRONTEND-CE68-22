@@ -5,7 +5,7 @@ export const commonInputStyles = {
     "& .MuiOutlinedInput-root": {
         color: "#404F57",
         borderRadius: "8px",
-      "& fieldset": { borderColor: "#E6F0E6" },
+      "& fieldset": { borderColor: "#404F57" },
       "&:hover fieldset": { borderColor: "#8FFF9C" },
         "& input": {
             fontSize: "16px",
