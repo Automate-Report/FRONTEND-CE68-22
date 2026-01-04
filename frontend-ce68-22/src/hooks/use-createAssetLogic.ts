@@ -37,33 +37,36 @@ export const useCreateAssetLogic = (projectId: number) => {
   // Submit Logic
   const onSubmit: SubmitHandler<AssetFormInputs> = async (data) => {
     let createdAssetId: number | null = null;
+    let newCredentialId: number | undefined = undefined;
 
     try {
-      // Step 1: Create Asset
+      // Step 1: Create Credential 
+      if (showCredential) {
+        console.log(`2. Creating Credential for Asset ID: ${createdAssetId}`);
+        const cred = await credentialService.create({
+            username: data.username || "",
+            password: data.password || "",
+        });
+        newCredentialId = parseInt(cred.id);
+      }
+
+      // Step 2: Create Asset
       const assetPayload = {
         name: data.name,
         target: data.target,
         type: data.type,
         project_id: projectId,
+        credential_id: newCredentialId,
         description: "",
       };
 
       console.log("1. Creating Asset...");
       const newAsset = await assetService.create(assetPayload);
-      createdAssetId = parseInt(newAsset.id);
 
-      // Step 2: Create Credential (Optional)
-      if (showCredential) {
-        console.log(`2. Creating Credential for Asset ID: ${createdAssetId}`);
-        await credentialService.create({
-            username: data.username || "",
-            password: data.password || "",
-            asset_id: createdAssetId
-        });
-      }
+
 
       // Step 3: Success
-      router.push(`/projects/${projectId}/overview`); // แก้ path ตามต้องการ
+      router.push(`/projects/${projectId}/asset/${newAsset.id}`); // แก้ path ตามต้องการ
 
     } catch (error) {
       console.error("Critical Error:", error);
