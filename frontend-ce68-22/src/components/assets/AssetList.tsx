@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAssets } from "@/src/hooks/use-asset";
+import { useAssets } from "@/src/hooks/use-assets";
 import { AssetTable } from "./AssetTable";
 import { useTable } from "@/src/hooks/use-table";
 import { Asset } from "@/src/types/asset";

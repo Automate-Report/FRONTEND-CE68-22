@@ -1,21 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { assetService } from "../services/asset.service";
 
-export function useAssets(
-  project_id: number,
-  page: number, 
-  size: number, 
-  sortBy: string | null, 
-  sortOrder: "asc" | "desc" | "none", 
-  search?: string, // เพิ่ม
-  filter?: string  // เพิ่ม
-) {
+export function useAsset(id: number) {
   return useQuery({
-    // สำคัญมาก: ต้องใส่ sortBy, sortOrder ใน Key
-    queryKey: ['assets',project_id, page, size, sortBy, sortOrder, search, filter], 
+    // Key ต้องมี ID เพื่อให้แยก cache ของแต่ละโปรเจกต์
+    queryKey: ["asset", id],
+    // queryFn: () => assetService.getById(id), // รอกลับมาทำ
     
-    queryFn: () => assetService.getAll(project_id, page, size, sortBy, sortOrder, search, filter),
-    
-    placeholderData: (previousData) => previousData,
+    // enabled: !!id คือถ้าไม่มี id (เช่นเป็น null/0) จะไม่ยิง API
+    enabled: !!id, 
   });
 }
