@@ -28,7 +28,7 @@ export const AssetBasicInfo = ({ formMethods, currentAssetType }: Props) => {
             />
 
             {/* Asset Target & Type */}
-            <Box sx={{ mt: 3 }}>
+            <Box sx={{ mt: "24px" }}>
                 <Typography sx={{ color: "#E6F0E6", fontWeight: "bold", mb: "12px", fontSize: "24px" }}>
                     Asset
                 </Typography>
@@ -43,7 +43,7 @@ export const AssetBasicInfo = ({ formMethods, currentAssetType }: Props) => {
                     sx={{ ...commonInputStyles, mb: 2 }}
                 />
 
-                <Stack direction="row" gap={"12px"} alignItems="center" sx={{ mb: 2 }}>
+                <Stack direction="row" gap={"12px"} alignItems="center" sx={{ mb: "12px" }}>
                     <Typography sx={{ color: "#9AA6A8", fontWeight: "medium", fontSize: "16px" }}>
                         Asset type:
                     </Typography>
@@ -56,10 +56,13 @@ export const AssetBasicInfo = ({ formMethods, currentAssetType }: Props) => {
                                 height: "40px",
                                 padding: "16px 24px",
                                 borderRadius: "8px",
+
                                 fontSize: "16px",
+                                fontWeight: "bold",
                                 textTransform: "none",
                                 fontFamily: "inherit",
                                 lineHeight: "normal",
+
                                 color: "#0B0F12",
                                 backgroundColor: currentAssetType === type ? "#8FFF9C" : "#FBFBFB",
                                 "&:hover": {
