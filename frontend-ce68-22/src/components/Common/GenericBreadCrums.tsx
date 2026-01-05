@@ -59,7 +59,7 @@ export function GenericBreadcrums({ items }: GenericBreadcrumbsProps)
                 sx={{ 
                     mt: 2,           // margin-top: เว้นระยะห่างจากตัวหนังสือลงมาหน่อย (2 = 16px)
                     borderColor: "#D8D4D4", // กำหนดสีของเส้น (ถ้าพื้นหลังดำ ควรใช้สีเทาเข้ม)
-                    borderBottomWidth: 2
+                    borderBottomWidth: 1
                 }} 
             />
         </Box>

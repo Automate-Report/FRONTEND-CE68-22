@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Project, CreateProjectPayload } from "../types/project";
+import { Asset, CreateAssetPayload } from "../types/asset";
 import { PaginatedResult } from "../types/common";
 
 
@@ -12,16 +12,17 @@ const apiClient = axios.create({
   proxy: false,
 });
 
-export const projectService = {
+export const assetService = {
   // รับค่า page และ size (กำหนด default ไว้กันเหนียว)
-  getAll: async (page: number, size: number, sortBy?: string | null, sortOrder?: "asc" | "desc" | "none", search?: string | null, filter?: string | "ALL") => {
+  getAll: async (project_id: number, page: number, size: number, sortBy?: string | null, sortOrder?: "asc" | "desc" | "none", search?: string | null, filter?: string | "ALL") => {
     
     // แปลงค่า sortOrder ให้เป็น string ที่ Backend เข้าใจ (ถ้าเป็น none ให้ส่ง undefined)
     const orderParam = sortOrder === "none" ? undefined : sortOrder;
     const sortParam = sortBy || undefined;
 
-    const { data } = await apiClient.get<PaginatedResult<Project>>("/projects/all", {
+    const { data } = await apiClient.get<PaginatedResult<Asset>>(`/assets/all/${project_id}`, {
       params: {
+        project_id,
         page,
         size,
         sort_by: sortParam, // ชื่อต้องตรงกับ Backend (FastAPI)
@@ -33,25 +34,23 @@ export const projectService = {
 
     return data;
   },
-
   getById: async (id: number) =>{
-    const { data } = await apiClient.get<Project>(`/projects/${id}`);
+    const { data } = await apiClient.get<Asset>(`/assets/${id}`);
     return data;
   },
 
-  create: async (payload: CreateProjectPayload) => {
-    const { data } = await apiClient.post("/projects/", payload);
+  create: async (payload: CreateAssetPayload) => {
+    const { data } = await apiClient.post("/assets/", payload);
     return data;
   },
-
-  edit: async (id: number, payload: CreateProjectPayload) => {
-    const { data } = await apiClient.put(`/projects/${id}`, payload);
+  edit: async (id: number, payload: CreateAssetPayload) => {
+    const { data } = await apiClient.put(`/assets/${id}`, payload);
     return data;
   },
-
+  
   delete: async (id: number) => {
     // method delete ปกติจะไม่ return content
-    await apiClient.delete(`/projects/${id}`);
+    await apiClient.delete(`/assets/${id}`);
   },
 
 };
