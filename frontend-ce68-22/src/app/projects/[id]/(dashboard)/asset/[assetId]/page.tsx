@@ -32,7 +32,7 @@ import { assetService } from "@/src/services/asset.service";
 import { credentialService } from "@/src/services/credential.service";
 
 // Hooks & Components
-import { useProject } from "@/src/hooks/use-project";
+import { useProject } from "@/src/hooks/project/use-project";
 import { useAsset } from "@/src/hooks/use-asset";
 import { useCredentialByAsset } from "@/src/hooks/use-credential";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
