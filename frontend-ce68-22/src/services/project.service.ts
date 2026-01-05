@@ -9,6 +9,7 @@ const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  proxy: false,
 });
 
 export const projectService = {

@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { projectService } from "../services/project.service";
+import { assetService } from "../services/asset.service";
 
-export function useProjects(
+export function useAssets(
+  project_id: number,
   page: number, 
   size: number, 
   sortBy: string | null, 
@@ -11,9 +12,9 @@ export function useProjects(
 ) {
   return useQuery({
     // สำคัญมาก: ต้องใส่ sortBy, sortOrder ใน Key
-    queryKey: ['projects', page, size, sortBy, sortOrder, search, filter], 
+    queryKey: ['assets', project_id, page, size, sortBy, sortOrder, search, filter], 
     
-    queryFn: () => projectService.getAll(page, size, sortBy, sortOrder, search, filter),
+    queryFn: () => assetService.getAll(project_id, page, size, sortBy, sortOrder, search, filter),
     
     placeholderData: (previousData) => previousData,
   });
