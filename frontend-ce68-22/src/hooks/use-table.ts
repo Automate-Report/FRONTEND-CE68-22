@@ -1,9 +1,11 @@
-import { useState, useMemo } from "react";
+"use client";
+
+import { useState } from "react";
 
 export type SortOrder = "asc" | "desc" | "none";
 
 // ใช้ T แทน Project เพื่อให้ใช้กับ Type อะไรก็ได้
-export function useTable<T>(data: T[], defaultRowsPerPage = 10) {
+export function useTable<T>(defaultRowsPerPage = 10) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
   
@@ -41,39 +43,11 @@ export function useTable<T>(data: T[], defaultRowsPerPage = 10) {
     );
   };
 
-  // --- Generic Sort Logic ---
-  const visibleRows = useMemo(() => {
-    const sortedData = [...data];
-
-    if (sortOrder !== "none" && sortBy) {
-      sortedData.sort((a, b) => {
-        // ดึงค่ามาเทียบกัน
-        const aValue = a[sortBy];
-        const bValue = b[sortBy];
-
-        // ตรวจสอบว่าเป็น Date String หรือไม่ (แบบ Generic)
-        // (Optional: ถ้าต้องการ Sort วันที่ให้แม่นยำขึ้น อาจต้อง parse Date)
-        // แต่ปกติ ISO String ("2023-12-01") สามารถ Sort แบบ String ได้ถูกต้องอยู่แล้ว
-        
-        if (aValue < bValue) {
-          return sortOrder === "asc" ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortOrder === "asc" ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-
-    return sortedData;
-  }, [data, sortBy, sortOrder]);
-
   return {
     page,
     rowsPerPage,
     sortBy: sortBy as string, // cast กลับเป็น string เพื่อให้ง่ายต่อการส่งไป UI
     sortOrder,
-    visibleRows,
     handleChangePage,
     handleChangeRowsPerPage,
     handleSort, // เปลี่ยนชื่อจาก cycleSort เป็น handleSort ให้สื่อความหมายกลางๆ
