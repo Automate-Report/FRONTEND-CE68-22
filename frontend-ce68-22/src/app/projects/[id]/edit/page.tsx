@@ -67,7 +67,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
     ];
 
     return (
-        <div className="mx-auto w-11/12 py-8">
+        <div className="mx-12 py-8">
             <GenericBreadcrums items={breadcrumbItems} />
             
             <form onSubmit={handleSubmit}>
@@ -147,7 +147,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
                 )}
 
                 {/* Action Buttons */}
-                <Box sx={{ display: "flex", gap: 6, mt: 2 }}>
+                <Box sx={{ display: "flex", gap: 3.5, mt: 2 }}>
                     <Button
                         variant="outlined"
                         onClick={() => router.back()}
@@ -156,13 +156,14 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
                             px: 3,
                             textTransform: "none",
                             fontSize: 16,
-                            fontWeight: 400,
+                            fontWeight: 600,
                             borderColor: "#FE3B46",
                             color: "#FE3B46",
                             borderRadius: "10px",
                             "&:hover": {
-                                borderColor: "#D32F2F",
-                                backgroundColor: "rgba(254, 59, 70, 0.04)"
+                                borderColor: "#FE3B46",
+                                backgroundColor: "#FE3B46",
+                                color: "#FBFBFB"
                             }
                         }}
                     >
@@ -177,16 +178,16 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
                             px: 3,
                             textTransform: "none",
                             fontSize: 16,
-                            fontWeight: 400,
+                            fontWeight: 600,
                             backgroundColor: "#8FFF9C",
                             color: "#0B0F12",
                             borderRadius: "10px",
                             "&:hover": {
-                                backgroundColor: "#76E085"
+                                backgroundColor: "#AFFFB9"
                             }
                         }}
                     >
-                        {loading ? "Saving..." : "Save Project"}
+                        {loading ? "Saving..." : "Save Changes"}
                     </Button>
                 </Box>
             </form>
