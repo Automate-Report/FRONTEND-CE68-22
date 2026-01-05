@@ -4,7 +4,7 @@ import { AssetFormInputs } from "@/src/hooks/use-createAssetLogic";
 import { commonInputStyles } from "@/src/styles/inputAssetStyle";
 
 // Icons
-import CreateAssetIcon from "@/src/components/icon/CreateAssertIcon"; // Check path
+import CreateAssetIcon from "@/src/components/icon/CreateAssertIcon"; 
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
