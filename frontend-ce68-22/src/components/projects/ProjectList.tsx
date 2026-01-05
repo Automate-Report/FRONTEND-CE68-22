@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useProjects } from "../../hooks/use-projects";
+import { useProjects } from "../../hooks/project/use-projects";
 import { ProjectTable } from "./ProjectTable"; 
 import { useTable } from "@/src/hooks/use-table";
 import { Project } from "@/src/types/project";

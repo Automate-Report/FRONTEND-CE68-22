@@ -5,10 +5,14 @@ import { ProjectList } from "../../components/projects/ProjectList";
 import CreateProjectIcon from "@/src/components/icon/CreateProject";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 
+import { useDebounce } from "@/src/hooks/use-debounce";
+
 
 export default function ProjectsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("ALL");
+
+  const debouncedSearch = useDebounce(searchQuery, 500);
 
   return (
     <div className="bg-[#0F1518] mt-6 mx-12">
@@ -57,7 +61,7 @@ export default function ProjectsPage() {
 
       {/* 5. ส่งค่า Search และ Filter เป็น Props ไปให้ ProjectList */}
       <ProjectList 
-        searchQuery={searchQuery} 
+        searchQuery={debouncedSearch} 
         filterStatus={filterStatus} 
       />
     </div>
