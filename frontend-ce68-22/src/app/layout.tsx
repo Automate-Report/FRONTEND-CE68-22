@@ -23,10 +23,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${ibmPlexSansThai.variable} font-sans antialiased`}>
+      <body className={`${ibmPlexSansThai.variable} font-sans antialiased h-screen grid grid-rows-[auto_1fr] overflow-hidden`} suppressHydrationWarning={true}> {/*แก้ไขเรื่องไปตีกับ extension ใน chrome */}
         <QueryProvider>
+
           <NavBar />
-          {children}
+
+          <div className="overflow-hidden">
+             {children}
+          </div>
         </QueryProvider>
       </body>
     </html>

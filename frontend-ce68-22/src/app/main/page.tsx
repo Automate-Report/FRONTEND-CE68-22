@@ -3,15 +3,19 @@
 import { useState } from "react";
 import { ProjectList } from "../../components/projects/ProjectList";
 import CreateProjectIcon from "@/src/components/icon/CreateProject";
-import Link from "next/link";
+import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
+
+import { useDebounce } from "@/src/hooks/use-debounce";
 
 
 export default function ProjectsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("ALL");
 
+  const debouncedSearch = useDebounce(searchQuery, 500);
+
   return (
-    <div className="mx-auto w-11/12 bg-[#0F1518]">
+    <div className="bg-[#0F1518] mt-6 mx-12">
       <div className="text-4xl text-[#E6F0E6] font-bold pb-10">
         Welcome Back! user_name
       </div>
@@ -46,20 +50,18 @@ export default function ProjectsPage() {
 
         </div>
 
-        <Link href="/projects/create">
-          <button className="flex items-center justify-center bg-[#8FFF9C] text-[#0B0F12] text-[16px] font-medium rounded-lg shadow-sm px-6 py-2 gap-3 cursor-pointer">
-            <div className="text-base font-medium">New Project</div>
-            <div>
-              <CreateProjectIcon />
-            </div>
-          </button>
-        </Link>
+        {/* ปุ่ม New Project */}
+        < GenericGreenButton
+          name="New Project"
+          href="/projects/create"
+          icon={<CreateProjectIcon />}
+        />
         
       </div>
 
       {/* 5. ส่งค่า Search และ Filter เป็น Props ไปให้ ProjectList */}
       <ProjectList 
-        searchQuery={searchQuery} 
+        searchQuery={debouncedSearch} 
         filterStatus={filterStatus} 
       />
     </div>

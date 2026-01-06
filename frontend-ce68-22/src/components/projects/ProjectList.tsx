@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useProjects } from "../../hooks/use-projects";
+import { useProjects } from "../../hooks/project/use-projects";
 import { ProjectTable } from "./ProjectTable"; 
 import { useTable } from "@/src/hooks/use-table";
 import { Project } from "@/src/types/project";
@@ -25,7 +25,7 @@ export function ProjectList({ searchQuery, filterStatus }: ProjectListProps) {
     handleChangePage,
     handleChangeRowsPerPage,
     handleSort,
-  } = useTable<Project>([]);
+  } = useTable<Project>();
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);

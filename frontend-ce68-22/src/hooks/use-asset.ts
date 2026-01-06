@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { projectService } from "../services/project.service";
-// import { Project } from "../types/project";
+import { assetService } from "../services/asset.service";
 
-export function useProject(id: number) {
+export function useAsset(id: number) {
   return useQuery({
     // Key ต้องมี ID เพื่อให้แยก cache ของแต่ละโปรเจกต์
-    queryKey: ["project", id],
-    queryFn: () => projectService.getById(id),
+    queryKey: ["asset", id],
+    queryFn: () => assetService.getById(id), // รอกลับมาทำ
     
     // enabled: !!id คือถ้าไม่มี id (เช่นเป็น null/0) จะไม่ยิง API
     enabled: !!id, 
