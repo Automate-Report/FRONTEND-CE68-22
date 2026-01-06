@@ -19,13 +19,14 @@ export interface CreateAssetPayload {
 }
 
 export interface Credential {
-    id: number;
-    asset_id: number;
-    username: string;
-    password: string;
+  id: number;
+  asset_id: number;
+  username: string;
+  password: string;
 }
 
 export interface CreateCredentialPayload {
-    username: string;
-    password: string;
+  asset_id: string;
+  username: string;
+  password: string;
 }
