@@ -23,6 +23,11 @@ export const logout = async () => {
     return res.data;
 };
 
+export const googleOAuth = async (token: string) => {
+    const res = await api.post("/auth/google-oauth", { token });
+    return res.data;
+}
+
 export const getMe = async () => {
     const res = await api.get("/auth/me");
     return res.data;
