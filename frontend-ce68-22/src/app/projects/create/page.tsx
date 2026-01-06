@@ -10,8 +10,6 @@ import {
   Button,  
   Link as MuiLink 
 } from "@mui/material";
-import SaveIcon from "@mui/icons-material/Save";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 
 export default function CreateProjectPage() {

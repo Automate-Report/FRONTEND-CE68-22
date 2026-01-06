@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { Box, CircularProgress } from "@mui/material";
 
 // Hooks
-import { useProject } from "@/src/hooks/use-project";
+import { useProject } from "@/src/hooks/project/use-project";
 import { useEditAssetLogic } from "@/src/hooks/use-editAssetLogic";
 
 // UI Components (Reuse ของเดิม)

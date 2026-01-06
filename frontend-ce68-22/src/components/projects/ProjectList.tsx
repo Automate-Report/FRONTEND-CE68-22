@@ -25,7 +25,7 @@ export function ProjectList({ searchQuery, filterStatus }: ProjectListProps) {
     handleChangePage,
     handleChangeRowsPerPage,
     handleSort,
-  } = useTable<Project>([]);
+  } = useTable<Project>();
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);

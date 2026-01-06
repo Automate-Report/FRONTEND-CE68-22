@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { Box } from "@mui/material";
 
 // Hooks & Logic
-import { useProject } from "@/src/hooks/use-project";
+import { useProject } from "@/src/hooks/project/use-project";
 import { useCreateAssetLogic } from "@/src/hooks/use-createAssetLogic";
 
 // UI Components
