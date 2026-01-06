@@ -40,7 +40,7 @@ import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 
 // Types
 import { Asset } from "@/src/types/asset";
-import { Credential } from "@/src/types/credential"; // สมมติว่ามี Type นี้
+import { Credential } from "@/src/types/asset";
 
 export default function ViewAssetPage() {
   const router = useRouter();

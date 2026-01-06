@@ -26,7 +26,7 @@ export function AssetList({ searchQuery, filterStatus, project_id }: AssetListPr
     handleChangePage,
     handleChangeRowsPerPage,
     handleSort,
-  } = useTable<Asset>([]);
+  } = useTable<Asset>();
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [assetToDelete, setAssetToDelete] = useState<Asset | null>(null);

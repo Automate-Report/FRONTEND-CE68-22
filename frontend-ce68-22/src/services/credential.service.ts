@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Credential, CreateCredentialPayload } from "../types/credential";
+import { Credential, CreateCredentialPayload } from "../types/asset";
 
 
 // สร้าง Instance Axios (ควรย้ายไป lib/axios.ts ในอนาคต)
