@@ -3,10 +3,10 @@ import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { assetService } from "@/src/services/asset.service";
 import { credentialService } from "@/src/services/credential.service";
-import { useAsset } from "@/src/hooks/use-asset"; // สมมติว่ามี hook ดึง asset เดี่ยว
+import { useAsset } from "@/src/hooks/asset/use-asset"; // สมมติว่ามี hook ดึง asset เดี่ยว
 import { useCredentialByAsset } from "@/src/hooks/use-credential"; // สมมติว่ามี hook ดึง credential ของ asset
 
-import { Asset } from "../types/asset";
+import { Asset } from "../../types/asset";
 
 // Type เดียวกับหน้า Create
 export type AssetFormInputs = {

@@ -1,6 +1,6 @@
 import { Box, Typography, TextField, Stack, Button } from "@mui/material";
 import { UseFormReturn } from "react-hook-form";
-import { AssetFormInputs } from "@/src/hooks/use-createAssetLogic";
+import { AssetFormInputs } from "@/src/hooks/asset/use-createAssetLogic";
 import { commonInputStyles } from "@/src/styles/inputAssetStyle";
 
 interface Props {

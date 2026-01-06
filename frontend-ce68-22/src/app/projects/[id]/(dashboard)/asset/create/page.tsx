@@ -5,7 +5,7 @@ import { Box } from "@mui/material";
 
 // Hooks & Logic
 import { useProject } from "@/src/hooks/project/use-project";
-import { useCreateAssetLogic } from "@/src/hooks/use-createAssetLogic";
+import { useCreateAssetLogic } from "@/src/hooks/asset/use-createAssetLogic";
 
 // UI Components
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
