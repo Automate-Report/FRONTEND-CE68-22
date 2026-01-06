@@ -29,7 +29,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 // Services
 import { assetService } from "@/src/services/asset.service";
-import { credentialService } from "@/src/services/credential.service";
+import { assetCredentialService } from "@/src/services/assetCredential.service";
 
 // Hooks & Components
 import { useProject } from "@/src/hooks/project/use-project";
@@ -65,7 +65,6 @@ export default function ViewAssetPage() {
   // --- Fetch Data ---
   const { data: project } = useProject(projectId);
   const { data: assetData, isLoading: isAssetLoading } = useAsset(assetId);
-  // ใช้ refetch เพื่อโหลดข้อมูลใหม่หลังลบ Credential
   const { data: credData, isLoading: isCredLoading, refetch: refetchCredential } = useCredentialByAsset(assetId);
 
   // --- Helpers ---
@@ -85,7 +84,7 @@ export default function ViewAssetPage() {
 
   // Cast Types
   const asset = assetData as Asset;
-  const credential = Array.isArray(credData) ? credData[0] : (credData as Credential | undefined);
+  const credential = credData as Credential | undefined;
 
   // Breadcrumbs
   const breadcrumbItems = [
@@ -128,7 +127,7 @@ export default function ViewAssetPage() {
           // --- ลบ Asset ---
           // (ถ้า Backend ไม่ Cascade ลบ Credential ให้ เราอาจจะต้องสั่งลบเองก่อน ตรงนี้ขึ้นอยู่กับ Backend)
           if (credential) {
-             await credentialService.delete(credential.id);
+             await assetCredentialService.delete(credential.id);
           }
           await assetService.delete(deleteTarget.id);
           
@@ -137,7 +136,7 @@ export default function ViewAssetPage() {
 
       } else if (deleteTarget.type === 'CREDENTIAL') {
           // --- ลบ Credential ---
-          await credentialService.delete(deleteTarget.id);
+          await assetCredentialService.delete(deleteTarget.id);
           // โหลดข้อมูล Credential ใหม่ (ตารางจะหายไป)
           await refetchCredential();
       }

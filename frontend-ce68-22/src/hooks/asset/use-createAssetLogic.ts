@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { assetService } from "@/src/services/asset.service";
-import { credentialService } from "@/src/services/credential.service";
+import { assetCredentialService } from "@/src/services/assetCredential.service";
 
 // Define Types
 export type AssetFormInputs = {
@@ -53,7 +53,7 @@ export const useCreateAssetLogic = (projectId: number) => {
 
       // if Create Credential 
       if (showCredential) {
-        await credentialService.create({
+        await assetCredentialService.create({
             asset_id: createdAssetId,
             username: data.username || "",
             password: data.password || "",

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { assetService } from "@/src/services/asset.service";
-import { credentialService } from "@/src/services/credential.service";
+import { assetCredentialService } from "@/src/services/assetCredential.service";
 import { useAsset } from "@/src/hooks/asset/use-asset"; // สมมติว่ามี hook ดึง asset เดี่ยว
 import { useCredentialByAsset } from "@/src/hooks/use-credential"; // สมมติว่ามี hook ดึง credential ของ asset
 
@@ -85,7 +85,7 @@ export const useEditAssetLogic = (projectId: number, assetId: number) => {
       // Case 1: เดิมไม่มี -> ใหม่มี (Create)
       if (!existingCredentialId && showCredential) {
          console.log("Creating new Credential...");
-         await credentialService.create({
+         await assetCredentialService.create({
             asset_id: assetId,
             username: data.username || "",
             password: data.password || ""
@@ -95,7 +95,7 @@ export const useEditAssetLogic = (projectId: number, assetId: number) => {
       // Case 2: เดิมมี -> ใหม่มี (Update)
       else if (existingCredentialId && showCredential) {
          console.log("Updating existing Credential...");
-         await credentialService.edit(existingCredentialId, {
+         await assetCredentialService.edit(existingCredentialId, {
             asset_id: assetId,
             username: data.username || "",
             password: data.password || ""
@@ -105,7 +105,7 @@ export const useEditAssetLogic = (projectId: number, assetId: number) => {
       // Case 3: เดิมมี -> ใหม่ไม่มี (Delete)
       else if (existingCredentialId && !showCredential) {
          console.log("Deleting Credential...");
-         await credentialService.delete(existingCredentialId);
+         await assetCredentialService.delete(existingCredentialId);
       }
       
 
