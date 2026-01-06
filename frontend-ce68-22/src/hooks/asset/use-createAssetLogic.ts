@@ -53,9 +53,9 @@ export const useCreateAssetLogic = (projectId: number) => {
 
       // if Create Credential 
       if (showCredential) {
-        const cred = await credentialService.create({
-            username: data.username || "",
+        await credentialService.create({
             asset_id: createdAssetId,
+            username: data.username || "",
             password: data.password || "",
         });
       }
