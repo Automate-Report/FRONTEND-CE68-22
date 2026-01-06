@@ -86,8 +86,9 @@ export const useEditAssetLogic = (projectId: number, assetId: number) => {
       if (!existingCredentialId && showCredential) {
          console.log("Creating new Credential...");
          await credentialService.create({
-             username: data.username || "",
-             password: data.password || ""
+            asset_id: assetId,
+            username: data.username || "",
+            password: data.password || ""
          });
       }
       
@@ -95,8 +96,9 @@ export const useEditAssetLogic = (projectId: number, assetId: number) => {
       else if (existingCredentialId && showCredential) {
          console.log("Updating existing Credential...");
          await credentialService.edit(existingCredentialId, {
-             username: data.username || "",
-             password: data.password || ""
+            asset_id: assetId,
+            username: data.username || "",
+            password: data.password || ""
          });
       }
 
