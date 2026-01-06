@@ -26,7 +26,7 @@ export interface Credential {
 }
 
 export interface CreateCredentialPayload {
-  asset_id: string;
+  asset_id: number;
   username: string;
   password: string;
 }
