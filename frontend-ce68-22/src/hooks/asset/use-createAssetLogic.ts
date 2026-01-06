@@ -37,35 +37,30 @@ export const useCreateAssetLogic = (projectId: number) => {
   // Submit Logic
   const onSubmit: SubmitHandler<AssetFormInputs> = async (data) => {
     let createdAssetId: number | null = null;
-    let newCredentialId: number | undefined = undefined;
 
     try {
-      // Step 1: Create Credential 
-      if (showCredential) {
-        console.log(`2. Creating Credential for Asset ID: ${createdAssetId}`);
-        const cred = await credentialService.create({
-            username: data.username || "",
-            password: data.password || "",
-        });
-        newCredentialId = parseInt(cred.id);
-      }
-
-      // Step 2: Create Asset
+      // Create Asset
       const assetPayload = {
         name: data.name,
         target: data.target,
         type: data.type,
         project_id: projectId,
-        credential_id: newCredentialId,
         description: "",
       };
 
-      console.log("1. Creating Asset...");
       const newAsset = await assetService.create(assetPayload);
+      createdAssetId = parseInt(newAsset.id);
 
+      // if Create Credential 
+      if (showCredential) {
+        const cred = await credentialService.create({
+            username: data.username || "",
+            asset_id: createdAssetId,
+            password: data.password || "",
+        });
+      }
 
-
-      // Step 3: Success
+      //Success
       router.push(`/projects/${projectId}/asset/${newAsset.id}`); // แก้ path ตามต้องการ
 
     } catch (error) {
