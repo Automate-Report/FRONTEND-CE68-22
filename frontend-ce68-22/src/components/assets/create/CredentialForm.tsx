@@ -1,6 +1,6 @@
 import { Box, Stack, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, TextField, InputAdornment, IconButton } from "@mui/material";
 import { UseFormReturn } from "react-hook-form";
-import { AssetFormInputs } from "@/src/hooks/use-createAssetLogic";
+import { AssetFormInputs } from "@/src/hooks/asset/use-createAssetLogic";
 import { commonInputStyles } from "@/src/styles/inputAssetStyle";
 
 // Icons

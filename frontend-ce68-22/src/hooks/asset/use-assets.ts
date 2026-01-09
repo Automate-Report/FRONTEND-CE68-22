@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { assetService } from "../services/asset.service";
+import { assetService } from "../../services/asset.service";
 
 export function useAssets(
   project_id: number,

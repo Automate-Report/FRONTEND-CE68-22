@@ -3,7 +3,7 @@
 import React, { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { projectService } from "../../../../services/project.service";
-import { useProject } from "../../../../hooks/use-project";
+import { useProject } from "@/src/hooks/project/use-project";
 import { 
   Box, 
   Typography, 

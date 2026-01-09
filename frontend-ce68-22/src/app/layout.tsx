@@ -28,7 +28,7 @@ export default function RootLayout({
 
           <NavBar />
 
-          <div className="overflow-hidden">
+          <div>
              {children}
           </div>
         </QueryProvider>
