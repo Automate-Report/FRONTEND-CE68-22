@@ -10,10 +10,6 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import Link from "next/link";
 import { GenericBreadcrumbsProps } from "@/src/types/common";
 
-interface ProjectBreadCrumProps{
-    name: string;
-}
-
 export function GenericBreadcrums({ items }: GenericBreadcrumbsProps)
 {
     return (
