@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { projectService } from "../services/project.service";
-// import { Project } from "../types/project";
+import { projectService } from "@/src/services/project.service";
+
 
 export function useProject(id: number) {
   return useQuery({
