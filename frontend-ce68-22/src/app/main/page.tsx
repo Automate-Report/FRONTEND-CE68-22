@@ -11,6 +11,9 @@ import { useDebounce } from "@/src/hooks/use-debounce";
 export default function ProjectsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("ALL");
+  const [tempFilter, setTempFilter] = useState(filterStatus);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const filterStatusOptions = ["ALL", "ACTIVE", "COMPLETE", "ARCHIVED"]
 
   const debouncedSearch = useDebounce(searchQuery, 500);
 
