@@ -14,9 +14,17 @@ export default function ProjectsPage() {
   const [tempFilter, setTempFilter] = useState(filterStatus);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const filterStatusOptions = ["ALL", "ACTIVE", "COMPLETE", "ARCHIVED"]
+  const handleApply = () => {
+    setFilterStatus(tempFilter); //update the real constant
+    setIsModalOpen(false);
+  };
+
+  const openModal = () => {
+    setTempFilter(filterStatus);
+    setIsModalOpen(true);
+  };
 
   const debouncedSearch = useDebounce(searchQuery, 500);
-
   return (
     <div className="bg-[#0F1518] mt-6 mx-12">
       <div className="text-4xl text-[#E6F0E6] font-bold pb-10">
