@@ -5,6 +5,7 @@ import { ProjectList } from "../../components/projects/ProjectList";
 import CreateProjectIcon from "@/src/components/icon/CreateProject";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import FilterIcon from "@/src/components/icon/Filter";
+import MagIcon from "@/src/components/icon/MagnifyingGlass";
 import { useDebounce } from "@/src/hooks/use-debounce";
 
 
@@ -36,6 +37,7 @@ export default function ProjectsPage() {
           
           {/* 3. Search Box Implementation */}
           <div className="relative w-1/3">
+          <MagIcon />
              <input 
                 type="text"
                 placeholder="Search projects..."
