@@ -2,6 +2,7 @@ import axios from "axios";
 import { AxiosResponse } from "axios";
 
 import { CreateWorkerPayload, DownloadReponse, Worker } from "../types/worker";
+import { AccessKey } from "../types/access_key";
 import { PaginatedResult } from "../types/common";
 
 
@@ -38,7 +39,7 @@ export const workerService = {
   },
   
   genKey: async (workerId: number) =>{
-    const { data } = await apiClient.post<Worker>(`/workers/gen-key/${workerId}`);
+    const { data } = await apiClient.post<AccessKey>(`/workers/gen-key/${workerId}`);
     return data;
   },
 
