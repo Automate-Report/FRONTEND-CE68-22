@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ProjectList } from "../../components/projects/ProjectList";
 import CreateProjectIcon from "@/src/components/icon/CreateProject";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
-
+import FilterIcon from "@/src/components/icon/Filter";
 import { useDebounce } from "@/src/hooks/use-debounce";
 
 
