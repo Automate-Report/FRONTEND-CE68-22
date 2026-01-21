@@ -4,7 +4,6 @@ export interface Worker {
   hostname: string;
   status: string;
   isActive: boolean;
-  access_key_id: number;
 }
 
 export interface CreateWorkerPayload {

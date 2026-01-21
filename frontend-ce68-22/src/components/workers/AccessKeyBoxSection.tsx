@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, CircularProgress } from "@mui/material";
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 
 import { Worker } from "@/src/types/worker";
+import { AccessKey } from "@/src/types/access_key";
 import { workerService } from "@/src/services/worker.service";
 import { accessKeyService } from "@/src/services/accessKey.service";
 import { AccessKeyBox } from "./AccessKeyBox";
+
+import { useAccessKeyByWorker } from "@/src/hooks/use-accessKey";
 
 interface WorkerItemProps {
   worker: Worker;
@@ -17,12 +20,16 @@ interface WorkerItemProps {
 export function AccessKeyBoxSection({ worker, onRefresh }: WorkerItemProps)
 {
     const [loading, setLoading] = useState(false);
+    const { data: accessKey, isLoading } = useAccessKeyByWorker(worker.id);
 
     const handleGenerateKey = async () => {
         setLoading(true);
         try {
-            await workerService.genKey(worker.id);
-
+            const data = await workerService.genKey(worker.id);
+            if (!data) {
+                console.error("Backend returned null data");
+                // อาจจะแจ้งเตือน user ว่า "สร้าง Key สำเร็จแต่ไม่ได้รับข้อมูลกลับ" หรือจัดการตามความเหมาะสม
+            }
             onRefresh();
 
         }catch (error) {
@@ -40,10 +47,11 @@ export function AccessKeyBoxSection({ worker, onRefresh }: WorkerItemProps)
         
         onRefresh(); // ดึงข้อมูล worker ใหม่ -> access_key_id จะหายไป -> ปุ่ม Generate จะกลับมา
     };
+    if (isLoading) return <div>Loading...</div>;
 
     return (
         <div className="pt-3">
-            {worker.access_key_id === null ? (
+            {!accessKey ? (
                 <Button
                     variant="contained"
                     onClick={handleGenerateKey}
@@ -65,7 +73,7 @@ export function AccessKeyBoxSection({ worker, onRefresh }: WorkerItemProps)
                 </Button>
             ) : (
                 <AccessKeyBox 
-                    accessKeyId={worker.access_key_id}
+                    accessKeyId={accessKey.id}
                     onRevokeSuccess={handleRevokeSuccess}
                 />
             )}
