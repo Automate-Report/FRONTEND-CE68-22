@@ -13,14 +13,14 @@ import { GenericBreadcrumbsProps } from "@/src/types/common";
 export function GenericBreadcrums({ items }: GenericBreadcrumbsProps)
 {
     return (
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 3}}>
             <Breadcrumbs 
                 aria-label="breadcrumb" 
                 separator={<NavigateNextIcon fontSize="small"/>} 
                 sx={{ 
                     color: "#E6F0E6", 
                     fontSize: "16px",
-                    fontWeight: 400
+                    fontWeight: 400,
             }}
             >
                 {items.map((item, index) => {
@@ -58,7 +58,7 @@ export function GenericBreadcrums({ items }: GenericBreadcrumbsProps)
                 sx={{ 
                     mt: 2,           // margin-top: เว้นระยะห่างจากตัวหนังสือลงมาหน่อย (2 = 16px)
                     borderColor: "#D8D4D4", // กำหนดสีของเส้น (ถ้าพื้นหลังดำ ควรใช้สีเทาเข้ม)
-                    borderBottomWidth: 2
+                    borderBottomWidth: 1
                 }} 
             />
         </Box>

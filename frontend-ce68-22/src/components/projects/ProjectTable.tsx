@@ -5,8 +5,8 @@ import Link from "next/link";
 
 
 // Icons (สำหรับใช้ใน render)
-import EditProjectIcon from "../icon/Edit";
-import DeleteProjectIcon from "../icon/Delete";
+import EditIcon from "../icon/Edit";
+import DeleteIcon from "../icon/Delete";
 
 type SortOrder = "none" | "asc" | "desc";
 type SortColumn = "name" | "updated_at";
@@ -78,12 +78,12 @@ export function ProjectTable({
       render: (row) => (
         <div className="flex justify-around pr-2 gap-6">
            {/* ตรงนี้คุณอาจจะใส่ onClick handler ในอนาคต */}
-          <Link href={`/projects/${row.id}/edit`} className="cursor-pointer"><EditProjectIcon /></Link>
+          <Link href={`/projects/${row.id}/edit`} className="cursor-pointer"><EditIcon /></Link>
           <div 
             className="cursor-pointer"
             onClick={() => onDeleteClick(row)}
           >
-            <DeleteProjectIcon />
+            <DeleteIcon />
           </div>
         </div>
       )
