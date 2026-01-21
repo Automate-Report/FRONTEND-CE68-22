@@ -44,6 +44,9 @@ export default function ProfileEditPage() {
                     </div>
                 </div>
             </div>
+            <div className="flex flex col">
+                    kldjfgh
+            </div>
         </div>
 
     );
