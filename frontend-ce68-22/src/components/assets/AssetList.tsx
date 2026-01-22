@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAssets } from "@/src/hooks/use-assets";
+import { useAssets } from "@/src/hooks/asset/use-assets";
 import { AssetTable } from "./AssetTable";
 import { useTable } from "@/src/hooks/use-table";
 import { Asset } from "@/src/types/asset";
@@ -26,7 +26,7 @@ export function AssetList({ searchQuery, filterStatus, project_id }: AssetListPr
     handleChangePage,
     handleChangeRowsPerPage,
     handleSort,
-  } = useTable<Asset>([]);
+  } = useTable<Asset>();
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [assetToDelete, setAssetToDelete] = useState<Asset | null>(null);
