@@ -6,7 +6,8 @@ const publicRoutes = ["/", "/login", "/register", "/forgot-password"];
 export function proxy(request: NextRequest) {
     const token = request.cookies.get("access_token")?.value;
     const { pathname } = request.nextUrl;
-    
+    console.log("Middleware - pathname:", pathname, " token:", token);
+
     // user NOT logged in and trying to access protected page
     if (!token && !publicRoutes.includes(pathname)) {
         console.log("Redirecting to /login");
