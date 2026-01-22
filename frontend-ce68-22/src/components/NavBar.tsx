@@ -6,14 +6,23 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { Divider, Tooltip, Button, Badge } from "@mui/material";
 import RobotIcon from './icon/RobotIcon';
 import Link from 'next/link';
-import { getMe } from '../services/auth.service';
+import { useEffect, useState } from 'react';
+import { isAuthen } from '../services/auth.service';
 
 export function NavBar() {
 
-    // const isAuthen = await getMe()
-    const isAuthen = "1"; //for testing purpose
+    const [isAuth, setIsAuth] = useState<boolean>(false);
+    useEffect(() => {
+        const checkAuth = async () => {
+            const result = await isAuthen();
+            setIsAuth(result);
+        };
 
-    return isAuthen == "1" ? (
+        checkAuth();
+    }, []);
+    console.log("NavBar - isAuth:", isAuth);
+
+    return isAuth ? (
         <div className="bg-[#0D1014] text-[#E6F0E6] w-full">
             <div className=" flex justify-between items-center px-[24px] py-3 r">
                 <Link href="/main">
@@ -74,40 +83,5 @@ export function NavBar() {
                 }}
             />
         </div>
-    ) : ( //Unauthenticated NavBar
-        <div className="bg-[#0D1014] text-[#E6F0E6] w-full">
-            <div className=" flex justify-between items-center px-[48px] py-3 r">
-                <Link href="/"> {/* Redirect to landing page */}
-                    <div className="w-64 h-12 overflow-hidden rounded-lg">
-                        <img
-                            src="https://i.imgur.com/SjjJVdY.png"
-                            alt="brand_logo"
-                            className="w-full h-full object-cover"
-                        />
-                    </div>
-                </Link>
-                <div className="flex items-center gap-6">
-                    <div className="flex gap-10 text-xl font-semibold">
-                        <Link href="/login">
-                            <div className="flex items-center gap-3 hover:text-[#AFFFB9]">
-                                <span className="leading-none">Login</span>
-                            </div>
-                        </Link>
-
-                        <Link href="/register">
-                            <div className="flex items-center gap-3 hover:text-[#AFFFB9]">
-                                <span className="leading-none">Register</span>
-                            </div>
-                        </Link>
-                    </div>
-                </div>
-            </div>
-            <Divider
-                sx={{
-                    borderColor: "#D8D4D4", // กำหนดสีของเส้น (ถ้าพื้นหลังดำ ควรใช้สีเทาเข้ม)
-                    padding: 0
-                }}
-            />
-        </div>
-    );
+    ) : null;
 }
