@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { projectService } from "../../../services/project.service";
+import { getMe } from "@/src/services/auth.service";
 import { 
   Box, 
   Typography, 
@@ -31,10 +32,13 @@ export default function CreateProjectPage() {
     try {
       if (!name) throw new Error("Please enter project name");
 
+      const getme = await getMe();
+
       // 1. เรียก API
       const newProject = await projectService.create({
         name,
-        description
+        description,
+        user_id: getme["user"]
       });
 
       // 2. สร้างสำเร็จ -> Redirect ไปหน้า Detail ของโปรเจกต์นั้นเลย
