@@ -27,7 +27,6 @@ export default async function RootLayout({
   const showNavbar = (headersList.get("x-show-navbar") === "true");
 
   console.log("Layout - showNavbar:", showNavbar);
-  console.log("Layout - headersList:", headersList);
   
   return (
     <html lang="en">
