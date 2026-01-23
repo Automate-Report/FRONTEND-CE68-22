@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Project, CreateProjectPayload } from "../types/project";
 import { PaginatedResult } from "../types/common";
-
+import { getMe } from "./auth.service";
 
 // สร้าง Instance Axios (ควรย้ายไป lib/axios.ts ในอนาคต)
 const apiClient = axios.create({
@@ -19,9 +19,12 @@ export const projectService = {
     // แปลงค่า sortOrder ให้เป็น string ที่ Backend เข้าใจ (ถ้าเป็น none ให้ส่ง undefined)
     const orderParam = sortOrder === "none" ? undefined : sortOrder;
     const sortParam = sortBy || undefined;
+    const getme = await getMe();
+
 
     const { data } = await apiClient.get<PaginatedResult<Project>>("/projects/all", {
       params: {
+        user_id: getme["user"],
         page,
         size,
         sort_by: sortParam, // ชื่อต้องตรงกับ Backend (FastAPI)

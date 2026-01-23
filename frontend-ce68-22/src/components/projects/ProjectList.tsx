@@ -7,6 +7,7 @@ import { useTable } from "@/src/hooks/use-table";
 import { Project } from "@/src/types/project";
 import { GenericDeleteModal } from "../Common/GenericDeleteModal";
 import { projectService } from "../../services/project.service";
+import { getMe } from "@/src/services/auth.service";
 
 //นิยาม Interface สำหรับ Props
 interface ProjectListProps {
@@ -37,6 +38,7 @@ export function ProjectList({ searchQuery, filterStatus }: ProjectListProps) {
      // หมายเหตุ: ต้องเช็คว่า handleChangePage ของคุณรองรับ event null หรือไม่ 
      // ถ้าไม่รองรับ อาจต้องใช้ setPage(0) ตรงๆ (ถ้า useTable expose ออกมา)
   }, [searchQuery, filterStatus]);
+
 
   const { data: response, isLoading, isError, refetch } = useProjects(
     page + 1, 
