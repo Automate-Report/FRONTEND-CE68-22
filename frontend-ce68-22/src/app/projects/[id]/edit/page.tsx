@@ -3,6 +3,7 @@
 import React, { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { projectService } from "../../../../services/project.service";
+import { getMe } from "@/src/services/auth.service";
 import { useProject } from "@/src/hooks/project/use-project";
 import { 
   Box, 
@@ -42,10 +43,12 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
         setError(null);
     
         try {
+            const getme = await getMe();
             // เรียก Service edit
             await projectService.edit(projectId, {
                 name,
-                description
+                description,
+                user_id: getme["user"]
             });
       
             // สำเร็จ -> กลับไปหน้า Overview
