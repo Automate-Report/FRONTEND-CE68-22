@@ -14,10 +14,8 @@ import CustomTextField from "@/src/components/Common/CustomTextField";
 import { muiGreenButtonStyle } from "@/src/styles/greenButton";
 import { muiRedButtonStyle } from "@/src/styles/redButton";
 
-// Mock Data
-const INITIAL_AVAILABLE_TAGS = ["Development", "Design", "Marketing", "Research", "Urgent"];
-
-const filter = createFilterOptions<string>();
+// สร้าง Filter Options สำหรับ Autocomplete
+const filter = createFilterOptions<Tag>();
 
 export default function CreateProjectPage() {
   // เรียกใช้ Hook ตัวเดียวได้ครบทุกอย่าง
@@ -28,6 +26,7 @@ export default function CreateProjectPage() {
     { label: "Home", href: "/main" },
     { label: "Create Project", href: undefined }
   ];
+
 
   return (
     <div className="mx-12 py-8">
