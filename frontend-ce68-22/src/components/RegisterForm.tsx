@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { LoginPayload, RegisterPayload, UserKey } from "../types/auth";
 import { useRouter } from 'next/navigation';
 import { login, register } from '../services/auth.service';
-import { useAuthStore } from '../store/auth';
 
 export default function RegisterCard() {
     const [firstName, setFirstName] = useState<string>("");
@@ -14,15 +13,6 @@ export default function RegisterCard() {
     const [password, setPassword] = useState<string>("");
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
-    const setUserNow = useAuthStore((state) => state.setUserNow);
-
-    // redirect if already logged in
-    const userNow = useAuthStore((state) => state.userNow);
-    useEffect(() => {
-        if (userNow) {
-            router.push("/main");
-        }
-    }, [userNow, router]);
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -34,8 +24,8 @@ export default function RegisterCard() {
             console.log("Registering user:", registerPayload);
             await register(registerPayload);
             const user: UserKey = await login(loginPayload);
-            setUserNow(user);
             router.push("/main");
+            router.refresh();
 
         } catch (err) {
             setError("This Email is already been used");

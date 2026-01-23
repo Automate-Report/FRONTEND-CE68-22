@@ -6,23 +6,10 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { Divider, Tooltip, Button, Badge } from "@mui/material";
 import RobotIcon from './icon/RobotIcon';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { isAuthen } from '../services/auth.service';
 
 export function NavBar() {
 
-    const [isAuth, setIsAuth] = useState<boolean>(false);
-    useEffect(() => {
-        const checkAuth = async () => {
-            const result = await isAuthen();
-            setIsAuth(result);
-        };
-
-        checkAuth();
-    }, []);
-    console.log("NavBar - isAuth:", isAuth);
-
-    return isAuth ? (
+    return (
         <div className="bg-[#0D1014] text-[#E6F0E6] w-full">
             <div className=" flex justify-between items-center px-[24px] py-3 r">
                 <Link href="/main">
@@ -83,5 +70,5 @@ export function NavBar() {
                 }}
             />
         </div>
-    ) : null;
+    );
 }
