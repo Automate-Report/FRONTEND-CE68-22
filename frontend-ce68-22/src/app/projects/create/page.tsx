@@ -14,6 +14,11 @@ import CustomTextField from "@/src/components/Common/CustomTextField";
 import { muiGreenButtonStyle } from "@/src/styles/greenButton";
 import { muiRedButtonStyle } from "@/src/styles/redButton";
 
+// Mock Data
+const INITIAL_AVAILABLE_TAGS = ["Development", "Design", "Marketing", "Research", "Urgent"];
+
+const filter = createFilterOptions<string>();
+
 export default function CreateProjectPage() {
   // เรียกใช้ Hook ตัวเดียวได้ครบทุกอย่าง
   const { formState, setters, status, handlers } = useCreateProject();
