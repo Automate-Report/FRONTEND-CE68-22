@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 // Services
 import { projectService } from "../../../services/project.service";
 import { TagService } from "../../../services/tag.service";
 import { getMe } from "@/src/services/auth.service";
 // Types
-import { Tag } from "@/src/types/tag"; // อย่าลืมสร้างไฟล์ interface Tag { id: number; name: string; }
+import { Tag } from "@/src/types/tag";
 // UI Components
 import {
   Box,
@@ -25,7 +25,6 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 
-// สร้าง Filter Options สำหรับ Autocomplete
 const filter = createFilterOptions<Tag>();
 
 export default function CreateProjectPage() {
@@ -36,34 +35,65 @@ export default function CreateProjectPage() {
   const [description, setDescription] = useState("");
   
   // --- State Tags ---
-  // selectedTags: เก็บเป็น "ชื่อ Tag" (String) เพื่อแสดงผลใน Input
   const [selectedTags, setSelectedTags] = useState<string[]>([""]); 
-  
-  // availableTags: เก็บเป็น "Object Tag" (มี id, name) ที่ดึงจาก DB
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   
+  // เก็บ UserID ไว้เพื่อใช้ในการ fetch tags ซ้ำๆ โดยไม่ต้องเรียก getMe บ่อยเกินไป
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
   // Loading States
-  const [fetchingTags, setFetchingTags] = useState(true);
+  const [fetchingTags, setFetchingTags] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // --- 1. Init: ดึง Tag ทั้งหมดเมื่อเข้าหน้าเว็บ ---
+  // --- ฟังก์ชันกลางสำหรับดึง Tags ล่าสุด ---
+  // ใช้ useCallback เพื่อให้ React ไม่สร้างฟังก์ชันใหม่ทุกครั้งที่ render
+  const fetchLatestTags = useCallback(async (uid: string) => {
+      try {
+          // ไม่ตั้ง loading true ตรงนี้เพื่อให้ UI ไม่กระตุกเวลากด Dropdown บ่อยๆ
+          // หรือถ้าอยากให้ขึ้น loading หมุนๆ ทุกครั้งที่กด ก็ uncomment บรรทัดล่างได้ครับ
+          // setFetchingTags(true); 
+          
+          const tags = await TagService.getAll(uid);
+          setAvailableTags(tags);
+      } catch (err) {
+          console.error("Error fetching tags:", err);
+      } finally {
+          setFetchingTags(false);
+      }
+  }, []);
+
+  // --- 1. Init: ดึง User ID และ Tags ครั้งแรก ---
   useEffect(() => {
-    const initTags = async () => {
+    const initData = async () => {
         try {
             setFetchingTags(true);
-            const getme = await getMe();
-            const tags = await TagService.getAll(getme["user"]);
-            setAvailableTags(tags);
+            const me = await getMe();
+            const uid = me["user"]; // หรือ me.id ตาม structure จริงของคุณ
+            
+            // !!! จุดสำคัญ: เช็คให้ชัวร์ก่อนยิง !!!
+            if (uid && uid !== "undefined" && uid !== "null") {
+                setCurrentUserId(uid);
+                setFetchingTags(true); // เริ่มหมุนตรงนี้
+                await fetchLatestTags(uid);
+            } else {
+                console.log("Waiting for valid User ID...");
+            }
         } catch (err) {
-            console.error("Error fetching tags:", err);
-            setAvailableTags([]);
+            console.error("Error init data:", err);
         } finally {
             setFetchingTags(false);
         }
     };
-    initTags();
-  }, []);
+    initData();
+  }, [fetchLatestTags]);
+
+  // --- Handler: เมื่อกดเปิด Dropdown (onOpen) ---
+  const handleDropdownOpen = () => {
+      if (currentUserId) {
+          fetchLatestTags(currentUserId);
+      }
+  };
 
   // --- Logic: เพิ่ม/ลบ แถว Dropdown ---
   const handleAddTagRow = () => {
@@ -76,76 +106,81 @@ export default function CreateProjectPage() {
     setSelectedTags(newTags);
   };
 
-  // --- Logic: ลบ Tag ถาวรออกจาก DB (ปุ่มกากบาทเล็กใน Dropdown) ---
+  // --- Logic: ลบ Tag ถาวรออกจาก DB ---
   const handleDeleteTagFromDb = async (tagToDelete: Tag) => {
     if (confirm(`Are you sure you want to permanently delete the tag "${tagToDelete.name}"?`)) {
         try {
             await TagService.delete(tagToDelete.id);
             
-            // อัปเดต State: เอาออกจาก availableTags
+            // 1. อัปเดต UI Local ทันที (Optimistic update)
             setAvailableTags((prev) => prev.filter((t) => t.id !== tagToDelete.id));
-            
-            // อัปเดต State: ถ้าแถวไหนเลือก Tag นี้อยู่ ให้เคลียร์ค่าออก
             setSelectedTags((prev) => prev.map((tName) => tName === tagToDelete.name ? "" : tName));
+
+            // 2. Re-fetch เพื่อความชัวร์ (ตาม requirement)
+            if (currentUserId) await fetchLatestTags(currentUserId);
 
         } catch (err) {
             console.error("Failed to delete tag:", err);
-            alert("Failed to delete tag. It might be in use.");
+            alert("Failed to delete tag.");
         }
     }
   };
 
-  // --- Logic: จัดการการเลือก/สร้าง Tag ใน Dropdown ---
+  // --- Logic: จัดการการเลือก/สร้าง Tag ---
   const handleTagChange = async (index: number, newValue: string | Tag | null) => {
     const newTags = [...selectedTags];
 
-    // 1. กรณี Clear ค่า (User ลบข้อความใน input จนหมด)
+    // 1. Clear ค่า
     if (newValue === null) {
         newTags[index] = "";
         setSelectedTags(newTags);
         return;
     }
 
-    // 2. กรณี Create New Tag (User พิมพ์ใหม่แล้วเลือก Add "...")
-    // หมายเหตุ: MUI freeSolo อาจส่งมาเป็น string ที่พิมพ์ หรือ Object ที่เรา push เข้าไปใน filterOptions
+    // 2. Create New Tag
     if (typeof newValue === 'string' && newValue.startsWith('Add "')) {
-        // กรณีเป็น String (ไม่ค่อยเกิดถ้าเรา Handle ใน filterOptions ดีๆ แต่กันไว้)
         const rawName = newValue.replace('Add "', '').replace('"', '');
         await createNewTagAndSelect(index, rawName, newTags);
     } 
     else if (typeof newValue === 'object' && 'inputValue' in newValue) {
-        // กรณีเลือกตัวเลือก Add "..." ที่เราสร้าง object หลอกไว้
-        // (เราจะ cast type เป็น any ตอน push เพื่อใส่ inputValue)
         const rawName = (newValue as any).inputValue;
         await createNewTagAndSelect(index, rawName, newTags);
     }
-    // 3. กรณีเลือก Tag ปกติที่มีอยู่แล้ว
+    // 3. เลือก Tag ปกติ
     else if (typeof newValue === 'object' && 'name' in newValue) {
         newTags[index] = newValue.name;
         setSelectedTags(newTags);
     }
-    // 4. กรณีพิมพ์เองแล้วกด Enter (เป็น string เพียวๆ)
+    // 4. พิมพ์เองแล้ว Enter
     else if (typeof newValue === 'string') {
-        // เช็คว่ามีอยู่แล้วหรือยัง
         const existingTag = availableTags.find(t => t.name.toLowerCase() === newValue.toLowerCase());
         if (existingTag) {
             newTags[index] = existingTag.name;
             setSelectedTags(newTags);
         } else {
-            // ถ้าไม่มี ให้สร้างใหม่เลย
             await createNewTagAndSelect(index, newValue, newTags);
         }
     }
   };
 
-  // Helper Function: สร้าง Tag ใหม่แล้วเลือกให้เลย
+  // Helper: สร้าง Tag -> เลือก -> Re-fetch All
   const createNewTagAndSelect = async (index: number, tagName: string, currentTags: string[]) => {
+      if (!currentUserId) {
+          alert("User ID not found. Please refresh the page.");
+          return;
+      }
+
       try {
-          const getme = await getMe();
-          const newTagObj = await TagService.create(tagName, getme["user"]);
-          setAvailableTags((prev) => [...prev, newTagObj]); // เพิ่มเข้า List
-          currentTags[index] = newTagObj.name; // เลือกเลย
+          // 1. สร้าง Tag
+          const newTagObj = await TagService.create(tagName, currentUserId);
+          
+          // 2. เลือก Tag นั้นลงในช่อง input ทันที (เพื่อให้ UI เร็ว)
+          currentTags[index] = newTagObj.name;
           setSelectedTags(currentTags);
+
+          // 3. Re-get All Tags (ตาม requirement เพื่อให้ Dropdown ช่องอื่นเห็นด้วย)
+          await fetchLatestTags(currentUserId);
+
       } catch (err) {
           console.error("Failed to create tag:", err);
           alert("Failed to create new tag.");
@@ -159,24 +194,19 @@ export default function CreateProjectPage() {
     setError(null);
     try {
       if (!name) throw new Error("Please enter project name");
-      
-      const getme = await getMe();
+      if (!currentUserId) throw new Error("User ID missing");
 
-      // 1. กรองชื่อ Tag ที่ว่างเปล่าทิ้ง
       const validTagNames = selectedTags.filter(tag => tag.trim() !== "");
-
-      // 2. แปลงชื่อ Tag -> ID (ต้องหาใน availableTags)
       const tagIds = validTagNames.map(tagName => {
           const foundTag = availableTags.find(t => t.name === tagName);
           return foundTag ? foundTag.id : null;
       }).filter((id) => id !== null) as number[];
 
-      // 3. ส่งข้อมูล (API Create Project)
       const newProject = await projectService.create({
         name,
         description,
-        user_id: getme["user"],
-        tag_ids: tagIds // ส่งเป็น ID
+        user_id: currentUserId, // ใช้ state ที่เก็บไว้ได้เลย ไม่ต้อง await getMe() อีก
+        tag_ids: tagIds
       });
 
       router.push(`/projects/${newProject.id}/overview`);
@@ -192,7 +222,6 @@ export default function CreateProjectPage() {
     { label: "Home", href: "/main" },
     { label: "Create Project", href: undefined }
   ];
-
 
   return (
     <div className="mx-12 py-8">
@@ -239,7 +268,11 @@ export default function CreateProjectPage() {
         <div className="pb-8">
             <div className="text-[#E6F0E6] font-bold text-[24px] pb-4">Project Tags</div>
             
-            {fetchingTags ? (
+            {/* ถ้า fetchingTags เป็น true (ตอนเข้าหน้าเว็บครั้งแรก) ให้หมุน
+               แต่ถ้าเป็นการ fetch ตอนกด dropdown เราจะไม่แสดง loading ทับ input 
+               เพื่อให้ UX ลื่นไหล (หรือถ้าชอบแบบหมุนตลอดก็แก้ condition นี้ได้) 
+            */}
+            {fetchingTags && availableTags.length === 0 ? (
                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', color: '#888' }}>
                     <CircularProgress size={20} /> Loading tags...
                 </Box>
@@ -250,20 +283,19 @@ export default function CreateProjectPage() {
                             disableClearable
                             freeSolo
                             fullWidth
-                            // options คือ List ของ Object Tag
                             options={availableTags} 
                             
-                            // Map ค่า tagValue (string) ให้ตรงกับ Object ใน options
+                            // *** จุดที่เพิ่ม: เมื่อกดเปิด Dropdown ให้ fetch tags ใหม่ ***
+                            onOpen={handleDropdownOpen} 
+                            
                             value={availableTags.find(t => t.name === tagValue) || tagValue}
                             
                             getOptionLabel={(option) => {
-                                // Handle กรณีที่เป็น String หรือ Object
                                 if (typeof option === 'string') return option;
                                 return option.name;
                             }}
 
                             onChange={(event, newValue) => {
-                                // ดักจับการเลือก "ลบแถว"
                                 if (typeof newValue === 'object' && newValue !== null && 'name' in newValue && newValue.name === "DELETE_ROW_ACTION") {
                                     handleRemoveTagRow(index);
                                     return;
@@ -274,20 +306,16 @@ export default function CreateProjectPage() {
                             filterOptions={(options, params) => {
                                 const filtered = filter(options, params);
                                 const { inputValue } = params;
-
-                                // เช็คว่า input ที่พิมพ์ มีอยู่แล้วหรือยัง
                                 const isExisting = options.some((option) => option.name.toLowerCase() === inputValue.toLowerCase());
                                 
-                                // ถ้ายังไม่มี ให้แสดงตัวเลือก "Add..."
                                 if (inputValue !== '' && !isExisting) {
                                     filtered.push({
                                         inputValue,
                                         name: `Add "${inputValue}"`,
-                                        id: 0 // ID ปลอม
+                                        id: 0 
                                     } as any);
                                 }
 
-                                // เพิ่มตัวเลือก Remove Row ไว้ล่างสุด
                                 filtered.push({
                                     id: -999,
                                     name: "DELETE_ROW_ACTION" 
@@ -300,7 +328,6 @@ export default function CreateProjectPage() {
                                 const { key, ...otherProps } = props;
                                 const optionName = typeof option === 'string' ? option : option.name;
 
-                                // 1. ตัวเลือก Remove Row
                                 if (optionName === "DELETE_ROW_ACTION") {
                                     return (
                                         <li key={key} {...otherProps} style={{ color: '#d32f2f', borderTop: '1px solid #eee' }}>
@@ -309,8 +336,6 @@ export default function CreateProjectPage() {
                                         </li>
                                     );
                                 }
-
-                                // 2. ตัวเลือก Add New Tag
                                 if (optionName.startsWith('Add "')) {
                                     return (
                                         <li key={key} {...otherProps} style={{ color: '#1976d2' }}>
@@ -319,14 +344,10 @@ export default function CreateProjectPage() {
                                         </li>
                                     );
                                 }
-
-                                // 3. ตัวเลือก Tag ปกติ (มีปุ่มลบจาก DB)
                                 return (
                                     <li key={key} {...otherProps}>
                                         <div className="flex justify-between items-center w-full">
                                             <span>{optionName}</span>
-                                            
-                                            {/* ปุ่มลบ (แสดงเฉพาะเมื่อเป็น Object Tag จริงๆ) */}
                                             {typeof option !== 'string' && option.id > 0 && (
                                                 <IconButton 
                                                     size="small"
