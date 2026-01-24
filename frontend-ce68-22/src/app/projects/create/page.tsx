@@ -14,7 +14,6 @@ import CustomTextField from "@/src/components/Common/CustomTextField";
 import { muiGreenButtonStyle } from "@/src/styles/greenButton";
 import { muiRedButtonStyle } from "@/src/styles/redButton";
 
-// สร้าง Filter Options สำหรับ Autocomplete
 const filter = createFilterOptions<Tag>();
 
 export default function CreateProjectPage() {
@@ -26,7 +25,6 @@ export default function CreateProjectPage() {
     { label: "Home", href: "/main" },
     { label: "Create Project", href: undefined }
   ];
-
 
   return (
     <div className="mx-12 py-8">
