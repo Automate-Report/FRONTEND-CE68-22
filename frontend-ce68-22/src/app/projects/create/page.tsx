@@ -51,7 +51,7 @@ export default function CreateProjectPage() {
 
         {/* Tag Manager Component */}
         <TagManager 
-            selectedTags={formState.selectedTags}
+            tagRows={formState.tagRows}
             availableTags={formState.availableTags}
             fetchingTags={status.fetchingTags}
             onAddRow={handlers.handleAddTagRow}
@@ -67,7 +67,7 @@ export default function CreateProjectPage() {
         <Box sx={{ display: "flex", gap: 3.5, mt: 2 }}>
           <Button variant="outlined" disabled={status.loading}
             // *หมายเหตุ: ต้อง import useRouter หรือส่งมาจาก hook
-            onClick={() => window.history.back()} 
+            onClick={() => router.back()}
             sx={muiRedButtonStyle}>Cancel</Button>
             
           <Button variant="contained" type="submit" disabled={status.loading}
