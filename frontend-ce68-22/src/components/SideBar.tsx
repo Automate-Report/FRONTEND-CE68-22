@@ -1,8 +1,8 @@
-  "use client"; 
+"use client";
 
 import Link from "next/link";
 import { useState } from "react";
-import { usePathname, useRouter } from "next/navigation"; 
+import { usePathname, useRouter } from "next/navigation";
 
 import { projectService } from "../services/project.service";
 import { GenericDeleteModal } from "./Common/GenericDeleteModal";
@@ -36,21 +36,21 @@ export function SideBar({ project_id, project_name }: SideBarProps) {
   }
 
   const handleConfirmDelete = async () => {
-      setIsDeleting(true);
-      try {
-          await projectService.delete(project_id);
-          
-          // ลบเสร็จ ปิด Modal และย้ายกลับหน้า Dashboard รวม
-          setDeleteModalOpen(false);
-          router.replace('/main'); 
-          router.refresh();
+    setIsDeleting(true);
+    try {
+      await projectService.delete(project_id);
 
-      } catch (error) {
-          console.error("Failed to delete project", error);
-          alert("Failed to delete project");
-      } finally {
-          setIsDeleting(false);
-      }
+      // ลบเสร็จ ปิด Modal และย้ายกลับหน้า Dashboard รวม
+      setDeleteModalOpen(false);
+      router.replace('/main');
+      router.refresh();
+
+    } catch (error) {
+      console.error("Failed to delete project", error);
+      alert("Failed to delete project");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   // ส่วนของ side bar items
@@ -62,77 +62,76 @@ export function SideBar({ project_id, project_name }: SideBarProps) {
     },
     {
       name: "Asset",
-      href: `/projects/${project_id}/asset`, 
+      href: `/projects/${project_id}/asset`,
       icon: <AssetIcon />,
     },
     {
       name: "Schedule",
-      href: `/projects/${project_id}/schedule`, 
+      href: `/projects/${project_id}/schedule`,
       icon: <ScheduleIcon />,
     },
     {
       name: "Report",
-      href: `/projects/${project_id}/report`, 
+      href: `/projects/${project_id}/report`,
       icon: <ReportIcon />,
     },
     {
       name: "Log",
-      href: `/projects/${project_id}/log`, 
+      href: `/projects/${project_id}/log`,
       icon: <LogIcon />,
     },
   ];
 
   return (
-    <div className="h-full bg-[#0D1014] p-6 flex flex-col">
+    <div className="h-[calc(100vh-74px)] bg-[#0D1014] p-6 flex flex-col fixed w-[300px]">
       {menuItems.map((item) => {
         // เช็คว่า Path ปัจจุบัน ตรงกับ href ของปุ่มนี้หรือไม่
         // ใช้ .startsWith หรือ === ก็ได้ ขึ้นอยู่กับโครงสร้าง URL
-        const isActive = pathname === item.href; 
+        const isActive = pathname === item.href;
 
         return (
           <Link
             key={item.name}
             href={item.href}
             className={`w-[252px] flex gap-3 px-4 py-3
-              ${
-                isActive
-                  ? "bg-[#272D31] text-[#E6F0E6] rounded-lg" // สีตอน Active (เปลี่ยนได้ตาม Theme)
-                  : "text-[#AAAAAA] hover:bg-[#1F1F1F] hover:text-white hover:rounded-lg" // สีตอนปกติ และตอน Hover
+              ${isActive
+                ? "bg-[#272D31] text-[#E6F0E6] rounded-lg" // สีตอน Active (เปลี่ยนได้ตาม Theme)
+                : "text-[#AAAAAA] hover:bg-[#1F1F1F] hover:text-white hover:rounded-lg" // สีตอนปกติ และตอน Hover
               }
             `}
           >
             {/* คุณอาจจะต้องส่ง props สีเข้าไปใน Icon เพื่อให้เปลี่ยนสีตาม state ได้ ถ้าต้องการ */}
             <div className={isActive ? "text-white" : "text-[#AAAAAA]"}>
-               {item.icon}
+              {item.icon}
             </div>
             <div>{item.name}</div>
           </Link>
         );
       })}
       <div className="mt-auto">
-        <Divider 
-            sx={{ 
-                mb: 2,           // margin-top: เว้นระยะห่างจากตัวหนังสือลงมาหน่อย (2 = 16px)
-                borderColor: "#2D2F39", // กำหนดสีของเส้น (ถ้าพื้นหลังดำ ควรใช้สีเทาเข้ม)
-                borderBottomWidth: 3
-            }} 
+        <Divider
+          sx={{
+            mb: 2,           // margin-top: เว้นระยะห่างจากตัวหนังสือลงมาหน่อย (2 = 16px)
+            borderColor: "#2D2F39", // กำหนดสีของเส้น (ถ้าพื้นหลังดำ ควรใช้สีเทาเข้ม)
+            borderBottomWidth: 3
+          }}
         />
         <div>
           <Link
             key="Edit"
             href={`/projects/${project_id}/edit`}
-            className="flex items-center p-2 gap-3 text-[#E6F0E6] cursor-pointer hover:bg-[#1F1F1F] rounded-lg transition-colors"
+            className="flex items-center px-4 py-3 gap-3 text-[#E6F0E6] cursor-pointer hover:bg-[#1F1F1F] rounded-lg transition-colors"
           >
-              <EditProjectIcon />
-              <div>Edit Project</div>
+            <EditProjectIcon />
+            <div>Edit Project</div>
           </Link>
-          
-          <div 
+
+          <div
             onClick={() => handleDeleteClick(project_id)}
-            className="flex items-center p-2 gap-3 text-[#FF3B30] cursor-pointer hover:bg-[#1F1F1F] rounded-lg transition-colors"
+            className="flex items-center px-4 py-3 gap-3 text-[#FF3B30] cursor-pointer hover:bg-[#1F1F1F] rounded-lg transition-colors"
           >
-              <DeleteProjectIcon />
-              <div>Delete Project</div>
+            <DeleteProjectIcon />
+            <div>Delete Project</div>
           </div>
         </div>
       </div>
@@ -141,7 +140,7 @@ export function SideBar({ project_id, project_name }: SideBarProps) {
         open={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
         onConfirm={handleConfirmDelete}
-          
+
         // --- จุดที่ส่งข้อมูล ---
         entityType="Project"             // บอกว่าเป็น "Project"
         entityName={project_name} // ส่งชื่อโปรเจกต์ไป
