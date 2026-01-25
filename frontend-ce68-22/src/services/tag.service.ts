@@ -26,6 +26,7 @@ export const TagService = {
         const { data } = await apiClient.post('/tags/', { name, user_id: userId });
         return data;
     },
+    
     delete: async (id: number) => {
     await apiClient.delete(`/tags/${id}`);
   }
