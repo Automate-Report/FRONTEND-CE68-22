@@ -94,7 +94,6 @@ export const useEditProject = (projectId: number) => {
 
   const handleAddTagRow = () => {
     setTagRows([...tagRows, { id: Date.now(), tagName: "" }]);
-
   };
 
   const handleRemoveTagRow = (index: number) => {
