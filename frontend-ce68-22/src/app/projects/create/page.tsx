@@ -2,9 +2,12 @@
 "use client";
 
 import { Box, Typography, TextField, Button } from "@mui/material";
-import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
+
 import { useCreateProject } from "@/src/hooks/project/use-createProject";
+
+import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { TagManager } from "@/src/components/projects/TagManager";
+import CustomTextField from "@/src/components/Common/CustomTextField";
 
 import { muiGreenButtonStyle } from "@/src/styles/greenButton";
 import { muiRedButtonStyle } from "@/src/styles/redButton";
@@ -27,38 +30,22 @@ export default function CreateProjectPage() {
         {/* Project Name */}
         <div className="pb-8">
           <div className="text-[#E6F0E6] font-bold text-[24px] pb-4">Project Name</div>
-          <TextField
-            variant="outlined" fullWidth required
+          <CustomTextField
             value={formState.name}
             onChange={(e) => setters.setName(e.target.value)}
             placeholder="e.g. CECompany" size="small"
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                backgroundColor: "#FBFBFB", borderRadius: "16px",
-                "& fieldset": { borderColor: "#FBFBFB" },
-                "&.Mui-focused fieldset": { borderColor: "#FBFBFB" },
-                "& input": { fontSize: "16px", fontWeight: 300 }
-              }
-            }}
           />
         </div>
 
         {/* Project Description */}
         <div className="pb-8">
           <div className="text-[#E6F0E6] font-bold text-[24px] pb-4">Project Description</div>
-          <TextField
-            variant="outlined" fullWidth multiline rows={4}
+          <CustomTextField
+            multiline
+            rows={4}
             value={formState.description}
             onChange={(e) => setters.setDescription(e.target.value)}
             placeholder="Details..." size="small"
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                backgroundColor: "#FBFBFB", borderRadius: "16px", padding: "12px",
-                "& fieldset": { borderColor: "#FBFBFB" },
-                "&.Mui-focused fieldset": { borderColor: "#FBFBFB" },
-                "& textarea": { fontSize: "16px", fontWeight: 300 }
-              }
-            }}
           />
         </div>
 
