@@ -6,6 +6,9 @@ import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { useCreateProject } from "@/src/hooks/project/use-createProject";
 import { TagManager } from "@/src/components/projects/TagManager";
 
+import { muiGreenButtonStyle } from "@/src/styles/greenButton";
+import { muiRedButtonStyle } from "@/src/styles/redButton";
+
 export default function CreateProjectPage() {
   // เรียกใช้ Hook ตัวเดียวได้ครบทุกอย่าง
   const { formState, setters, status, handlers } = useCreateProject();
@@ -78,10 +81,10 @@ export default function CreateProjectPage() {
           <Button variant="outlined" disabled={status.loading}
             // *หมายเหตุ: ต้อง import useRouter หรือส่งมาจาก hook
             onClick={() => window.history.back()} 
-            sx={{ px: 3, borderRadius: "10px", borderColor: "#FE3B46", color: "#FE3B46" }}>Cancel</Button>
+            sx={muiRedButtonStyle}>Cancel</Button>
             
           <Button variant="contained" type="submit" disabled={status.loading}
-            sx={{ px: 3, borderRadius: "10px", backgroundColor: "#8FFF9C", color: "#0B0F12" }}>
+            sx={muiGreenButtonStyle}>
             {status.loading ? "Saving..." : "Create Project"}
           </Button>
         </Box>
