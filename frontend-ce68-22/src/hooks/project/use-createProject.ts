@@ -6,6 +6,11 @@ import { TagService } from "@/src/services/tag.service";
 import { getMe } from "@/src/services/auth.service";
 import { Tag } from "@/src/types/tag";
 
+export interface TagRow {
+  id: number;
+  tagName: string;
+}
+
 export const useCreateProject = () => {
   const router = useRouter();
 
@@ -13,8 +18,10 @@ export const useCreateProject = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
-  // State Tags
-  const [selectedTags, setSelectedTags] = useState<string[]>([""]);
+  // State Tags: เปลี่ยนจาก string[] เป็น TagRow[]
+  // ใช้ Date.now() เป็น ID เริ่มต้นเพื่อให้ไม่ซ้ำกัน
+  const [tagRows, setTagRows] = useState<TagRow[]>([{ id: Date.now(), tagName: "" }]);
+  
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
@@ -65,21 +72,26 @@ export const useCreateProject = () => {
   };
 
   const handleAddTagRow = () => {
-    setSelectedTags([...selectedTags, ""]);
+    // เพิ่มแถวใหม่ พร้อม ID ใหม่ (ใช้ Date.now() เพื่อให้ Unique)
+    setTagRows([...tagRows, { id: Date.now(), tagName: "" }]);
   };
 
   const handleRemoveTagRow = (index: number) => {
-    const newTags = [...selectedTags];
-    newTags.splice(index, 1);
-    setSelectedTags(newTags);
+    const newRows = [...tagRows];
+    newRows.splice(index, 1);
+    setTagRows(newRows);
   };
 
-  const createNewTagAndSelect = async (index: number, tagName: string, currentTags: string[]) => {
+  // Helper function สำหรับสร้าง Tag ใหม่
+  const createNewTagAndSelect = async (index: number, tagName: string, currentRows: TagRow[]) => {
     if (!currentUserId) return;
     try {
       const newTagObj = await TagService.create(tagName, currentUserId);
-      currentTags[index] = newTagObj.name;
-      setSelectedTags(currentTags);
+      
+      // อัปเดต tagName ใน row ที่ระบุ
+      currentRows[index].tagName = newTagObj.name;
+      setTagRows(currentRows);
+      
       await fetchLatestTags(currentUserId);
     } catch (err) {
       console.error("Failed to create tag:", err);
@@ -88,27 +100,33 @@ export const useCreateProject = () => {
   };
 
   const handleTagChange = async (index: number, newValue: string | Tag | null) => {
-    const newTags = [...selectedTags];
+    // Clone array เพื่อป้องกัน mutation โดยตรง
+    // เรา copy object ออกมาด้วยเพื่อให้ React detect change ได้ชัวร์ๆ
+    const newRows = tagRows.map(row => ({ ...row })); 
 
     if (newValue === null) {
-      newTags[index] = "";
-      setSelectedTags(newTags);
-    } else if (typeof newValue === 'string' && newValue.startsWith('Add "')) {
+      newRows[index].tagName = "";
+      setTagRows(newRows);
+    } 
+    else if (typeof newValue === 'string' && newValue.startsWith('Add "')) {
       const rawName = newValue.replace('Add "', '').replace('"', '');
-      await createNewTagAndSelect(index, rawName, newTags);
-    } else if (typeof newValue === 'object' && 'inputValue' in newValue) {
+      await createNewTagAndSelect(index, rawName, newRows);
+    } 
+    else if (typeof newValue === 'object' && 'inputValue' in newValue) {
       const rawName = (newValue as any).inputValue;
-      await createNewTagAndSelect(index, rawName, newTags);
-    } else if (typeof newValue === 'object' && 'name' in newValue) {
-      newTags[index] = newValue.name;
-      setSelectedTags(newTags);
-    } else if (typeof newValue === 'string') {
+      await createNewTagAndSelect(index, rawName, newRows);
+    } 
+    else if (typeof newValue === 'object' && 'name' in newValue) {
+      newRows[index].tagName = newValue.name;
+      setTagRows(newRows);
+    } 
+    else if (typeof newValue === 'string') {
       const existingTag = availableTags.find(t => t.name.toLowerCase() === newValue.toLowerCase());
       if (existingTag) {
-        newTags[index] = existingTag.name;
-        setSelectedTags(newTags);
+        newRows[index].tagName = existingTag.name;
+        setTagRows(newRows);
       } else {
-        await createNewTagAndSelect(index, newValue, newTags);
+        await createNewTagAndSelect(index, newValue, newRows);
       }
     }
   };
@@ -117,8 +135,15 @@ export const useCreateProject = () => {
     if (confirm(`Are you sure you want to permanently delete the tag "${tagToDelete.name}"?`)) {
       try {
         await TagService.delete(tagToDelete.id);
+        
+        // ลบ Tag ออกจาก list available
         setAvailableTags((prev) => prev.filter((t) => t.id !== tagToDelete.id));
-        setSelectedTags((prev) => prev.map((tName) => tName === tagToDelete.name ? "" : tName));
+        
+        // เคลียร์ค่าออกจาก Input ถ้า row ไหนเลือก Tag นี้อยู่
+        setTagRows((prev) => prev.map((row) => 
+            row.tagName === tagToDelete.name ? { ...row, tagName: "" } : row
+        ));
+
         if (currentUserId) await fetchLatestTags(currentUserId);
       } catch (err) {
         console.error("Failed to delete tag:", err);
@@ -137,7 +162,12 @@ export const useCreateProject = () => {
       if (!name) throw new Error("Please enter project name");
       if (!currentUserId) throw new Error("User ID missing");
 
-      const validTagNames = selectedTags.filter(tag => tag.trim() !== "");
+      // ดึงเฉพาะชื่อ tag ออกมาจาก row object
+      const validTagNames = tagRows
+        .map(row => row.tagName)
+        .filter(tagName => tagName.trim() !== "");
+
+      // แปลงชื่อเป็น ID
       const tagIds = validTagNames.map(tagName => {
         const foundTag = availableTags.find(t => t.name === tagName);
         return foundTag ? foundTag.id : null;
@@ -160,7 +190,7 @@ export const useCreateProject = () => {
   };
 
   return {
-    formState: { name, description, selectedTags, availableTags },
+    formState: { name, description, tagRows, availableTags },
     setters: { setName, setDescription },
     status: { loading, error, fetchingTags },
     handlers: {

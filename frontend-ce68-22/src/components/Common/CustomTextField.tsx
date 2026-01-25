@@ -37,7 +37,7 @@ export default function CustomTextField(props: TextFieldProps) {
           // 2. เพิ่ม Logic: เลือกทั้ง 'input' (บรรทัดเดียว) และ 'textarea' (หลายบรรทัด)
           "& input, & textarea": {
             fontSize: "16px",
-            fontWeight: 300,
+            fontWeight: 400,
             fontFamily: "var(--font-ibm-thai), sans-serif",
             "&::placeholder": {
               color: "#9AA6A8", 
