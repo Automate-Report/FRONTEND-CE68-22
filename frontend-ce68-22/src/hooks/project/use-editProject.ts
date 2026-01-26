@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { projectService } from "@/src/services/project.service";
-import { TagService } from "@/src/services/tag.service";
+import { tagService } from "@/src/services/tag.service";
 import { getMe } from "@/src/services/auth.service";
 import { Tag } from "@/src/types/tag";
 import { TagRow } from "@/src/types/tag";
@@ -27,7 +27,7 @@ export const useEditProject = (projectId: number) => {
   // --- 1. Fetch Master Data ---
   const fetchLatestTags = useCallback(async (uid: string) => {
     try {
-      const tags = await TagService.getAll(uid);
+      const tags = await tagService.getAll(uid);
       setAvailableTags(tags);
     } catch (err) {
       console.error("Error fetching tags:", err);
@@ -47,7 +47,7 @@ export const useEditProject = (projectId: number) => {
 
         // รอโหลด Tags และ Project Data ให้เสร็จพร้อมกัน
         const [tagsData, projectData] = await Promise.all([
-           TagService.getAll(uid),
+           tagService.getAll(uid),
            projectService.getById(projectId)
         ]);
 
@@ -102,7 +102,7 @@ export const useEditProject = (projectId: number) => {
   const createNewTagAndSelect = async (index: number, tagName: string, currentRows: TagRow[]) => {
     if (!currentUserId) return;
     try {
-      const newTagObj = await TagService.create(tagName, currentUserId);
+      const newTagObj = await tagService.create(tagName, currentUserId);
       currentRows[index].tagName = newTagObj.name;
       setTagRows(currentRows);
       await fetchLatestTags(currentUserId);
@@ -145,7 +145,7 @@ export const useEditProject = (projectId: number) => {
   const handleDeleteTagFromDb = async (tagToDelete: Tag) => {
     try {
       // 1. ลบจาก DB ทันที
-      await TagService.delete(tagToDelete.id);
+      await tagService.delete(tagToDelete.id);
       
       // 2. เอาออกจาก list available
       setAvailableTags((prev) => prev.filter((t) => t.id !== tagToDelete.id));
