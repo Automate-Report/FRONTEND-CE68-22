@@ -9,6 +9,7 @@ import { CreateWorkerModal } from "@/src/components/workers/CreateModal";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import CreateWorkerIcon from "@/src/components/icon/CreateWorker";
 
+import { muiGreenButtonStyle } from "@/src/styles/greenButton";
 
 import { Button } from "@mui/material";
 
@@ -67,14 +68,7 @@ export default function WorkersPage() {
         <Button
           variant="contained"
           onClick={()=> createState.setIsOpen(true)}
-          sx={{
-            borderRadius: "8px",
-            padding: "12px 24px",
-            backgroundColor: "#8FFF9C",
-            color: "#0B0F12",
-            textTransform: "none",
-            fontFamily: "inherit"
-          }}
+          sx={muiGreenButtonStyle}
         >
           <div className="flex justify-around gap-3 font-bold">
             New Worker
