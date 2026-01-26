@@ -20,7 +20,7 @@ export const useCreateProject = () => {
 
   // State Tags: เปลี่ยนจาก string[] เป็น TagRow[]
   // ใช้ Date.now() เป็น ID เริ่มต้นเพื่อให้ไม่ซ้ำกัน
-  const [tagRows, setTagRows] = useState<TagRow[]>([{ id: Date.now(), tagName: "" }]);
+  const [tagRows, setTagRows] = useState<TagRow[]>([{ id: 1, tagName: "" }]);
   
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -132,23 +132,21 @@ export const useCreateProject = () => {
   };
 
   const handleDeleteTagFromDb = async (tagToDelete: Tag) => {
-    if (confirm(`Are you sure you want to permanently delete the tag "${tagToDelete.name}"?`)) {
-      try {
-        await TagService.delete(tagToDelete.id);
+    try {
+      await TagService.delete(tagToDelete.id);
         
-        // ลบ Tag ออกจาก list available
-        setAvailableTags((prev) => prev.filter((t) => t.id !== tagToDelete.id));
+      // ลบ Tag ออกจาก list available
+      setAvailableTags((prev) => prev.filter((t) => t.id !== tagToDelete.id));
         
-        // เคลียร์ค่าออกจาก Input ถ้า row ไหนเลือก Tag นี้อยู่
-        setTagRows((prev) => prev.map((row) => 
-            row.tagName === tagToDelete.name ? { ...row, tagName: "" } : row
-        ));
+      // เคลียร์ค่าออกจาก Input ถ้า row ไหนเลือก Tag นี้อยู่
+      setTagRows((prev) => prev.map((row) => 
+          row.tagName === tagToDelete.name ? { ...row, tagName: "" } : row
+      ));
 
-        if (currentUserId) await fetchLatestTags(currentUserId);
-      } catch (err) {
-        console.error("Failed to delete tag:", err);
-        alert("Failed to delete tag.");
-      }
+      if (currentUserId) await fetchLatestTags(currentUserId);
+    } catch (err) {
+      console.error("Failed to delete tag:", err);
+      alert("Failed to delete tag.");
     }
   };
 
