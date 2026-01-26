@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { projectService } from "@/src/services/project.service";
-import { TagService } from "@/src/services/tag.service";
+import { tagService } from "@/src/services/tag.service";
 import { getMe } from "@/src/services/auth.service";
 import { Tag } from "@/src/types/tag";
 import { TagRow } from "@/src/types/tag";
@@ -30,7 +30,7 @@ export const useCreateProject = () => {
 
   const fetchLatestTags = useCallback(async (uid: string) => {
     try {
-      const tags = await TagService.getAll(uid);
+      const tags = await tagService.getAll(uid);
       setAvailableTags(tags);
     } catch (err) {
       console.error("Error fetching tags:", err);
@@ -82,7 +82,7 @@ export const useCreateProject = () => {
   const createNewTagAndSelect = async (index: number, tagName: string, currentRows: TagRow[]) => {
     if (!currentUserId) return;
     try {
-      const newTagObj = await TagService.create(tagName, currentUserId);
+      const newTagObj = await tagService.create(tagName, currentUserId);
       
       // อัปเดต tagName ใน row ที่ระบุ
       currentRows[index].tagName = newTagObj.name;
@@ -129,7 +129,7 @@ export const useCreateProject = () => {
 
   const handleDeleteTagFromDb = async (tagToDelete: Tag) => {
     try {
-      await TagService.delete(tagToDelete.id);
+      await tagService.delete(tagToDelete.id);
         
       // ลบ Tag ออกจาก list available
       setAvailableTags((prev) => prev.filter((t) => t.id !== tagToDelete.id));
