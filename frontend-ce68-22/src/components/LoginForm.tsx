@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { LoginPayload } from "../types/auth";
 import { useRouter } from 'next/navigation';
 import { login } from '../services/auth.service';
-import { useAuthStore } from '../store/auth';
 import { UserKey } from '../types/auth';
 
 export default function LoginCard() {
@@ -14,15 +13,6 @@ export default function LoginCard() {
     const [error, setError] = useState<string | null>(null);
     const [gerror, setGoogleError] = useState<string | null>(null);
     const router = useRouter();
-    const setUserNow = useAuthStore((state) => state.setUserNow);
-
-    // redirect if already logged in
-    const userNow = useAuthStore((state) => state.userNow);
-    useEffect(() => {
-        if (userNow) {
-            router.push("/main");
-        }
-    }, [userNow, router]);
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -31,8 +21,8 @@ export default function LoginCard() {
 
         try {
             const user: UserKey = await login(loginPayload);
-            setUserNow(user);
             router.push("/main");
+            router.refresh();
 
         } catch (err) {
             setError("Invalid email or password");
