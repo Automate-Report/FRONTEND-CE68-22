@@ -5,7 +5,6 @@ import { ProjectList } from "../../components/projects/ProjectList";
 import CreateProjectIcon from "@/src/components/icon/CreateProject";
 import MagIcon from "@/src/components/icon/MagnifyingGlass";
 import FilterIcon from "@/src/components/icon/Filter";
-import Link from "next/link";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { useDebounce } from "@/src/hooks/use-debounce";
 

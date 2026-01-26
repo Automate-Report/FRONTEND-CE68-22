@@ -38,6 +38,7 @@ export function ProjectList({ searchQuery, filterStatus }: ProjectListProps) {
      // ถ้าไม่รองรับ อาจต้องใช้ setPage(0) ตรงๆ (ถ้า useTable expose ออกมา)
   }, [searchQuery, filterStatus]);
 
+
   const { data: response, isLoading, isError, refetch } = useProjects(
     page + 1, 
     rowsPerPage, 
@@ -46,6 +47,7 @@ export function ProjectList({ searchQuery, filterStatus }: ProjectListProps) {
     searchQuery,
     filterStatus
   );
+
 
 
   const handleDeleteClick = (project: Project) => {
