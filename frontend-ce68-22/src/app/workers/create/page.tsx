@@ -8,7 +8,6 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'; // อย่า
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import CustomTextField from "@/src/components/Common/CustomTextField";
 import { workerService } from "@/src/services/worker.service";
-import { getMe } from "@/src/services/auth.service";
 
 // --- Styles ---
 import { muiRedButtonStyle } from "@/src/styles/redButton";
@@ -32,8 +31,7 @@ export default function CreateWorkerPage() {
             
             await workerService.create({
                 name: name.trim(),
-                thread_number: Number(threads),
-                user_id: uid
+                thread_number: Number(threads)
             });
             router.push("/workers"); 
         } catch (err: any) {
