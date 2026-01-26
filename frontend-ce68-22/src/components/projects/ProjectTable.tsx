@@ -61,7 +61,7 @@ export function ProjectTable({
       id: "tag",
       label: "Tags",
       sortable: false,
-      width: "30%",
+      width: "50%",
       render: (row) => (
         <ProjectTagsCell projectId={row.id} />
       ),
