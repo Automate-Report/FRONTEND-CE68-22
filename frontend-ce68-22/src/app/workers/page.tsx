@@ -9,9 +9,6 @@ import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import CreateWorkerIcon from "@/src/components/icon/CreateWorker";
 
-import { muiGreenButtonStyle } from "@/src/styles/greenButton";
-
-import { Button } from "@mui/material";
 
 
 export default function WorkersPage() {
@@ -35,7 +32,7 @@ export default function WorkersPage() {
 
   );
 
-  const { createState, deleteState } = useWorkerPage(refetch);
+  const { deleteState } = useWorkerPage(refetch);
 
   // ดึง items และ total จาก response (Handle กรณี response เป็น undefined)
   const workers = response?.items || [];
