@@ -66,8 +66,7 @@ export const TagItem = ({
         onInputChange={(event, newInputValue) => {
           setInputText(newInputValue);
         }}
-        
-        // !!! ส่วนที่เพิ่มเข้ามาครับ !!!
+
         slotProps={{
           paper: {
             sx: {
@@ -79,7 +78,6 @@ export const TagItem = ({
             },
           },
         }}
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         sx={{ 
           width: `${currentWidth}px`,
@@ -133,14 +131,14 @@ export const TagItem = ({
 
           if (optionName === "DELETE_ROW_ACTION") {
             return (
-              <li key={key} {...otherProps} style={{ color: '#d32f2f', borderTop: '1px solid #eee', fontSize: "16px" }}>
+              <li key={key} {...otherProps} style={{ color: '#FE3B46', borderTop: '1px solid #eee', fontSize: "16px" }}>
                 Remove this tag
               </li>
             );
           }
           if (optionName.startsWith('Add "')) {
             return (
-              <li key={key} {...otherProps} style={{ color: '#1976d2' }}>
+              <li key={key} {...otherProps} style={{ color: '#404F57' }}>
                 <AddIcon sx={{ mr: 1, fontSize: 20 }} />
                 {optionName}
               </li>
