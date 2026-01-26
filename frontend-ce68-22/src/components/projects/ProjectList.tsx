@@ -7,7 +7,6 @@ import { useTable } from "@/src/hooks/use-table";
 import { Project } from "@/src/types/project";
 import { GenericDeleteModal } from "../Common/GenericDeleteModal";
 import { projectService } from "../../services/project.service";
-import { getMe } from "@/src/services/auth.service";
 
 //นิยาม Interface สำหรับ Props
 interface ProjectListProps {
