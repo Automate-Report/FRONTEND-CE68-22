@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+
 import { projectService } from "@/src/services/project.service";
 import { tagService } from "@/src/services/tag.service";
 import { getMe } from "@/src/services/auth.service";
+
 import { Tag } from "@/src/types/tag";
 import { TagRow } from "@/src/types/tag";
 
@@ -57,10 +59,11 @@ export const useEditProject = (projectId: number) => {
         setName(projectData.name);
         setDescription(projectData.description || "");
 
+        const selectedTag = await tagService.getAllProjectId(projectId);
         // *** หัวใจสำคัญ: แปลง Tags จาก DB ให้กลายเป็น TagRow สำหรับ UI ***
         // เราใช้ Date.now() + index เพื่อสร้าง ID ชั่วคราวให้ UI Key ไม่ซ้ำกัน
-        if (tagsData && tagsData.length > 0) {
-            const initialRows = tagsData.map((t: Tag, index: number) => ({
+        if (selectedTag && selectedTag.length > 0) {
+            const initialRows = selectedTag.map((t: Tag, index: number) => ({
                 id: Date.now() + index, 
                 tagName: t.name
             }));
@@ -91,6 +94,7 @@ export const useEditProject = (projectId: number) => {
 
   const handleAddTagRow = () => {
     setTagRows([...tagRows, { id: Date.now(), tagName: "" }]);
+
   };
 
   const handleRemoveTagRow = (index: number) => {
