@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { workerService } from "@/src/services/worker.service";
-import { Worker, CreateWorkerPayload} from "@/src/types/worker"
+import { Worker } from "@/src/types/worker"
 
 export const useWorkerPage = (refetchList: () => void) => {
 

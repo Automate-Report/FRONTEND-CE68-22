@@ -10,7 +10,6 @@ export interface Worker {
 export interface CreateWorkerPayload {
   name: string;
   thread_number: number;
-  user_id: string;
 }
 
 export interface DownloadReponse {
