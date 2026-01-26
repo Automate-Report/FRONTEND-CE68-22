@@ -8,6 +8,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'; // อย่า
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import CustomTextField from "@/src/components/Common/CustomTextField";
 import { workerService } from "@/src/services/worker.service";
+import { getMe } from "@/src/services/auth.service";
 
 // --- Styles ---
 import { muiRedButtonStyle } from "@/src/styles/redButton";
@@ -20,6 +21,7 @@ export default function CreateWorkerPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!name.trim() || !threads) return;
@@ -27,9 +29,17 @@ export default function CreateWorkerPage() {
         setLoading(true);
         setError(null);
         try {
+             const me = await getMe();
+            const uid = me["user"];
+
+            if (!uid || uid === "undefined" || uid === "null") {
+                throw new Error("User ID not found");
+            }
+            
             await workerService.create({
                 name: name.trim(),
-                thread_number: Number(threads)
+                thread_number: Number(threads),
+                user_id: uid
             });
             router.push("/workers"); 
         } catch (err: any) {
