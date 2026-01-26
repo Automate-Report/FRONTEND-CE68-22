@@ -5,11 +5,7 @@ import { projectService } from "@/src/services/project.service";
 import { TagService } from "@/src/services/tag.service";
 import { getMe } from "@/src/services/auth.service";
 import { Tag } from "@/src/types/tag";
-
-export interface TagRow {
-  id: number;
-  tagName: string;
-}
+import { TagRow } from "@/src/types/tag";
 
 export const useCreateProject = () => {
   const router = useRouter();

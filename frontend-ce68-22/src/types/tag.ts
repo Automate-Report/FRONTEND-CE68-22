@@ -3,3 +3,7 @@ export interface Tag {
     name: string;
 }
 
+export interface TagRow {
+  id: number;
+  tagName: string;
+}

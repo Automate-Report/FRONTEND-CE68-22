@@ -1,12 +1,9 @@
 // src/app/projects/create/components/TagManager.tsx
 import { useState, useEffect } from "react";
-import { Box, Button, Autocomplete, TextField, IconButton, CircularProgress, createFilterOptions } from "@mui/material";
+import { Box, Button, CircularProgress, createFilterOptions } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import CloseIcon from '@mui/icons-material/Close';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Tag } from "@/src/types/tag";
-import { TagRow } from "@/src/hooks/project/use-createProject";
+import { TagRow } from "@/src/types/tag";
 import { TagItem } from "./TagItem";
 
 const filter = createFilterOptions<Tag>();
