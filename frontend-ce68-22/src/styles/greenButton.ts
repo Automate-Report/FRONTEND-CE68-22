@@ -2,6 +2,7 @@ export const GREEN_BUTTON_STYLE = "flex items-center justify-center bg-[#8FFF9C]
 // style constants
 export const muiGreenButtonStyle = {
   px: 3,
+  py:1,
   borderRadius: "10px",
   backgroundColor: "#8FFF9C",
   color: "#0B0F12",
