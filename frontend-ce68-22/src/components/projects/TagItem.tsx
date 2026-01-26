@@ -146,7 +146,7 @@ export const TagItem = ({
           }
           return (
             <li key={key} {...otherProps}>
-              <div className="flex justify-between items-center w-full">
+              <div className="flex justify-between items-center w-full text-[#404F57]">
                 <span>{optionName}</span>
                 {typeof option !== 'string' && option.id > 0 && (
                   <IconButton
