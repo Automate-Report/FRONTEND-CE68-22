@@ -1,11 +1,15 @@
-import { useProjectsTag } from "@/src/hooks/project/use-projectTags";
 import { Box, Chip, CircularProgress } from "@mui/material";
+
+import { useProjectsTag } from "@/src/hooks/project/use-projectTags";
+
+import { Tag } from "@/src/types/tag";
+
 
 interface ProjectTagsCellProps {
   projectId: number;
 }
 
-const ProjectTagsCell = ({ projectId }: ProjectTagsCellProps) => {
+export const ProjectTagsCell = ({ projectId }: ProjectTagsCellProps) => {
   // เรียก Hook ได้แล้ว เพราะนี่คือ React Component
   const { data: tags, isLoading } = useProjectsTag(projectId); 
 
@@ -24,8 +28,8 @@ const ProjectTagsCell = ({ projectId }: ProjectTagsCellProps) => {
       gap: 1,           // ระยะห่างระหว่าง Tag
       alignItems: "center"
     }}>
-      {tags.map((tag: any) => (
-        <Box
+      {tags.map((tag: Tag) => {
+        return (<Box
           key={tag.id}
           sx={{
             backgroundColor: "#272D31", // สีพื้นหลัง Tag (ปรับตาม Theme)
@@ -41,8 +45,8 @@ const ProjectTagsCell = ({ projectId }: ProjectTagsCellProps) => {
           }}
         >
           {tag.name}
-        </Box>
-      ))}
+        </Box>);
+      })}
     </Box>
   );
 };

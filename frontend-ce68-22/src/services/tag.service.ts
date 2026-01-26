@@ -9,7 +9,7 @@ const apiClient = axios.create({
   proxy: false,
 });
 
-export const TagService = {
+export const tagService = {
     getAll: async (userId: string) => {
         // 1. ดักจับค่าว่าง หรือ undefined หรือ null หรือ string ว่าง
         if (!userId || userId === "undefined" || userId === "null" || userId.trim() === "") {
@@ -20,6 +20,16 @@ export const TagService = {
         // 2. ถ้ารอดมาถึงตรงนี้ แสดงว่า userId มีค่าจริง ค่อยยิง
         const { data } = await apiClient.get<Tag[]>(`/tags/all/${userId}`);
         return data;
+    },
+
+    getAllProjectId: async (projectId: number) => {
+      const { data } = await apiClient.get<Tag[]>(`/tags/project/${projectId}`);
+      return data;
+    },
+
+    getById: async (tagId: number) => {
+      const { data } = await apiClient.get<Tag>(`/tags/${tagId}`);
+      return data;
     },
 
     create: async (name: string, userId: string) => {
