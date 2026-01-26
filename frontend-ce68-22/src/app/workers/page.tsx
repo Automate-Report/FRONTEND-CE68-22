@@ -6,10 +6,9 @@ import { useTable } from "@/src/hooks/use-table";
 
 import { WorkerTable } from "@/src/components/workers/WorkerTable"; 
 import { CreateWorkerModal } from "@/src/components/workers/CreateModal";
-
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
-
 import CreateWorkerIcon from "@/src/components/icon/CreateWorker";
+
 
 import { Button } from "@mui/material";
 
