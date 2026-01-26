@@ -4,7 +4,7 @@ import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Tag } from "@/src/types/tag";
-import { TagRow } from "@/src/hooks/project/use-createProject";
+import { TagRow } from "@/src/types/tag";
 
 interface ExtendedTag extends Tag {
   inputValue?: string;
