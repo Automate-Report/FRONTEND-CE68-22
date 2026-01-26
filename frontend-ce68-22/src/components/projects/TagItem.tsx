@@ -66,7 +66,6 @@ export const TagItem = ({
         onInputChange={(event, newInputValue) => {
           setInputText(newInputValue);
         }}
-
         slotProps={{
           paper: {
             sx: {
