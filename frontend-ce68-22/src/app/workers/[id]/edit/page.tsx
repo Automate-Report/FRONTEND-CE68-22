@@ -1,171 +1,169 @@
 "use client";
 
-import { use, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation"; // เพิ่ม useParams
+import { Box, Button, Typography, Tooltip, IconButton, CircularProgress } from "@mui/material";
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
-import { useRouter } from "next/navigation";
-import { useWorker } from "@/src/hooks/worker/use-worker";
-
+import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
+import CustomTextField from "@/src/components/Common/CustomTextField";
 import { workerService } from "@/src/services/worker.service";
 
+// --- Styles ---
+import { muiRedButtonStyle } from "@/src/styles/redButton";
+import { muiGreenButtonStyle } from "@/src/styles/greenButton";
 
-import { AccessKeyBoxSection } from "@/src/components/workers/AccessKeyBoxSection";
-import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
+import { castInt } from "@/src/lib/format";
 
-import { 
-    Box, 
-    Typography, 
-    TextField, 
-    Button 
-} from "@mui/material";
-
-interface PageProps{
-    params: Promise<{ id: string}>
-}
-
-export default function WorkerEditPage({ params }: PageProps)
-{
+export default function EditWorkerPage() {
     const router = useRouter();
+    const params = useParams(); // ดึง params จาก URL
+    const workerId = castInt(params.id as string); // สมมติว่า URL คือ /workers/[id]/edit
 
-    const resolvePrams = use(params);
-    const workerId = parseInt(resolvePrams.id);
-    const { data: worker, isLoading: isFetching, isError, refetch } = useWorker(workerId);
-
-
-    // State สำหรับเก็บค่าใน Form
     const [name, setName] = useState("");
-      
-    // State สำหรับ UI interaction
-    const [loading, setLoading] = useState(false);
+    const [threads, setThreads] = useState<number | string>(1);
+    
+    // สถานะสำหรับการโหลดข้อมูลเริ่มต้น (Fetching Data)
+    const [fetching, setFetching] = useState(true);
+    // สถานะสำหรับการกด Save (Submitting)
+    const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    
+
+    // 1. ดึงข้อมูล Worker เดิมเมื่อเข้าหน้าเว็บ
     useEffect(() => {
-        if (worker) {
-            setName(worker.name);
-        }
-    }, [worker]);
-    
+        const fetchWorkerData = async () => {
+            if (!workerId) return;
+
+            setFetching(true);
+            try {
+                // สมมติว่าใน workerService มีฟังก์ชัน getById
+                const data = await workerService.getById(workerId); 
+                
+                // Set ค่าเดิมลงใน Form
+                setName(data.name);
+                setThreads(data.thread_number || 1);
+            } catch (err: any) {
+                console.error(err);
+                setError("Failed to fetch worker details.");
+            } finally {
+                setFetching(false);
+            }
+        };
+
+        fetchWorkerData();
+    }, [workerId]);
+
+    // 2. ฟังก์ชันบันทึกการแก้ไข
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
+        if (!name.trim() || !threads) return;
+
+        setSaving(true);
         setError(null);
-        
         try {
-            // เรียก Service edit
+            // เรียก API Update (PUT/PATCH)
             await workerService.edit(workerId, {
-                name
+                name: name.trim(),
+                thread_number: Number(threads)
             });
-          
-            // สำเร็จ -> กลับไปหน้า worker นั้น 
-            router.push(`/workers/${workerId}`);
+            
+            // สำเร็จแล้วกลับไปหน้า List
+            router.push("/workers"); 
         } catch (err: any) {
-            console.error(err);
-            setError("Failed to update worker");
+            setError(err.message || "Failed to update worker");
         } finally {
-            setLoading(false);
+            setSaving(false);
         }
     };
-    
-    if (isFetching) return <div className="p-8">Loading project data...</div>;
 
     const breadcrumbItems = [
-        { label: "Worker", href: "/workers"},
-        { label: worker?.name || "Worker" , href: `/workers/${workerId}`},
-        { label: "Edit Worker", href: undefined }
+        { label: "Workers", href: "/workers" },
+        { label: "Edit Worker", href: undefined } // เปลี่ยน Label
     ];
 
-    
+    // กรณีที่กำลังโหลดข้อมูลเริ่มต้น ให้แสดง Loading
+    if (fetching) {
+        return (
+            <div className="flex justify-center items-center h-[50vh] text-[#E6F0E6]">
+                <CircularProgress color="inherit" />
+            </div>
+        );
+    }
 
     return (
-        <div className="px-12 py-6 bg-[#0F1518] text-[#E6F0E6]">
-            <GenericBreadcrums items={breadcrumbItems}/>
-
-            <form onSubmit={handleSubmit}>
-                {/* 1. Worker Name */}
-                <div className="pb-8 w-1/3">
+        <div className="mx-12 py-8">
+            <GenericBreadcrums items={breadcrumbItems} />
+            
+            <form onSubmit={handleSubmit} className="mt-8">
+                {/* Worker Name */}
+                <div className="pb-8">
                     <div className="text-[#E6F0E6] font-bold text-[24px] pb-4">Worker Name</div>
-                    <TextField
-                        variant="outlined"
-                        fullWidth
-                        required
+                    <CustomTextField
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="e.g. CECompany"
+                        placeholder="e.g. Scanner-Node-01" 
                         size="small"
-                        sx={{
-                            "& .MuiOutlinedInput-root": {
-                                backgroundColor: "#FBFBFB",
-                                borderRadius: "16px",
-                                                
-                                "& fieldset": {
-                                    borderColor: "#FBFBFB",
-                                },
-                                "&.Mui-focused fieldset": {
-                                    borderColor: "#FBFBFB", // หรือสี Primary ที่ต้องการ
-                                },
-                                // ปรับ Font ของ input ข้างใน
-                                "& input": {
-                                    fontSize: "16px",
-                                    fontWeight: 300,
-                                    color: "#000" // สีตัวอักษร
-                                }
-                            }
-                        }}
+                        fullWidth
                     />
                 </div>
 
-                {/* Error Message */}
-                {error && (
-                    <Typography color="error" variant="body2" sx={{ mb: 2 }}>
-                        {error}
-                    </Typography>
-                )}
-            
-                {/* Action Buttons */}
-                <Box sx={{ display: "flex", gap: "32px", mt: "32px" }}>
-                    <Button
-                        variant="outlined"
-                        onClick={() => router.back()}
-                        disabled={loading}
-                        sx={{
-                            px: 3,
-                            textTransform: "none",
-                            fontSize: 16,
-                            fontWeight: 600,
-                            borderColor: "#FE3B46",
-                            color: "#FE3B46",
-                            borderRadius: "10px",
-                            "&:hover": {
-                                borderColor: "#FE3B46",
-                                backgroundColor: "#FE3B46",
-                                color: "#FBFBFB"
-                            }
+                {/* Number of Threads พร้อม Tooltip */}
+                <div className="pb-8">
+                    <div className="flex items-center gap-2 pb-4">
+                        <div className="text-[#E6F0E6] font-bold text-[24px]">Number of Threads</div>
+                        <Tooltip 
+                            title="Set the number of concurrent tasks this worker can process."
+                            placement="right"
+                            arrow
+                            sx={{
+                                ".MuiTooltip-tooltip": {
+                                    backgroundColor: "#1A2023",
+                                    color: "#E6F0E6",
+                                    fontSize: "14px",
+                                    border: "1px solid #2A3033"
+                                }
+                            }}
+                        >
+                            <IconButton size="small" sx={{ color: "#8FFF9C", p: 0 }}>
+                                <InfoOutlinedIcon fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                    </div>
+                    
+                    <CustomTextField
+                        type="number"
+                        value={threads}
+                        onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === '' || Number(val) >= 1) setThreads(val);
                         }}
+                        placeholder="1" 
+                        size="small"
+                        fullWidth
+                    />
+                </div>
+
+                {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
+
+                <Box sx={{ display: "flex", gap: 3, mt: 2 }}>
+                    <Button 
+                        variant="outlined" 
+                        disabled={saving} 
+                        onClick={() => router.back()} 
+                        sx={muiRedButtonStyle}
                     >
                         Cancel
                     </Button>
-            
-                    <Button
-                        variant="contained"
-                        type="submit"
-                        disabled={loading}
-                        sx={{
-                            px: 3,
-                            textTransform: "none",
-                            fontSize: 16,
-                            fontWeight: 600,
-                            backgroundColor: "#8FFF9C",
-                            color: "#0B0F12",
-                            borderRadius: "10px",
-                            "&:hover": {
-                                backgroundColor: "#AFFFB9"
-                            }
-                        }}
+                    <Button 
+                        variant="contained" 
+                        type="submit" 
+                        disabled={saving || !name.trim()} 
+                        sx={muiGreenButtonStyle}
                     >
-                        {loading ? "Saving..." : "Save Changes"}
+                        {saving ? "Saving..." : "Save Changes"}
                     </Button>
                 </Box>
             </form>
-            
         </div>
     );
 }
