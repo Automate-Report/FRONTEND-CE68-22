@@ -108,7 +108,7 @@ export default function EditWorkerPage() {
                 </div>
 
                 {/* Number of Threads พร้อม Tooltip */}
-                <div className="pb-8">
+                <div className="pb-8 w-fit">
                     <div className="flex items-center gap-2 pb-4">
                         <div className="text-[#E6F0E6] font-bold text-[24px]">Number of Threads</div>
                         <Tooltip 
