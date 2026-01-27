@@ -3,7 +3,6 @@ import { useRouter } from "next/navigation";
 
 import { projectService } from "@/src/services/project.service";
 import { tagService } from "@/src/services/tag.service";
-import { getMe } from "@/src/services/auth.service";
 
 import { Tag } from "@/src/types/tag";
 import { TagRow } from "@/src/types/tag";
@@ -19,7 +18,6 @@ export const useEditProject = (projectId: number) => {
   // State Tags
   const [tagRows, setTagRows] = useState<TagRow[]>([]);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   // Status State
   const [fetchingData, setFetchingData] = useState(true); // ใช้ตัวเดียวคุมการโหลดตอนแรก
@@ -27,12 +25,13 @@ export const useEditProject = (projectId: number) => {
   const [error, setError] = useState<string | null>(null);
 
   // --- 1. Fetch Master Data ---
-  const fetchLatestTags = useCallback(async (uid: string) => {
+  const fetchLatestTags = useCallback(async () => {
     try {
-      const tags = await tagService.getAll(uid);
+      const tags = await tagService.getAll();
       setAvailableTags(tags);
     } catch (err) {
       console.error("Error fetching tags:", err);
+    } finally {
     }
   }, []);
 
@@ -41,16 +40,12 @@ export const useEditProject = (projectId: number) => {
     const initData = async () => {
       try {
         setFetchingData(true);
-        const me = await getMe();
-        const uid = me["user"];
-
-        if (!uid) throw new Error("User ID not found");
-        setCurrentUserId(uid);
 
         // รอโหลด Tags และ Project Data ให้เสร็จพร้อมกัน
-        const [tagsData, projectData] = await Promise.all([
-           tagService.getAll(uid),
-           projectService.getById(projectId)
+        const [tagsData, projectData, selectedTag] = await Promise.all([
+           tagService.getAll(),
+           projectService.getById(projectId),
+           tagService.getAllProjectId(projectId)
         ]);
 
         setAvailableTags(tagsData);
@@ -59,7 +54,6 @@ export const useEditProject = (projectId: number) => {
         setName(projectData.name);
         setDescription(projectData.description || "");
 
-        const selectedTag = await tagService.getAllProjectId(projectId);
         // *** หัวใจสำคัญ: แปลง Tags จาก DB ให้กลายเป็น TagRow สำหรับ UI ***
         // เราใช้ Date.now() + index เพื่อสร้าง ID ชั่วคราวให้ UI Key ไม่ซ้ำกัน
         if (selectedTag && selectedTag.length > 0) {
@@ -89,7 +83,7 @@ export const useEditProject = (projectId: number) => {
   // --- Tag Handlers (เหมือน Create เป๊ะ) ---
 
   const handleDropdownOpen = () => {
-    if (currentUserId) fetchLatestTags(currentUserId);
+    fetchLatestTags();
   };
 
   const handleAddTagRow = () => {
@@ -104,12 +98,11 @@ export const useEditProject = (projectId: number) => {
   };
 
   const createNewTagAndSelect = async (index: number, tagName: string, currentRows: TagRow[]) => {
-    if (!currentUserId) return;
     try {
-      const newTagObj = await tagService.create(tagName, currentUserId);
+      const newTagObj = await tagService.create(tagName);
       currentRows[index].tagName = newTagObj.name;
       setTagRows(currentRows);
-      await fetchLatestTags(currentUserId);
+      await fetchLatestTags();
     } catch (err) {
       console.error(err);
       alert("Failed to create new tag.");
@@ -160,7 +153,7 @@ export const useEditProject = (projectId: number) => {
       ));
       
       // 4. (Optional) Fetch ใหม่ถ้าต้องการความชัวร์
-      if (currentUserId) await fetchLatestTags(currentUserId);
+      await fetchLatestTags();
     } catch (err) {
       console.error("Failed to delete tag:", err);
       alert("Failed to delete tag.");
@@ -175,9 +168,6 @@ export const useEditProject = (projectId: number) => {
     
     try {
 
-      if (!currentUserId) {
-        throw new Error("User session not found. Please login again.");
-      }
       // 1. เตรียม ID
       const validTagNames = tagRows
         .map(row => row.tagName)
@@ -193,7 +183,6 @@ export const useEditProject = (projectId: number) => {
       await projectService.edit(projectId, {
         name,
         description,
-        user_id: currentUserId,
         tag_ids: tagIds 
       });
 
