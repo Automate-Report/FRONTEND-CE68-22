@@ -7,21 +7,6 @@ import { TagRow } from "@/src/types/tag";
 import { TagItem } from "./TagItem";
 
 
-const getTextWidth = (text: string, font: string = "16px 'IBM Plex Sans Thai', sans-serif") => {
-  if (typeof window === "undefined") return 150; // ค่าเริ่มต้น
-  const canvas = document.createElement("canvas");
-  const context = canvas.getContext("2d");
-  if (!context) return 120;
-  context.font = font;
-  const metrics = context.measureText(text || "Remove this tag"); 
-  const minMetrics = context.measureText("Remove this tag"); 
-  if (metrics.width < minMetrics.width){
-    return Math.max(120, minMetrics.width + 70); 
-  }
-  // + 70px เผื่อ Padding ซ้ายขวา + Icon + Cursor
-  return Math.max(120, metrics.width + 70); 
-};
-
 interface TagManagerProps {
   tagRows: TagRow[]; 
   availableTags: Tag[];
