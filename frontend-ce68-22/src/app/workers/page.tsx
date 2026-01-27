@@ -9,8 +9,6 @@ import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import CreateWorkerIcon from "@/src/components/icon/CreateWorker";
 
-import { muiGreenButtonStyle } from "@/src/styles/greenButton";
-
 
 export default function WorkersPage() {
 
