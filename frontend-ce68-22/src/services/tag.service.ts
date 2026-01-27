@@ -1,13 +1,5 @@
-import axios from "axios";
 import { Tag } from "../types/tag";
-
-const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  withCredentials: true,
-});
+import apiClient from "../lib/api-client";
 
 export const tagService = {
     getAll: async () => {

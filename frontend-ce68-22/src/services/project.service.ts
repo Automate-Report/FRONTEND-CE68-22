@@ -1,16 +1,8 @@
-import axios from "axios";
 import { Project, CreateProjectPayload } from "../types/project";
 import { PaginatedResult } from "../types/common";
 import { getMe } from "./auth.service";
 
-// สร้าง Instance Axios (ควรย้ายไป lib/axios.ts ในอนาคต)
-const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  withCredentials: true,
-});
+import apiClient from "../lib/api-client";
 
 export const projectService = {
   // รับค่า page และ size (กำหนด default ไว้กันเหนียว)
