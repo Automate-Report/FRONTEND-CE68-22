@@ -1,7 +1,6 @@
 // src/lib/api-client.ts
 import axios from "axios";
 
-// 1. สร้าง Instance แค่ที่เดียว
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
   headers: {
@@ -10,7 +9,7 @@ const apiClient = axios.create({
   withCredentials: true, // เปิดรับ Cookie/Token
 });
 
-// 2. ใส่ Interceptor ดัก Error (401) ที่นี่ที่เดียว จบครบทุก Service
+//ใส่ Interceptor ดัก Error (401) ที่นี่ที่เดียว จบครบทุก Service
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
