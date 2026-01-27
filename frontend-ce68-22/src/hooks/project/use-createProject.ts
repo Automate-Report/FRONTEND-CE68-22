@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { projectService } from "@/src/services/project.service";
 import { tagService } from "@/src/services/tag.service";
-import { getMe } from "@/src/services/auth.service";
 import { Tag } from "@/src/types/tag";
 import { TagRow } from "@/src/types/tag";
 
@@ -19,7 +18,6 @@ export const useCreateProject = () => {
   const [tagRows, setTagRows] = useState<TagRow[]>([{ id: 1, tagName: "" }]);
   
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   // Status State
   const [fetchingTags, setFetchingTags] = useState(false);
@@ -28,9 +26,10 @@ export const useCreateProject = () => {
 
   // --- API Actions ---
 
-  const fetchLatestTags = useCallback(async (uid: string) => {
+  const fetchLatestTags = useCallback(async () => {
     try {
-      const tags = await tagService.getAll(uid);
+      setFetchingTags(true);
+      const tags = await tagService.getAll();
       setAvailableTags(tags);
     } catch (err) {
       console.error("Error fetching tags:", err);
@@ -41,30 +40,13 @@ export const useCreateProject = () => {
 
   // Init Data
   useEffect(() => {
-    const initData = async () => {
-      try {
-        setFetchingTags(true);
-        const me = await getMe();
-        const uid = me["user"];
-
-        if (uid && uid !== "undefined" && uid !== "null") {
-          setCurrentUserId(uid);
-          setFetchingTags(true);
-          await fetchLatestTags(uid);
-        }
-      } catch (err) {
-        console.error("Error init data:", err);
-      } finally {
-        setFetchingTags(false);
-      }
-    };
-    initData();
+    fetchLatestTags();
   }, [fetchLatestTags]);
 
   // --- Tag Handlers ---
 
   const handleDropdownOpen = () => {
-    if (currentUserId) fetchLatestTags(currentUserId);
+    fetchLatestTags();
   };
 
   const handleAddTagRow = () => {
@@ -80,15 +62,14 @@ export const useCreateProject = () => {
 
   // Helper function สำหรับสร้าง Tag ใหม่
   const createNewTagAndSelect = async (index: number, tagName: string, currentRows: TagRow[]) => {
-    if (!currentUserId) return;
     try {
-      const newTagObj = await tagService.create(tagName, currentUserId);
+      const newTagObj = await tagService.create(tagName);
       
       // อัปเดต tagName ใน row ที่ระบุ
       currentRows[index].tagName = newTagObj.name;
       setTagRows(currentRows);
       
-      await fetchLatestTags(currentUserId);
+      await fetchLatestTags();
     } catch (err) {
       console.error("Failed to create tag:", err);
       alert("Failed to create new tag.");
@@ -139,7 +120,7 @@ export const useCreateProject = () => {
           row.tagName === tagToDelete.name ? { ...row, tagName: "" } : row
       ));
 
-      if (currentUserId) await fetchLatestTags(currentUserId);
+      fetchLatestTags();
     } catch (err) {
       console.error("Failed to delete tag:", err);
       alert("Failed to delete tag.");
@@ -154,7 +135,6 @@ export const useCreateProject = () => {
     setError(null);
     try {
       if (!name) throw new Error("Please enter project name");
-      if (!currentUserId) throw new Error("User ID missing");
 
       // ดึงเฉพาะชื่อ tag ออกมาจาก row object
       const validTagNames = tagRows
@@ -170,7 +150,6 @@ export const useCreateProject = () => {
       const newProject = await projectService.create({
         name,
         description,
-        user_id: currentUserId,
         tag_ids: tagIds
       });
 

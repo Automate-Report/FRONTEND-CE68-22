@@ -8,6 +8,5 @@ export interface Project {
 export interface CreateProjectPayload {
   name: string;
   description?: string;
-  user_id: string;
   tag_ids?: number[];
 }

@@ -19,7 +19,7 @@ const getTextWidth = (text: string, font: string = "16px 'IBM Plex Sans Thai', s
   if (!context) return 120;
   context.font = font;
   const metrics = context.measureText(text || "Select tags"); 
-  return Math.max(120, metrics.width + 70); 
+  return Math.max(80, metrics.width + 70); 
 };
 
 interface TagItemProps {
