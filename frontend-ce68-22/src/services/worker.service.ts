@@ -1,7 +1,7 @@
 import axios from "axios";
 import { AxiosResponse } from "axios";
 
-import { CreateWorkerPayload, DownloadReponse, Worker } from "../types/worker";
+import { CreateWorkerPayload, Worker } from "../types/worker";
 import { AccessKey } from "../types/access_key";
 import { PaginatedResult } from "../types/common";
 
@@ -12,6 +12,7 @@ const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
 export const workerService = {
