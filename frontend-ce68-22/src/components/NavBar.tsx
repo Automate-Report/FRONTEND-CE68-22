@@ -56,7 +56,7 @@ export function NavBar() {
                     <Link href="/profile">
                         <Avatar
                             alt="Username"
-                            src="../../../public/default-avatar-profile-icon-social-600nw-1677509740.webp"
+                            src="https://commons.wikimedia.org/wiki/File:Twitter_default_profile_400x400.png"
                             sx={{ width: 50, height: 50 }}
                         />
                     </Link>

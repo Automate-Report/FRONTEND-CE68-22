@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { scheduleService } from "@/src/services/schedule.service";
 
 export function useSchedule(
+    project_id: number,
     page: number,
     size: number,
     sortBy: string | null,
@@ -10,10 +11,9 @@ export function useSchedule(
     filter?: string  // เพิ่ม
 ) {
     return useQuery({
-        // สำคัญมาก: ต้องใส่ sortBy, sortOrder ใน Key
-        queryKey: ['schedules', page, size, sortBy, sortOrder, search, filter],
+        queryKey: ['schedules', project_id, page, size, sortBy, sortOrder, search, filter],
 
-        queryFn: () => scheduleService.getAll(page, size, sortBy, sortOrder, search, filter),
+        queryFn: () => scheduleService.getAll(project_id, page, size, sortBy, sortOrder, search, filter),
 
         placeholderData: (previousData) => previousData,
     });

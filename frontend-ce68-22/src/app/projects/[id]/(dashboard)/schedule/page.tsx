@@ -78,6 +78,7 @@ export default function ProjectSchedulePage({ params }: PageProps) {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
+        
         {/* Buttons */}
         <div className="flex gap-8 items-center">
           <button className="flex items-center justify-center bg-[#0F1518] border border-[#E6F0E6] text-[#E6F0E6] text-[16px] font-semibold rounded-lg px-6 py-2 gap-3 cursor-pointer hover:bg-[#272D31]"
@@ -95,6 +96,7 @@ export default function ProjectSchedulePage({ params }: PageProps) {
 
       {/* Section 4: Table */}
       <ScheduleList
+        project_id={projectId}
         searchQuery={searchQuery}
         filterStatus={filterStatus}
       />

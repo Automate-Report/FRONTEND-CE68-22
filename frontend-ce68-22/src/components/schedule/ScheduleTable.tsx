@@ -45,7 +45,7 @@ export function ScheduleTable({
             // ถ้าไม่ใส่ render มันจะโชว์ row.name ให้เอง
             render: (row) => (
                 <Link
-                    href={`/projects/${row.id}/overview`}
+                    href={`/projects/${row.project_id}/schedule/${row.id}`}
                 >
                     <div>
                         {row.name}
@@ -61,7 +61,7 @@ export function ScheduleTable({
             width: "160px", // ให้หดเหลือพื้นที่เท่าที่จำเป็น
             render: (row) => (
                 <Link
-                    href={`/schedule/${row.id}/overview`}
+                    href={`/projects/${row.project_id}/schedule/${row.id}`}
                 >
                     <div className="flex justify-center gap-4">
                         <div className="flex justify-center items-center rounded-lg w-[28px] h-[24px] text-[#6EDD99] bg-[#DEFFE2] font-bold">
@@ -85,30 +85,31 @@ export function ScheduleTable({
             align: "center",
             sortable: true,
             width: "127px", // ให้หดเหลือพื้นที่เท่าที่จำเป็น
-            render: (row) => (
+            render: (row) => {
+                console.log("Scheduletabe - row.id", row.id)
+                const d = new Date(row.start_date);
+                return (
                 <Link
-                    href={`/schedule/${row.id}/overview`}
-                >
-                    <div>
-                        {row.start_date.toLocaleDateString("en-GB")}
-                    </div>
+                    href={`/projects/${row.project_id}/schedule/${row.id}`}
+                > 
+                    {d.getDate()}-{d.getMonth()+1}-{d.getFullYear()}
                 </Link>
-            )
+            )}
         }, {
             id: "end_date",
             label: "End",
             align: "center",
             sortable: true,
             width: "127px", // ให้หดเหลือพื้นที่เท่าที่จำเป็น
-            render: (row) => (
+            render: (row) => {
+                const d = new Date(row.end_date);
+                return (
                 <Link
-                    href={`/schedule/${row.id}/overview`}
+                    href={`/projects/${row.project_id}/schedule/${row.id}`}
                 >
-                    <div>
-                        {row.end_date?.toLocaleDateString("en-GB")}
-                    </div>
+                    {d.getDate()}-{d.getMonth()+1}-{d.getFullYear()}
                 </Link>
-            )
+            )}
         },
         {
             id: "actions",
@@ -119,7 +120,7 @@ export function ScheduleTable({
             render: (row) => (
                 <div className="flex justify-around pr-2 gap-6">
                     {/* ตรงนี้คุณอาจจะใส่ onClick handler ในอนาคต */}
-                    <Link href={`/projects/${row.id}/edit`} className="cursor-pointer"><EditIcon /></Link>
+                    <Link href={`/projects/${row.project_id}/schedule/${row.id}/edit`} className="cursor-pointer"><EditIcon /></Link>
                     <div
                         className="cursor-pointer"
                         onClick={() => onDeleteClick(row)}

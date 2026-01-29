@@ -4,16 +4,30 @@ interface JobStatus {
     ongoing: number,
     scheduled: number
 }
-
 export interface ScheduleDisplay {
     id: number,
     project_id: number,
     name: string,
-    job_status: JobStatus,
     atk_type: string,
     start_date: Date,
     end_date: Date
+    job_status: JobStatus,
 }
+export interface ScheduleItem {
+    schedule_id: number;
+    schedule_name: string;
+    project_id: number;
+    asset_id: number;
+    worker_id: number;
+    cron_expression: string;
+    attack_type: string; 
+    is_active: boolean;
+    next_run_at: Date; 
+    start_date: Date; 
+    end_date: Date;    
+    created_at: Date;  
+    updated_at: Date; 
+};
 
 export interface ScheduleCreatePayload {
     project_id: number,
