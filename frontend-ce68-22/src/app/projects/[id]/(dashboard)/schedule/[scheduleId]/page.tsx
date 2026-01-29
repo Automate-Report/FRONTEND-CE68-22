@@ -48,7 +48,7 @@ export default function ViewSchedulePage() {
 
             {/* Section 2: Headline */}
             <div className="w-full flex flex-row justify-between">
-                <h1 className="font-bold text-[36px]">
+                <h1 className="font-bold text-[32px]">
                     {schedule?.schedule_name || "Loading..."}
                 </h1>
                 <div className="flex gap-8 items-center">
@@ -70,19 +70,19 @@ export default function ViewSchedulePage() {
 
                 {/* Atk type */}
                 <div className="flex flex-col w-[40%] gap-3">
-                    <span className="font-semibold text-xl">Attack Type </span>
+                    <span className="font-semibold text-2xl">Attack Type </span>
                     <input type="text" value={schedule?.attack_type || "Loading..."} readOnly 
                     className="bg-[#272D31] rounded-lg px-4 py-2 text-[#E6F0E6] focus:outline-none"/>
                 </div>
                 {/* Asset */}
                 <div className="flex flex-col w-[40%] gap-3">
-                    <span className="font-semibold text-xl">Asset ID </span>
+                    <span className="font-semibold text-2xl">Asset ID </span>
                     <input type="text" value={schedule?.asset_id || "Loading..."} readOnly //ค่อยแก้เป็น Asset name ทีหลัง
                     className="bg-[#272D31] rounded-lg px-4 py-2 text-[#E6F0E6] focus:outline-none"/>
                 </div>
                 {/* Schedule Time */}
                 <div className="flex flex-col w-[40%] gap-3">
-                    <span className="font-semibold text-xl">Schedule Time </span>
+                    <span className="font-semibold text-2xl">Schedule Time </span>
                     <input type="text" value={schedule?.cron_expression || "Loading..."} readOnly //แก้เป็นอันที่คนอ่านรู้เรื่องทีหลัง
                     className="bg-[#272D31] rounded-lg px-4 py-2 text-[#E6F0E6] focus:outline-none"/>
                 </div>
