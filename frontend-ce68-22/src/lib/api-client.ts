@@ -14,12 +14,14 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     const originalRequest = error.config;
+
+    const isLoginRequest = originalRequest.url?.includes("/auth/login");
     
-    // ดัก 401 Unauthorized
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // ถ้าเจอ 401 และ "ไม่ใช่" การยิง Login ให้ค่อยสั่ง Redirect
+    if (error.response?.status === 401 && !isLoginRequest && !originalRequest._retry) {
       originalRequest._retry = true;
       if (typeof window !== "undefined") {
-        window.location.href = "/auth/login"; // ดีดไปหน้า Login
+        window.location.href = "/login"; 
       }
     }
     return Promise.reject(error);
