@@ -86,7 +86,6 @@ export function ScheduleTable({
             sortable: true,
             width: "127px", // ให้หดเหลือพื้นที่เท่าที่จำเป็น
             render: (row) => {
-                console.log("Scheduletabe - row.id", row.id)
                 const d = new Date(row.start_date);
                 return (
                 <Link

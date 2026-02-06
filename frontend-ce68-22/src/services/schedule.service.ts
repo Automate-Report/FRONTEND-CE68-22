@@ -44,6 +44,11 @@ export const scheduleService = {
         return data;
     },
 
+    getJobByScheduleID: async (schedule_id: number) => {
+        const { data } = await api.get<any>(`jobs/schedule/${schedule_id}`);
+        return data;
+    },
+
     create: async (payload: ScheduleCreatePayload) => {
         const { data } = await api.post("/schedule/create", payload);
         return data;

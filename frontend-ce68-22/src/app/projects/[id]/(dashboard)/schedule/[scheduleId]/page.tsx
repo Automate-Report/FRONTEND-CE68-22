@@ -3,11 +3,15 @@
 import { useRouter, useParams } from "next/navigation";
 import { useProject } from "@/src/hooks/project/use-project";
 import { useGetScheduleByID } from "@/src/hooks/schedule/use-getScheduleByID";
+import { useGetJobByScheduleID } from "@/src/hooks/schedule/use-getJobByScheduleID";
+import cronstrue from 'cronstrue';
+import { getDisplayDate } from "@/src/components/Common/GetDisplayDate";
 
 //components
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
-import { Delete, Edit } from "@mui/icons-material";
+import DeleteProjectIcon from "@/src/components/icon/Delete";
+import EditProjectIcon from "@/src/components/icon/Edit";
 
 export default function ViewSchedulePage() {
 
@@ -17,8 +21,9 @@ export default function ViewSchedulePage() {
     const scheduleId = parseInt(params.scheduleId);
 
     // fetching
-    const { data: project } = useProject(projectId);
+    const { data: project, isLoading, isError } = useProject(projectId);
     const { data: schedule } = useGetScheduleByID(scheduleId);
+    const { data: job_of_this_schedule } = useGetJobByScheduleID(scheduleId);
 
     const breadcrumbItems = [
         { label: "Home", href: "/main" },
@@ -38,6 +43,11 @@ export default function ViewSchedulePage() {
         }
     };
 
+    if (isLoading) return <div className="p-8">Loading...</div>;
+    if (isError || !project) return <div className="p-8 text-red-500">Project not found</div>;
+
+    console.log(schedule?.cron_expression || "* * * * *");
+
     return (
         <div className="flex flex-col w-full text-[#E6F0E6] max-w-7xl">
 
@@ -52,15 +62,17 @@ export default function ViewSchedulePage() {
                     {schedule?.schedule_name || "Loading..."}
                 </h1>
                 <div className="flex gap-8 items-center">
-                    <button className="flex items-center justify-center bg-[#0F1518] border border-[#E6F0E6] text-[#E6F0E6] text-[16px] font-semibold rounded-lg px-6 py-2 gap-3 cursor-pointer hover:bg-[#272D31]"
+                    <button className="flex items-center justify-center bg-[#0F1518] border border-[#FE3B46] 
+                    text-[#FE3B46] text-[16px] font-semibold rounded-lg px-6 py-2 gap-3 cursor-pointer 
+                    hover:bg-[#FE3B46] hover:text-[#FBFBFB] transition-colors"
                         onClick={handleDelete}>
                         Delete
-                        <Delete />
+                        <DeleteProjectIcon />
                     </button>
                     <GenericGreenButton
                         name="Edit"
                         href={`/projects/${projectId}/schedule/${scheduleId}/edit`}
-                        icon={<Edit />}
+                        icon={<EditProjectIcon />}
                     />
                 </div>
             </div>
@@ -71,20 +83,62 @@ export default function ViewSchedulePage() {
                 {/* Atk type */}
                 <div className="flex flex-col w-[40%] gap-3">
                     <span className="font-semibold text-2xl">Attack Type </span>
-                    <input type="text" value={schedule?.attack_type || "Loading..."} readOnly 
-                    className="bg-[#272D31] rounded-lg px-4 py-2 text-[#E6F0E6] focus:outline-none"/>
+                    <input type="text" value={schedule?.attack_type || "Loading..."} readOnly
+                        className="bg-[#272D31] rounded-lg px-4 py-2 text-[#E6F0E6] focus:outline-none" />
                 </div>
                 {/* Asset */}
                 <div className="flex flex-col w-[40%] gap-3">
                     <span className="font-semibold text-2xl">Asset ID </span>
                     <input type="text" value={schedule?.asset_id || "Loading..."} readOnly //ค่อยแก้เป็น Asset name ทีหลัง
-                    className="bg-[#272D31] rounded-lg px-4 py-2 text-[#E6F0E6] focus:outline-none"/>
+                        className="bg-[#272D31] rounded-lg px-4 py-2 text-[#E6F0E6] focus:outline-none" />
                 </div>
                 {/* Schedule Time */}
-                <div className="flex flex-col w-[40%] gap-3">
+                <div className="flex flex-col w-full gap-4">
                     <span className="font-semibold text-2xl">Schedule Time </span>
-                    <input type="text" value={schedule?.cron_expression || "Loading..."} readOnly //แก้เป็นอันที่คนอ่านรู้เรื่องทีหลัง
-                    className="bg-[#272D31] rounded-lg px-4 py-2 text-[#E6F0E6] focus:outline-none"/>
+
+                    {(schedule?.cron_expression !== "Not Repeat") && (
+                        <>
+                            {/* Period */}
+                            <div className="flex flex-row w-full gap-3 items-center justify-start">
+                                <span className="font-medium">Period From :</span>
+
+                                <span className="bg-[#272D31] rounded-lg px-4 py-2 text-[#E6F0E6] whitespace-nowrap">
+                                    {getDisplayDate(new Date(schedule?.start_date || ""))}
+                                </span>
+
+                                <span className="font-medium">To</span>
+
+                                <span className="bg-[#272D31] rounded-lg px-4 py-2 text-[#E6F0E6] whitespace-nowrap">
+                                    {getDisplayDate(new Date(schedule?.end_date || ""))}
+                                </span>
+                            </div>
+                        </>
+                    )}
+                    
+                    <div className="flex flex-row gap-3">
+                        {(schedule?.cron_expression == "Not Repeat") ? (
+                            <div className="flex flex-row w-full gap-3 items-center justify-start">
+                                <span className="font-medium">Run once at :</span>
+                                <span className="bg-[#272D31] rounded-lg px-4 py-2 text-[#E6F0E6] whitespace-nowrap">
+                                    {getDisplayDate(new Date(schedule?.start_date || ""))}
+                                </span>
+                            </div>
+                        ) : (
+                            <div className="flex flex-row gap-3">
+                                <span className="font-medium mt-2">Run At :</span>
+                                <div className="flex flex-col gap-3">
+                                    {schedule?.cron_expression?.split('Z').map((cronTime, index) => (
+                                        <span
+                                            key={index}
+                                            className="w-fit bg-[#272D31] rounded-lg px-4 py-2 text-[#E6F0E6] whitespace-nowrap"
+                                        >
+                                            {cronstrue.toString(cronTime || "", { verbose: true })}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 

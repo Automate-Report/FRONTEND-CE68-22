@@ -34,7 +34,6 @@ export interface ScheduleCreatePayload {
     name: string,
     atk_type: string,
     asset: number, //จะให้ Front ส่งเป็น ID มาเลย
-    worker: number, //จะให้ Front ส่งเป็น ID มาเลย
     cron_expression: string, //เช่น "0 0 * * *" (ทำที่ Front)
     start_date: Date,
     end_date: Date | null //ถ้าไม่ตั้ง Repeat จะไม่มีค่า end_date

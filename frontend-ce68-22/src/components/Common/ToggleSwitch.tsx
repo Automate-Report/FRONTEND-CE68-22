@@ -18,6 +18,7 @@ export default function ToggleSwitch({
 
     return (
         <button
+            type="button"
             onClick={toggle}
             className={`relative w-16 h-8 rounded-full transition-colors ${checked ? "bg-green-400" : "bg-gray-300"
                 }`}

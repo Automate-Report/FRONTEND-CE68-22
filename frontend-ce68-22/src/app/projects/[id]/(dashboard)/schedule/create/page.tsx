@@ -1,14 +1,11 @@
 "use client";
 import { useRouter, useParams } from "next/navigation";
 import { useProject } from "@/src/hooks/project/use-project";
-import { useGetScheduleByID } from "@/src/hooks/schedule/use-getScheduleByID";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ScheduleCreatePayload } from "@/src/types/schedule";
 
 //components
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
-import { getDisplayDate } from "@/src/components/Common/GetDisplayDate";
-import { getDisplayTime } from "@/src/components/Common/GetDisplayTime";
 import ToggleSwitch from "@/src/components/Common/ToggleSwitch";
 import GenericDropdown from "@/src/components/Common/GenericDropdown";
 
@@ -23,11 +20,9 @@ export default function EditSchedulePage() {
     const router = useRouter();
     const params = useParams<{ id: string; scheduleId: string }>();
     const projectId = parseInt(params.id);
-    const scheduleId = parseInt(params.scheduleId);
 
     // fetching
     const { data: project, isLoading, isError } = useProject(projectId);
-    const { data: schedule } = useGetScheduleByID(scheduleId);
 
     // States
     const [form, setForm] = useState({
@@ -39,7 +34,9 @@ export default function EditSchedulePage() {
         endDate: "",
     });
     const [repeatTrue, setRepeatTrue] = useState(false);
-    const [cronTimes, setCronTimes] = useState<Array<{ min: string; hr: string; day: string; month: string; week: string }>>([]);
+    const [cronTimes, setCronTimes] = useState<Array<{ min: string; hr: string; day: string; month: string; week: string }>>([
+        { min: "0", hr: "0", day: "*", month: "*", week: "*" }
+    ]);
     const [monthly, setMonthly] = useState<number[]>([]);
     const [days, setDays] = useState([
         { name: "Sun", active: false },
@@ -80,59 +77,6 @@ export default function EditSchedulePage() {
         { label: "Asset 8", value: 5008 },
     ];
 
-    // Assign init value to states
-    useEffect(() => {
-        if (!schedule) return;
-
-        setForm({
-            scheduleName: schedule.schedule_name,
-            attackType: schedule.attack_type,
-            assetId: schedule.asset_id,
-            startDate: getDisplayDate(new Date(schedule.start_date), "input"),
-            startTime: getDisplayTime(new Date(schedule.start_date)),
-            endDate: schedule.end_date
-                ? getDisplayDate(new Date(schedule.end_date), "input")
-                : "",
-        });
-    }, [schedule]);
-
-    // Fetched cron parsing
-    useEffect(() => {
-        const cronList = "0 0 * * *Z30 6 * * *".split("Z");
-
-        const parsed = cronList.map(cron => {
-            const [min, hr, day, month, week] = cron.split(" ");
-            return { min, hr, day, month, week };
-        });
-
-        setCronTimes(parsed);
-
-        // Set active days based on cron's week field
-        const week = parsed[0]?.week;
-        if (!week) return;
-        if (week === "*") {
-            setDays(prev => prev.map(d => ({ ...d, active: false })));
-        } else {
-            const activeDays = week.split(",").map(Number);
-            setDays(prev =>
-                prev.map((d, i) => ({
-                    ...d,
-                    active: activeDays.includes(i),
-                }))
-            );
-        }
-
-        // Set monthly date
-        const monthly = parsed[0]?.day;
-        if (monthly === "*") {
-            setMonthly([]);
-        }
-        else {
-            setMonthly(monthly.split(",").map(Number));
-        }
-
-    }, []);
-
     const handleAddMonthly = () => {
         // limit to 5 dates
         if (monthly.length >= 5) {
@@ -168,16 +112,22 @@ export default function EditSchedulePage() {
         );
     };
 
-    
+    const breadcrumbItems = [
+        { label: "Home", href: "/main" },
+        { label: project?.name || "Loading...", href: `/projects/${projectId}/overview` },
+        { label: "Schedule", href: `/projects/${projectId}/schedule` },
+        { label: "Create", href: undefined }
+    ];
+
     const changeUserInputToCronString = (month: string = "*") => {
-        
+
         // Check for repeated days
         if (new Set(monthly).size !== monthly.length) {
             setRepeatedDayError(true);
             return;
         }
         setRepeatedDayError(false);
-        
+
         // Check for repeated times
         const timeSet = new Set(cronTimes.map(t => `${t.hr}:${t.min}`));
         if (timeSet.size !== cronTimes.length) {
@@ -185,58 +135,50 @@ export default function EditSchedulePage() {
             return;
         }
         setRepeatedTimeError(false);
-        
+
         // Week string from active days
         const week = days
-        .reduce<number[]>((newArray, day, index) => {
+            .reduce<number[]>((newArray, day, index) => {
                 if (day.active) newArray.push(index);
                 return newArray;
             }, [])
             .join(",");
-            
-            const allCronExpression = cronTimes.map(({ hr, min }) => ({
-                min,
-                hr,
-                day: monthly.length ? monthly.join(",") : "*",
-                month,
-                week: week === "" ? "*" : week
-            }));
-            
-            const cronString = allCronExpression
+
+        const allCronExpression = cronTimes.map(({ hr, min }) => ({
+            min,
+            hr,
+            day: monthly.length ? monthly.join(",") : "*",
+            month,
+            week: week === "" ? "*" : week
+        }));
+
+        const cronString = allCronExpression
             .map(({ min, hr, day, month, week }) => `${min} ${hr} ${day} ${month} ${week}`)
             .join("Z");
-            
-            console.log("Schedule - edit - showcron :", cronString);
-            return cronString;
-        }
-        
-        const handleSubmit = async (e: React.FormEvent) => {
-            e.preventDefault();
-            setLengthError(false);
-            const cronString = changeUserInputToCronString();
-            if (!cronString) return;
-            const payload: ScheduleCreatePayload = {
-                project_id: projectId,
-                name: form.scheduleName,
-                atk_type: form.attackType,
-                asset: form.assetId,
-                cron_expression: cronString,
-                start_date: new Date(`${form.startDate}T${form.startTime}:00`),
-                end_date: form.endDate ? new Date(form.endDate) : null,
-            };
+
+        console.log("Schedule - edit - showcron :", cronString);
+        return cronString;
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLengthError(false);
+        const cronString = changeUserInputToCronString();
+        if (!cronString) return;
+        const payload: ScheduleCreatePayload = {
+            project_id: projectId,
+            name: form.scheduleName,
+            atk_type: form.attackType,
+            asset: form.assetId,
+            cron_expression: cronString,
+            start_date: new Date(`${form.startDate}T${form.startTime}:00`),
+            end_date: form.endDate ? new Date(form.endDate) : null,
+        };
         alert("Schedule - edit - payload :" + JSON.stringify(payload));
     }
 
     if (isLoading) return <div className="p-8">Loading...</div>;
     if (isError || !project) return <div className="p-8 text-red-500">Project not found</div>;
-    
-    const breadcrumbItems = [
-        { label: "Home", href: "/main" },
-        { label: project?.name || "Loading...", href: `/projects/${projectId}/overview` },
-        { label: "Schedule", href: `/projects/${projectId}/schedule` },
-        { label: schedule?.schedule_name || "Loading...", href: `/projects/${projectId}/schedule/${scheduleId}` },
-        { label: "Edit", href: undefined }
-    ];
 
     return (
         <div className="flex flex-col w-full text-[#E6F0E6] max-w-7xl">
@@ -254,7 +196,8 @@ export default function EditSchedulePage() {
                     {/* Schedule Name */}
                     <div className="flex flex-col w-[40%] gap-3">
                         <span className="font-semibold text-2xl">Schedule Name</span>
-                        <input type="text" value={form.scheduleName || "Loading..."} onChange={(e) => setForm({ ...form, scheduleName: e.target.value })}
+                        <input type="text" value={form.scheduleName || ""} placeholder="Your Schedule Name"
+                            onChange={(e) => setForm({ ...form, scheduleName: e.target.value })}
                             className="bg-[#FBFBFB] rounded-lg px-4 py-2 text-[#404F57] focus:outline-none" />
                     </div>
                     {/* Attack Type */}
@@ -442,10 +385,9 @@ export default function EditSchedulePage() {
                             {/* Action Buttons */}
                             <div className="flex gap-8 items-center">
                                 <button className="flex items-center justify-center bg-[#0F1518] border border-[#FE3B46] text-[#FE3B46] text-[16px] 
-                                        font-semibold rounded-lg px-6 py-2 gap-3 cursor-pointer hover:bg-[#FE3B46] hover:text-[#FBFBFB] transition-colors"
-                                    type="button" onClick={() => router.push(`/projects/${projectId}/schedule/${scheduleId}`)}>Cancel</button>
-
-                                <button className="cursor-pointer bg-[#8FFF9C] rounded-lg px-6 py-2 text-[#0B0F12] font-medium 
+                                        font-semibold rounded-lg px-6 py-2 gap-3 cursor-pointer hover:bg-[#272D31]"
+                                    type="button" onClick={() => router.push(`/projects/${projectId}/schedule`)}>Cancel</button>
+                                <button className="cursor-pointer bg-[#8FFF9C] rounded-lg px-4 py-2 text-[#0B0F12] font-medium 
                                         focus:outline-none flex flex-row gap-3 items-center w-fit hover:bg-[#AFFFB9]"
                                     type="submit">Save Changes</button>
                             </div>
