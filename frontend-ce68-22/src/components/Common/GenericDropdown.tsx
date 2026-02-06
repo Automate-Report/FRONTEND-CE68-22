@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 
 type Option<T> = {
-    label: string;
+    label: ReactNode;
     value: T;
 };
 

@@ -4,6 +4,7 @@ import { useProject } from "@/src/hooks/project/use-project";
 import { useGetScheduleByID } from "@/src/hooks/schedule/use-getScheduleByID";
 import { useState, useEffect } from "react";
 import { ScheduleCreatePayload } from "@/src/types/schedule";
+import { scheduleService } from "@/src/services/schedule.service";
 
 //components
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
@@ -14,7 +15,7 @@ import GenericDropdown from "@/src/components/Common/GenericDropdown";
 
 //icons
 import AddTime from "@/src/components/icon/AddTime";
-import Delete from "@/src/components/icon/Delete";
+import DeleteProjectIcon from "@/src/components/icon/Delete";
 import Edit from "@/src/components/icon/Edit";
 import AddSymbol from "@/src/components/icon/AddSymbol";
 
@@ -38,7 +39,7 @@ export default function EditSchedulePage() {
         startTime: "",
         endDate: "",
     });
-    const [repeatTrue, setRepeatTrue] = useState(false);
+    const [repeatTrue, setRepeatTrue] = useState(schedule?.cron_expression == "Not Repeat" ? false : true);
     const [cronTimes, setCronTimes] = useState<Array<{ min: string; hr: string; day: string; month: string; week: string }>>([]);
     const [monthly, setMonthly] = useState<number[]>([]);
     const [days, setDays] = useState([
@@ -58,7 +59,7 @@ export default function EditSchedulePage() {
 
     // Dropdown Options
     const dayOptions = [
-        { label: "Delete", value: 0 },
+        { label: <DeleteProjectIcon />, value: 0 },
         ...Array.from({ length: 31 }, (_, i) => ({
             label: String(i + 1),
             value: i + 1,
@@ -98,13 +99,14 @@ export default function EditSchedulePage() {
 
     // Fetched cron parsing
     useEffect(() => {
-        const cronList = "0 0 * * *Z30 6 * * *".split("Z");
-
+        let cronList = schedule?.cron_expression.split("Z") || ["0 0 * * *"];
+        if (schedule?.cron_expression == "Not Repeat") {
+            cronList = ["0 0 * * *"];
+        }
         const parsed = cronList.map(cron => {
             const [min, hr, day, month, week] = cron.split(" ");
             return { min, hr, day, month, week };
         });
-
         setCronTimes(parsed);
 
         // Set active days based on cron's week field
@@ -131,7 +133,7 @@ export default function EditSchedulePage() {
             setMonthly(monthly.split(",").map(Number));
         }
 
-    }, []);
+    }, [schedule]);
 
     const handleAddMonthly = () => {
         // limit to 5 dates
@@ -168,68 +170,75 @@ export default function EditSchedulePage() {
         );
     };
 
-    
+
     const changeUserInputToCronString = (month: string = "*") => {
-        
+
+        setRepeatedDayError(false);
+        setRepeatedTimeError(false);
+
+        // If not repeat
+        if (!repeatTrue) {
+            return "Not Repeat";
+        }
+
         // Check for repeated days
         if (new Set(monthly).size !== monthly.length) {
             setRepeatedDayError(true);
             return;
         }
-        setRepeatedDayError(false);
-        
+
         // Check for repeated times
         const timeSet = new Set(cronTimes.map(t => `${t.hr}:${t.min}`));
         if (timeSet.size !== cronTimes.length) {
             setRepeatedTimeError(true);
             return;
         }
-        setRepeatedTimeError(false);
-        
+
         // Week string from active days
         const week = days
-        .reduce<number[]>((newArray, day, index) => {
+            .reduce<number[]>((newArray, day, index) => {
                 if (day.active) newArray.push(index);
                 return newArray;
             }, [])
             .join(",");
-            
-            const allCronExpression = cronTimes.map(({ hr, min }) => ({
-                min,
-                hr,
-                day: monthly.length ? monthly.join(",") : "*",
-                month,
-                week: week === "" ? "*" : week
-            }));
-            
-            const cronString = allCronExpression
+
+        const allCronExpression = cronTimes.map(({ hr, min }) => ({
+            min,
+            hr,
+            day: monthly.length ? monthly.join(",") : "*",
+            month,
+            week: week === "" ? "*" : week
+        }));
+
+        const cronString = allCronExpression
             .map(({ min, hr, day, month, week }) => `${min} ${hr} ${day} ${month} ${week}`)
             .join("Z");
-            
-            console.log("Schedule - edit - showcron :", cronString);
-            return cronString;
-        }
-        
-        const handleSubmit = async (e: React.FormEvent) => {
-            e.preventDefault();
-            setLengthError(false);
-            const cronString = changeUserInputToCronString();
-            if (!cronString) return;
-            const payload: ScheduleCreatePayload = {
-                project_id: projectId,
-                name: form.scheduleName,
-                atk_type: form.attackType,
-                asset: form.assetId,
-                cron_expression: cronString,
-                start_date: new Date(`${form.startDate}T${form.startTime}:00`),
-                end_date: form.endDate ? new Date(form.endDate) : null,
-            };
-        alert("Schedule - edit - payload :" + JSON.stringify(payload));
+
+        return cronString;
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLengthError(false);
+        const cronString = changeUserInputToCronString();
+        if (!cronString) return;
+        const payload: ScheduleCreatePayload = {
+            project_id: projectId,
+            name: form.scheduleName,
+            atk_type: form.attackType,
+            asset: form.assetId,
+            cron_expression: cronString,
+            start_date: new Date(`${form.startDate}T${form.startTime}:00`),
+            end_date: (!repeatTrue && form.endDate)  ? new Date(form.endDate) : new Date(form.startDate),
+        };
+
+        const data = await scheduleService.edit(scheduleId, payload);
+        router.push(`/projects/${projectId}/schedule/${scheduleId}`);
     }
 
     if (isLoading) return <div className="p-8">Loading...</div>;
     if (isError || !project) return <div className="p-8 text-red-500">Project not found</div>;
-    
+
     const breadcrumbItems = [
         { label: "Home", href: "/main" },
         { label: project?.name || "Loading...", href: `/projects/${projectId}/overview` },
@@ -333,7 +342,7 @@ export default function EditSchedulePage() {
 
                                                         {cronTimes.length > 1 && (
                                                             <button type="button" onClick={() => handleDeleteTime(index)}>
-                                                                <Delete />
+                                                                <DeleteProjectIcon />
                                                             </button>
                                                         )}
                                                     </div>
@@ -376,7 +385,7 @@ export default function EditSchedulePage() {
                                             {monthly.length === 0 ? (
                                                 <>
                                                     <input type="text" value="Every day of the month" readOnly
-                                                        className="bg-[#272D31] rounded-lg px-4 py-2 text-[#E6F0E6] focus:outline-none" />
+                                                        className="bg-[#272D31] rounded-lg px-4 py-2 text-[#E6F0E6] focus:outline-none w-[198px]" />
                                                     <button className="cursor-pointer bg-[#8FFF9C] rounded-lg px-4 py-2 text-[#0B0F12] font-medium 
                                                             focus:outline-none flex flex-row gap-3 items-center w-fit hover:bg-[#AFFFB9]"
                                                         type="button"

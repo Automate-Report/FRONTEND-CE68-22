@@ -3,6 +3,9 @@ import { useRouter, useParams } from "next/navigation";
 import { useProject } from "@/src/hooks/project/use-project";
 import { useState } from "react";
 import { ScheduleCreatePayload } from "@/src/types/schedule";
+import { getDisplayDate } from "@/src/components/Common/GetDisplayDate";
+import { getDisplayTime } from "@/src/components/Common/GetDisplayTime";
+import { scheduleService } from "@/src/services/schedule.service";
 
 //components
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
@@ -14,6 +17,8 @@ import AddTime from "@/src/components/icon/AddTime";
 import Delete from "@/src/components/icon/Delete";
 import Edit from "@/src/components/icon/Edit";
 import AddSymbol from "@/src/components/icon/AddSymbol";
+import { Tooltip } from "@mui/material";
+import { set } from "react-hook-form";
 
 export default function EditSchedulePage() {
 
@@ -25,12 +30,13 @@ export default function EditSchedulePage() {
     const { data: project, isLoading, isError } = useProject(projectId);
 
     // States
+    const [runNow, setRunNow] = useState(false);
     const [form, setForm] = useState({
         scheduleName: "",
         attackType: "",
         assetId: 0,
-        startDate: "",
-        startTime: "",
+        startDate: getDisplayDate(new Date(), "input"),
+        startTime: getDisplayTime(new Date(Date.now() + 3600 * 1000)), // default = next hour
         endDate: "",
     });
     const [repeatTrue, setRepeatTrue] = useState(false);
@@ -49,6 +55,9 @@ export default function EditSchedulePage() {
     ]);
 
     // Error states
+    const [nameError, setNameError] = useState<boolean>(false);
+    const [attackTypeError, setAttackTypeError] = useState<boolean>(false);
+    const [assetError, setAssetError] = useState<boolean>(false);
     const [lengthError, setLengthError] = useState<boolean>(false);
     const [repeatedDayError, setRepeatedDayError] = useState<boolean>(false);
     const [repeatedTimeError, setRepeatedTimeError] = useState<boolean>(false);
@@ -112,21 +121,21 @@ export default function EditSchedulePage() {
         );
     };
 
-    const breadcrumbItems = [
-        { label: "Home", href: "/main" },
-        { label: project?.name || "Loading...", href: `/projects/${projectId}/overview` },
-        { label: "Schedule", href: `/projects/${projectId}/schedule` },
-        { label: "Create", href: undefined }
-    ];
-
     const changeUserInputToCronString = (month: string = "*") => {
+
+        setRepeatedDayError(false);
+        setRepeatedTimeError(false);
+
+        // If not repeat
+        if (!repeatTrue) {
+            return "Not Repeat";
+        }
 
         // Check for repeated days
         if (new Set(monthly).size !== monthly.length) {
             setRepeatedDayError(true);
             return;
         }
-        setRepeatedDayError(false);
 
         // Check for repeated times
         const timeSet = new Set(cronTimes.map(t => `${t.hr}:${t.min}`));
@@ -134,7 +143,6 @@ export default function EditSchedulePage() {
             setRepeatedTimeError(true);
             return;
         }
-        setRepeatedTimeError(false);
 
         // Week string from active days
         const week = days
@@ -156,15 +164,46 @@ export default function EditSchedulePage() {
             .map(({ min, hr, day, month, week }) => `${min} ${hr} ${day} ${month} ${week}`)
             .join("Z");
 
-        console.log("Schedule - edit - showcron :", cronString);
         return cronString;
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        //clear errors
+        setNameError(false);
+        setAttackTypeError(false);
+        setAssetError(false);
         setLengthError(false);
+
         const cronString = changeUserInputToCronString();
         if (!cronString) return;
+
+        //error check
+        let flagError = false;
+        if (form.scheduleName === "") { setNameError(true); flagError = true; }
+        if (form.attackType === "") { setAttackTypeError(true); flagError = true; }
+        if (!form.assetId || form.assetId === 0) { setAssetError(true); flagError = true; }
+        if (flagError) return;
+
+        if (runNow) {
+            const payload: ScheduleCreatePayload = {
+                project_id: projectId,
+                name: form.scheduleName,
+                atk_type: form.attackType,
+                asset: form.assetId,
+                cron_expression: "Not Repeat",
+                start_date: new Date(Date.now() + 60 * 1000), // run after 1 minute
+                end_date: new Date(Date.now() + 60 * 1000),
+            };
+            
+            const data = await scheduleService.create(payload);
+            alert("Schedule - create run now - return ms :" + data["message"]);
+            router.push(`/projects/${projectId}/schedule`);
+            setRunNow(false);
+            return
+        }
+
         const payload: ScheduleCreatePayload = {
             project_id: projectId,
             name: form.scheduleName,
@@ -172,13 +211,23 @@ export default function EditSchedulePage() {
             asset: form.assetId,
             cron_expression: cronString,
             start_date: new Date(`${form.startDate}T${form.startTime}:00`),
-            end_date: form.endDate ? new Date(form.endDate) : null,
+            end_date: (!repeatTrue && form.endDate) ? new Date(form.endDate) : new Date(form.startDate),
         };
-        alert("Schedule - edit - payload :" + JSON.stringify(payload));
+
+        const data = await scheduleService.create(payload);
+        alert("Schedule - create - return ms :" + data["message"]);
+        router.push(`/projects/${projectId}/schedule`);
     }
 
     if (isLoading) return <div className="p-8">Loading...</div>;
     if (isError || !project) return <div className="p-8 text-red-500">Project not found</div>;
+
+    const breadcrumbItems = [
+        { label: "Home", href: "/main" },
+        { label: project?.name || "Loading...", href: `/projects/${projectId}/overview` },
+        { label: "Schedule", href: `/projects/${projectId}/schedule` },
+        { label: "Create", href: undefined }
+    ];
 
     return (
         <div className="flex flex-col w-full text-[#E6F0E6] max-w-7xl">
@@ -199,7 +248,11 @@ export default function EditSchedulePage() {
                         <input type="text" value={form.scheduleName || ""} placeholder="Your Schedule Name"
                             onChange={(e) => setForm({ ...form, scheduleName: e.target.value })}
                             className="bg-[#FBFBFB] rounded-lg px-4 py-2 text-[#404F57] focus:outline-none" />
+                        {nameError && (
+                            <span className="text-red-500">Please enter a schedule name.</span>
+                        )}
                     </div>
+
                     {/* Attack Type */}
                     <div className="flex flex-col w-[40%] gap-3">
                         <span className="font-semibold text-2xl">Attack Type </span>
@@ -209,7 +262,11 @@ export default function EditSchedulePage() {
                             placeholder="Attack Type"
                             onChange={(newValue) => setForm({ ...form, attackType: newValue })}
                         />
+                        {attackTypeError && (
+                            <span className="text-red-500">Please select an attack type.</span>
+                        )}
                     </div>
+
                     {/* Asset */}
                     <div className="flex flex-col w-[40%] gap-3">
                         <span className="font-semibold text-2xl">Asset </span>
@@ -219,7 +276,11 @@ export default function EditSchedulePage() {
                             placeholder="Asset"
                             onChange={(newValue) => setForm({ ...form, assetId: newValue })}
                         />
+                        {assetError && (
+                            <span className="text-red-500">Please select an asset.</span>
+                        )}
                     </div>
+
                     {/* Schedule Time */}
                     <div className="flex flex-col gap-4">
                         <span className="font-semibold text-2xl">Schedule Time</span>
@@ -389,7 +450,16 @@ export default function EditSchedulePage() {
                                     type="button" onClick={() => router.push(`/projects/${projectId}/schedule`)}>Cancel</button>
                                 <button className="cursor-pointer bg-[#8FFF9C] rounded-lg px-4 py-2 text-[#0B0F12] font-medium 
                                         focus:outline-none flex flex-row gap-3 items-center w-fit hover:bg-[#AFFFB9]"
-                                    type="submit">Save Changes</button>
+                                    type="submit">Create Schedule</button>
+                                <span> Or </span>
+                                <Tooltip title="Run this schedule immediately once">
+                                    <button className="cursor-pointer bg-[#8FFF9C] rounded-lg px-4 py-2 text-[#0B0F12] font-medium 
+                                            focus:outline-none flex flex-row gap-3 items-center w-fit hover:bg-[#AFFFB9]
+                                            animate-[shadowPulse_1.6s_ease-in-out_infinite]
+                                            shadow-[0_0_6px_rgba(34,197,94,0.4)]"
+                                        onClick={() => setRunNow(true)}
+                                        type="submit">Run NOW !!</button>
+                                </Tooltip>
                             </div>
                         </div>
                     </div>
