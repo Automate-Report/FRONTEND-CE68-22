@@ -5,6 +5,7 @@ import { useGetScheduleByID } from "@/src/hooks/schedule/use-getScheduleByID";
 import { useState, useEffect } from "react";
 import { ScheduleCreatePayload } from "@/src/types/schedule";
 import { scheduleService } from "@/src/services/schedule.service";
+import { useGetAllAssetNames } from "@/src/hooks/asset/use-getAllNames";
 
 //components
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
@@ -29,6 +30,7 @@ export default function EditSchedulePage() {
     // fetching
     const { data: project, isLoading, isError } = useProject(projectId);
     const { data: schedule } = useGetScheduleByID(scheduleId);
+    const { data: allAssetName } = useGetAllAssetNames(projectId);
 
     // States
     const [form, setForm] = useState({
@@ -70,16 +72,10 @@ export default function EditSchedulePage() {
         { label: "XSS", value: "XSS" },
     ];
 
-    const assetOptions = [
-        { label: "Asset 1", value: 5001 },
-        { label: "Asset 2", value: 5002 },
-        { label: "Asset 3", value: 5003 },
-        { label: "Asset 4", value: 5004 },
-        { label: "Asset 5", value: 5005 },
-        { label: "Asset 6", value: 5006 },
-        { label: "Asset 7", value: 5007 },
-        { label: "Asset 8", value: 5008 },
-    ];
+    const assetOptions = allAssetName ? allAssetName.map(asset => ({
+        label: asset?.name,
+        value: asset?.id,
+    })) : [];
 
     // Assign init value to states
     useEffect(() => {

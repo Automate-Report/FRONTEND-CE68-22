@@ -1,17 +1,21 @@
 "use client";
-
+import cronstrue from 'cronstrue';
 import { useRouter, useParams } from "next/navigation";
 import { useProject } from "@/src/hooks/project/use-project";
+import { useState } from "react";
+import { getDisplayDate } from "@/src/components/Common/GetDisplayDate";
+import { ScheduleDelete } from "@/src/types/schedule";
+import { scheduleService } from "@/src/services/schedule.service";
 import { useGetScheduleByID } from "@/src/hooks/schedule/use-getScheduleByID";
 import { useGetJobByScheduleID } from "@/src/hooks/schedule/use-getJobByScheduleID";
-import cronstrue from 'cronstrue';
-import { getDisplayDate } from "@/src/components/Common/GetDisplayDate";
+import { useAsset } from '@/src/hooks/asset/use-asset';
 
 //components
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import DeleteProjectIcon from "@/src/components/icon/Delete";
 import EditProjectIcon from "@/src/components/icon/Edit";
+import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 
 export default function ViewSchedulePage() {
 
@@ -23,7 +27,13 @@ export default function ViewSchedulePage() {
     // fetching
     const { data: project, isLoading, isError } = useProject(projectId);
     const { data: schedule } = useGetScheduleByID(scheduleId);
+    const { data: asset } = useAsset(schedule?.asset_id || 0);
     const { data: job_of_this_schedule } = useGetJobByScheduleID(scheduleId);
+
+    //state
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [scheduleToDelete, setscheduleToDelete] = useState<ScheduleDelete | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const breadcrumbItems = [
         { label: "Home", href: "/main" },
@@ -32,14 +42,29 @@ export default function ViewSchedulePage() {
         { label: schedule?.schedule_name || "Loading...", href: undefined }
     ];
 
-    //will use modal later
-    const handleDelete = async () => {
-        if (!schedule) return;
+    const handleDeleteClick = (schedule: ScheduleDelete) => {
+        setscheduleToDelete({ id: schedule.id, name: schedule.name });
+        setDeleteModalOpen(true);
+    };
+
+    // 2. เมื่อกดยืนยันใน Modal
+    const handleConfirmDelete = async () => {
+        if (!scheduleToDelete) return;
+
+        setIsDeleting(true);
         try {
-            alert(`Deleting schedule: ${schedule.schedule_name} (Just test message, wont delete fr.)`);
+            await scheduleService.delete(scheduleToDelete.id);
+
+            // ลบสำเร็จ -> ปิด Modal -> โหลดตารางใหม่
+            setDeleteModalOpen(false);
+            setscheduleToDelete(null);
             router.push(`/projects/${projectId}/schedule`);
+
         } catch (error) {
-            console.error("Failed to delete schedule:", error);
+            console.error("Failed to delete", error);
+            alert("Failed to delete schedule"); // หรือใช้ Snackbar/Toast
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -65,7 +90,7 @@ export default function ViewSchedulePage() {
                     <button className="flex items-center justify-center bg-[#0F1518] border border-[#FE3B46] 
                     text-[#FE3B46] text-[16px] font-semibold rounded-lg px-6 py-2 gap-3 cursor-pointer 
                     hover:bg-[#FE3B46] hover:text-[#FBFBFB] transition-colors"
-                        onClick={handleDelete}>
+                        onClick={() => handleDeleteClick({ id: scheduleId, name: schedule?.schedule_name || "" })}>
                         Delete
                         <DeleteProjectIcon />
                     </button>
@@ -88,8 +113,8 @@ export default function ViewSchedulePage() {
                 </div>
                 {/* Asset */}
                 <div className="flex flex-col w-[40%] gap-3">
-                    <span className="font-semibold text-2xl">Asset ID </span>
-                    <input type="text" value={schedule?.asset_id || "Loading..."} readOnly //ค่อยแก้เป็น Asset name ทีหลัง
+                    <span className="font-semibold text-2xl">Asset</span>
+                    <input type="text" value={asset?.name || "Loading..."} readOnly //ค่อยแก้เป็น Asset name ทีหลัง
                         className="bg-[#272D31] rounded-lg px-4 py-2 text-[#E6F0E6] focus:outline-none" />
                 </div>
                 {/* Schedule Time */}
@@ -114,7 +139,7 @@ export default function ViewSchedulePage() {
                             </div>
                         </>
                     )}
-                    
+
                     <div className="flex flex-row gap-3">
                         {(schedule?.cron_expression == "Not Repeat") ? (
                             <div className="flex flex-row w-full gap-3 items-center justify-start">
@@ -148,6 +173,18 @@ export default function ViewSchedulePage() {
                 Job List Table here
             </div>
 
+            {scheduleToDelete && (
+                <GenericDeleteModal
+                    open={deleteModalOpen}
+                    onClose={() => setDeleteModalOpen(false)}
+                    onConfirm={handleConfirmDelete}
+
+                    // --- จุดที่ส่งข้อมูล ---
+                    entityType="Project"             // บอกว่าเป็น "Project"
+                    entityName={scheduleToDelete.name} // ส่งชื่อโปรเจกต์ไป
+                    loading={isDeleting}
+                />
+            )}
         </div>
     );
 }

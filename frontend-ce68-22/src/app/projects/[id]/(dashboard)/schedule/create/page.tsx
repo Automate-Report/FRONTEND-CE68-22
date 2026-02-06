@@ -6,6 +6,7 @@ import { ScheduleCreatePayload } from "@/src/types/schedule";
 import { getDisplayDate } from "@/src/components/Common/GetDisplayDate";
 import { getDisplayTime } from "@/src/components/Common/GetDisplayTime";
 import { scheduleService } from "@/src/services/schedule.service";
+import { useGetAllAssetNames } from "@/src/hooks/asset/use-getAllNames";
 
 //components
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
@@ -28,6 +29,7 @@ export default function EditSchedulePage() {
 
     // fetching
     const { data: project, isLoading, isError } = useProject(projectId);
+    const { data: allAssetName } = useGetAllAssetNames(projectId);
 
     // States
     const [runNow, setRunNow] = useState(false);
@@ -75,16 +77,10 @@ export default function EditSchedulePage() {
         { label: "XSS", value: "XSS" },
     ];
 
-    const assetOptions = [
-        { label: "Asset 1", value: 5001 },
-        { label: "Asset 2", value: 5002 },
-        { label: "Asset 3", value: 5003 },
-        { label: "Asset 4", value: 5004 },
-        { label: "Asset 5", value: 5005 },
-        { label: "Asset 6", value: 5006 },
-        { label: "Asset 7", value: 5007 },
-        { label: "Asset 8", value: 5008 },
-    ];
+    const assetOptions = allAssetName ? allAssetName.map(asset => ({
+        label: asset?.name,
+        value: asset?.id,
+    })) : [];
 
     const handleAddMonthly = () => {
         // limit to 5 dates
@@ -196,9 +192,8 @@ export default function EditSchedulePage() {
                 start_date: new Date(Date.now() + 60 * 1000), // run after 1 minute
                 end_date: new Date(Date.now() + 60 * 1000),
             };
-            
+
             const data = await scheduleService.create(payload);
-            alert("Schedule - create run now - return ms :" + data["message"]);
             router.push(`/projects/${projectId}/schedule`);
             setRunNow(false);
             return
@@ -215,7 +210,6 @@ export default function EditSchedulePage() {
         };
 
         const data = await scheduleService.create(payload);
-        alert("Schedule - create - return ms :" + data["message"]);
         router.push(`/projects/${projectId}/schedule`);
     }
 
