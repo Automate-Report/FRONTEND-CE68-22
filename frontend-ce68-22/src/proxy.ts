@@ -10,8 +10,8 @@ export function proxy(request: NextRequest) {
     // user NOT logged in and trying to access protected page
     if (!token && !publicRoutes.includes(pathname)) {
         // console.log("Redirecting to /login");
-        console.log("Redirecting from:", pathname);
-        // return NextResponse.redirect(new URL("/login", request.url));
+        // console.log("Redirecting from:", pathname);
+        return NextResponse.redirect(new URL("/login", request.url));
     }
 
     // user logged in but trying to access public page
@@ -31,5 +31,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+    matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };

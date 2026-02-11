@@ -1,44 +1,43 @@
-import { ReactNode, use } from "react"; // Next.js 15 ใช้ use() กับ params
-import { SideBar } from "@/src/components/SideBar"; // ปรับ path ตามจริง
+import { ReactNode } from "react";
+import { SideBar } from "@/src/components/SideBar";
 import { projectService } from "@/src/services/project.service";
+import { redirect } from "next/navigation";
+import { getMe } from "@/src/services/auth.service";
 
 interface ProjectLayoutProps {
   children: ReactNode;
-  params: Promise<{ id: string }>; // params ใน Layout เป็น Promise
+  params: Promise<{ id: string }>;
 }
 
-export default async function ProjectLayout({ children, params }: ProjectLayoutProps) {
-  // 1. แกะ params ออกมาเพื่อเอา id
-  const resolvedParams = await params; 
-  const projectId = parseInt(resolvedParams.id);
 
-  let projectName = "Loading...";
+export default async function ProjectLayout({ children, params }: ProjectLayoutProps) {
+  const resolvedParams = await params;
+  const projectId = parseInt(resolvedParams.id);
+  
+  let projectName = "Unknown Project";
+  let unauthorized = false;
+
   try {
-      const project = await projectService.getById(projectId);
-      projectName = project.name; // สมมติว่า return object ที่มี field name
-  } catch (error) {
-      console.error("Failed to fetch project name", error);
-      projectName = "Unknown Project"; // กรณีหาไม่เจอ
+    const project = await projectService.getById(projectId);
+    projectName = project.name;
+  } catch (error: any) {
+    const status = error.response?.status || error.status;
+    if (status === 401) {
+      unauthorized = true; // ตั้ง Flag ไว้
+    }
+  }
+
+  // ห้ามเอา redirect ไว้ใน try-catch เด็ดขาด
+  if (unauthorized) {
+    redirect("/login"); 
   }
 
   return (
-    // จัด Layout ให้ Sidebar อยู่ซ้าย Content อยู่ขวา
-    <div className="flex h-full w-full bg-[#0F1518] overflow-hidden"> 
-      
-      {/* 2. Sidebar จะถูก Render ครั้งเดียวตรงนี้และ Fix อยู่กับที่ */}
-      <SideBar 
-        project_id={projectId} 
-        project_name={projectName}
-      />
-
-      {/* 3. ส่วนเนื้อหา (Page) จะเปลี่ยนไปเรื่อยๆ ตรงนี้ */}
+    <div className="flex h-full w-full bg-[#0F1518] overflow-hidden">
+      <SideBar project_id={projectId} project_name={projectName} />
       <main className="flex-1 overflow-y-auto p-6">
-        {/* อาจจะใส่ wrapper อีกชั้นถ้าต้องการ padding หรือ margin แบบเฉพาะเจาะจง */}
-        <div className="mx-12 mt-0"> 
-            {children}
-        </div>
+        <div className="mx-12 mt-0">{children}</div>
       </main>
-      
     </div>
   );
 }

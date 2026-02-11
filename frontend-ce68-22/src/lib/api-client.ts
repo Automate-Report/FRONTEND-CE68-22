@@ -9,21 +9,19 @@ const apiClient = axios.create({
   withCredentials: true, // เปิดรับ Cookie/Token
 });
 
-//ใส่ Interceptor ดัก Error (401) ที่นี่ที่เดียว จบครบทุก Service
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    const originalRequest = error.config;
-
-    const isLoginRequest = originalRequest.url?.includes("/auth/login");
-    
-    // ถ้าเจอ 401 และ "ไม่ใช่" การยิง Login ให้ค่อยสั่ง Redirect
-    if (error.response?.status === 401 && !isLoginRequest && !originalRequest._retry) {
-      originalRequest._retry = true;
-      if (typeof window !== "undefined") {
-        window.location.href = "/login"; 
-      }
+    // 1. ถ้าอยู่บน Server (Node.js) ให้โยน Error กลับไปเฉยๆ
+    if (typeof window === "undefined") {
+      return Promise.reject(error);
     }
+
+    // 2. ถ้าอยู่บน Browser (Client) ค่อยทำ Logic Redirect
+    if (error.response?.status === 401 && !error.config.url.includes("/auth/login")) {
+      window.location.replace("/login");
+    }
+
     return Promise.reject(error);
   }
 );
