@@ -1,5 +1,6 @@
 import { PenTestReport } from "@/src/types/report";
 import { GenericTable, ColumnDef } from "../Common/GenericTable"; // Import ตัวใหม่
+import ReportRowActions from "./ReportRowAction";
 import Link from "next/link";
 
 
@@ -109,16 +110,10 @@ export function PenTestReportTable({
       sortable: false,
       width: "1%",
       render: (row) => (
-        <div className="flex justify-around pr-2 gap-6">
-           {/* ตรงนี้คุณอาจจะใส่ onClick handler ในอนาคต */}
-          <div><DownloadIcon /></div>
-          <div 
-            className="cursor-pointer"
-            onClick={() => onDeleteClick(row)}
-          >
-            <DeleteProjectIcon />
-          </div>
-        </div>
+        <ReportRowActions 
+          row={row}
+          onDeleteClick={onDeleteClick}
+        />
       )
     }
   ];
