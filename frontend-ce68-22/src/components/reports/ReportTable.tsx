@@ -62,7 +62,7 @@ export function PenTestReportTable({
       width: "1%",
       render: (row) => (
         <div>
-          {row.job_id}
+          {row.job_name}
         </div>
       )
     },
@@ -73,7 +73,7 @@ export function PenTestReportTable({
         width: "1%",
         render: (row) => (
         <div>
-            {row.schedule_id}
+            {row.schedule_name}
         </div>
       )
     },
