@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { SideBar } from "@/src/components/SideBar";
 import { projectService } from "@/src/services/project.service";
 import { redirect } from "next/navigation";
-import { getMe } from "@/src/services/auth.service";
+import { cookies } from "next/headers";
 
 interface ProjectLayoutProps {
   children: ReactNode;
@@ -13,22 +13,35 @@ interface ProjectLayoutProps {
 export default async function ProjectLayout({ children, params }: ProjectLayoutProps) {
   const resolvedParams = await params;
   const projectId = parseInt(resolvedParams.id);
-  
+
+  const cookieStore = await cookies();
+  const token = cookieStore.get("access_token")?.value;
+
+  if (!token) redirect("/login");
+
+
   let projectName = "Unknown Project";
-  let unauthorized = false;
+  let isUnauthorized = false;
 
   try {
-    const project = await projectService.getById(projectId);
+    const customHeaders = {
+            "Cookie": `access_token=${token}`,
+            "Cache-Control": "no-cache" // ป้องกันการจำค่า 401 เก่า
+    };
+
+    const project = await projectService.getById(projectId, customHeaders);
     projectName = project.name;
   } catch (error: any) {
-    const status = error.response?.status || error.status;
-    if (status === 401) {
-      unauthorized = true; // ตั้ง Flag ไว้
+      const status = error.response?.status || error.status;
+      console.log("DEBUG: Status Code on Server:", status);
+
+      if (status === 401) {
+        isUnauthorized = true;
     }
   }
 
   // ห้ามเอา redirect ไว้ใน try-catch เด็ดขาด
-  if (unauthorized) {
+  if (isUnauthorized) {
     redirect("/login"); 
   }
 

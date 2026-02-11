@@ -1,6 +1,6 @@
 import { Project, CreateProjectPayload } from "../types/project";
 import { PaginatedResult } from "../types/common";
-import { cookies } from "next/headers";
+import { getMe } from "./auth.service";
 
 import apiClient from "../lib/api-client";
 
@@ -30,8 +30,8 @@ export const projectService = {
     return data;
   },
 
-  getById: async (id: number) =>{
-    const { data } = await apiClient.get<Project>(`/projects/${id}`);
+  getById: async (id: number, customHeaders = {}) =>{
+    const { data } = await apiClient.get<Project>(`/projects/${id}`, {headers: customHeaders});
     return data;
   },
 
