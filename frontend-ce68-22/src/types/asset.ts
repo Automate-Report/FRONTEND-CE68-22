@@ -9,6 +9,11 @@ export interface Asset {
   updated_at: string;
 }
 
+export interface AssetNameAndId {
+  name: string;
+  id: number;
+}
+
 export interface CreateAssetPayload {
   name: string;
   description?: string;
