@@ -277,13 +277,6 @@ export default function ViewAssetPage() {
                                     >
                                         {showPassword ? credential.password : "••••••••"}
                                     </Typography>
-                                    <IconButton 
-                                        size="small" 
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        sx={{ color: "#9AA6A8" }}
-                                    >
-                                        {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
-                                    </IconButton>
                                 </Stack>
                             </TableCell>
                             <TableCell align="right">
@@ -294,6 +287,13 @@ export default function ViewAssetPage() {
                                     gap={1}
                                     sx={{ pr: 2 }}
                                 >
+                                    <IconButton 
+                                        size="small" 
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        sx={{ color: "#9AA6A8" }}
+                                    >
+                                        {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                                    </IconButton>
                                     <Button 
                                         onClick={() => router.push(`/projects/${projectId}/asset/${assetId}/edit`)} 
                                         sx={{ color: "#0B0F12", p: 0, minWidth: "auto" }}

@@ -5,13 +5,9 @@ import { useWorkers } from "@/src/hooks/worker/use-workers";
 import { useTable } from "@/src/hooks/use-table";
 
 import { WorkerTable } from "@/src/components/workers/WorkerTable"; 
-import { CreateWorkerModal } from "@/src/components/workers/CreateModal";
-
+import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
-
 import CreateWorkerIcon from "@/src/components/icon/CreateWorker";
-
-import { Button } from "@mui/material";
 
 
 export default function WorkersPage() {
@@ -35,7 +31,7 @@ export default function WorkersPage() {
 
   );
 
-  const { createState, deleteState } = useWorkerPage(refetch);
+  const { deleteState } = useWorkerPage(refetch);
 
   // ดึง items และ total จาก response (Handle กรณี response เป็น undefined)
   const workers = response?.items || [];
@@ -64,32 +60,12 @@ export default function WorkersPage() {
     <div className="mx-12 bg-[#0F1518]">
       <div className="flex justify-between items-center text-4xl text-[#E6F0E6] font-bold my-6">
         Worker
-        
-        <Button
-          variant="contained"
-          onClick={()=> createState.setIsOpen(true)}
-          sx={{
-            borderRadius: "8px",
-            padding: "12px 24px",
-            backgroundColor: "#8FFF9C",
-            color: "#0B0F12",
-            textTransform: "none",
-            fontFamily: "inherit"
-          }}
-        >
-          <div className="flex justify-around gap-3 font-bold">
-            New Worker
-            <CreateWorkerIcon />
-          </div>
-        </Button>
+        < GenericGreenButton
+          name="New Worker"
+          href="/workers/create"
+          icon={<CreateWorkerIcon />}
+        />
       </div>
-
-      <CreateWorkerModal
-        open={createState.isOpen}
-        onClose={() => createState.setIsOpen(false)}
-        onConfirm={createState.handleCreate} // ส่งฟังก์ชันไป
-        loading={createState.isLoading}
-      />
 
       {totalCnt === 0 ? (
         <div className="text-center py-20 bg-gray-800 rounded-lg text-gray-400">

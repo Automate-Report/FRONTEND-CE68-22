@@ -9,8 +9,9 @@ export function proxy(request: NextRequest) {
 
     // user NOT logged in and trying to access protected page
     if (!token && !publicRoutes.includes(pathname)) {
-        console.log("Redirecting to /login");
-        return NextResponse.redirect(new URL("/login", request.url));
+        // console.log("Redirecting to /login");
+        console.log("Redirecting from:", pathname);
+        // return NextResponse.redirect(new URL("/login", request.url));
     }
 
     // user logged in but trying to access public page

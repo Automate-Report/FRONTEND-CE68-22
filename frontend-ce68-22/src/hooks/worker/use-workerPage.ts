@@ -1,28 +1,8 @@
 import { useState } from "react";
 import { workerService } from "@/src/services/worker.service";
-import { Worker, CreateWorkerPayload} from "@/src/types/worker"
+import { Worker } from "@/src/types/worker"
 
 export const useWorkerPage = (refetchList: () => void) => {
-    //  Create Logic
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [createLoading, setCreateLoading] = useState(false);
-
-    const handleCreateWorker = async (workername: string) => {
-        setCreateLoading(true);
-        try {
-            const payload: CreateWorkerPayload = {
-                name: workername
-            }
-            await workerService.create(payload);
-
-            refetchList();
-            setIsCreateModalOpen(false);
-        }catch (error){
-            console.error("Failed to create", error);
-            alert("Failed to create worker");
-        }
-        setIsCreateModalOpen(false);
-    };
 
     //  Delete Logic
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -50,7 +30,6 @@ export const useWorkerPage = (refetchList: () => void) => {
     };
 
     return {
-        createState: { isOpen: isCreateModalOpen, setIsOpen: setIsCreateModalOpen, isLoading: createLoading, handleCreate: handleCreateWorker },
         deleteState: { isOpen: deleteModalOpen, setIsOpen: setDeleteModalOpen, isLoading: isDeleting, target: workerToDelete, handleDeleteClick, handleConfirmDelete }
     };
 }

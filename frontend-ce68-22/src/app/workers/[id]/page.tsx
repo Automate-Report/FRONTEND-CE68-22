@@ -2,6 +2,9 @@
 
 import { use, useState } from "react";
 
+import { Box, Button, Typography, Tooltip, IconButton } from "@mui/material";
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+
 import { useRouter } from "next/navigation";
 import { useWorker } from "@/src/hooks/worker/use-worker";
 import { useWorkerDownload } from "@/src/hooks/worker/use-WorkerDownload";
@@ -132,6 +135,32 @@ export default function WorkerDetailPage({ params }: PageProps)
                     </button>
                 </div>
                 
+            </div>
+
+            <div className="w-fit mb-6">
+                <div className="flex items-center gap-2">
+                    <div className="flex justify-between text-[32px] text-[#E6F0E6] font-bold">Number of Threads</div>
+                    <Tooltip 
+                        title="Set the number of concurrent tasks this worker can process from the scheduled jobs."
+                        placement="right"
+                        arrow
+                        sx={{
+                            ".MuiTooltip-tooltip": {
+                                backgroundColor: "#1A2023",
+                                color: "#E6F0E6",
+                                fontSize: "14px",
+                                border: "1px solid #2A3033"
+                            }
+                        }}
+                    >
+                        <IconButton size="small" sx={{ color: "#8FFF9C", p: 0 }}>
+                            <InfoOutlinedIcon fontSize="small" />
+                        </IconButton>
+                    </Tooltip>
+                </div>
+                <div className="mt-3  py-2 px-2 bg-[#FBFBFB] text-[#404F57] border rounded-lg">
+                    {worker.thread_number}
+                </div>
             </div>
 
             {/* Access Key */}

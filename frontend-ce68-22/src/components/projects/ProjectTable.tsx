@@ -1,8 +1,10 @@
-// src/components/ProjectTable/index.tsx
-import { Project } from "../../types/project";
-import { GenericTable, ColumnDef } from "../Common/GenericTable"; // Import ตัวใหม่
+
 import Link from "next/link";
 
+import { Project } from "../../types/project";
+
+import { ProjectTagsCell } from "./ProjectTagsCell";
+import { GenericTable, ColumnDef } from "../Common/GenericTable";
 
 // Icons (สำหรับใช้ใน render)
 import EditIcon from "../icon/Edit";
@@ -54,6 +56,15 @@ export function ProjectTable({
           </div>
         </Link>
       )
+    },
+    {
+      id: "tag",
+      label: "Tags",
+      sortable: false,
+      width: "50%",
+      render: (row) => (
+        <ProjectTagsCell projectId={row.id} />
+      ),
     },
     {
       id: "updated_at",

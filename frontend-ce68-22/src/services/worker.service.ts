@@ -1,17 +1,11 @@
-import axios from "axios";
 import { AxiosResponse } from "axios";
 
-import { CreateWorkerPayload, DownloadReponse, Worker } from "../types/worker";
+import apiClient from "../lib/api-client";
+
+import { CreateWorkerPayload, Worker } from "../types/worker";
+import { AccessKey } from "../types/access_key";
 import { PaginatedResult } from "../types/common";
 
-
-// สร้าง Instance Axios (ควรย้ายไป lib/axios.ts ในอนาคต)
-const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
 
 export const workerService = {
   // รับค่า page และ size (กำหนด default ไว้กันเหนียว)
@@ -38,7 +32,7 @@ export const workerService = {
   },
   
   genKey: async (workerId: number) =>{
-    const { data } = await apiClient.post<Worker>(`/workers/gen-key/${workerId}`);
+    const { data } = await apiClient.post<AccessKey>(`/workers/gen-key/${workerId}`);
     return data;
   },
 

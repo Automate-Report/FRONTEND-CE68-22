@@ -65,11 +65,25 @@ export function WorkerTable({
       render: (row) => {
         if (row.hostname !== null){
           return (
-            <div className="text-[16px] px-3 py-1.5">
+            <div className="whitespace-nowrap text-[16px] px-3 py-1.5">
               {row.hostname}
             </div>
           );
         }
+      }
+    },
+    {
+      id: "thread_number",
+      label: "Number of Threads",
+      align: "center",
+      sortable: true,
+      width: "1%",
+      render: (row) => {
+        return (
+          <div className="text-[16px] px-3 py-1.5">
+            {row.thread_number ?? "-"}
+          </div>
+        );
       }
     },
     {
@@ -81,14 +95,14 @@ export function WorkerTable({
       render: (row) => {
         if (row.isActive === false){
           return (
-            <div className="text-[#DD6E6E] text-[16px] font-semibold px-3 py-1.5 bg-[#FFDEDE] rounded-lg">
+            <div className="whitespace-nowrap text-[#DD6E6E] text-[16px] font-semibold px-3 py-1.5 bg-[#FFDEDE] rounded-lg">
               Not Activated
             </div>
           );
         }
         else{
           return (
-            <div className="text-[#6EDD99] text-[16px] font-semibold px-3 py-1.5 bg-[#DEFFE2] rounded-lg">
+            <div className="whitespace-nowrap text-[#6EDD99] text-[16px] font-semibold px-3 py-1.5 bg-[#DEFFE2] rounded-lg">
               Activated
             </div>
           );
@@ -104,7 +118,7 @@ export function WorkerTable({
       render: (row) => {
         const statusConfig = WORKER_STATUS_MAP[row.status] || WORKER_STATUS_MAP.unknown;
         return (
-          <div className={`text-[16px] font-semibold px-3 py-1.5 rounded-lg ${statusConfig.style}`}>
+          <div className={`whitespace-nowrap text-[16px] font-semibold px-3 py-1.5 rounded-lg ${statusConfig.style}`}>
             {statusConfig.label}
           </div>
         );
