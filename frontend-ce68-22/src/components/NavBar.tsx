@@ -10,7 +10,7 @@ import Link from 'next/link';
 export function NavBar() {
 
     return (
-        <div className="bg-[#0D1014] text-[#E6F0E6] w-full">
+        <div className="bg-[#0D1014] text-[#E6F0E6] w-full sticky top-0 z-50">
             <div className=" flex justify-between items-center px-[24px] py-3 r">
                 <Link href="/main">
                     <div className="w-64 h-12 overflow-hidden rounded-lg">
@@ -56,7 +56,7 @@ export function NavBar() {
                     <Link href="/profile">
                         <Avatar
                             alt="Username"
-                            src="../../../public/default-avatar-profile-icon-social-600nw-1677509740.webp"
+                            src="https://commons.wikimedia.org/wiki/File:Twitter_default_profile_400x400.png"
                             sx={{ width: 50, height: 50 }}
                         />
                     </Link>

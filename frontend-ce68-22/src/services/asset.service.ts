@@ -1,4 +1,5 @@
-import { Asset, CreateAssetPayload } from "../types/asset";
+import axios from "axios";
+import { Asset, AssetNameAndId, CreateAssetPayload } from "../types/asset";
 import { PaginatedResult } from "../types/common";
 
 import apiClient from "../lib/api-client";
@@ -25,6 +26,12 @@ export const assetService = {
 
     return data;
   },
+
+  getAllNameAndId: async (project_id: number) => {
+    const { data } = await apiClient.get<AssetNameAndId[]>(`/assets/names/${project_id}`);
+    return data;
+  },
+
   getById: async (id: number) =>{
     const { data } = await apiClient.get<Asset>(`/assets/${id}`);
     return data;
