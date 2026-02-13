@@ -4,6 +4,15 @@ interface JobStatus {
     ongoing: number,
     scheduled: number
 }
+
+export interface JobDisplay {
+    id: number,
+    name: string,
+    worker_id: number,
+    worker_name: string,
+    status: string,
+    created_at: Date
+}
 export interface ScheduleDisplay {
     id: number,
     project_id: number,

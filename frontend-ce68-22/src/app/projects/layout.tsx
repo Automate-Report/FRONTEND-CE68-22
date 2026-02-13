@@ -6,8 +6,8 @@ interface ProjectLayoutProps {
 
 export default function ProjectLayout({ children }: ProjectLayoutProps){
     return (
-        <div className="flex h-dvh overflow-hidden">
-            <main className="flex-1 overflow-y-auto relative pb-30">
+        <div className="flex h-fit">
+            <main className="flex-1 relative">
                 {children}
             </main>
         </div>

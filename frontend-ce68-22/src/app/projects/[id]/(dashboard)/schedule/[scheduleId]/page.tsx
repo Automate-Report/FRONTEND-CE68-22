@@ -7,7 +7,6 @@ import { getDisplayDate } from "@/src/components/Common/GetDisplayDate";
 import { ScheduleDelete } from "@/src/types/schedule";
 import { scheduleService } from "@/src/services/schedule.service";
 import { useGetScheduleByID } from "@/src/hooks/schedule/use-getScheduleByID";
-import { useGetJobByScheduleID } from "@/src/hooks/schedule/use-getJobByScheduleID";
 import { useAsset } from '@/src/hooks/asset/use-asset';
 
 //components
@@ -16,6 +15,7 @@ import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import DeleteProjectIcon from "@/src/components/icon/Delete";
 import EditProjectIcon from "@/src/components/icon/Edit";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
+import { JobListByScheduleID } from '@/src/components/schedule/JobListByScheduleID';
 
 export default function ViewSchedulePage() {
 
@@ -28,7 +28,6 @@ export default function ViewSchedulePage() {
     const { data: project, isLoading, isError } = useProject(projectId);
     const { data: schedule } = useGetScheduleByID(scheduleId);
     const { data: asset } = useAsset(schedule?.asset_id || 0);
-    const { data: job_of_this_schedule } = useGetJobByScheduleID(scheduleId);
 
     //state
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -168,9 +167,11 @@ export default function ViewSchedulePage() {
             </div>
 
             {/* Section 4: Table */}
-            <div className="flex flex-col w-[40%] gap-3">
+            <div className="flex flex-col w-full gap-6">
                 <span className="font-semibold text-2xl">Job Status </span>
-                Job List Table here
+                <JobListByScheduleID
+                    schedule_id={scheduleId}
+                />
             </div>
 
             {scheduleToDelete && (
