@@ -1,4 +1,3 @@
-// src/lib/api-client.ts
 import axios from "axios";
 
 const apiClient = axios.create({
@@ -9,19 +8,20 @@ const apiClient = axios.create({
   withCredentials: true, // เปิดรับ Cookie/Token
 });
 
+let isRedirecting = false;
+
 apiClient.interceptors.response.use(
-  (response) => response,
+  (res) => res,
   (error) => {
-    // 1. ถ้าอยู่บน Server (Node.js) ให้โยน Error กลับไปเฉยๆ
-    if (typeof window === "undefined") {
-      return Promise.reject(error);
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      // ป้องกันการทำงานซ้ำซ้อน
+      if (!isRedirecting) {
+        isRedirecting = true;
+        window.location.href = "/login";
+      }
+      // คืนค่า Promise ที่ไม่จบ (Pending) เพื่อหยุด Logic ของคนเรียก
+      return new Promise(() => {}); 
     }
-
-    // 2. ถ้าอยู่บน Browser (Client) ค่อยทำ Logic Redirect
-    if (error.response?.status === 401 && !error.config.url.includes("/auth/login")) {
-      window.location.replace("/login");
-    }
-
     return Promise.reject(error);
   }
 );

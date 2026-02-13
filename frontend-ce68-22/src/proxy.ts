@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { decodeJwt } from "jose"
 
 const publicRoutes = ["/", "/login", "/register", "/forgot-password"];
 
@@ -7,22 +8,37 @@ export function proxy(request: NextRequest) {
     const token = request.cookies.get("access_token")?.value;
     const { pathname } = request.nextUrl;
 
+    let isTokenValid = false;
+    if (token) {
+        try {
+            const payload = decodeJwt(token);
+            const currentTime = Math.floor(Date.now() / 1000);
+
+            if (payload.exp && payload.exp > currentTime) {
+                isTokenValid = true;
+            }
+        } catch (e) {
+            isTokenValid = false;
+        }
+    }
+
+
     // user NOT logged in and trying to access protected page
-    if (!token && !publicRoutes.includes(pathname)) {
-        // console.log("Redirecting to /login");
-        // console.log("Redirecting from:", pathname);
-        return NextResponse.redirect(new URL("/login", request.url));
+    if (!isTokenValid && !publicRoutes.includes(pathname)) {
+        const response = NextResponse.redirect(new URL("/login", request.url));
+        response.cookies.delete("access_token"); 
+        return response;
     }
 
     // user logged in but trying to access public page
-    if (token && publicRoutes.includes(pathname)) {
+    if (isTokenValid && publicRoutes.includes(pathname)) {
         return NextResponse.redirect(new URL("/main", request.url));
     }
 
     const response = NextResponse.next();
 
     // Set custom header to show NavBar only in Protected page
-    if (token && !publicRoutes.includes(pathname)) {
+    if (isTokenValid && !publicRoutes.includes(pathname)) {
         response.headers.set("x-show-navbar", "true");
     }
 
