@@ -28,12 +28,12 @@ export default async function RootLayout({
   
   return (
     <html lang="en">
-      <body className={`${ibmPlexSansThai.variable} font-sans antialiased h-screen grid grid-rows-[auto_1fr]`} suppressHydrationWarning={true}> {/*แก้ไขเรื่องไปตีกับ extension ใน chrome */}
+      <body className={`${ibmPlexSansThai.variable} font-sans antialiased min-h-screen h-fit overflow-y-auto grid grid-rows-[auto_1fr]`} suppressHydrationWarning={true}> {/*แก้ไขเรื่องไปตีกับ extension ใน chrome */}
         <QueryProvider>
 
           {showNavbar && <NavBar />}
 
-          <div>
+          <div className="h-fit">
             {children}
           </div>
         </QueryProvider>
