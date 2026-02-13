@@ -23,7 +23,7 @@ export default async function ProjectLayout({ children, params }: ProjectLayoutP
 
   return (
     // จัด Layout ให้ Sidebar อยู่ซ้าย Content อยู่ขวา
-    <div className="flex h-full w-full bg-[#0F1518] overflow-hidden"> 
+    <div className="flex h-full w-full bg-[#0F1518]"> 
       
       {/* 2. Sidebar จะถูก Render ครั้งเดียวตรงนี้และ Fix อยู่กับที่ */}
       <SideBar 
@@ -32,7 +32,7 @@ export default async function ProjectLayout({ children, params }: ProjectLayoutP
       />
 
       {/* 3. ส่วนเนื้อหา (Page) จะเปลี่ยนไปเรื่อยๆ ตรงนี้ */}
-      <main className="flex-1 overflow-y-auto p-6 ml-[300px]">
+      <main className="flex-1 p-6 ml-[300px] ">
         {/* อาจจะใส่ wrapper อีกชั้นถ้าต้องการ padding หรือ margin แบบเฉพาะเจาะจง */}
         <div className="mx-12 mt-0"> 
             {children}

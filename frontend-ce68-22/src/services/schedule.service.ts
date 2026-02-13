@@ -1,6 +1,5 @@
 import axios from "axios";
-import { ScheduleDisplay, ScheduleCreatePayload, ScheduleItem } from "../types/schedule";
-import { create } from "domain";
+import { ScheduleDisplay, ScheduleCreatePayload, ScheduleItem, JobDisplay } from "../types/schedule";
 import { PaginatedResult } from "../types/common";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
@@ -44,9 +43,28 @@ export const scheduleService = {
         return data;
     },
 
-    getJobByScheduleID: async (schedule_id: number) => {
-        const { data } = await api.get<any>(`jobs/schedule/${schedule_id}`);
-        return data;
+    getJobByScheduleID: async (
+        schedule_id: number,
+        page: number, 
+        size: number, 
+        sortBy?: string | null, 
+        sortOrder?: "asc" | "desc" | "none") => {
+
+        // แปลงค่า sortOrder ให้เป็น string ที่ Backend เข้าใจ (ถ้าเป็น none ให้ส่ง undefined)
+        const orderParam = sortOrder === "none" ? undefined : sortOrder;
+        const sortParam = sortBy || undefined;
+
+        const { data } = await api.get<PaginatedResult<JobDisplay>>(`jobs/schedule/${schedule_id}`, {
+            params: {
+                schedule_id,
+                page,
+                size,
+                sort_by: sortParam, // ชื่อต้องตรงกับ Backend (FastAPI)
+                order: orderParam,
+            },
+        });
+
+        return data; 
     },
 
     create: async (payload: ScheduleCreatePayload) => {
