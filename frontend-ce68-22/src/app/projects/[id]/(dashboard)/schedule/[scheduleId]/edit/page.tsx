@@ -17,8 +17,6 @@ import GenericDropdown from "@/src/components/Common/GenericDropdown";
 //icons
 import AddTime from "@/src/components/icon/AddTime";
 import DeleteProjectIcon from "@/src/components/icon/Delete";
-import Edit from "@/src/components/icon/Edit";
-import AddSymbol from "@/src/components/icon/AddSymbol";
 
 export default function EditSchedulePage() {
 
@@ -43,7 +41,6 @@ export default function EditSchedulePage() {
     });
     const [repeatTrue, setRepeatTrue] = useState(schedule?.cron_expression == "Not Repeat" ? false : true);
     const [cronTimes, setCronTimes] = useState<Array<{ min: string; hr: string; day: string; month: string; week: string }>>([]);
-    const [monthly, setMonthly] = useState<number[]>([]);
     const [days, setDays] = useState([
         { name: "Sun", active: false },
         { name: "Mon", active: false },
@@ -53,20 +50,17 @@ export default function EditSchedulePage() {
         { name: "Fri", active: false },
         { name: "Sat", active: false }
     ]);
+    const [dayOfMonth, setDayOfMonth] = useState(
+        Array.from({ length: 31 }, (_, i) => ({
+            name: String(i + 1),
+            active: false,
+        }))
+    );
 
     // Error states
-    const [lengthError, setLengthError] = useState<boolean>(false);
-    const [repeatedDayError, setRepeatedDayError] = useState<boolean>(false);
     const [repeatedTimeError, setRepeatedTimeError] = useState<boolean>(false);
 
     // Dropdown Options
-    const dayOptions = [
-        { label: <DeleteProjectIcon />, value: 0 },
-        ...Array.from({ length: 31 }, (_, i) => ({
-            label: String(i + 1),
-            value: i + 1,
-        }))];
-
     const attackTypeOptions = [
         { label: "SQL Injection", value: "SQL Injection" },
         { label: "XSS", value: "XSS" },
@@ -91,6 +85,7 @@ export default function EditSchedulePage() {
                 ? getDisplayDate(new Date(schedule.end_date), "input")
                 : "",
         });
+
     }, [schedule]);
 
     // Fetched cron parsing
@@ -123,23 +118,16 @@ export default function EditSchedulePage() {
         // Set monthly date
         const monthly = parsed[0]?.day;
         if (monthly === "*") {
-            setMonthly([]);
+            setDayOfMonth(prev => prev.map(d => ({ ...d, active: true })));
         }
         else {
-            setMonthly(monthly.split(",").map(Number));
+            setDayOfMonth(prev => prev.map((d, i) => ({
+                ...d,
+                active: monthly.split(",").map(Number).includes(i + 1)
+            })));
         }
 
     }, [schedule]);
-
-    const handleAddMonthly = () => {
-        // limit to 5 dates
-        if (monthly.length >= 5) {
-            setLengthError(true);
-            return;
-        }
-        setMonthly(prev => [...prev, 1]);
-        setLengthError(false);
-    }
 
     const handleAddTime = () => {
         setCronTimes(prev => [...prev,
@@ -166,21 +154,37 @@ export default function EditSchedulePage() {
         );
     };
 
+    const handleAddAllWeek = () => {
+        setDays(prev => prev.map(d => ({ ...d, active: true })));
+    }
+
+    const handleClearAllWeek = () => {
+        setDays(prev => prev.map(d => ({ ...d, active: false })));
+    }
+
+    const toggleDayOfMonth = (index: number) => {
+        setDayOfMonth(prev =>
+            prev.map((d, i) =>
+                i === index ? { ...d, active: !d.active } : d
+            )
+        );
+    };
+
+    const handleAddAllDate = () => {
+        setDayOfMonth(prev => prev.map(d => ({ ...d, active: true })));
+    }
+
+    const handleClearAllDate = () => {
+        setDayOfMonth(prev => prev.map(d => ({ ...d, active: false })));
+    }
 
     const changeUserInputToCronString = (month: string = "*") => {
 
-        setRepeatedDayError(false);
         setRepeatedTimeError(false);
 
         // If not repeat
         if (!repeatTrue) {
             return "Not Repeat";
-        }
-
-        // Check for repeated days
-        if (new Set(monthly).size !== monthly.length) {
-            setRepeatedDayError(true);
-            return;
         }
 
         // Check for repeated times
@@ -195,13 +199,18 @@ export default function EditSchedulePage() {
             .reduce<number[]>((newArray, day, index) => {
                 if (day.active) newArray.push(index);
                 return newArray;
-            }, [])
-            .join(",");
+            }, []).join(",");
+        
+        const dates = dayOfMonth
+            .reduce<number[]>((newArray, day, index) => {
+                if (day.active) newArray.push(index + 1);
+                return newArray;
+            }, []).join(",");
 
         const allCronExpression = cronTimes.map(({ hr, min }) => ({
             min,
             hr,
-            day: monthly.length ? monthly.join(",") : "*",
+            day: dates === "" ? "*" : dates,
             month,
             week: week === "" ? "*" : week
         }));
@@ -215,7 +224,6 @@ export default function EditSchedulePage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLengthError(false);
         const cronString = changeUserInputToCronString();
         if (!cronString) return;
         const payload: ScheduleCreatePayload = {
@@ -225,9 +233,8 @@ export default function EditSchedulePage() {
             asset: form.assetId,
             cron_expression: cronString,
             start_date: new Date(`${form.startDate}T${form.startTime}:00`),
-            end_date: (!repeatTrue && form.endDate)  ? new Date(form.endDate) : new Date(form.startDate),
+            end_date: (!repeatTrue && form.endDate) ? new Date(form.endDate) : new Date(form.startDate),
         };
-
         const data = await scheduleService.edit(scheduleId, payload);
         router.push(`/projects/${projectId}/schedule/${scheduleId}`);
     }
@@ -312,11 +319,11 @@ export default function EditSchedulePage() {
                             {repeatTrue && (
                                 <div className="flex flex-row gap-4 pl-6">
                                     <div className="w-[2px] self-stretch bg-gray-300" />
-                                    <div className="flex flex-col gap-4">
+                                    <div className="flex flex-col gap-6">
 
                                         {/* Run At */}
                                         <div className="flex flex-row gap-3">
-                                            <span className="font-medium mt-2">Run At:</span>
+                                            <span className="font-medium mt-2 w-[100px]">Run At:</span>
 
                                             {/* Times */}
                                             <div className="flex flex-col gap-3">
@@ -356,87 +363,82 @@ export default function EditSchedulePage() {
                                         </div>
 
                                         {/* Weekly */}
-                                        <div className="flex flex-row gap-3 items-center">
-                                            <span className="font-medium">Weekly:</span>
-                                            {days.map((day, i) => (
-                                                <button
-                                                    type="button"
-                                                    key={day.name}
-                                                    onClick={() => toggleDay(i)}
-                                                    className={`cursor-pointer rounded-lg py-2 font-bold w-[60px]
+                                        <div className="flex flex-row gap-3 items-start">
+                                            <span className="font-medium w-[100px] mt-2">Weekly:</span>
+                                            <div className="flex flex-col gap-3">
+                                                <div className="flex flex-row gap-2">
+                                                    {days.map((day, i) => (
+                                                        <button
+                                                            type="button"
+                                                            key={day.name}
+                                                            onClick={() => toggleDay(i)}
+                                                            className={`cursor-pointer rounded-lg py-2 font-bold w-[60px]
                                                         flex items-center justify-center transition-colors
                                                         ${day.active
-                                                            ? "bg-[#8FFF9C] text-[#0B0F12] hover:bg-[#AFFFB9]"
-                                                            : "bg-[#FBFBFB] text-[#404F57] hover:bg-[#E6F0E6]"
-                                                        }`}
-                                                >
-                                                    {day.name}
-                                                </button>
-                                            ))}
+                                                                    ? "bg-[#8FFF9C] text-[#0B0F12] hover:bg-[#AFFFB9]"
+                                                                    : "bg-[#FBFBFB] text-[#404F57] hover:bg-[#E6F0E6]"
+                                                                }`}
+                                                        >
+                                                            {day.name}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                <div className="flex flex-row gap-3">
+                                                    <button className="cursor-pointer bg-[#8FFF9C] rounded-lg px-4 py-2 text-[#0B0F12] font-medium 
+                                                    focus:outline-none flex flex-row gap-3 items-center w-fit hover:bg-[#AFFFB9]"
+                                                        type="button"
+                                                        onClick={handleAddAllWeek}>
+                                                        <span>Set Everyday</span>
+                                                    </button>
+                                                    <button className="flex items-center justify-center bg-[#0F1518] border border-[#FE3B46] text-[#FE3B46] text-[16px] 
+                                                    font-semibold rounded-lg px-6 py-2 gap-3 cursor-pointer hover:bg-[#FE3B46] hover:text-[#FBFBFB] transition-colors"
+                                                        type="button" onClick={handleClearAllWeek}>
+                                                        <span>Clear All Week</span>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         {/* Monthly */}
-                                        <div className="flex flex-wrap gap-3 items-center w-full">
-                                            <span className="font-medium">Monthly:</span>
-                                            {monthly.length === 0 ? (
-                                                <>
-                                                    <input type="text" value="Every day of the month" readOnly
-                                                        className="bg-[#272D31] rounded-lg px-4 py-2 text-[#E6F0E6] focus:outline-none w-[198px]" />
-                                                    <button className="cursor-pointer bg-[#8FFF9C] rounded-lg px-4 py-2 text-[#0B0F12] font-medium 
-                                                            focus:outline-none flex flex-row gap-3 items-center w-fit hover:bg-[#AFFFB9]"
-                                                        type="button"
-                                                        onClick={handleAddMonthly}>
-                                                        <span>Specify Date</span> <Edit />
-                                                    </button>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {monthly.map((date, index) => (
-                                                        <div key={index} className="flex items-center gap-2">
-                                                            <GenericDropdown<number>
-                                                                options={dayOptions}
-                                                                value={date}
-                                                                placeholder="Day"
-                                                                onChange={(newValue) => {
-                                                                    setMonthly(prev => {
-                                                                        // remove value if Delete is selected
-                                                                        if (newValue === 0) {
-                                                                            return prev.filter((_, i) => i !== index);
-                                                                        }
-                                                                        // update value
-                                                                        return prev.map((d, i) =>
-                                                                            i === index ? newValue : d
-                                                                        );
-                                                                    });
-                                                                }}
-                                                                width="[100px]"
-                                                            />
-
-                                                            {index < monthly.length - 1 && (
-                                                                <span className="font-medium">and</span>
-                                                            )}
-                                                        </div>
+                                        <div className="flex flex-row gap-3 items-start">
+                                            <span className="font-medium mt-2 w-[100px]">Monthly:</span>
+                                            <div className="flex flex-col gap-3">
+                                                <div className="grid grid-cols-7 gap-3 items-center">
+                                                    {dayOfMonth.map((day, i) => (
+                                                        <button
+                                                            type="button"
+                                                            key={day.name}
+                                                            onClick={() => toggleDayOfMonth(i)}
+                                                            className={`cursor-pointer rounded-lg py-2 font-bold w-[60px]
+                                                            flex items-center justify-center transition-colors
+                                                            ${day.active
+                                                                    ? "bg-[#8FFF9C] text-[#0B0F12] hover:bg-[#AFFFB9]"
+                                                                    : "bg-[#FBFBFB] text-[#404F57] hover:bg-[#E6F0E6]"
+                                                                }`}
+                                                        >
+                                                            {day.name}
+                                                        </button>
                                                     ))}
+                                                </div>
+                                                <div className="flex flex-row gap-3">
                                                     <button className="cursor-pointer bg-[#8FFF9C] rounded-lg px-4 py-2 text-[#0B0F12] font-medium 
-                                                            focus:outline-none flex flex-row gap-3 items-center w-fit hover:bg-[#AFFFB9]"
+                                                    focus:outline-none flex flex-row gap-3 items-center w-fit hover:bg-[#AFFFB9]"
                                                         type="button"
-                                                        onClick={handleAddMonthly}>
-                                                        <AddSymbol />
+                                                        onClick={handleAddAllDate}>
+                                                        <span>Set Everyday</span>
                                                     </button>
-                                                    <span className="font-medium">of every month</span>
-                                                </>
-                                            )}
+                                                    <button className="flex items-center justify-center bg-[#0F1518] border border-[#FE3B46] text-[#FE3B46] text-[16px] 
+                                                    font-semibold rounded-lg px-6 py-2 gap-3 cursor-pointer hover:bg-[#FE3B46] hover:text-[#FBFBFB] transition-colors"
+                                                        type="button" onClick={handleClearAllDate}>
+                                                        <span>Clear All Date</span>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
-                                        {lengthError && (
-                                            <span className="text-red-500">You can specify up to 5 dates only.</span>
-                                        )}
-                                        {repeatedDayError && (
-                                            <span className="text-red-500">You cannot specify the same date more than once.</span>
-                                        )}
 
                                         {/* Repeat Until */}
                                         <div className="flex flex-row gap-3 items-center">
-                                            <span className="font-medium">Repeat Until:</span>
+                                            <span className="font-medium w-[100px]">Repeat Until:</span>
                                             <input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })}
                                                 className="bg-[#FBFBFB] rounded-lg px-4 py-2 text-[#404F57] focus:outline-none" />
                                         </div>
