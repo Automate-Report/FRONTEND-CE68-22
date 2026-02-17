@@ -22,3 +22,26 @@ body {
   background: var(--background);
   font-family: var(--font-ibm-plex-thai), sans-serif;
 } 
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0F1518;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e6f0e6;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3A4247;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #e6f0e6 #0F1518;
+}
