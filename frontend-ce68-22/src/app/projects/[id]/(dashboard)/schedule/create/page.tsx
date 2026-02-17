@@ -18,7 +18,7 @@ import AddTime from "@/src/components/icon/AddTime";
 import DeleteProjectIcon from "@/src/components/icon/Delete";
 import { Tooltip } from "@mui/material";
 
-export default function EditSchedulePage() {
+export default function CreateSchedulePage() {
 
     const router = useRouter();
     const params = useParams<{ id: string; scheduleId: string }>();
