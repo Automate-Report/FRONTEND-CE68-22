@@ -1,4 +1,4 @@
-import { Project, CreateProjectPayload } from "../types/project";
+import { Project, CreateProjectPayload, ProjectSummary } from "../types/project";
 import { PaginatedResult } from "../types/common";
 import { getMe } from "./auth.service";
 
@@ -15,7 +15,7 @@ export const projectService = {
     const getme = await getMe();
 
 
-    const { data } = await apiClient.get<PaginatedResult<Project>>("/projects/all", {
+    const { data } = await apiClient.get<PaginatedResult<ProjectSummary>>("/projects/all", {
       params: {
         user_id: getme["user"],
         page,

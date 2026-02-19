@@ -1,13 +1,13 @@
-import axios from "axios";
+// import axios from "axios";
 
 
-import apiClient from "../lib/api-client";
+// import apiClient from "../lib/api-client";
 
-export const vulnService = {
+// export const vulnService = {
 
-  cntByProjectId: async (projectId: number) => {
-    const { data } = await apiClient.get<number>(`/vulns/cnt/${projectId}`);
-    return data;
-  }
+//   cntByProjectId: async (projectId: number) => {
+//     const { data } = await apiClient.get<number>(`/vulns/cnt/${projectId}`);
+//     return data;
+//   }
 
-};
+// };

@@ -10,11 +10,11 @@ import { useDebounce } from "@/src/hooks/use-debounce";
 import { getMe } from "@/src/services/auth.service";
 import { ProjectCard } from "@/src/components/projects/ProjectCard";
 import { projectService } from "@/src/services/project.service";
-import { Project } from "@/src/types/project";
+import { ProjectSummary } from "@/src/types/project";
 import { Box, CircularProgress, Typography } from "@mui/material";
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("ALL");
