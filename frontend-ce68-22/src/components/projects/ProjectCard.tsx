@@ -62,7 +62,7 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
         "&:hover": {
           borderColor: roleStyle.color,
           transform: "translateY(-4px)",
-          boxShadow: `0 8px 24px ${roleStyle.bg.replace('0.1', '0.4')}`
+          // boxShadow: `0 8px 24px ${roleStyle.bg.replace('0.1', '0.4')}`
         }
       }}
       onClick={handleOpenProject}
@@ -130,7 +130,11 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
         <Stack direction="row" alignItems="center" spacing={1} sx={{ color: "rgba(143, 255, 156, 0.7)" }}>
           <TimeIcon sx={{ fontSize: 14 }} />
           <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            Last Updated: {new Date(project.updated_at).toLocaleDateString()}
+            Last Updated: {new Date(project.updated_at).toLocaleDateString('en-GB', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric'
+            })}
           </Typography>
         </Stack>
       </Box>
