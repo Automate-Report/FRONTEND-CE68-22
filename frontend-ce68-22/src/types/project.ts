@@ -2,6 +2,8 @@ export interface Project {
   id: number;
   name: string;
   description: string | null;
+  role: "owner" | "pentester" | "developer";
+  created_at: string;
   updated_at: string;
 }
 

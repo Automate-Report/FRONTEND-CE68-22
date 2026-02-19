@@ -7,6 +7,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { projectService } from "../services/project.service";
 import { GenericDeleteModal } from "./Common/GenericDeleteModal";
 
+import { Project } from "../types/project";
+
 import OverviewIcon from "./icon/OverviewIcon";
 import AssetIcon from "./icon/AssetIcon";
 import ScheduleIcon from "./icon/ScheduleIcon";
@@ -19,9 +21,10 @@ import DeleteProjectIcon from "./icon/Delete";
 interface SideBarProps {
   project_id: number;
   project_name: string;
+  role: Project["role"];
 }
 
-export function SideBar({ project_id, project_name }: SideBarProps) {
+export function SideBar({ project_id, project_name, role }: SideBarProps) {
 
   const router = useRouter();
 
@@ -29,6 +32,9 @@ export function SideBar({ project_id, project_name }: SideBarProps) {
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const canEdit = role === "owner";
+  const canDelete = role === "owner";
 
   // ส่วนของการ delelte project
   const handleDeleteClick = (id: number) => {
@@ -108,33 +114,41 @@ export function SideBar({ project_id, project_name }: SideBarProps) {
           </Link>
         );
       })}
-      <div className="mt-auto">
-        <Divider
-          sx={{
-            mb: 2,           // margin-top: เว้นระยะห่างจากตัวหนังสือลงมาหน่อย (2 = 16px)
-            borderColor: "#2D2F39", // กำหนดสีของเส้น (ถ้าพื้นหลังดำ ควรใช้สีเทาเข้ม)
-            borderBottomWidth: 3
-          }}
-        />
-        <div>
-          <Link
-            key="Edit"
-            href={`/projects/${project_id}/edit`}
-            className="flex items-center px-4 py-3 gap-3 text-[#E6F0E6] cursor-pointer hover:bg-[#1F1F1F] rounded-lg transition-colors"
-          >
-            <EditProjectIcon />
-            <div>Edit Project</div>
-          </Link>
+      {(canEdit || canDelete) && (
+        <div className="mt-auto">
+          <Divider
+            sx={{
+              mb: 2,
+              borderColor: "#2D2F39",
+              borderBottomWidth: 3
+            }}
+          />
+          <div>
+            {/* ปุ่ม Edit: แสดงเฉพาะ owner และ pentester */}
+            {canEdit && (
+              <Link
+                key="Edit"
+                href={`/projects/${project_id}/edit`}
+                className="flex items-center px-4 py-3 gap-3 text-[#E6F0E6] cursor-pointer hover:bg-[#1F1F1F] rounded-lg transition-colors"
+              >
+                <EditProjectIcon />
+                <div>Edit Project</div>
+              </Link>
+            )}
 
-          <div
-            onClick={() => handleDeleteClick(project_id)}
-            className="flex items-center px-4 py-3 gap-3 text-[#FF3B30] cursor-pointer hover:bg-[#1F1F1F] rounded-lg transition-colors"
-          >
-            <DeleteProjectIcon />
-            <div>Delete Project</div>
+            {/* ปุ่ม Delete: แสดงเฉพาะ owner เท่านั้น */}
+            {canDelete && (
+              <div
+                onClick={() => handleDeleteClick(project_id)}
+                className="flex items-center px-4 py-3 gap-3 text-[#FF3B30] cursor-pointer hover:bg-[#1F1F1F] rounded-lg transition-colors"
+              >
+                <DeleteProjectIcon />
+                <div>Delete Project</div>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      )}
       {/* เรียกใช้ Generic Modal */}
       <GenericDeleteModal
         open={deleteModalOpen}

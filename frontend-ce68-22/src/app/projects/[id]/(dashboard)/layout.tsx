@@ -1,6 +1,11 @@
 import { ReactNode } from "react";
+
 import { SideBar } from "@/src/components/SideBar";
+
 import { projectService } from "@/src/services/project.service";
+
+import { Project } from "@/src/types/project";
+
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
@@ -22,6 +27,7 @@ export default async function ProjectLayout({ children, params }: ProjectLayoutP
 
   let projectName = "Unknown Project";
   let isUnauthorized = false;
+  let role: Project["role"] = "owner";
 
   try {
     const customHeaders = {
@@ -31,6 +37,7 @@ export default async function ProjectLayout({ children, params }: ProjectLayoutP
 
     const project = await projectService.getById(projectId, customHeaders);
     projectName = project.name;
+    role = project.role;
   } catch (error: any) {
       const status = error.response?.status || error.status;
       console.log("DEBUG: Status Code on Server:", status);
@@ -53,6 +60,7 @@ export default async function ProjectLayout({ children, params }: ProjectLayoutP
       <SideBar 
         project_id={projectId} 
         project_name={projectName}
+        role={role}
       />
 
       {/* 3. ส่วนเนื้อหา (Page) จะเปลี่ยนไปเรื่อยๆ ตรงนี้ */}
