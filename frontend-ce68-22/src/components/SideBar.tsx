@@ -75,6 +75,7 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
       name: "Schedule",
       href: `/projects/${project_id}/schedule`,
       icon: <ScheduleIcon />,
+      roles: ["owner", "pentester"]
     },
     {
       name: "Report",
@@ -85,12 +86,20 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
       name: "Log",
       href: `/projects/${project_id}/log`,
       icon: <LogIcon />,
+      roles: ["owner", "pentester"]
     },
   ];
 
+  const filteredMenuItems = menuItems.filter(item => {
+    if (item.roles) {
+      return item.roles.includes(role);
+    }
+    return true; // ถ้าไม่มีกำหนด roles ไว้ ให้เข้าได้ทุกคน
+  });
+
   return (
     <div className="h-[calc(100vh-74px)] bg-[#0D1014] p-6 flex flex-col fixed w-[300px]">
-      {menuItems.map((item) => {
+      {filteredMenuItems.map((item) => {
         // เช็คว่า Path ปัจจุบัน ตรงกับ href ของปุ่มนี้หรือไม่
         // ใช้ .startsWith หรือ === ก็ได้ ขึ้นอยู่กับโครงสร้าง URL
         const isActive = pathname === item.href;
