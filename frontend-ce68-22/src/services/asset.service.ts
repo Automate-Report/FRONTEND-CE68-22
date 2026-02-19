@@ -51,4 +51,9 @@ export const assetService = {
     await apiClient.delete(`/assets/${id}`);
   },
 
+  cntByProjectId: async (projectId: number) => {
+    const { data } = await apiClient.get<number>(`/assets/cnt/${projectId}`);
+    return data;
+  }
+
 };
