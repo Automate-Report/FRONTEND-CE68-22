@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ProjectList } from "../../components/projects/ProjectList";
 import CreateProjectIcon from "@/src/components/icon/CreateProject";
 import MagIcon from "@/src/components/icon/MagnifyingGlass";
 import FilterIcon from "@/src/components/icon/Filter";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { useDebounce } from "@/src/hooks/use-debounce";
+import { getMe } from "@/src/services/auth.service";
 
 
 export default function ProjectsPage() {
@@ -14,7 +15,26 @@ export default function ProjectsPage() {
   const [filterStatus, setFilterStatus] = useState("ALL");
   const [tempFilter, setTempFilter] = useState(filterStatus);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [displayName, setDisplayName] = useState<string>("");
+
   const filterStatusOptions = ["ALL", "ACTIVE", "COMPLETE", "ARCHIVED"]
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await getMe();
+        if (response && response.name) {
+          setDisplayName(response.name);
+        }
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+        setDisplayName("Guest User"); // กรณี Error ให้แสดงชื่อสำรอง
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   const handleApply = () => {
     setFilterStatus(tempFilter); //update the real constant
@@ -31,7 +51,11 @@ export default function ProjectsPage() {
   return (
     <div className="bg-[#0F1518] mt-6 mx-12">
       <div className="text-4xl text-[#E6F0E6] font-bold pb-10">
-        Welcome Back! user_name
+        {displayName ? (
+          <>Welcome Back, <span className="text-[#8FFF9C]">{displayName}</span>!</>
+        ) : (
+          <span className="opacity-50 animate-pulse">Setting up your workspace...</span>
+        )}
       </div>
       <div className="flex justify-between items-center mb-6 text-[#E6F0E6]">
         {/* ส่วน Search และ Filter */}
