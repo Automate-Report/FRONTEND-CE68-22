@@ -1,55 +1,84 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { ProjectList } from "../../components/projects/ProjectList";
+import { useState, useEffect, useCallback } from "react";
 import CreateProjectIcon from "@/src/components/icon/CreateProject";
 import MagIcon from "@/src/components/icon/MagnifyingGlass";
 import FilterIcon from "@/src/components/icon/Filter";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
+import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import { useDebounce } from "@/src/hooks/use-debounce";
 import { getMe } from "@/src/services/auth.service";
-
+import { ProjectCard } from "@/src/components/projects/ProjectCard";
+import { projectService } from "@/src/services/project.service";
+import { Project } from "@/src/types/project";
+import { Box, CircularProgress, Typography } from "@mui/material";
 
 export default function ProjectsPage() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("ALL");
   const [tempFilter, setTempFilter] = useState(filterStatus);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const [displayName, setDisplayName] = useState<string>("");
 
-  const filterStatusOptions = ["ALL", "ACTIVE", "COMPLETE", "ARCHIVED"]
+  const filterStatusOptions = ["ALL", "owner", "pentester", "developer"];
+  const debouncedSearch = useDebounce(searchQuery, 500);
+
+  const [deleteModal, setDeleteModal] = useState({ open: false, id: 0, name: "" });
+
+  // ดึงข้อมูลโปรเจกต์
+  const fetchProjects = useCallback(async () => {
+    setLoading(true);
+    try {
+      // เรียก GetAll และกรองด้วย debouncedSearch และ filterStatus
+      const data = await projectService.getAll(1, 100, "updated_at", "desc", debouncedSearch, filterStatus);
+      setProjects(data.items);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [debouncedSearch, filterStatus]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await getMe();
-        if (response && response.name) {
-          setDisplayName(response.name);
-        }
+        if (response && response.name) setDisplayName(response.name);
       } catch (error) {
-        console.error("Error fetching user info:", error);
-        setDisplayName("Guest User"); // กรณี Error ให้แสดงชื่อสำรอง
+        setDisplayName("Guest User");
       }
     };
-
     fetchUser();
   }, []);
 
   const handleApply = () => {
-    setFilterStatus(tempFilter); //update the real constant
+    setFilterStatus(tempFilter);
     setIsModalOpen(false);
   };
 
-  const openModal = () => {
-    setTempFilter(filterStatus);
-    setIsModalOpen(true);
+  const openDeleteConfirm = (id: number, name: string) => {
+    setDeleteModal({ open: true, id, name });
   };
 
-  const debouncedSearch = useDebounce(searchQuery, 500);
+  const handleConfirmDelete = async () => {
+    try {
+      await projectService.delete(deleteModal.id);
+      setDeleteModal({ ...deleteModal, open: false });
+      fetchProjects(); 
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div className="bg-[#0F1518] mt-6 mx-12">
+      {/* Header เดิมของคุณ */}
       <div className="text-4xl text-[#E6F0E6] font-bold pb-10">
         {displayName ? (
           <>Welcome Back, <span className="text-[#8FFF9C]">{displayName}</span>!</>
@@ -57,90 +86,87 @@ export default function ProjectsPage() {
           <span className="opacity-50 animate-pulse">Setting up your workspace...</span>
         )}
       </div>
-      <div className="flex justify-between items-center mb-6 text-[#E6F0E6]">
-        {/* ส่วน Search และ Filter */}
-        <div className="flex justify-between items-center pr-5 flex-1">
 
-          {/* 3. Search Box Implementation */}
+      <div className="flex justify-between items-center mb-6 text-[#E6F0E6]">
+        <div className="flex justify-between items-center pr-5 flex-1">
+          {/* Search Box เดิม */}
           <div className="relative w-1/3 flex items-center h-[40px] gap-3 max-w-md bg-white rounded-xl pl-2 shadow-sm">
             <MagIcon />
             <input
               type="text"
               placeholder="Search Projects"
-              className="w-full h-full rounded-lg text-[#4F4057] placeholder-[#9AA6A8] focus:outline-none focus:border-[#8FFF9C]"
+              className="w-full h-full rounded-lg text-[#4F4057] placeholder-[#9AA6A8] focus:outline-none"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          {/* 4. Filter Implementation */}
+          {/* Filter Button เดิม */}
           <div className="relative">
-            {/* Trigger Button */}
             <button
-              onClick={openModal}
+              onClick={() => setIsModalOpen(true)}
               className="flex items-center gap-2 px-6 py-2 text-[#E6F0E6] border border-[#E6F0E6] rounded-xl hover:bg-white/10 cursor-pointer transition"
             >
               Filter <FilterIcon />
             </button>
-            {/* Modal Overlay */}
+            {/* Modal กรองข้อมูลของคุณ */}
             {isModalOpen && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                <div className="bg-[#121212] border border-white/10 w-full max-w-md p-6 rounded-2xl shadow-2xl">
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-semibold text-white">Filter Projects</h2>
-                    <button onClick={() => setIsModalOpen(false)} className="text-bold-gray-400 cursor-pointer hover:text-white">
-                      X
-                    </button>
+                <div className="bg-[#121212] border border-white/10 w-full max-w-md p-6 rounded-2xl">
+                  <div className="flex justify-between items-center mb-6 text-white">
+                    <h2 className="text-xl font-semibold">Filter by Role</h2>
+                    <button onClick={() => setIsModalOpen(false)}>X</button>
                   </div>
-
-                  {/* Filter Content */}
-                  <div className="space-y-4">
-                      <label className="text-xs font-medium text-gray-500 uppercase">Status</label>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {filterStatusOptions.map((option) => {
-                          const isActive = tempFilter === option;
-                          return (
-                            <button
-                              key={option}
-                              onClick={() => setTempFilter(option)}
-                              className={`px-3 py-1 rounded-full text-sm transition-colors ${isActive
-                                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                                : 'bg-white/5 text-gray-400 border border-transparent hover:bg-white/10'
-                                }`}
-                            >
-                              {option}
-                            </button>
-                          );
-                        })}
-                      </div>
+                  <div className="flex flex-wrap gap-2">
+                    {filterStatusOptions.map((option) => (
+                      <button
+                        key={option}
+                        onClick={() => setTempFilter(option)}
+                        className={`px-4 py-2 rounded-full text-sm transition ${tempFilter === option ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-white/5 text-gray-400'}`}
+                      >
+                        {option.toUpperCase()}
+                      </button>
+                    ))}
                   </div>
-
-                  <button
-                    onClick={handleApply}
-                    className="w-full mt-8 py-3 bg-[#a1ff9a] text-black font-bold rounded-xl hover:opacity-90 cursor-pointer transition"
-                  >
+                  <button onClick={handleApply} className="w-full mt-8 py-3 bg-[#a1ff9a] text-black font-bold rounded-xl">
                     Apply Filters
                   </button>
                 </div>
               </div>
             )}
           </div>
-
         </div>
 
-        {/* ปุ่ม New Project */}
-        < GenericGreenButton
-          name="New Project"
-          href="/projects/create"
-          icon={<CreateProjectIcon />}
-        />
-        
+        <GenericGreenButton name="New Project" href="/projects/create" icon={<CreateProjectIcon />} />
       </div>
 
-      {/* 5. ส่งค่า Search และ Filter เป็น Props ไปให้ ProjectList */}
-      <ProjectList 
-        searchQuery={debouncedSearch} 
-        filterStatus={filterStatus} 
+      {/* ส่วนแสดงผล Card Grid ที่เปลี่ยนใหม่ */}
+      {loading ? (
+        <Box display="flex" justifyContent="center" py={10}>
+          <CircularProgress sx={{ color: "#8FFF9C" }} />
+        </Box>
+      ) : projects.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-10">
+          {projects.map((project) => (
+            <ProjectCard 
+              key={project.id} 
+              project={project} 
+              onDelete={openDeleteConfirm} 
+            />
+          ))}
+        </div>
+      ) : (
+        <Box textAlign="center" py={10} sx={{ border: "1px dashed #2D353B", borderRadius: 4 }}>
+          <Typography sx={{ color: "#666" }}>No projects found.</Typography>
+        </Box>
+      )}
+
+      <GenericDeleteModal
+        open={deleteModal.open}
+        onClose={() => setDeleteModal({ ...deleteModal, open: false })}
+        onConfirm={handleConfirmDelete}
+        entityType="Project"
+        entityName={deleteModal.name}
       />
     </div>
   );
