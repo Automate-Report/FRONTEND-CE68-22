@@ -7,6 +7,12 @@ export interface Project {
   updated_at: string;
 }
 
+interface TagSummary {
+  name: string;
+  text_color: string;
+  bg_color: string
+}
+
 export interface ProjectSummary {
   id: number;
   name: string;
@@ -14,6 +20,7 @@ export interface ProjectSummary {
   role: "owner" | "pentester" | "developer";
   assets_cnt: number;
   vuln_cnt: number;
+  tags: TagSummary[];
   created_at: string;
   updated_at: string;
 }
