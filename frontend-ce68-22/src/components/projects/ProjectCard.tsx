@@ -3,26 +3,24 @@
 import React from "react";
 import { 
   Card, 
-  CardContent, 
-  CardActions, 
   Typography, 
   Box, 
   Chip, 
   IconButton, 
   Tooltip,
   Divider,
-  Button
+  Stack
 } from "@mui/material";
 import { 
-  Edit as EditIcon, 
-  Delete as DeleteIcon, 
-  OpenInNew as OpenIcon, 
   AccessTime as TimeIcon,
   Storage as AssetIcon,
-  BugReport as VulnIcon
+  ReportProblem as VulnIcon 
 } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import { ProjectSummary } from "@/src/types/project";
+
+import EditIcon from "../icon/Edit";
+import DeleteProjectIcon from "../icon/Delete";
 
 interface ProjectCardProps {
   project: ProjectSummary;
@@ -31,17 +29,18 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, onDelete }: ProjectCardProps) {
   const router = useRouter();
-  
-  // ตรวจสอบสิทธิ์: เฉพาะ owner เท่านั้นที่มีสิทธิ์ลบหรือแก้ไข
   const isOwner = project.role === "owner";
 
-  // กำหนดสไตล์ตาม Role โดยอิงจากชุดสีที่ให้มา
+  const handleOpenProject = () => {
+    router.push(`/projects/${project.id}/overview`);
+  };
+
   const getRoleStyle = (role: string) => {
     switch (role) {
-      case "owner": return { color: "#8FFF9C", label: "Owner" };
-      case "pentester": return { color: "#AFFFB9", label: "Pentester" };
-      case "developer": return { color: "#EDF6EE", label: "Developer" };
-      default: return { color: "#9AA6A8", label: role };
+      case "owner": return { color: "#8FFF9C", bg: "rgba(143, 255, 156, 0.1)", border: "rgba(143, 255, 156, 0.3)" };
+      case "pentester": return { color: "#D49CFF", bg: "rgba(212, 156, 255, 0.1)", border: "rgba(212, 156, 255, 0.3)" };
+      case "developer": return { color: "#70CFFF", bg: "rgba(112, 207, 255, 0.1)", border: "rgba(112, 207, 255, 0.3)" };
+      default: return { color: "#EDF6EE", bg: "rgba(237, 246, 238, 0.1)", border: "rgba(237, 246, 238, 0.2)" };
     }
   };
 
@@ -50,174 +49,170 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
   return (
     <Card 
       sx={{ 
-        height: '100%', 
+        width: '100%', 
         display: 'flex', 
-        flexDirection: 'column',
-        bgcolor: "#0B0F12",       // พื้นหลังการ์ดหลัก
-        border: "1px solid #404F57", // สีขอบเทาเข้ม
+        flexDirection: { xs: 'column', md: 'row' },
+        bgcolor: "#272D31", 
+        border: "1px solid #404F57",
         borderRadius: "16px",
+        overflow: "hidden",
+        position: "relative", 
         transition: "all 0.2s ease-in-out",
+        cursor: 'pointer',
         "&:hover": {
-          borderColor: "#8FFF9C", // เรืองแสงเขียวเมื่อ Hover
+          borderColor: roleStyle.color,
           transform: "translateY(-4px)",
-          boxShadow: "0 8px 24px rgba(0,0,0,0.5)"
+          boxShadow: `0 8px 24px ${roleStyle.bg.replace('0.1', '0.4')}`
         }
       }}
+      onClick={handleOpenProject}
     >
-      <CardContent sx={{ flexGrow: 1, p: 3, pb: 1 }}>
-        {/* Header: Project Name & Role Badge */}
-        <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={1}>
-          <Typography variant="h6" sx={{ color: "#FBFBFB", fontWeight: "bold", fontSize: "1.15rem", lineHeight: 1.2 }}>
+      {/* --- Role Badge: มุมขวาบนสุดของ Card --- */}
+      <Box sx={{ position: 'absolute', top: 12, right: 12, zIndex: 3 }}>
+        <Chip 
+          label={project.role.toUpperCase()} 
+          sx={{ 
+            bgcolor: roleStyle.bg, 
+            color: roleStyle.color, 
+            fontWeight: 900, 
+            fontSize: "10px", 
+            borderRadius: "6px",
+            border: `1px solid ${roleStyle.border}`,
+            height: '22px',
+          }} 
+        />
+      </Box>
+
+      {/* --- ฝั่งซ้าย: ข้อมูลเนื้อหาหลัก (สัดส่วน 2) --- */}
+      <Box sx={{ flex: 2, p: 3, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minWidth: 0 }}>
+        <Box>
+          {/* 1. ชื่อ Project */}
+          <Typography variant="h6" sx={{ color: "#FBFBFB", fontWeight: "bold", lineHeight: 1.2, mb: 0.5, pr: 10 }} noWrap>
             {project.name}
           </Typography>
-          <Chip 
-            label={roleStyle.label.toUpperCase()} 
-            size="small"
-            variant="outlined"
-            sx={{ 
-              color: roleStyle.color, 
-              borderColor: `${roleStyle.color}40`, 
-              fontSize: "0.6rem", 
-              fontWeight: 800,
-              height: '20px',
-              bgcolor: "#0F1518"
-            }} 
-          />
-        </Box>
 
-        {/* Tags Section: Limit to 5 tags */}
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2, minHeight: '24px' }}>
-          {project.tags?.slice(0, 5).map((tag, index) => (
-          <Chip
-            key={`tag-${index}`} // ถ้าไม่มี id ให้ใช้ index แทน
-            label={tag.name}
-            size="small"
-            sx={{
-              height: '18px',
-              fontSize: '0.6rem',
-              bgcolor: tag.bg_color,
-              color: tag.text_color,
-              border: '1px solid #404F57',
-              borderRadius: '4px',
-              '& .MuiChip-label': { px: 1 }
-            }}
-          />
-        ))}
-          {project.tags && project.tags.length > 5 && (
-            <Typography variant="caption" sx={{ color: "#404F57", ml: 0.5, fontSize: '0.65rem' }}>
-              +{project.tags.length - 5}
-            </Typography>
-          )}
-        </Box>
-
-        {/* Description */}
-        <Typography variant="body2" sx={{ color: "#9AA6A8", mb: 3, minHeight: 40, lineHeight: 1.5 }} className="line-clamp-2">
-          {project.description || "No description provided for this project."}
-        </Typography>
-
-        {/* Stats Pocket: Assets & Vulnerabilities */}
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            gap: 2, 
-            mb: 2.5, 
-            p: 2, 
-            bgcolor: "#0F1518", // พื้นหลังส่วน Stats
-            borderRadius: '12px',
-            border: '1px solid #404F5740'
-          }}
-        >
-          {/* Asset Count */}
-          <Box sx={{ flex: 1, textAlign: 'center' }}>
-            <Typography variant="caption" sx={{ color: "#404F57", fontWeight: 800, letterSpacing: 0.5 }}>ASSETS</Typography>
-            <Box display="flex" justifyContent="center" alignItems="center" gap={0.5} mt={0.5}>
-              <AssetIcon sx={{ fontSize: 16, color: "#404F57" }} />
-              <Typography variant="h6" sx={{ color: "#EDF6EE", fontWeight: 'bold', lineHeight: 1 }}>
-                {project.assets_cnt}
+          {/* 2. Tags อยู่ใต้ชื่อ Project */}
+          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap mb={2} alignItems="center">
+            {project.tags?.slice(0, 5).map((tag, index) => (
+              <Chip
+                key={`tag-${index}`}
+                label={tag.name}
+                size="small"
+                sx={{
+                  height: '18px',
+                  fontSize: '9px',
+                  fontWeight: 800,
+                  bgcolor: tag.bg_color || "#404F57",
+                  color: tag.text_color || "#EDF6EE",
+                  borderRadius: '4px',
+                  textTransform: 'uppercase',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  '& .MuiChip-label': { px: 1 }
+                }}
+              />
+            ))}
+            {project.tags && project.tags.length > 5 && (
+              <Typography variant="caption" sx={{ color: "#404F57", fontWeight: "bold", fontSize: '10px' }}>
+                +{project.tags.length - 5}
               </Typography>
-            </Box>
-          </Box>
+            )}
+          </Stack>
 
-          <Divider orientation="vertical" flexItem sx={{ borderColor: "#404F57", opacity: 0.5 }} />
-
-          {/* Vulnerability Count */}
-          <Box sx={{ flex: 1, textAlign: 'center' }}>
-            <Typography variant="caption" sx={{ color: "#404F57", fontWeight: 800, letterSpacing: 0.5 }}>VULNS</Typography>
-            <Box display="flex" justifyContent="center" alignItems="center" gap={0.5} mt={0.5}>
-              <VulnIcon sx={{ 
-                fontSize: 16, 
-                color: project.vuln_cnt > 0 ? "#FF3B30" : "#8FFF9C" 
-              }} />
-              <Typography variant="h6" sx={{ 
-                color: project.vuln_cnt > 0 ? "#FF3B30" : "#8FFF9C", 
-                fontWeight: 'bold', 
-                lineHeight: 1 
-              }}>
-                {project.vuln_cnt}
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
-
-        {/* Updated Timestamp */}
-        <Box display="flex" alignItems="center" gap={1} sx={{ color: "#404F57", mb: 1 }}>
-          <TimeIcon sx={{ fontSize: 14 }} />
-          <Typography variant="caption" sx={{ fontWeight: 600 }}>
-            LAST UPDATED: {new Date(project.updated_at).toLocaleDateString()}
+          {/* 3. Description */}
+          <Typography variant="body2" sx={{ color: "#9AA6A8", mb: 2, lineHeight: 1.6 }} className="line-clamp-2">
+            {project.description || "Establish a robust security baseline with automated testing."}
           </Typography>
         </Box>
-      </CardContent>
 
-      <Divider sx={{ borderColor: "#404F57", mx: 3, opacity: 0.5 }} />
+        {/* Last Updated */}
+        <Stack direction="row" alignItems="center" spacing={1} sx={{ color: "rgba(143, 255, 156, 0.7)" }}>
+          <TimeIcon sx={{ fontSize: 14 }} />
+          <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            Last Updated: {new Date(project.updated_at).toLocaleDateString()}
+          </Typography>
+        </Stack>
+      </Box>
 
-      <CardActions sx={{ justifyContent: "space-between", px: 2, py: 1.5 }}>
-        {/* Navigation Button */}
-        <Button 
-          size="small" 
-          startIcon={<OpenIcon />} 
-          onClick={() => router.push(`/projects/${project.id}/overview`)}
+      {/* --- ฝั่งขวา: Stats และ Actions (สัดส่วน 1) --- */}
+      <Box 
+        sx={{ 
+          flex: 1, 
+          bgcolor: "#1E2429", 
+          borderLeft: { md: "1px solid #404F57" },
+          p: 3, 
+          pt: 6, // เว้นที่ให้ Role Badge ด้านบน
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          minHeight: { md: '180px' } 
+        }}
+      >
+        {/* Stats Pocket */}
+        <Box 
           sx={{ 
-            color: "#8FFF9C", 
-            textTransform: "none", 
-            fontWeight: "bold",
-            "&:hover": { bgcolor: "rgba(143, 255, 156, 0.08)" }
+            width: '100%',
+            bgcolor: "#0F1518", 
+            border: "1px solid rgba(64, 79, 87, 0.4)", 
+            borderRadius: "12px", 
+            display: 'flex', 
+            py: 2
           }}
         >
-          Open Project
-        </Button>
+          <Box flex={1} textAlign="center">
+            <Typography variant="caption" sx={{ color: "#404F57", fontWeight: 900, letterSpacing: 1, display: 'block', mb: 0.5 }}>ASSETS</Typography>
+            <Stack direction="row" justifyContent="center" alignItems="center" spacing={0.5}>
+              <AssetIcon sx={{ fontSize: 16, color: "#404F57" }} />
+              <Typography variant="h5" sx={{ color: "#EDF6EE", fontWeight: "bold" }}>{project.assets_cnt}</Typography>
+            </Stack>
+          </Box>
+          <Divider orientation="vertical" flexItem sx={{ borderColor: "#404F57", opacity: 0.5, height: 32, my: 'auto' }} />
+          <Box flex={1} textAlign="center">
+            <Typography variant="caption" sx={{ color: "#404F57", fontWeight: 900, letterSpacing: 1, display: 'block', mb: 0.5 }}>VULNS</Typography>
+            <Stack direction="row" justifyContent="center" alignItems="center" spacing={0.5}>
+              <VulnIcon sx={{ fontSize: 16, color: project.vuln_cnt > 0 ? "#FF3B30" : "#8FFF9C" }} />
+              <Typography variant="h5" sx={{ color: project.vuln_cnt > 0 ? "#FF3B30" : "#8FFF9C", fontWeight: "bold" }}>{project.vuln_cnt}</Typography>
+            </Stack>
+          </Box>
+        </Box>
 
-        {/* Management Actions: Restricted to Owner */}
-        <Box>
+        {/* Action Buttons Zone */}
+        <Box 
+          display="flex" 
+          justifyContent="center" 
+          alignItems="center"
+          sx={{ height: '40px', width: '100%', mt: 1 }}
+        >
           {isOwner ? (
-            <Box display="flex" gap={0.5}>
+            <Stack direction="row" spacing={2}>
               <Tooltip title="Edit Project">
                 <IconButton 
                   size="small" 
-                  onClick={() => router.push(`/projects/${project.id}/edit`)}
-                  sx={{ color: "#404F57", "&:hover": { color: "#FBFBFB" } }}
+                  onClick={(e) => { e.stopPropagation(); router.push(`/projects/${project.id}/edit`); }}
+                  sx={{ color: "#F8F8F8", "&:hover": { color: "#8FFF9C", bgcolor: "rgba(143, 255, 156, 0.1)" } }}
                 >
-                  <EditIcon fontSize="small" />
+                  <EditIcon />
                 </IconButton>
               </Tooltip>
               <Tooltip title="Delete Project">
                 <IconButton 
                   size="small" 
-                  onClick={() => onDelete(project.id, project.name)}
-                  sx={{ color: "#404F57", "&:hover": { color: "#FF3B30" } }}
+                  onClick={(e) => { e.stopPropagation(); onDelete(project.id, project.name); }}
+                  sx={{ color: "#F8F8F8", "&:hover": { color: "#FF3B30", bgcolor: "rgba(255,59,48,0.1)" } }}
                 >
-                  <DeleteIcon fontSize="small" />
+                  <DeleteProjectIcon />
                 </IconButton>
               </Tooltip>
-            </Box>
+            </Stack>
           ) : (
-            <Box px={1.5}>
-              <Typography variant="caption" sx={{ color: "#404F57", fontWeight: 800, fontSize: '0.6rem' }}>
-                VIEW ONLY
-              </Typography>
-            </Box>
+            <Typography variant="caption" sx={{ color: "rgba(143, 255, 156, 0.5)", fontWeight: 800, letterSpacing: 1 }}>
+              VIEW ONLY
+            </Typography>
           )}
         </Box>
-      </CardActions>
+      </Box>
     </Card>
   );
 }

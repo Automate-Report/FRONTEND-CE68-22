@@ -20,7 +20,7 @@ export interface ProjectSummary {
   role: "owner" | "pentester" | "developer";
   assets_cnt: number;
   vuln_cnt: number;
-  tags: TagSummary[];
+  tags?: TagSummary[];
   created_at: string;
   updated_at: string;
 }
