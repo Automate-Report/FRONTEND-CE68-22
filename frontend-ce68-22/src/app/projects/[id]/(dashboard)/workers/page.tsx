@@ -1,16 +1,24 @@
 "use client"
-
+import { use, useState, useEffect } from "react";
+import { useProject } from "@/src/hooks/project/use-project";
 import { useWorkerPage } from "@/src/hooks/worker/use-workerPage";
 import { useWorkers } from "@/src/hooks/worker/use-workers";
 import { useTable } from "@/src/hooks/use-table";
 
 import { WorkerTable } from "@/src/components/workers/WorkerTable"; 
+import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import CreateWorkerIcon from "@/src/components/icon/CreateWorker";
 
+interface PageProps{
+  params: Promise<{ id: string}>;
+}
 
-export default function WorkersPage() {
+export default function WorkersPage({ params }: PageProps) {
+
+  const resolvePrams = use(params);
+  const projectId = parseInt(resolvePrams.id);
 
   // ใช้กับ table 
   const {
@@ -23,7 +31,10 @@ export default function WorkersPage() {
     handleSort,
   } = useTable();
 
+  const { data: project, isLoading: isProjectLoading, isError: isProjectError} = useProject(projectId);
+
   const { data: response, isLoading, isError, refetch } = useWorkers(
+    projectId,
     page + 1, 
     rowsPerPage, 
     sortBy, 
@@ -56,8 +67,16 @@ export default function WorkersPage() {
     );
   }
 
+  const breadcrumbItems = [
+        { label: "Home", href: "/main"},
+        { label: project?.name || "Project Name", href: undefined}
+    ];
+
   return (
     <div className="mx-12 bg-[#0F1518]">
+      <div className="w-full">
+        <GenericBreadcrums items={breadcrumbItems} />
+      </div>
       <div className="flex justify-between items-center text-4xl text-[#E6F0E6] font-bold my-6">
         Worker
         < GenericGreenButton
