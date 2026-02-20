@@ -12,6 +12,8 @@ import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import CreateWorkerIcon from "@/src/components/icon/CreateWorker";
 
+import { WorkerCard } from "@/src/components/workers/WorkerCard";
+
 import { Box, Typography } from "@mui/material";
 import { 
   Engineering as TotalIcon, 
@@ -19,6 +21,13 @@ import {
   Speed as BusyIcon, 
   AssignmentTurnedIn as JobIcon 
 } from "@mui/icons-material";
+
+import { 
+  Search as SearchIcon, 
+  FilterList as FilterIcon, 
+  LinkOff as UnlinkIcon 
+} from "@mui/icons-material";
+import { InputBase, Button, Stack } from "@mui/material";
 
 interface PageProps{
   params: Promise<{ id: string}>;
@@ -88,7 +97,7 @@ export default function WorkersPage({ params }: PageProps) {
     ];
 
   return (
-    <div className="mx-12 bg-[#0F1518] font-sans">
+    <div className="mx-12 bg-[#0F1518] font-sans mb-10">
       <div className="w-full">
         <GenericBreadcrums items={breadcrumbItems} />
       </div>
@@ -173,12 +182,88 @@ export default function WorkersPage({ params }: PageProps) {
         ))}
       </div>
 
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        mb: 3, 
+        gap: 2,
+        flexWrap: 'wrap' 
+      }}>
+        {/* ฝั่งซ้าย: Search & Filter */}
+        <Stack direction="row" spacing={2} sx={{ flex: 1, maxWidth: 600 }}>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            bgcolor: '#1A2023', 
+            px: 2, 
+            py: 0.5, 
+            borderRadius: '10px', 
+            border: '1px solid #2A3033',
+            flex: 1,
+            '&:focus-within': { borderColor: '#8FFF9C' }
+          }}>
+            <SearchIcon sx={{ color: '#404F57', mr: 1, fontSize: 20 }} />
+            <InputBase
+              placeholder="Search by worker name, IP, or ID..."
+              sx={{ color: '#E6F0E6', fontSize: '14px', width: '100%' }}
+            />
+          </Box>
+          
+          <Button 
+            variant="outlined" 
+            startIcon={<FilterIcon />}
+            sx={{ 
+              color: '#9AA6A8', 
+              borderColor: '#2A3033', 
+              textTransform: 'none',
+              borderRadius: '10px',
+              px: 3,
+              '&:hover': { borderColor: '#8FFF9C', color: '#8FFF9C', bgcolor: 'rgba(143, 255, 156, 0.05)' }
+            }}
+          >
+            Filter
+          </Button>
+        </Stack>
+
+        {/* ฝั่งขวา: Unlink All (เฉพาะ Owner) */}
+        {isOwner && (
+          <Button
+            variant="text"
+            startIcon={<UnlinkIcon />}
+            sx={{ 
+              color: '#FE3B46', 
+              fontWeight: 'bold', 
+              textTransform: 'none',
+              fontSize: '14px',
+              '&:hover': { bgcolor: 'rgba(254, 59, 70, 0.1)' }
+            }}
+          >
+            Unlink All Workers
+          </Button>
+        )}
+      </Box>
+
       {totalCnt === 0 ? (
         <div className="text-center py-20 bg-[#1E2429] border border-[#404F57] rounded-xl text-gray-400">
           ยังไม่มีข้อมูล Worker {isOwner && "กดปุ่มด้านบนเพื่อเพิ่มรายการใหม่"}
         </div>
       ) : (
-        <WorkerTable 
+        <>
+        {/* แทนที่ส่วน Render Table เดิม */}
+        <div className="grid grid-cols-2 gap-6">
+          {workers.map((worker) => (
+            <WorkerCard 
+              key={worker.id}
+              worker={worker}
+              canManage={isOwner}
+              onEdit={() => {/* เปิด Modal แก้ไข */}}
+              onDelete={deleteState.handleDeleteClick}
+              onDownload={() => {/* ดาวน์โหลดไฟล์ config */}}
+            />
+          ))}
+        </div>
+        {/* <WorkerTable 
           data={workers}
           totalCount={totalCnt}
           page={page}
@@ -191,7 +276,8 @@ export default function WorkersPage({ params }: PageProps) {
           // ส่งสิทธิ์ isOwner เข้าไปใน Table เพื่อซ่อน/แสดงปุ่ม Edit และ Delete ในแต่ละแถว
           // canManage={isOwner} 
           onDeleteClick={deleteState.handleDeleteClick}
-        />
+        /> */}
+         </>
       )}
 
       {/* เรียกใช้ Generic Modal เฉพาะเมื่อเป็น Owner และมีการกดลบ */}
@@ -205,6 +291,7 @@ export default function WorkersPage({ params }: PageProps) {
           loading={deleteState.isLoading}
         />
       )}
+
     </div>
   );
 }
