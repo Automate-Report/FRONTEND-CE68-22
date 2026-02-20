@@ -44,24 +44,25 @@ export default function WorkersPage({ params }: PageProps) {
 
   const { deleteState } = useWorkerPage(refetch);
 
+  const isOwner = project?.role === "owner";
+
   // ดึง items และ total จาก response (Handle กรณี response เป็น undefined)
   const workers = response?.items || [];
   const totalCnt = response?.total || 0;
 
-  if (isLoading) {
+  if (isLoading || isProjectLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Skeleton Loader แบบบ้านๆ */}
+      <div className="mx-12 py-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-40 bg-gray-100 rounded-lg animate-pulse" />
+          <div key={i} className="h-40 bg-gray-800/50 rounded-lg animate-pulse" />
         ))}
       </div>
     );
   }
 
-  if (isError) {
+  if (isError || isProjectError) {
     return (
-      <div className="p-8 border border-red-200 bg-red-50 text-red-600 rounded-lg text-center">
+      <div className="mx-12 mt-10 p-8 border border-red-900/50 bg-red-950/20 text-red-500 rounded-lg text-center">
         เกิดข้อผิดพลาดในการดึงข้อมูล ไม่สามารถเชื่อมต่อกับ Backend ได้
       </div>
     );
@@ -73,53 +74,52 @@ export default function WorkersPage({ params }: PageProps) {
     ];
 
   return (
-    <div className="mx-12 bg-[#0F1518]">
+    <div className="mx-12 bg-[#0F1518] font-sans">
       <div className="w-full">
         <GenericBreadcrums items={breadcrumbItems} />
       </div>
+
       <div className="flex justify-between items-center text-4xl text-[#E6F0E6] font-bold my-6">
         Worker
-        < GenericGreenButton
-          name="New Worker"
-          href={`/projects/${projectId}/workers/create`}
-          icon={<CreateWorkerIcon />}
-        />
+        {/* แสดงปุ่ม New Worker เฉพาะ Owner เท่านั้น */}
+        {isOwner && (
+          <GenericGreenButton
+            name="New Worker"
+            href={`/projects/${projectId}/workers/create`}
+            icon={<CreateWorkerIcon />}
+          />
+        )}
       </div>
 
       {totalCnt === 0 ? (
-        <div className="text-center py-20 bg-gray-800 rounded-lg text-gray-400">
-             ยังไม่มีข้อมูล Worker กดปุ่มด้านบนเพื่อเพิ่มรายการใหม่
+        <div className="text-center py-20 bg-[#1E2429] border border-[#404F57] rounded-xl text-gray-400">
+          ยังไม่มีข้อมูล Worker {isOwner && "กดปุ่มด้านบนเพื่อเพิ่มรายการใหม่"}
         </div>
       ) : (
         <WorkerTable 
-          data={workers}           // ข้อมูล Array ของหน้านั้นๆ
-          totalCount={totalCnt}   // จำนวนข้อมูลทั้งหมดใน DB (เพื่อคำนวณจำนวนหน้า)
-                
-          // State
+          data={workers}
+          totalCount={totalCnt}
           page={page}
           rowsPerPage={rowsPerPage}
           sortBy={sortBy}
           sortOrder={sortOrder}
-                
-          // Functions (Actions)
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
           onSort={handleSort}
+          // ส่งสิทธิ์ isOwner เข้าไปใน Table เพื่อซ่อน/แสดงปุ่ม Edit และ Delete ในแต่ละแถว
+          // canManage={isOwner} 
           onDeleteClick={deleteState.handleDeleteClick}
         />
       )}
 
-      
-      {/* เรียกใช้ Generic Modal */}
-      {deleteState.target && (
+      {/* เรียกใช้ Generic Modal เฉพาะเมื่อเป็น Owner และมีการกดลบ */}
+      {isOwner && deleteState.target && (
         <GenericDeleteModal
           open={deleteState.isOpen}
           onClose={() => deleteState.setIsOpen(false)}
           onConfirm={deleteState.handleConfirmDelete}
-                
-          // --- จุดที่ส่งข้อมูล ---
-          entityType="Worker"             // บอกว่าเป็น "Project"
-          entityName={deleteState.target.name} // ส่งชื่อโปรเจกต์ไป
+          entityType="Worker"
+          entityName={deleteState.target.name}
           loading={deleteState.isLoading}
         />
       )}
