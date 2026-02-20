@@ -13,6 +13,7 @@ import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import CreateWorkerIcon from "@/src/components/icon/CreateWorker";
 
 import { WorkerCard } from "@/src/components/workers/WorkerCard";
+import { WorkerPagination } from "@/src/components/workers/WorkerPagination";
 
 import { Box, Typography } from "@mui/material";
 import { 
@@ -244,40 +245,34 @@ export default function WorkersPage({ params }: PageProps) {
         )}
       </Box>
 
-      {totalCnt === 0 ? (
-        <div className="text-center py-20 bg-[#1E2429] border border-[#404F57] rounded-xl text-gray-400">
-          ยังไม่มีข้อมูล Worker {isOwner && "กดปุ่มด้านบนเพื่อเพิ่มรายการใหม่"}
-        </div>
-      ) : (
-        <>
-        {/* แทนที่ส่วน Render Table เดิม */}
-        <div className="grid grid-cols-2 gap-6">
-          {workers.map((worker) => (
-            <WorkerCard 
-              key={worker.id}
-              worker={worker}
-              canManage={isOwner}
-              onEdit={() => {/* เปิด Modal แก้ไข */}}
-              onDelete={deleteState.handleDeleteClick}
-              onDownload={() => {/* ดาวน์โหลดไฟล์ config */}}
-            />
-          ))}
-        </div>
-        {/* <WorkerTable 
-          data={workers}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 scrollbar-hide">
+        {workers.map((worker) => (
+          <WorkerCard 
+            key={worker.id}
+            worker={worker}
+            canManage={isOwner}
+            onEdit={() => {/* Modal */}}
+            onDelete={deleteState.handleDeleteClick}
+            onDownload={() => {/* Action */}}
+          />
+        ))}
+      </div>
+
+      {/* เพิ่ม Pagination เข้าไปตรงนี้ */}
+      {totalCnt > 0 && (
+        <WorkerPagination 
           totalCount={totalCnt}
           page={page}
           rowsPerPage={rowsPerPage}
-          sortBy={sortBy}
-          sortOrder={sortOrder}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          onSort={handleSort}
-          // ส่งสิทธิ์ isOwner เข้าไปใน Table เพื่อซ่อน/แสดงปุ่ม Edit และ Delete ในแต่ละแถว
-          // canManage={isOwner} 
-          onDeleteClick={deleteState.handleDeleteClick}
-        /> */}
-         </>
+          onPageChange={(newPage) => handleChangePage(null, newPage)}
+          // แก้ตรงนี้: สร้าง mock event เพื่อให้เข้ากับ hook เดิม หรือส่งค่าตรงๆ
+          onRowsPerPageChange={(value) => {
+            const mockEvent = {
+              target: { value: value.toString() }
+            } as React.ChangeEvent<HTMLInputElement>;
+            handleChangeRowsPerPage(mockEvent);
+          }}
+        />
       )}
 
       {/* เรียกใช้ Generic Modal เฉพาะเมื่อเป็น Owner และมีการกดลบ */}
