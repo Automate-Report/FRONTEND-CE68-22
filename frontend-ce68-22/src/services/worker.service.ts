@@ -42,10 +42,8 @@ export const workerService = {
     return data;
   },
 
-  create: async (payload: CreateWorkerPayload, projectId: number) => {
-    const { data } = await apiClient.post("/workers/", payload, {
-        params: { project_id: projectId } // This ensures it becomes ?project_id=X
-    });
+  create: async (payload: CreateWorkerPayload, project_id: number) => {
+    const { data } = await apiClient.post(`/workers/${project_id}`, payload);
     return data;
   },
 
