@@ -15,6 +15,8 @@ import LogIcon from "./icon/LogIcon";
 import { Divider } from "@mui/material";
 import EditProjectIcon from "./icon/Edit";
 import DeleteProjectIcon from "./icon/Delete";
+// เพิ่มไอคอนสำหรับ Worker
+import EngineeringIcon from "@mui/icons-material/Engineering";
 
 interface SideBarProps {
   project_id: number;
@@ -44,6 +46,12 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
       items: [
         { name: "Schedule Scan", href: `/projects/${project_id}/schedule`, icon: <ScheduleIcon />, roles: ["owner", "pentester"] },
         { name: "Assets", href: `/projects/${project_id}/asset`, icon: <AssetIcon /> },
+        { 
+          name: "Worker Nodes", 
+          href: `/projects/${project_id}/workers`, 
+          icon: <EngineeringIcon sx={{ fontSize: 20 }} /> 
+          // เข้าถึงได้ทุก Role เพราะไม่มีการระบุ roles
+        },
         { name: "Logs", href: `/projects/${project_id}/log`, icon: <LogIcon />, roles: ["owner", "pentester"] },
       ],
     },
@@ -134,7 +142,6 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
       <div className="mt-auto pt-4 bg-[#0D1014]">
         <Divider sx={{ mb: 2, borderColor: "#2D2F39", opacity: 0.5 }} />
         
-        {/* 1. ปุ่ม Actions (Edit/Delete) */}
         <div className="space-y-1 mb-4">
           {canEdit && (
             <Link
@@ -156,7 +163,6 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
           )}
         </div>
 
-        {/* 2. Role Display อยู่ล่างสุด */}
         <div className="px-4 pb-2">
           <div className="flex flex-col gap-1.5">
             <span className="text-[#404F57] text-[10px] font-bold tracking-wider uppercase">Your Role</span>
