@@ -2,6 +2,7 @@ export interface Worker {
   id: number;
   name: string;
   thread_number: number;
+  current_load?: number;
   hostname: string;
   status: string;
   isActive: boolean;

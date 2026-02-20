@@ -10,17 +10,10 @@ import {
   Dns as HostIcon
 } from "@mui/icons-material";
 import { WORKER_STATUS_MAP } from "@/src/constants/worker-status";
+import { Worker } from "@/src/types/worker";
 
 interface WorkerCardProps {
-  worker: {
-    id: string;
-    name: string;
-    status: string; // รับเป็น string เพื่อไป map กับค่าใน WORKER_STATUS_MAP
-    hostname: string | null;
-    current_load?: number;
-    thread_number?: number; // เปลี่ยนจาก max_thread เป็น thread_number ตามโค้ดตาราง
-    isActive?: boolean;     // เปลี่ยนจาก is_activated เป็น isActive ตามโค้ดตาราง
-  };
+  worker: Worker;
   canManage: boolean;
   onEdit: (worker: any) => void;
   onDelete: (worker: any) => void;
@@ -111,7 +104,7 @@ export function WorkerCard({ worker, canManage, onEdit, onDelete, onDownload }: 
 
           {/* Activated Status - ใช้สีตาม Logic ของตาราง */}
           <Box sx={{ mt: 2 }}>
-            {worker.isActive === false ? (
+            {worker.isActive=== false ? (
               <div className="inline-block whitespace-nowrap text-[#DD6E6E] text-[12px] font-bold px-2 py-1 bg-[#FFDEDE] rounded-md">
                 Not Activated
               </div>
