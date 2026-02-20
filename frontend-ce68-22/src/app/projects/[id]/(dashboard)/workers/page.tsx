@@ -3,6 +3,7 @@ import { use, useState, useEffect } from "react";
 import { useProject } from "@/src/hooks/project/use-project";
 import { useWorkerPage } from "@/src/hooks/worker/use-workerPage";
 import { useWorkers } from "@/src/hooks/worker/use-workers";
+import { useWorkerInfoSummary } from "@/src/hooks/worker/use-workerInfoSummary";
 import { useTable } from "@/src/hooks/use-table";
 
 import { WorkerTable } from "@/src/components/workers/WorkerTable"; 
@@ -10,6 +11,14 @@ import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import CreateWorkerIcon from "@/src/components/icon/CreateWorker";
+
+import { Box, Typography } from "@mui/material";
+import { 
+  Engineering as TotalIcon, 
+  Dns as OnlineIcon, 
+  Speed as BusyIcon, 
+  AssignmentTurnedIn as JobIcon 
+} from "@mui/icons-material";
 
 interface PageProps{
   params: Promise<{ id: string}>;
@@ -42,6 +51,11 @@ export default function WorkersPage({ params }: PageProps) {
 
   );
 
+  const { 
+  data: workerInfo = { total: 0, online: 0, busy: 0, total_jobs: 0 }, // กำหนดค่า Default ตรงนี้
+  isLoading: workerInfoLoading 
+} = useWorkerInfoSummary(projectId);
+
   const { deleteState } = useWorkerPage(refetch);
 
   const isOwner = project?.role === "owner";
@@ -50,7 +64,7 @@ export default function WorkersPage({ params }: PageProps) {
   const workers = response?.items || [];
   const totalCnt = response?.total || 0;
 
-  if (isLoading || isProjectLoading) {
+  if (isLoading || isProjectLoading || workerInfoLoading) {
     return (
       <div className="mx-12 py-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {[1, 2, 3].map((i) => (
@@ -89,6 +103,74 @@ export default function WorkersPage({ params }: PageProps) {
             icon={<CreateWorkerIcon />}
           />
         )}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        {[
+          { 
+            label: "Total Workers", 
+            value: workerInfo?.total ?? 0, 
+            color: "#FBFBFB", 
+            icon: <TotalIcon sx={{ fontSize: 24 }} /> 
+          },
+          { 
+            label: "Online Status", 
+            value: workerInfo?.online ?? 0, 
+            color: "#8FFF9C", 
+            icon: <OnlineIcon sx={{ fontSize: 24 }} /> 
+          },
+          { 
+            label: "Busy (Loading)", 
+            value: workerInfo?.busy ?? 0, 
+            color: "#FFCC00", 
+            icon: <BusyIcon sx={{ fontSize: 24 }} /> 
+          },
+          { 
+            label: "Total Jobs", 
+            value: workerInfo?.total_jobs ?? 0, 
+            color: "#007AFF", 
+            icon: <JobIcon sx={{ fontSize: 24 }} /> 
+          },
+        ].map((item, i) => (
+          <Box 
+            key={i} 
+            sx={{ 
+              bgcolor: "#1E2429", 
+              p: 2.5, 
+              borderRadius: "16px", 
+              border: "1px solid #404F57", 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              transition: 'transform 0.2s',
+              '&:hover': { transform: 'translateY(-4px)' } // เพิ่มลูกเล่นตอน hover นิดหน่อยครับ
+            }}
+          >
+            <Box>
+              <Typography variant="h4" sx={{ color: item.color, fontWeight: 900, lineHeight: 1 }}>
+                {item.value}
+              </Typography>
+              <Typography sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: 'uppercase', mt: 0.5 }}>
+                {item.label}
+              </Typography>
+            </Box>
+            <Box 
+              sx={{ 
+                width: 44, 
+                height: 44, 
+                borderRadius: "12px", 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                color: item.color, 
+                bgcolor: `${item.color}10`, // สีพื้นหลังไอคอนแบบจางๆ 10%
+                border: `1px solid ${item.color}25` // ขอบไอคอนแบบจางๆ 25%
+              }}
+            >
+              {item.icon}
+            </Box>
+          </Box>
+        ))}
       </div>
 
       {totalCnt === 0 ? (

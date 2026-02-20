@@ -63,6 +63,11 @@ export const workerService = {
         responseType: "blob", // ขอเป็น Binary File
       }
     );
+  },
+
+  info: async (project_id: number) => {
+    const { data } = await apiClient.get(`/workers/info/${project_id}`);
+    return data;
   }
 
 };
