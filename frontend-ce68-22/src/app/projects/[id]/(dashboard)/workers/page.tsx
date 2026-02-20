@@ -81,7 +81,7 @@ export default function WorkersPage({ params }: PageProps) {
         Worker
         < GenericGreenButton
           name="New Worker"
-          href="/workers/create"
+          href={`/projects/${projectId}/workers/create`}
           icon={<CreateWorkerIcon />}
         />
       </div>

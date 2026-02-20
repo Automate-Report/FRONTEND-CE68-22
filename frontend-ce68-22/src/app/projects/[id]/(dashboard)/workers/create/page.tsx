@@ -1,7 +1,9 @@
 "use client";
 
 import { use, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
+import { useProject } from "@/src/hooks/project/use-project";
+
 import { Box, Button, Typography, Tooltip, IconButton } from "@mui/material";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'; // อย่าลืมติดตั้ง @mui/icons-material
 
@@ -13,22 +15,29 @@ import { workerService } from "@/src/services/worker.service";
 import { muiRedButtonStyle } from "@/src/styles/redButton";
 import { muiGreenButtonStyle } from "@/src/styles/greenButton";
 
-interface PageProps{
-    params: Promise<{ id: string}>
-}
 
-export default function CreateWorkerPage({ params }: PageProps) {
+export default function CreateWorkerPage() {
     const router = useRouter();
     const [name, setName] = useState("");
     const [threads, setThreads] = useState<number | string>(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const resolvePrams = use(params);
-    const projectId = parseInt(resolvePrams.id);
+    const params = useParams();
+
+    const projectId = params.id ? parseInt(params.id as string) : NaN;
+
+    const { data: project } = useProject(projectId);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (isNaN(projectId)) {
+            setError("Could not find Project ID in the URL");
+            return;
+        }
+
+
         if (!name.trim() || !threads) return;
 
         setLoading(true);
@@ -39,7 +48,7 @@ export default function CreateWorkerPage({ params }: PageProps) {
                 name: name.trim(),
                 thread_number: Number(threads)
             }, projectId);
-            router.push("/workers"); 
+            router.push(`/projects/${projectId}/workers`); 
         } catch (err: any) {
             setError(err.message || "Failed to create worker");
         } finally {
@@ -48,8 +57,10 @@ export default function CreateWorkerPage({ params }: PageProps) {
     };
 
     const breadcrumbItems = [
-        { label: "Workers", href: "/workers" },
-        { label: "Create Worker", href: undefined }
+        { label: "Home", href: "/main"},
+        { label: project?.name || "Project Name", href: `/projects/${projectId}/overview`},
+        { label: "Worker Nodes", href: `/projects/${projectId}/workers`},
+        { label: "Create", href: undefined}
     ];
 
     return (
