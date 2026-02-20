@@ -53,20 +53,24 @@ export default async function ProjectLayout({ children, params }: ProjectLayoutP
   }
 
   return (
-    // จัด Layout ให้ Sidebar อยู่ซ้าย Content อยู่ขวา
-    <div className="flex h-full w-full bg-[#0F1518]"> 
+    // 1. เพิ่ม h-screen เพื่อล็อคความสูงหน้าจอ และป้องกันการ scroll ทั้งหน้า
+    <div className="flex h-screen w-full bg-[#0F1518] overflow-hidden"> 
       
-      {/* 2. Sidebar จะถูก Render ครั้งเดียวตรงนี้และ Fix อยู่กับที่ */}
+      {/* Sidebar: กว้าง 300px และ fixed */}
       <SideBar 
         project_id={projectId} 
         project_name={projectName}
         role={role}
       />
 
-      {/* 3. ส่วนเนื้อหา (Page) จะเปลี่ยนไปเรื่อยๆ ตรงนี้ */}
-      <main className="flex-1 p-6 ml-[300px] ">
-        {/* อาจจะใส่ wrapper อีกชั้นถ้าต้องการ padding หรือ margin แบบเฉพาะเจาะจง */}
-        <div className="mx-12 mt-0"> 
+      {/* Main Content: 
+         - ml-[300px]: เว้นที่ว่างทางซ้ายให้ Sidebar 
+         - w-[calc(100%-300px)]: ใช้ความกว้างที่เหลือทั้งหมด
+         - overflow-y-auto: ให้ scroll เฉพาะเนื้อหาตรงนี้
+      */}
+      <main className="flex-1 ml-[300px] h-full overflow-y-auto custom-scrollbar">
+        {/* ใส่ Padding เพื่อไม่ให้เนื้อหาชิดขอบจนเกินไป */}
+        <div className="mt-6"> 
             {children}
         </div>
       </main>

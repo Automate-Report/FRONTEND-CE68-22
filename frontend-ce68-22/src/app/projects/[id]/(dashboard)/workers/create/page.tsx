@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Box, Button, Typography, Tooltip, IconButton } from "@mui/material";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'; // อย่าลืมติดตั้ง @mui/icons-material
@@ -13,13 +13,19 @@ import { workerService } from "@/src/services/worker.service";
 import { muiRedButtonStyle } from "@/src/styles/redButton";
 import { muiGreenButtonStyle } from "@/src/styles/greenButton";
 
-export default function CreateWorkerPage() {
+interface PageProps{
+    params: Promise<{ id: string}>
+}
+
+export default function CreateWorkerPage({ params }: PageProps) {
     const router = useRouter();
     const [name, setName] = useState("");
     const [threads, setThreads] = useState<number | string>(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const resolvePrams = use(params);
+    const projectId = parseInt(resolvePrams.id);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,7 +38,7 @@ export default function CreateWorkerPage() {
             await workerService.create({
                 name: name.trim(),
                 thread_number: Number(threads)
-            });
+            }, projectId);
             router.push("/workers"); 
         } catch (err: any) {
             setError(err.message || "Failed to create worker");
