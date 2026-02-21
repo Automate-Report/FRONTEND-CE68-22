@@ -19,8 +19,7 @@ import {
   Person as WorkerNameIcon,
   Memory as ThreadIcon, 
   Speed as PerformanceIcon,
-  ContentCopy as CopyIcon,
-  LinkOff as UnlinkIcon // เพิ่มไอคอน Unlink
+  LinkOff as UnlinkIcon 
 } from "@mui/icons-material";
 
 import { useRouter } from "next/navigation";
@@ -30,11 +29,11 @@ import { useWorker } from "@/src/hooks/worker/use-worker";
 import { useWorkerDownload } from "@/src/hooks/worker/use-WorkerDownload";
 import { workerService } from "@/src/services/worker.service";
 import { Worker } from "@/src/types/worker";
+import { WORKER_STATUS_MAP } from "@/src/constants/worker-status";
 
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
-
 import { WorkerAccessKeySection } from "@/src/components/workers/WorkerAccessKeySection";
 
 import EditIcon from "@/src/components/icon/Edit";
@@ -54,16 +53,11 @@ export default function WorkerDetailPage({ params }: PageProps) {
     const { data: project } = useProject(projectId);
     const { data: worker, isLoading: isWorkerLoading, refetch } = useWorker(workerId);
     const { data: summaryInfoJob, isLoading: isSummaryLoading } = useSummaryInfoByWorker(workerId);
-
-    console.log(summaryInfoJob)
-    
     const { downloadWorker, isLoading: isDownloading } = useWorkerDownload();
 
-    const [showKey, setShowKey] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [workerToDelete, setWorkerToDelete] = useState<Worker | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
-    // เพิ่ม state เพื่อแยกระหว่างการลบและการ Unlink ใน Modal
     const [actionType, setActionType] = useState<"delete" | "unlink">("delete");
 
     if (isWorkerLoading || isSummaryLoading) {
@@ -91,7 +85,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
         if (!workerToDelete) return;
         setIsDeleting(true);
         try {
-            // ในที่นี้สมมติว่าใช้ service ตัวเดียวกัน แต่ถ้ามี unlink service แยกก็สามารถเรียกตรงนี้ได้
+            // ในกรณีของโปรเจกต์นี้ สมมติว่าการลบกับ unlink ใช้ service ตัวเดียวกันหรือส่ง flag ต่างกันได้
             await workerService.delete(workerToDelete.id); 
             setDeleteModalOpen(false);
             router.push(`/projects/${projectId}/workers`);
@@ -105,20 +99,26 @@ export default function WorkerDetailPage({ params }: PageProps) {
 
     const handleRevokeKey = async () => {
         try {
-            // เรียก Service สำหรับ Re-create API
             await workerService.reGenKey(worker.id);
-            refetch(); // โหลดข้อมูล worker ใหม่เพื่อเอา Key ใหม่มาแสดง
+            refetch();
         } catch (error) {
             alert("Failed to re-create access key");
         }
     };
 
+    // --- ตรรกะดึง Config สีสถานะ ---
+    const currentStatus = worker.status || "unknown";
+    const statusConfig = WORKER_STATUS_MAP[currentStatus] || WORKER_STATUS_MAP.unknown;
+    
+    // กำหนดสีหลักของสถานะให้สัมพันธ์กับ Map (เขียว/แดง/เทา)
+    const statusThemeColor = currentStatus === 'online' ? "#6EDD99" : currentStatus === 'offline' ? "#DD6E6E" : "#6B7280";
+
     return (
-        <Box sx={{ pb: 10}}>
+        <Box sx={{ pb: 10 }}>
             <GenericBreadcrums items={breadcrumbItems} />
 
             {/* Header Area */}
-            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ pb: 4 }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ py: 4 }}>
                 <Typography variant="h3" sx={{ color: "#E6F0E6", fontWeight: "bold" }}>
                     {worker.name}
                 </Typography>
@@ -130,7 +130,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
                         icon={<EditIcon />}
                     />
                     
-                    {/* สลับปุ่ม Download เป็น Unlink ถ้า isActive = True */}
+                    {/* สลับปุ่ม Download/Unlink ตาม isActive */}
                     {worker.isActive ? (
                         <button
                             type="button"
@@ -150,7 +150,6 @@ export default function WorkerDetailPage({ params }: PageProps) {
                         </button>
                     )}
 
-                    {/* ปุ่ม Delete มีไว้เสมอตามความต้องการ */}
                     <button 
                         onClick={() => handleDeleteClick(worker, "delete")}
                         className="flex items-center gap-3 bg-[#0B0F12] text-[#FE3B46] border border-[#FE3B46] text-[16px] font-semibold rounded-lg px-6 h-10 hover:bg-[#FE3B46] hover:text-[#FBFBFB] transition-all"
@@ -160,14 +159,14 @@ export default function WorkerDetailPage({ params }: PageProps) {
                 </Stack>
             </Stack>
 
-            {/* Section: Job Summary Stats (5 Columns) */}
+            {/* Section: Job Summary Stats */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
                 {[
-                    { label: "Total Jobs", value: summaryInfoJob?.total_jobs , color: "#FBFBFB", icon: <TotalJobIcon /> },
-                    { label: "Completed", value: summaryInfoJob?.total_completed , color: "#8FFF9C", icon: <CompletedIcon /> },
-                    { label: "Failed", value: summaryInfoJob?.total_failed , color: "#FE3B46", icon: <FailedIcon /> },
-                    { label: "Total Findings", value: summaryInfoJob?.total_findings , color: "#FFCC00", icon: <FindingIcon /> },
-                    { label: "Current Load", value: `${worker.current_load}/${worker.thread_number}`, color: "#3B9FFE", icon: <PerformanceIcon /> },
+                    { label: "Total Jobs", value: summaryInfoJob?.total_jobs ?? 0, color: "#FBFBFB", icon: <TotalJobIcon /> },
+                    { label: "Completed", value: summaryInfoJob?.total_completed ?? 0, color: "#8FFF9C", icon: <CompletedIcon /> },
+                    { label: "Failed", value: summaryInfoJob?.total_failed ?? 0, color: "#FE3B46", icon: <FailedIcon /> },
+                    { label: "Total Findings", value: summaryInfoJob?.total_findings ?? 0, color: "#FFCC00", icon: <FindingIcon /> },
+                    { label: "Current Load", value: `${worker.current_load || 0}/${worker.thread_number}`, color: "#3B9FFE", icon: <PerformanceIcon /> },
                 ].map((item, i) => (
                     <Box key={i} sx={{ 
                         bgcolor: "#1E2429", p: 2.5, borderRadius: "16px", border: "1px solid #404F57", 
@@ -193,27 +192,65 @@ export default function WorkerDetailPage({ params }: PageProps) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
                         {[
                             { label: "Worker Name", value: worker.name, icon: <WorkerNameIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", span: 1 },
-                            { label: "Status", value: worker.status?.toUpperCase() ?? "unknown", icon: <StatusIcon sx={{ fontSize: 10 }} />, color: worker.status === 'online' ? "#8FFF9C" : "#FE3B46", isStatus: true, span: 1 },
+                            { 
+                                label: "Status", 
+                                value: statusConfig.label, 
+                                icon: <StatusIcon sx={{ fontSize: 10 }} />, 
+                                color: statusThemeColor, // สีจุดเปลี่ยนตามสถานะ
+                                isStatus: true,
+                                badgeStyle: statusConfig.style,
+                                span: 1 
+                            },
                             { label: "Hostname", value: worker.hostname || "n/a", icon: <HostIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", isMono: true, span: 1 },
-                            { label: "Internal IP (Hostname IP)", value: worker.internal_ip || "0.0.0.0", icon: <IpIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", isMono: true, span: 1 },
+                            { label: "Internal IP (Hostname IP)", value: worker.internal_ip || "-", icon: <IpIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", isMono: true, span: 1 },
                             { label: "Max Threads", value: `${worker.thread_number} Threads`, icon: <ThreadIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", span: 1 },
                             { label: "Created Date", value: worker.created_at || "-", icon: <CalendarIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", span: 1 },
                             { label: "Last Heartbeat", value: worker.last_heartbeat || "Never", icon: <HeartbeatIcon sx={{ fontSize: 18 }} />, color: worker.status === 'online' ? "#8FFF9C" : "#9AA6A8", span: 1 },
-                            { label: "Jobs Completed", value: summaryInfoJob?.total_completed ?? 0, icon: <SuccessIcon sx={{ fontSize: 18 }} />, color: "#8FFF9C", isBold: true, span: 2 }, // ตัวนี้ใช้ 2
+                            { label: "Jobs Completed", value: summaryInfoJob?.total_completed ?? 0, icon: <SuccessIcon sx={{ fontSize: 18 }} />, color: "#8FFF9C", isBold: true, span: 1 },
                         ].map((item, index) => (
-                            <Box key={index} sx={{ gridColumn: item.span ? `span ${item.span}` : 'span 1' }}>
+                            <Box key={index} sx={{ gridColumn: { xs: 'span 1', md: `span ${item.span || 1}` } }}>
                                 <Typography sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: "uppercase", mb: 1, ml: 0.5 }}>{item.label}</Typography>
-                                <Box sx={{ bgcolor: "#0F1518", px: 2, py: 1.5, borderRadius: "12px", border: "1px solid #2D2F39", display: 'flex', alignItems: 'center', minHeight: "48px" }}>
+                                <Box sx={{ 
+                                    bgcolor: "#0F1518", px: 2, py: 1.5, borderRadius: "12px", border: "1px solid #2D2F39", 
+                                    display: 'flex', alignItems: 'center', minHeight: "48px",
+                                    transition: "0.2s", "&:hover": { borderColor: "#404F57" }
+                                }}>
                                     <Stack direction="row" spacing={1.5} alignItems="center" sx={{ width: '100%' }}>
-                                        <Box sx={{ color: item.color, display: 'flex', opacity: 0.9, ...(item.isStatus && { p: 0.5, bgcolor: `${item.color}15`, borderRadius: "50%" }) }}>{item.icon}</Box>
-                                        <Typography sx={{ color: item.color, fontSize: item.isBold ? "18px" : "15px", fontWeight: "bold", fontFamily: item.isMono ? "monospace" : "inherit" }}>{item.value}</Typography>
+                                        {/* ส่วนของจุด Indicator ล้อมรอบไอคอน */}
+                                        <Box sx={{ 
+                                            color: item.color, 
+                                            display: 'flex', 
+                                            opacity: 0.9, 
+                                            ...(item.isStatus && { 
+                                                p: 0.6, 
+                                                bgcolor: `${item.color}25`, // พื้นหลังวงกลมใช้สีเดียวกับสถานะแต่จางลง
+                                                borderRadius: "50%",
+                                                border: `1px solid ${item.color}40`
+                                            }) 
+                                        }}>
+                                            {item.icon}
+                                        </Box>
+                                        
+                                        {item.isStatus ? (
+                                            <div className={`px-2.5 py-0.5 rounded-lg text-[12px] font-bold ${item.badgeStyle}`}>
+                                                {item.value}
+                                            </div>
+                                        ) : (
+                                            <Typography sx={{ 
+                                                color: item.color, 
+                                                fontSize: item.isBold ? "20px" : "15px", 
+                                                fontWeight: "bold", 
+                                                fontFamily: item.isMono ? "monospace" : "inherit" 
+                                            }}>
+                                                {item.value}
+                                            </Typography>
+                                        )}
                                     </Stack>
                                 </Box>
                             </Box>
                         ))}
                     </div>
 
-                    {/* Access Key Area */}
                     <WorkerAccessKeySection 
                         accessKeyId={worker.access_key_id} 
                         onRevoke={handleRevokeKey}
@@ -222,13 +259,13 @@ export default function WorkerDetailPage({ params }: PageProps) {
                 </Box>
             </Box>
 
-            {/* Job Assigned Area */}
+            {/* Assigned Jobs Placeholder */}
             <Typography variant="h4" sx={{ color: "#E6F0E6", fontWeight: "bold", mb: 3 }}>Job Assigned</Typography>
             <Box sx={{ bgcolor: "#1E2429", p: 4, borderRadius: "20px", border: "1px solid #404F57", textAlign: 'center', color: '#404F57' }}>
                 No active jobs currently assigned to this worker.
             </Box>
 
-            {/* Modal สำหรับจัดการ Action */}
+            {/* Modal ยืนยันการลบ หรือ Unlink */}
             {workerToDelete && (
                 <GenericDeleteModal
                     open={deleteModalOpen}
