@@ -5,6 +5,7 @@ export interface Worker {
   current_load?: number;
   hostname: string;
   internal_ip: string;
+  access_key_id: number;
   status: string;
   isActive: boolean;
   created_at: string;
