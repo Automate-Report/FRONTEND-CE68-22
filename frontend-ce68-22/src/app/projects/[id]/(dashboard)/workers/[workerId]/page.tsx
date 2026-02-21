@@ -192,14 +192,14 @@ export default function WorkerDetailPage({ params }: PageProps) {
                 <Box sx={{ p: 3 }}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
                         {[
-                            { label: "Worker Name", value: worker.name, icon: <WorkerNameIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB" },
-                            { label: "Status", value: worker.status?.toUpperCase() ?? "unknown", icon: <StatusIcon sx={{ fontSize: 10 }} />, color: worker.status === 'online' ? "#8FFF9C" : "#FE3B46", isStatus: true },
-                            { label: "Hostname", value: worker.hostname || "n/a", icon: <HostIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", isMono: true },
-                            { label: "Internal IP (Hostname IP)", value: worker.internal_ip || "0.0.0.0", icon: <IpIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", isMono: true },
-                            { label: "Max Threads", value: `${worker.thread_number} Threads`, icon: <ThreadIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB" },
-                            { label: "Created Date", value: worker.created_at || "-", icon: <CalendarIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB" },
-                            { label: "Last Heartbeat", value: worker.last_heartbeat || "Never", icon: <HeartbeatIcon sx={{ fontSize: 18 }} />, color: worker.status === 'online' ? "#8FFF9C" : "#9AA6A8" },
-                            { label: "Jobs Completed", value: summaryInfoJob?.total_completed ?? 0, icon: <SuccessIcon sx={{ fontSize: 18 }} />, color: "#8FFF9C", isBold: true },
+                            { label: "Worker Name", value: worker.name, icon: <WorkerNameIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", span: 1 },
+                            { label: "Status", value: worker.status?.toUpperCase() ?? "unknown", icon: <StatusIcon sx={{ fontSize: 10 }} />, color: worker.status === 'online' ? "#8FFF9C" : "#FE3B46", isStatus: true, span: 1 },
+                            { label: "Hostname", value: worker.hostname || "n/a", icon: <HostIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", isMono: true, span: 1 },
+                            { label: "Internal IP (Hostname IP)", value: worker.internal_ip || "0.0.0.0", icon: <IpIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", isMono: true, span: 1 },
+                            { label: "Max Threads", value: `${worker.thread_number} Threads`, icon: <ThreadIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", span: 1 },
+                            { label: "Created Date", value: worker.created_at || "-", icon: <CalendarIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", span: 1 },
+                            { label: "Last Heartbeat", value: worker.last_heartbeat || "Never", icon: <HeartbeatIcon sx={{ fontSize: 18 }} />, color: worker.status === 'online' ? "#8FFF9C" : "#9AA6A8", span: 1 },
+                            { label: "Jobs Completed", value: summaryInfoJob?.total_completed ?? 0, icon: <SuccessIcon sx={{ fontSize: 18 }} />, color: "#8FFF9C", isBold: true, span: 2 }, // ตัวนี้ใช้ 2
                         ].map((item, index) => (
                             <Box key={index} sx={{ gridColumn: item.span ? `span ${item.span}` : 'span 1' }}>
                                 <Typography sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: "uppercase", mb: 1, ml: 0.5 }}>{item.label}</Typography>
