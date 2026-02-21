@@ -27,13 +27,12 @@ export default async function RootLayout({
   const showNavbar = (headersList.get("x-show-navbar") === "true");
   
   return (
-    <html lang="en">
-      <body className={`${ibmPlexSansThai.variable} font-sans antialiased min-h-screen  grid grid-rows-[auto_1fr]`} suppressHydrationWarning={true}> {/*แก้ไขเรื่องไปตีกับ extension ใน chrome */}
+    <html lang="en" className="h-full">
+      <body className={`${ibmPlexSansThai.variable} font-sans antialiased min-h-full bg-[#0F1518] flex flex-col`} suppressHydrationWarning={true}>
         <QueryProvider>
-
           {showNavbar && <NavBar />}
-
-          <div className="h-fit">
+          {/* เอา overflow-hidden ออกจากตรงนี้เพื่อให้ Layout ลูกจัดการการ scroll เอง */}
+          <div className="flex-1">
             {children}
           </div>
         </QueryProvider>

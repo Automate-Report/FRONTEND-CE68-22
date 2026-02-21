@@ -53,23 +53,16 @@ export default async function ProjectLayout({ children, params }: ProjectLayoutP
   }
 
   return (
-    // 1. เพิ่ม h-screen เพื่อล็อคความสูงหน้าจอ และป้องกันการ scroll ทั้งหน้า
-    <div className="flex h-screen w-full bg-[#0F1518] overflow-hidden"> 
+    // ใช้ h-[calc(100vh-navbarHeight)] ถ้ามี navbar หรือใช้ h-screen ถ้า navbar อยู่ในหน้า
+    // ในกรณีของคุณ navbar อยู่ใน RootLayout ดังนั้นใช้ h-[calc(100vh-74px)] (สมมติ navbar สูง 74px)
+    <div className="flex h-[calc(100vh-74px)] w-full overflow-hidden bg-[#0F1518]"> 
       
-      {/* Sidebar: กว้าง 300px และ fixed */}
-      <SideBar 
-        project_id={projectId} 
-        project_name={projectName}
-        role={role}
-      />
+      {/* Sidebar: ล็อคความสูง h-full ของพื้นที่ที่เหลือ */}
+      <SideBar project_id={projectId} project_name={projectName} role={role} />
 
-      {/* Main Content: 
-         - ml-[300px]: เว้นที่ว่างทางซ้ายให้ Sidebar 
-         - w-[calc(100%-300px)]: ใช้ความกว้างที่เหลือทั้งหมด
-         - overflow-y-auto: ให้ scroll เฉพาะเนื้อหาตรงนี้
-      */}
-      <main className="flex-1 ml-[300px] h-full">
-        <div className="p-0 mx-12 mt-6"> 
+      {/* Main Content: หัวใจหลักของการเลื่อน */}
+      <main className="flex-1 ml-[300px] h-full overflow-y-auto custom-scrollbar">
+        <div className="px-12 py-6"> {/* เปลี่ยนจาก mx-12 มาใช้ px-12 เพื่อกันขอบล้น */}
             {children}
         </div>
       </main>
