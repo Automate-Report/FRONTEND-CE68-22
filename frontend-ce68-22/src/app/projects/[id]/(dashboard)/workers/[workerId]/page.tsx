@@ -173,7 +173,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
                             { label: "Worker Name", value: worker.name, icon: <WorkerNameIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB" },
                             { label: "Status", value: worker.status.toUpperCase(), icon: <StatusIcon sx={{ fontSize: 10 }} />, color: worker.status === 'online' ? "#8FFF9C" : "#FE3B46", isStatus: true },
                             { label: "Hostname", value: worker.hostname || "n/a", icon: <HostIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", isMono: true },
-                            { label: "IP Address", value: worker.ip_address || "0.0.0.0", icon: <IpIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", isMono: true },
+                            { label: "IP Address", value: worker.internal_ip || "0.0.0.0", icon: <IpIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", isMono: true },
                             { label: "Max Threads", value: `${worker.thread_number} Threads`, icon: <ThreadIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB" },
                             { label: "Created Date", value: worker.created_at || "-", icon: <CalendarIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB" },
                             { label: "Last Heartbeat", value: worker.last_heartbeat || "Never", icon: <HeartbeatIcon sx={{ fontSize: 18 }} />, color: worker.status === 'online' ? "#8FFF9C" : "#9AA6A8" },

@@ -195,7 +195,7 @@ export function WorkerCard({ worker, canManage, onEdit, onDelete, onDownload }: 
               <Stack direction="row" spacing={0.5} alignItems="center">
                 <IpIcon sx={{ fontSize: 14, color: "#404F57" }} />
                 <Typography variant="caption" sx={{ color: "#9AA6A8", fontFamily: "monospace" }}>
-                  {worker.ip_address || "0.0.0.0"}
+                  {worker.internal_ip || "0.0.0.0"}
                 </Typography>
               </Stack>
             </Tooltip>

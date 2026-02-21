@@ -4,7 +4,7 @@ export interface Worker {
   thread_number: number;
   current_load?: number;
   hostname: string;
-  ip_address: string;
+  internal_ip: string;
   status: string;
   isActive: boolean;
   created_at: string;
