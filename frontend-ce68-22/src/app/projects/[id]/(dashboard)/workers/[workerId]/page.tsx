@@ -177,7 +177,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
                             { label: "Max Threads", value: `${worker.thread_number} Threads`, icon: <ThreadIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB" },
                             { label: "Created Date", value: worker.created_at || "-", icon: <CalendarIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB" },
                             { label: "Last Heartbeat", value: worker.last_heartbeat || "Never", icon: <HeartbeatIcon sx={{ fontSize: 18 }} />, color: worker.status === 'online' ? "#8FFF9C" : "#9AA6A8" },
-                            { label: "Jobs Completed", value: worker.jobs_completed ?? 0, icon: <SuccessIcon sx={{ fontSize: 18 }} />, color: "#8FFF9C", isBold: true, span: 2 },
+                            { label: "Jobs Completed", value: worker.jobs_completed ?? 0, icon: <SuccessIcon sx={{ fontSize: 18 }} />, color: "#8FFF9C", isBold: true },
                         ].map((item, index) => (
                             <Box key={index} sx={{ gridColumn: item.span ? `span ${item.span}` : 'span 1' }}>
                                 <Typography sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: "uppercase", mb: 1, ml: 0.5 }}>{item.label}</Typography>
