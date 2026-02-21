@@ -4,8 +4,12 @@ export interface Worker {
   thread_number: number;
   current_load?: number;
   hostname: string;
+  ip_address: string;
   status: string;
   isActive: boolean;
+  created_at: string;
+  updated_at: string;
+  last_heartbeat: string;
 }
 
 export interface CreateWorkerPayload {
