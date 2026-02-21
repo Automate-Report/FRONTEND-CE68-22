@@ -68,9 +68,8 @@ export default async function ProjectLayout({ children, params }: ProjectLayoutP
          - w-[calc(100%-300px)]: ใช้ความกว้างที่เหลือทั้งหมด
          - overflow-y-auto: ให้ scroll เฉพาะเนื้อหาตรงนี้
       */}
-      <main className="flex-1 ml-[300px] h-full overflow-y-auto custom-scrollbar">
-        {/* ใส่ Padding เพื่อไม่ให้เนื้อหาชิดขอบจนเกินไป */}
-        <div className="mt-6"> 
+      <main className="flex-1 ml-[300px] h-full">
+        <div className="p-0"> 
             {children}
         </div>
       </main>

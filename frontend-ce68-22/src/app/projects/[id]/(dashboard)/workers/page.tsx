@@ -96,7 +96,7 @@ export default function WorkersPage({ params }: PageProps) {
     ];
 
   return (
-    <div className="mx-12 bg-[#0F1518] font-sans mb-10">
+    <div className="px-12 bg-[#0F1518] font-sans pb-10">
       <div className="w-full">
         <GenericBreadcrums items={breadcrumbItems} />
       </div>
