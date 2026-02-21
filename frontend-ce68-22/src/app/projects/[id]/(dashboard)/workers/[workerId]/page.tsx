@@ -25,6 +25,7 @@ import {
 
 import { useRouter } from "next/navigation";
 import { useProject } from "@/src/hooks/project/use-project";
+import { useSummaryInfoByWorker } from "@/src/hooks/job/use-summaryInfoByWorker";
 import { useWorker } from "@/src/hooks/worker/use-worker";
 import { useWorkerDownload } from "@/src/hooks/worker/use-WorkerDownload";
 import { workerService } from "@/src/services/worker.service";
@@ -49,7 +50,11 @@ export default function WorkerDetailPage({ params }: PageProps) {
     const workerId = parseInt(resolvePrams.workerId);
 
     const { data: project } = useProject(projectId);
-    const { data: worker, isLoading, isError, refetch } = useWorker(workerId);
+    const { data: worker, isLoading: isWorkerLoading } = useWorker(workerId);
+    const { data: summaryInfoJob, isLoading: isSummaryLoading } = useSummaryInfoByWorker(workerId);
+
+    console.log(summaryInfoJob)
+    
     const { downloadWorker, isLoading: isDownloading } = useWorkerDownload();
 
     const [showKey, setShowKey] = useState(false);
@@ -59,8 +64,13 @@ export default function WorkerDetailPage({ params }: PageProps) {
     // เพิ่ม state เพื่อแยกระหว่างการลบและการ Unlink ใน Modal
     const [actionType, setActionType] = useState<"delete" | "unlink">("delete");
 
-    if (isLoading) return <Box sx={{ p: 8, color: '#E6F0E6' }}>Loading...</Box>;
-    if (isError || !worker) return <Box sx={{ p: 8, color: '#FE3B46' }}>Worker not found</Box>;
+    if (isWorkerLoading || isSummaryLoading) {
+        return <Box sx={{ p: 8, color: '#E6F0E6' }}>Loading data...</Box>;
+    }
+
+    if (!worker || !summaryInfoJob) {
+        return <Box sx={{ p: 8, color: '#FE3B46' }}>Worker or Summary data not found</Box>;
+    }
 
     const breadcrumbItems = [
         { label: "Home", href: "/main" },
@@ -141,11 +151,11 @@ export default function WorkerDetailPage({ params }: PageProps) {
             {/* Section: Job Summary Stats (5 Columns) */}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
                 {[
-                    { label: "Total Jobs", value: worker.total_jobs, color: "#FBFBFB", icon: <TotalJobIcon /> },
-                    { label: "Completed", value: worker.total_completed, color: "#8FFF9C", icon: <CompletedIcon /> },
-                    { label: "Failed", value: worker.total_failed, color: "#FE3B46", icon: <FailedIcon /> },
-                    { label: "Total Findings", value: worker.total_findings, color: "#FFCC00", icon: <FindingIcon /> },
-                    { label: "Current Load", value: `${worker.current_load || 0}/${worker.thread_number}`, color: "#3B9FFE", icon: <PerformanceIcon /> },
+                    { label: "Total Jobs", value: summaryInfoJob?.total_jobs , color: "#FBFBFB", icon: <TotalJobIcon /> },
+                    { label: "Completed", value: summaryInfoJob?.total_completed , color: "#8FFF9C", icon: <CompletedIcon /> },
+                    { label: "Failed", value: summaryInfoJob?.total_failed , color: "#FE3B46", icon: <FailedIcon /> },
+                    { label: "Total Findings", value: summaryInfoJob?.total_findings , color: "#FFCC00", icon: <FindingIcon /> },
+                    { label: "Current Load", value: `${worker.current_load}/${worker.thread_number}`, color: "#3B9FFE", icon: <PerformanceIcon /> },
                 ].map((item, i) => (
                     <Box key={i} sx={{ 
                         bgcolor: "#1E2429", p: 2.5, borderRadius: "16px", border: "1px solid #404F57", 
@@ -171,13 +181,13 @@ export default function WorkerDetailPage({ params }: PageProps) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
                         {[
                             { label: "Worker Name", value: worker.name, icon: <WorkerNameIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB" },
-                            { label: "Status", value: worker.status.toUpperCase(), icon: <StatusIcon sx={{ fontSize: 10 }} />, color: worker.status === 'online' ? "#8FFF9C" : "#FE3B46", isStatus: true },
+                            { label: "Status", value: worker.status?.toUpperCase() ?? "unknown", icon: <StatusIcon sx={{ fontSize: 10 }} />, color: worker.status === 'online' ? "#8FFF9C" : "#FE3B46", isStatus: true },
                             { label: "Hostname", value: worker.hostname || "n/a", icon: <HostIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", isMono: true },
                             { label: "IP Address", value: worker.internal_ip || "0.0.0.0", icon: <IpIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", isMono: true },
                             { label: "Max Threads", value: `${worker.thread_number} Threads`, icon: <ThreadIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB" },
                             { label: "Created Date", value: worker.created_at || "-", icon: <CalendarIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB" },
                             { label: "Last Heartbeat", value: worker.last_heartbeat || "Never", icon: <HeartbeatIcon sx={{ fontSize: 18 }} />, color: worker.status === 'online' ? "#8FFF9C" : "#9AA6A8" },
-                            { label: "Jobs Completed", value: worker.total_completed ?? 0, icon: <SuccessIcon sx={{ fontSize: 18 }} />, color: "#8FFF9C", isBold: true },
+                            { label: "Jobs Completed", value: summaryInfoJob?.total_completed ?? 0, icon: <SuccessIcon sx={{ fontSize: 18 }} />, color: "#8FFF9C", isBold: true },
                         ].map((item, index) => (
                             <Box key={index} sx={{ gridColumn: item.span ? `span ${item.span}` : 'span 1' }}>
                                 <Typography sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: "uppercase", mb: 1, ml: 0.5 }}>{item.label}</Typography>
