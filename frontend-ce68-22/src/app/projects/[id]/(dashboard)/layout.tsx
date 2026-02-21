@@ -69,7 +69,7 @@ export default async function ProjectLayout({ children, params }: ProjectLayoutP
          - overflow-y-auto: ให้ scroll เฉพาะเนื้อหาตรงนี้
       */}
       <main className="flex-1 ml-[300px] h-full">
-        <div className="p-0"> 
+        <div className="p-0 mx-12 mt-6"> 
             {children}
         </div>
       </main>
