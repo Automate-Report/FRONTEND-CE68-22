@@ -89,7 +89,7 @@ export default function WorkerDetailPage({ params }: PageProps)
     };
 
     return (
-        <div className="px-12 py-6 bg-[#0F1518] text-[#E6F0E6]">
+        <div className="bg-[#0F1518] text-[#E6F0E6]">
             <GenericBreadcrums items={breadcrumbItems}/>
 
             {/* ชื่อ + แก้ไข */}
