@@ -10,6 +10,10 @@ export interface Worker {
   created_at: string;
   updated_at: string;
   last_heartbeat: string;
+  total_jobs: number;
+  total_completed: number;
+  total_failed: number;
+  total_findings: number;
 }
 
 export interface CreateWorkerPayload {
