@@ -250,14 +250,14 @@ export default function WorkersPage({ params }: PageProps) {
             href={`/projects/${projectId}/workers/${worker.id}`}
             className="block no-underline"
           >
+            {/* ภายใน workers.map ใน WorkersPage.tsx */}
             <WorkerCard 
               worker={worker}
               canManage={isOwner}
-              // แก้ไขการส่งค่าให้ตรงกับ Interface ใหม่
               onEdit={(e) => {
                 e.stopPropagation();
-                e.preventDefault(); // กันไว้สองชั้น
-                console.log("Edit clicked");
+                e.preventDefault();
+                // Logic แก้ไข
               }}
               onDelete={(e, w) => {
                 e.stopPropagation();
@@ -267,7 +267,11 @@ export default function WorkersPage({ params }: PageProps) {
               onDownload={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                console.log("Download clicked");
+                // เพิ่มการ Check: ถ้า active แล้วไม่ให้ทำอะไร
+                if (worker.isActive) return; 
+                
+                console.log("Download config for:", worker.name);
+                // Logic การดาวน์โหลดไฟล์จริงของคุณตรงนี้
               }}
             />
           </Link>

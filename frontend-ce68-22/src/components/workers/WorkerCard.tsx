@@ -10,7 +10,8 @@ import {
   Dns as HostIcon,
   Wifi as IpIcon, 
   Favorite as HeartbeatIcon,
-  AssignmentTurnedIn as SuccessIcon
+  AssignmentTurnedIn as SuccessIcon,
+  LinkOff as UnlinkIcon
 } from "@mui/icons-material";
 import { WORKER_STATUS_MAP } from "@/src/constants/worker-status";
 import { Worker } from "@/src/types/worker";
@@ -69,10 +70,64 @@ export function WorkerCard({ worker, canManage, onEdit, onDelete, onDownload }: 
 
             {/* Actions (เฉพาะ Owner) */}
             {canManage && (
-              <Stack direction="row" spacing={0.5}>
-                <Tooltip title="Download Config"><IconButton size="small" onClick={() => onDownload(worker)} sx={{ color: "#8FFF9C" }}><DownloadIcon fontSize="small" /></IconButton></Tooltip>
-                <Tooltip title="Edit"><IconButton size="small" onClick={() => onEdit(worker)} sx={{ color: "#9AA6A8" }}><EditIcon fontSize="small" /></IconButton></Tooltip>
-                <Tooltip title="Delete"><IconButton size="small" onClick={() => onDelete(worker)} sx={{ color: "#DD6E6E" }}><DeleteIcon fontSize="small" /></IconButton></Tooltip>
+              <Stack direction="row" spacing={0.5} alignItems="center">
+                
+                {/* ปุ่มที่ 1: สลับระหว่าง Download (ถ้าไม่ Active) และ Unlink (ถ้า Active) */}
+                {worker.isActive ? (
+                  <Tooltip title="Unlink Worker (Disconnect node)">
+                    <IconButton 
+                      size="small" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // เรียกใช้ Logic Unlink แยกต่างหาก (หรือใช้ตัวเดียวกับ Delete แต่ส่ง flag ไป)
+                        onDelete(e, worker); 
+                      }}
+                      sx={{ 
+                        color: "#FE3B46", 
+                        bgcolor: "rgba(254, 59, 70, 0.05)",
+                        "&:hover": { bgcolor: "rgba(254, 59, 70, 0.15)" }
+                      }}
+                    >
+                      <UnlinkIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                ) : (
+                  <Tooltip title="Download Config">
+                    <IconButton 
+                      size="small" 
+                      onClick={onDownload}
+                      sx={{ color: "#8FFF9C", "&:hover": { bgcolor: "rgba(143, 255, 156, 0.1)" } }}
+                    >
+                      <DownloadIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                )}
+
+                {/* ปุ่มที่ 2: Edit (มีตลอด) */}
+                <Tooltip title="Edit">
+                  <IconButton 
+                    size="small" 
+                    onClick={(e) => onEdit(e)} 
+                    sx={{ color: "#9AA6A8", "&:hover": { color: "#FBFBFB" } }}
+                  >
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+
+                {/* ปุ่มที่ 3: Delete (มีตลอด ไม่ว่าสถานะไหนก็ลบได้) */}
+                <Tooltip title="Delete Permanently">
+                  <IconButton 
+                    size="small" 
+                    onClick={(e) => onDelete(e, worker)} 
+                    sx={{ 
+                      color: "#FE3B46",
+                      opacity: 0.8,
+                      "&:hover": { opacity: 1, bgcolor: "rgba(254, 59, 70, 0.1)" }
+                    }}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
               </Stack>
             )}
           </Stack>
