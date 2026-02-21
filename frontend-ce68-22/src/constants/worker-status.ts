@@ -7,8 +7,8 @@ export const WORKER_STATUS_MAP: Record<string, { label: string, style: string}> 
         label: "Offline",
         style: "text-[#DD6E6E] bg-[#FFDEDE]"
     },
-    Revoked: { 
-    label: "Revoked Key", 
+    notActivated: { 
+    label: "Not Activated", 
     style: "text-[#6B7280] bg-[#F3F4F6]" 
   },
   unknown: { 

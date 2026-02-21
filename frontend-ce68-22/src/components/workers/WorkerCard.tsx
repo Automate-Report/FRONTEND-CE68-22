@@ -145,12 +145,12 @@ export function WorkerCard({ worker, canManage, onEdit, onDelete, onDownload }: 
                 <HostIcon sx={{ fontSize: 16 }} /> {worker.hostname ?? "No Hostname"}
               </Typography>
               {worker.isActive=== false ? (
-                <div className="inline-block whitespace-nowrap text-[#DD6E6E] text-[12px] font-bold px-2 py-1 bg-[#FFDEDE] rounded-md">
-                  Not Activated
+                <div className="inline-block whitespace-nowrap text-[#6EDD99] text-[12px] font-bold px-2 py-1 bg-[#DEFFE2] rounded-md">
+                  Avaliable
                 </div>
               ) : (
-                <div className="inline-block whitespace-nowrap text-[#6EDD99] text-[12px] font-bold px-2 py-1 bg-[#DEFFE2] rounded-md">
-                  Activated
+                <div className="inline-block whitespace-nowrap text-[#DD6E6E] text-[12px] font-bold px-2 py-1 bg-[#FFDEDE] rounded-md">
+                  In used
                 </div>
               )}
             </Box>
@@ -195,19 +195,10 @@ export function WorkerCard({ worker, canManage, onEdit, onDelete, onDownload }: 
               <Stack direction="row" spacing={0.5} alignItems="center">
                 <IpIcon sx={{ fontSize: 14, color: "#404F57" }} />
                 <Typography variant="caption" sx={{ color: "#9AA6A8", fontFamily: "monospace" }}>
-                  {worker.internal_ip || "0.0.0.0"}
+                  Worker IP:
                 </Typography>
-              </Stack>
-            </Tooltip>
-
-            <Box sx={{ width: "1px", height: "12px", bgcolor: "#404F57", opacity: 0.5 }} /> {/* เส้นคั่น */}
-
-            {/* Jobs Completed */}
-            <Tooltip title="Jobs Completed">
-              <Stack direction="row" spacing={0.5} alignItems="center">
-                <SuccessIcon sx={{ fontSize: 14, color: "#8FFF9C" }} />
-                <Typography variant="caption" sx={{ color: "#8FFF9C", fontWeight: "bold" }}>
-                  {worker.jobs_completed ?? 0}
+                <Typography variant="caption" sx={{ color: "#9AA6A8", fontFamily: "monospace" }}>
+                  {worker.internal_ip || "-"}
                 </Typography>
               </Stack>
             </Tooltip>
@@ -218,6 +209,9 @@ export function WorkerCard({ worker, canManage, onEdit, onDelete, onDownload }: 
             <Tooltip title="Last Heartbeat">
               <Stack direction="row" spacing={0.5} alignItems="center" sx={{ overflow: "hidden" }}>
                 <HeartbeatIcon sx={{ fontSize: 12, color: worker.status === 'online' ? "#8FFF9C" : "#FE3B46" }} />
+                <Typography variant="caption" sx={{ color: "#9AA6A8", fontFamily: "monospace" }}>
+                  Last HeartBeat: 
+                </Typography>
                 <Typography 
                   variant="caption" 
                   sx={{ 

@@ -35,6 +35,8 @@ import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 
+import { WorkerAccessKeySection } from "@/src/components/workers/WorkerAccessKeySection";
+
 import EditIcon from "@/src/components/icon/Edit";
 import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -50,7 +52,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
     const workerId = parseInt(resolvePrams.workerId);
 
     const { data: project } = useProject(projectId);
-    const { data: worker, isLoading: isWorkerLoading } = useWorker(workerId);
+    const { data: worker, isLoading: isWorkerLoading, refetch } = useWorker(workerId);
     const { data: summaryInfoJob, isLoading: isSummaryLoading } = useSummaryInfoByWorker(workerId);
 
     console.log(summaryInfoJob)
@@ -98,6 +100,16 @@ export default function WorkerDetailPage({ params }: PageProps) {
             alert(`Failed to ${actionType} worker`);
         } finally {
             setIsDeleting(false);
+        }
+    };
+
+    const handleRevokeKey = async () => {
+        try {
+            // เรียก Service สำหรับ Re-create API
+            await workerService.reGenKey(worker.id);
+            refetch(); // โหลดข้อมูล worker ใหม่เพื่อเอา Key ใหม่มาแสดง
+        } catch (error) {
+            alert("Failed to re-create access key");
         }
     };
 
@@ -202,32 +214,11 @@ export default function WorkerDetailPage({ params }: PageProps) {
                     </div>
 
                     {/* Access Key Area */}
-                    <Box sx={{ mt: 5, pt: 4, borderTop: "1px solid #2D2F39" }}>
-                        <Typography sx={{ color: "#9AA6A8", fontSize: "12px", fontWeight: 800, textTransform: "uppercase", mb: 1.5 }}>
-                            Worker Access Key
-                        </Typography>
-                        <Box sx={{ 
-                            display: "flex", alignItems: "center", bgcolor: "#0F1518", p: 2, borderRadius: "12px", 
-                            border: "1px dashed #404F57", justifyContent: "space-between", transition: "0.3s",
-                            "&:hover": { borderColor: "#8FFF9C" }
-                        }}>
-                            <Typography sx={{ color: "#8FFF9C", fontFamily: "monospace", fontSize: "14px", letterSpacing: 2 }}>
-                                {showKey ? (worker.access_key || "wrk_live_xxxxxxxxxxxx") : "••••••••••••••••••••••••"}
-                            </Typography>
-                            <Stack direction="row" spacing={1}>
-                                <Tooltip title={showKey ? "Hide" : "Show"}>
-                                    <IconButton size="small" onClick={() => setShowKey(!showKey)} sx={{ color: "#9AA6A8", "&:hover": { color: "#8FFF9C" } }}>
-                                        {showKey ? <EyeClosedIcon fontSize="small" /> : <EyeOpenIcon fontSize="small" />}
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip title="Copy Key">
-                                    <IconButton size="small" onClick={() => navigator.clipboard.writeText(worker.access_key || "")} sx={{ color: "#9AA6A8", "&:hover": { color: "#8FFF9C" } }}>
-                                        <CopyIcon fontSize="small" />
-                                    </IconButton>
-                                </Tooltip>
-                            </Stack>
-                        </Box>
-                    </Box>
+                    <WorkerAccessKeySection 
+                        accessKeyId={worker.access_key_id} 
+                        onRevoke={handleRevokeKey}
+                        workerName={worker.name}
+                    />
                 </Box>
             </Box>
 
