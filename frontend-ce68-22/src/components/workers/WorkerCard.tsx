@@ -15,9 +15,9 @@ import { Worker } from "@/src/types/worker";
 interface WorkerCardProps {
   worker: Worker;
   canManage: boolean;
-  onEdit: (worker: any) => void;
-  onDelete: (worker: any) => void;
-  onDownload: (worker: any) => void;
+  onEdit: (e: React.MouseEvent) => void;         // เพิ่ม e
+  onDelete: (e: React.MouseEvent, worker: Worker) => void; // เพิ่ม e และเปลี่ยนเป็น Worker type
+  onDownload: (e: React.MouseEvent) => void;     // เพิ่ม e
 }
 
 export function WorkerCard({ worker, canManage, onEdit, onDelete, onDownload }: WorkerCardProps) {

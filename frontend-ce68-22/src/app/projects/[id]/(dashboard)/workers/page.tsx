@@ -1,12 +1,11 @@
 "use client"
-import { use, useState, useEffect } from "react";
+import { use } from "react";
 import { useProject } from "@/src/hooks/project/use-project";
 import { useWorkerPage } from "@/src/hooks/worker/use-workerPage";
 import { useWorkers } from "@/src/hooks/worker/use-workers";
 import { useWorkerInfoSummary } from "@/src/hooks/worker/use-workerInfoSummary";
 import { useTable } from "@/src/hooks/use-table";
 
-import { WorkerTable } from "@/src/components/workers/WorkerTable"; 
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
@@ -15,20 +14,19 @@ import CreateWorkerIcon from "@/src/components/icon/CreateWorker";
 import { WorkerCard } from "@/src/components/workers/WorkerCard";
 import { WorkerPagination } from "@/src/components/workers/WorkerPagination";
 
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, InputBase, Button, Stack } from "@mui/material";
 import { 
   Engineering as TotalIcon, 
   Dns as OnlineIcon, 
   Speed as BusyIcon, 
-  AssignmentTurnedIn as JobIcon 
-} from "@mui/icons-material";
-
-import { 
+  AssignmentTurnedIn as JobIcon,
   Search as SearchIcon, 
   FilterList as FilterIcon, 
   LinkOff as UnlinkIcon 
 } from "@mui/icons-material";
-import { InputBase, Button, Stack } from "@mui/material";
+
+import Link from "next/link";
+
 
 interface PageProps{
   params: Promise<{ id: string}>;
@@ -247,14 +245,32 @@ export default function WorkersPage({ params }: PageProps) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 scrollbar-hide">
         {workers.map((worker) => (
-          <WorkerCard 
+          <Link
             key={worker.id}
-            worker={worker}
-            canManage={isOwner}
-            onEdit={() => {/* Modal */}}
-            onDelete={deleteState.handleDeleteClick}
-            onDownload={() => {/* Action */}}
-          />
+            href={`/projects/${projectId}/workers/${worker.id}`}
+            className="block no-underline"
+          >
+            <WorkerCard 
+              worker={worker}
+              canManage={isOwner}
+              // แก้ไขการส่งค่าให้ตรงกับ Interface ใหม่
+              onEdit={(e) => {
+                e.stopPropagation();
+                e.preventDefault(); // กันไว้สองชั้น
+                console.log("Edit clicked");
+              }}
+              onDelete={(e, w) => {
+                e.stopPropagation();
+                e.preventDefault();
+                deleteState.handleDeleteClick(w);
+              }}
+              onDownload={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                console.log("Download clicked");
+              }}
+            />
+          </Link>
         ))}
       </div>
 

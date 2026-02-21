@@ -23,7 +23,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
 
 interface PageProps{
-    params: Promise<{ id: string}>
+    params: Promise<{ workerId: string}>
 }
 
 export default function WorkerDetailPage({ params }: PageProps)
@@ -31,7 +31,7 @@ export default function WorkerDetailPage({ params }: PageProps)
     const router = useRouter();
 
     const resolvePrams = use(params);
-    const workerId = parseInt(resolvePrams.id);
+    const workerId = parseInt(resolvePrams.workerId);
     const { data: worker, isLoading, isError, refetch } = useWorker(workerId);
 
     // download worker
