@@ -2,10 +2,11 @@
 
 import { use, useState } from "react";
 
-import { Box, Button, Typography, Tooltip, IconButton } from "@mui/material";
+import { Tooltip, IconButton } from "@mui/material";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import { useRouter } from "next/navigation";
+import { useProject } from "@/src/hooks/project/use-project";
 import { useWorker } from "@/src/hooks/worker/use-worker";
 import { useWorkerDownload } from "@/src/hooks/worker/use-WorkerDownload";
 
@@ -23,7 +24,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DownloadIcon from '@mui/icons-material/Download';
 
 interface PageProps{
-    params: Promise<{ workerId: string}>
+    params: Promise<{ 
+        id: string;
+        workerId: string;
+    }>
 }
 
 export default function WorkerDetailPage({ params }: PageProps)
@@ -31,7 +35,10 @@ export default function WorkerDetailPage({ params }: PageProps)
     const router = useRouter();
 
     const resolvePrams = use(params);
+    const projectId = parseInt(resolvePrams.id);
     const workerId = parseInt(resolvePrams.workerId);
+
+    const { data: project, isLoading: isProjectLoading, isError: isProjectError} = useProject(projectId);
     const { data: worker, isLoading, isError, refetch } = useWorker(workerId);
 
     // download worker
@@ -46,8 +53,10 @@ export default function WorkerDetailPage({ params }: PageProps)
     if (isError || !worker) return <div className="p-8 text-red-500">Worker not found</div>;
 
     const breadcrumbItems = [
-        { label: "Worker", href: "/workers"},
-        { label: worker.name , href: undefined}
+        { label: "Home", href: "/" },
+        { label: project?.name || "Project Name" , href: `/projects/${projectId}/overview` },
+        { label: "Worker Nodes", href: `/projects/${projectId}/workers` },
+        { label: worker.name, href: undefined }
     ];
 
     // --- Function Delete ---
