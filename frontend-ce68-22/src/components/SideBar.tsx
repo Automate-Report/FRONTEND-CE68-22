@@ -128,7 +128,7 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
                       <div className={`text-xl ${isActive ? "text-[#8FFF9C]" : "text-[#AAAAAA] group-hover:text-white"}`}>
                         {item.icon}
                       </div>
-                      <div className="text-[14px] font-semibold leading-none">{item.name}</div>
+                      <div className="text-[16px] font-semibold leading-none">{item.name}</div>
                     </Link>
                   );
                 })}

@@ -7,7 +7,10 @@ import {
   Edit as EditIcon, 
   Download as DownloadIcon,
   VpnKey as KeyIcon,
-  Dns as HostIcon
+  Dns as HostIcon,
+  Wifi as IpIcon, 
+  Favorite as HeartbeatIcon,
+  AssignmentTurnedIn as SuccessIcon
 } from "@mui/icons-material";
 import { WORKER_STATUS_MAP } from "@/src/constants/worker-status";
 import { Worker } from "@/src/types/worker";
@@ -76,9 +79,26 @@ export function WorkerCard({ worker, canManage, onEdit, onDelete, onDownload }: 
 
           {/* ข้อมูล Hostname และ Load */}
           <Stack spacing={1} sx={{ mt: 1 }}>
-            <Typography variant="body2" sx={{ color: "#9AA6A8", display: "flex", alignItems: "center", gap: 1 }}>
-              <HostIcon sx={{ fontSize: 16 }} /> {worker.hostname ?? "No Hostname"}
-            </Typography>
+            {/* Hostname Activated Status - ใช้สีตาม Logic ของตาราง */}
+            <Box sx={{ 
+              // mt: 1, 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 1.5 // เว้นระยะห่างระหว่าง Element ภายใน
+            }}>
+              <Typography variant="body2" sx={{ color: "#9AA6A8", display: "flex", alignItems: "center", gap: 1 }}>
+                <HostIcon sx={{ fontSize: 16 }} /> {worker.hostname ?? "No Hostname"}
+              </Typography>
+              {worker.isActive=== false ? (
+                <div className="inline-block whitespace-nowrap text-[#DD6E6E] text-[12px] font-bold px-2 py-1 bg-[#FFDEDE] rounded-md">
+                  Not Activated
+                </div>
+              ) : (
+                <div className="inline-block whitespace-nowrap text-[#6EDD99] text-[12px] font-bold px-2 py-1 bg-[#DEFFE2] rounded-md">
+                  Activated
+                </div>
+              )}
+            </Box>
             
             <Box>
               <Stack direction="row" justifyContent="space-between" mb={0.5}>
@@ -101,19 +121,62 @@ export function WorkerCard({ worker, canManage, onEdit, onDelete, onDownload }: 
               />
             </Box>
           </Stack>
+          
+          {/*host ip, last heatbeat, job complete */}
+          <Stack 
+            direction="row" 
+            alignItems="center" 
+            spacing={2} 
+            sx={{ 
+              mt: 2, 
+              pt: 1.5, 
+              borderTop: "1px solid rgba(64, 79, 87, 0.2)",
+              flexWrap: "nowrap", // บังคับให้อยู่บรรทัดเดียว
+              overflow: "hidden" 
+            }}
+          >
+            {/* IP Address */}
+            <Tooltip title="IP Address">
+              <Stack direction="row" spacing={0.5} alignItems="center">
+                <IpIcon sx={{ fontSize: 14, color: "#404F57" }} />
+                <Typography variant="caption" sx={{ color: "#9AA6A8", fontFamily: "monospace" }}>
+                  {worker.ip_address || "0.0.0.0"}
+                </Typography>
+              </Stack>
+            </Tooltip>
 
-          {/* Activated Status - ใช้สีตาม Logic ของตาราง */}
-          <Box sx={{ mt: 2 }}>
-            {worker.isActive=== false ? (
-              <div className="inline-block whitespace-nowrap text-[#DD6E6E] text-[12px] font-bold px-2 py-1 bg-[#FFDEDE] rounded-md">
-                Not Activated
-              </div>
-            ) : (
-              <div className="inline-block whitespace-nowrap text-[#6EDD99] text-[12px] font-bold px-2 py-1 bg-[#DEFFE2] rounded-md">
-                Activated
-              </div>
-            )}
-          </Box>
+            <Box sx={{ width: "1px", height: "12px", bgcolor: "#404F57", opacity: 0.5 }} /> {/* เส้นคั่น */}
+
+            {/* Jobs Completed */}
+            <Tooltip title="Jobs Completed">
+              <Stack direction="row" spacing={0.5} alignItems="center">
+                <SuccessIcon sx={{ fontSize: 14, color: "#8FFF9C" }} />
+                <Typography variant="caption" sx={{ color: "#8FFF9C", fontWeight: "bold" }}>
+                  {worker.jobs_completed ?? 0}
+                </Typography>
+              </Stack>
+            </Tooltip>
+
+            <Box sx={{ width: "1px", height: "12px", bgcolor: "#404F57", opacity: 0.5 }} /> {/* เส้นคั่น */}
+
+            {/* Last Heartbeat */}
+            <Tooltip title="Last Heartbeat">
+              <Stack direction="row" spacing={0.5} alignItems="center" sx={{ overflow: "hidden" }}>
+                <HeartbeatIcon sx={{ fontSize: 12, color: worker.status === 'online' ? "#8FFF9C" : "#FE3B46" }} />
+                <Typography 
+                  variant="caption" 
+                  sx={{ 
+                    color: "#9AA6A8", 
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis" 
+                  }}
+                >
+                  {worker.last_heartbeat || "No signal"}
+                </Typography>
+              </Stack>
+            </Tooltip>
+          </Stack>
         </Box>
       </Stack>
     </Box>
