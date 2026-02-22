@@ -6,13 +6,15 @@ export function useWorkers(
   page: number, 
   size: number, 
   sortBy: string | null, 
-  sortOrder: "asc" | "desc" | "none"
+  sortOrder: "asc" | "desc" | "none",
+  search?: string, // เพิ่ม
+  filter?: string  // เพิ่ม
 ) {
   return useQuery({
     // สำคัญมาก: ต้องใส่ sortBy, sortOrder ใน Key
-    queryKey: ['workers', projectId, page, size, sortBy, sortOrder], 
+    queryKey: ['workers', projectId, page, size, sortBy, sortOrder, search, filter], 
     
-    queryFn: () => workerService.getAll(projectId, page, size, sortBy, sortOrder),
+    queryFn: () => workerService.getAll(projectId, page, size, sortBy, sortOrder, search, filter),
     
     placeholderData: (previousData) => previousData,
   });

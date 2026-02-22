@@ -19,9 +19,9 @@ import { Worker } from "@/src/types/worker";
 interface WorkerCardProps {
   worker: Worker;
   canManage: boolean;
-  onEdit: (e: React.MouseEvent) => void;         // เพิ่ม e
+  onEdit?: (e: React.MouseEvent) => void;         // เพิ่ม e
   onDelete: (e: React.MouseEvent, worker: Worker) => void; // เพิ่ม e และเปลี่ยนเป็น Worker type
-  onDownload: (e: React.MouseEvent) => void;     // เพิ่ม e
+  onDownload?: (e: React.MouseEvent) => void;     // เพิ่ม e
 }
 
 export function WorkerCard({ worker, canManage, onEdit, onDelete, onDownload }: WorkerCardProps) {
@@ -107,7 +107,7 @@ export function WorkerCard({ worker, canManage, onEdit, onDelete, onDownload }: 
                 <Tooltip title="Edit">
                   <IconButton 
                     size="small" 
-                    onClick={(e) => onEdit(e)} 
+                    onClick={(e) => onEdit?.(e)} 
                     sx={{ color: "#9AA6A8", "&:hover": { color: "#FBFBFB" } }}
                   >
                     <EditIcon fontSize="small" />

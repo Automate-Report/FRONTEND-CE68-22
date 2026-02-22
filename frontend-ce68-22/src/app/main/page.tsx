@@ -6,6 +6,7 @@ import MagIcon from "@/src/components/icon/MagnifyingGlass";
 import FilterIcon from "@/src/components/icon/Filter";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
+import { GenericPagination } from "@/src/components/Common/GenericPagination";
 import { useDebounce } from "@/src/hooks/use-debounce";
 import { getMe } from "@/src/services/auth.service";
 import { ProjectCard } from "@/src/components/projects/ProjectCard";
@@ -22,6 +23,11 @@ export default function ProjectsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [displayName, setDisplayName] = useState<string>("");
 
+  // --- Pagination States ---
+  const [page, setPage] = useState(0); 
+  const [rowsPerPage, setRowsPerPage] = useState(6); 
+  const [totalItems, setTotalItems] = useState(0);
+
   const filterStatusOptions = ["ALL", "owner", "pentester", "developer"];
   const debouncedSearch = useDebounce(searchQuery, 500);
 
@@ -31,19 +37,32 @@ export default function ProjectsPage() {
   const fetchProjects = useCallback(async () => {
     setLoading(true);
     try {
-      // เรียก GetAll และกรองด้วย debouncedSearch และ filterStatus
-      const data = await projectService.getAll(1, 100, "updated_at", "desc", debouncedSearch, filterStatus);
-      setProjects(data.items);
+      // ใช้ page + 1 สำหรับ API Call เสมอ
+      const data = await projectService.getAll(
+        page + 1, 
+        rowsPerPage, 
+        "updated_at", 
+        "desc", 
+        debouncedSearch, 
+        filterStatus
+      );
+      setProjects(data.items || []);
+      setTotalItems(data.total || 0);
     } catch (error) {
       console.error("Error fetching projects:", error);
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, filterStatus]);
+  }, [debouncedSearch, filterStatus, page, rowsPerPage]);
 
   useEffect(() => {
     fetchProjects();
   }, [fetchProjects]);
+
+  // รีเซ็ตหน้ากลับไปที่หน้าแรกเมื่อค้นหาหรือกรองข้อมูลใหม่
+  useEffect(() => {
+    setPage(0);
+  }, [debouncedSearch, filterStatus]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -59,6 +78,7 @@ export default function ProjectsPage() {
 
   const handleApply = () => {
     setFilterStatus(tempFilter);
+    setPage(0); // กลับไปหน้าแรกหลัง Apply Filter
     setIsModalOpen(false);
   };
 
@@ -76,9 +96,15 @@ export default function ProjectsPage() {
     }
   };
 
+  // จัดการการเปลี่ยนหน้าผ่าน GenericPagination
+  const handlePageChange = (newPage: number, newSize: number) => {
+    setPage(newPage);
+    setRowsPerPage(newSize);
+  };
+
   return (
-    <div className="bg-[#0F1518] mt-6 mx-12">
-      {/* Header เดิมของคุณ */}
+    <div className="bg-[#0F1518] mt-6 mx-12 min-h-screen flex flex-col">
+      {/* Welcome Header */}
       <div className="text-4xl text-[#E6F0E6] font-bold pb-10">
         {displayName ? (
           <>Welcome Back, <span className="text-[#8FFF9C]">{displayName}</span>!</>
@@ -87,9 +113,9 @@ export default function ProjectsPage() {
         )}
       </div>
 
+      {/* Toolbar */}
       <div className="flex justify-between items-center mb-6 text-[#E6F0E6]">
         <div className="flex justify-between items-center pr-5 flex-1">
-          {/* Search Box เดิม */}
           <div className="relative w-1/3 flex items-center h-[40px] gap-3 max-w-md bg-white rounded-xl pl-2 shadow-sm">
             <MagIcon />
             <input
@@ -101,7 +127,6 @@ export default function ProjectsPage() {
             />
           </div>
 
-          {/* Filter Button เดิม */}
           <div className="relative">
             <button
               onClick={() => setIsModalOpen(true)}
@@ -109,7 +134,7 @@ export default function ProjectsPage() {
             >
               Filter <FilterIcon />
             </button>
-            {/* Modal กรองข้อมูลของคุณ */}
+            
             {isModalOpen && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
                 <div className="bg-[#121212] border border-white/10 w-full max-w-md p-6 rounded-2xl">
@@ -140,26 +165,35 @@ export default function ProjectsPage() {
         <GenericGreenButton name="New Project" href="/projects/create" icon={<CreateProjectIcon />} />
       </div>
 
-      {/* ส่วนแสดงผล Card Grid ที่เปลี่ยนใหม่ */}
-      {loading ? (
-        <Box display="flex" justifyContent="center" py={10}>
-          <CircularProgress sx={{ color: "#8FFF9C" }} />
-        </Box>
-      ) : projects.length > 0 ? (
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-10">
-          {projects.map((project) => (
-            <ProjectCard 
-              key={project.id} 
-              project={project} 
-              onDelete={openDeleteConfirm} 
+      {/* Content */}
+      <div className="flex-1">
+        {loading ? (
+          <Box display="flex" justifyContent="center" py={10}>
+            <CircularProgress sx={{ color: "#8FFF9C" }} />
+          </Box>
+        ) : projects.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-6">
+              {projects.map((project) => (
+                <ProjectCard key={project.id} project={project} onDelete={openDeleteConfirm} />
+              ))}
+            </div>
+            
+            {/* ใช้อินเทอร์เฟซที่คุยกันไว้ใน GenericPagination */}
+            <GenericPagination 
+              count={totalItems}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              onPageChange={handlePageChange}
+              labelRowsPerPage="Projects per page:"
             />
-          ))}
-        </div>
-      ) : (
-        <Box textAlign="center" py={10} sx={{ border: "1px dashed #2D353B", borderRadius: 4 }}>
-          <Typography sx={{ color: "#666" }}>No projects found.</Typography>
-        </Box>
-      )}
+          </>
+        ) : (
+          <Box textAlign="center" py={10} sx={{ border: "1px dashed #2D353B", borderRadius: 4 }}>
+            <Typography sx={{ color: "#9AA6A8" }}>No projects found matching your criteria.</Typography>
+          </Box>
+        )}
+      </div>
 
       <GenericDeleteModal
         open={deleteModal.open}

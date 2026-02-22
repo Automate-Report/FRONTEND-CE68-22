@@ -2,9 +2,7 @@
 
 import { use, useState } from "react";
 import { Box, Typography, Stack } from "@mui/material";
-import { 
-  LinkOff as UnlinkIcon,
-} from "@mui/icons-material";
+import { LinkOff as UnlinkIcon } from "@mui/icons-material";
 
 import { useRouter } from "next/navigation";
 import { useProject } from "@/src/hooks/project/use-project";
@@ -14,7 +12,6 @@ import { useWorker } from "@/src/hooks/worker/use-worker";
 import { useWorkerDownload } from "@/src/hooks/worker/use-WorkerDownload";
 import { workerService } from "@/src/services/worker.service";
 import { Worker } from "@/src/types/worker";
-import { WORKER_STATUS_MAP } from "@/src/constants/worker-status";
 import { WorkerAssignedJobs } from "@/src/components/workers/WorkerAssignedJobs";
 import { WorkerSummaryStats } from "@/src/components/workers/WorkerSummaryStats";
 import { WorkerConfigCard } from "@/src/components/workers/WorkerConfigCard";
@@ -41,8 +38,10 @@ export default function WorkerDetailPage({ params }: PageProps) {
     const { data: worker, isLoading: isWorkerLoading, refetch } = useWorker(workerId);
     const { data: summaryInfoJob, isLoading: isSummaryLoading } = useSummaryInfoByWorker(workerId);
 
+    // แก้ไข: ส่งค่า page และ size เข้าไปเพื่อให้ Pagination ทำงาน
     const [jobQuery, setJobQuery] = useState({ page: 0, size: 5 });
-    const { data: jobs, isLoading: isJobsLoading } = useGetJobByWorker(workerId);
+    const { data: jobs, isLoading: isJobsLoading } = useGetJobByWorker(workerId, jobQuery.page, jobQuery.size);
+    
     const { downloadWorker, isLoading: isDownloading } = useWorkerDownload();
 
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -50,8 +49,6 @@ export default function WorkerDetailPage({ params }: PageProps) {
     const [isDeleting, setIsDeleting] = useState(false);
     const [actionType, setActionType] = useState<"delete" | "unlink">("delete");
 
-    const jobItems = jobs?.items || [];
-    console.log(jobItems);
     if (isWorkerLoading || isSummaryLoading || isJobsLoading) {
         return <Box sx={{ p: 8, color: '#E6F0E6' }}>Loading data...</Box>;
     }
@@ -67,7 +64,8 @@ export default function WorkerDetailPage({ params }: PageProps) {
         { label: worker.name, href: undefined }
     ];
 
-    const handleDeleteClick = (targetWorker: Worker, type: "delete" | "unlink" = "delete") => {
+    // ฟังก์ชันเปิด Modal สำหรับทั้ง Unlink และ Delete
+    const handleActionClick = (targetWorker: Worker, type: "delete" | "unlink") => {
         setWorkerToDelete(targetWorker);
         setActionType(type);
         setDeleteModalOpen(true);
@@ -77,8 +75,14 @@ export default function WorkerDetailPage({ params }: PageProps) {
         if (!workerToDelete) return;
         setIsDeleting(true);
         try {
-            await workerService.delete(workerToDelete.id); 
+            if (actionType === "unlink") {
+                await workerService.unLink(workerToDelete.id);
+            } else {
+                await workerService.delete(workerToDelete.id);
+            }
+            
             setDeleteModalOpen(false);
+            // หลังจากทำรายการสำเร็จ ให้กลับไปหน้าลิสต์หรือ Refresh ข้อมูล
             router.push(`/projects/${projectId}/workers`);
             router.refresh();
         } catch (error) {
@@ -101,8 +105,6 @@ export default function WorkerDetailPage({ params }: PageProps) {
         setJobQuery({ page: newPage, size: newSize });
     };
 
-    const currentStatus = worker.status || "unknown";
-
     return (
         <Box sx={{ pb: 10 }}>
             <GenericBreadcrums items={breadcrumbItems} />
@@ -123,7 +125,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
                     {worker.isActive ? (
                         <button
                             type="button"
-                            onClick={() => handleDeleteClick(worker, "unlink")}
+                            onClick={() => handleActionClick(worker, "unlink")}
                             className="flex items-center gap-3 px-6 h-10 rounded-lg text-[16px] font-semibold transition-all bg-[#0B0F12] text-[#FE3B46] border border-[#FE3B46] hover:bg-[#FE3B46] hover:text-[#FBFBFB]"
                         >
                             Unlink <UnlinkIcon fontSize="small" />
@@ -140,7 +142,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
                     )}
 
                     <button 
-                        onClick={() => handleDeleteClick(worker, "delete")}
+                        onClick={() => handleActionClick(worker, "delete")}
                         className="flex items-center gap-3 bg-[#0B0F12] text-[#FE3B46] border border-[#FE3B46] text-[16px] font-semibold rounded-lg px-6 h-10 hover:bg-[#FE3B46] hover:text-[#FBFBFB] transition-all"
                     >
                         Delete <DeleteIcon fontSize="small" />
@@ -163,7 +165,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
 
             {/* Section: Assigned Jobs */}
             <WorkerAssignedJobs 
-                jobs={jobs} // ส่ง Object jobs ทั้งก้อนเข้าไป (เพื่อให้เข้าถึง .total)
+                jobs={jobs} 
                 isLoading={isJobsLoading} 
                 projectId={projectId} 
                 onPageChange={handleJobPageChange}
