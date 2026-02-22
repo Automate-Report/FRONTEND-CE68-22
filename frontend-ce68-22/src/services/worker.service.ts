@@ -63,6 +63,17 @@ export const workerService = {
   info: async (project_id: number) => {
     const { data } = await apiClient.get(`/workers/info/${project_id}`);
     return data;
+  },
+
+  unLink: async (projectId: number) => {
+    const { data } = await apiClient.get(`/workers/unlink/${projectId}`);
+    return data;
+  },
+  unLinkAll: async (projectId: number) => {
+    const { data } = await apiClient.get(`/workers/unlink/all/${projectId}`);
+    return data;
   }
 
 };
+
+    
