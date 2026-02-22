@@ -180,7 +180,6 @@ export default function ProjectsPage() {
             </div>
             
             {/* ใช้อินเทอร์เฟซที่คุยกันไว้ใน GenericPagination */}
-            {/* ใช้อินเทอร์เฟซที่คุยกันไว้ใน GenericPagination */}
             <GenericPagination 
                 count={totalItems}
                 page={page}
