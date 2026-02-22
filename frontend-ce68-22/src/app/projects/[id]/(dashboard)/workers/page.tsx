@@ -183,7 +183,24 @@ export default function WorkersPage({ params }: PageProps) {
                 </Link>
               ))}
             </div>
-            <GenericPagination count={totalCnt} page={page} rowsPerPage={rowsPerPage} onPageChange={(newPage, newSize) => { handleChangePage(null, newPage); if (newSize !== rowsPerPage) handleChangeRowsPerPage({ target: { value: newSize.toString() } } as any); }} />
+            <GenericPagination 
+              count={totalCnt}
+              page={page}
+              rowsPerPage={rowsPerPage}
+              
+              // เมื่อเปลี่ยนหน้า: เรียกใช้ handleChangePage ของ useTable 
+              // (ส่ง null เป็น event เพราะ hook ต้องการ event เป็นตัวแรก)
+              onPageChange={(newPage) => handleChangePage(null, newPage)}
+              
+              // เมื่อเปลี่ยนขนาด: เรียกใช้ handleChangeRowsPerPage โดยจำลอง event object
+              onRowsPerPageChange={(newSize) => {
+                const mockEvent = { target: { value: newSize.toString() } } as React.ChangeEvent<HTMLInputElement>;
+                handleChangeRowsPerPage(mockEvent);
+              }}
+              
+              labelRowsPerPage="Workers per page:"
+              rowsPerPageOptions={[6, 12, 24]}
+            />
           </>
         ) : (
           <Box sx={{ py: 10, textAlign: 'center', border: '1px dashed #2A3033', borderRadius: '16px' }}><Typography sx={{ color: '#404F57' }}>No workers found matching your criteria.</Typography></Box>

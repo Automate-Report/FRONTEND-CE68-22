@@ -180,12 +180,19 @@ export default function ProjectsPage() {
             </div>
             
             {/* ใช้อินเทอร์เฟซที่คุยกันไว้ใน GenericPagination */}
+            {/* ใช้อินเทอร์เฟซที่คุยกันไว้ใน GenericPagination */}
             <GenericPagination 
-              count={totalItems}
-              page={page}
-              rowsPerPage={rowsPerPage}
-              onPageChange={handlePageChange}
-              labelRowsPerPage="Projects per page:"
+                count={totalItems}
+                page={page}
+                rowsPerPage={rowsPerPage}
+                
+                // 1. ส่งฟังก์ชันเปลี่ยนหน้า (รับ 2 args: newPage และ currentRowsPerPage)
+                onPageChange={handlePageChange} 
+                
+                // 2. ส่งฟังก์ชันเปลี่ยนขนาด (รับ 1 arg: newSize แล้วเราสั่งให้ Reset หน้าไป 0)
+                onRowsPerPageChange={(newSize) => handlePageChange(0, newSize)}
+                
+                labelRowsPerPage="Projects per page:"
             />
           </>
         ) : (

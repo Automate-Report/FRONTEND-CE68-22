@@ -1,36 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import { Box, Typography, Stack, CircularProgress, TablePagination } from "@mui/material";
+import { Box, Typography, Stack, CircularProgress } from "@mui/material";
 import { Schedule as PendingIcon } from "@mui/icons-material";
 import { JobItemCard } from "./JobItemCard";
+import { GenericPagination } from "@/src/components/Common/GenericPagination";
 
 interface WorkerAssignedJobsProps {
-    jobs: any; // รับเป็น Object ที่มี items และ total
+    jobs: any;
     isLoading: boolean;
     projectId: number;
-    // รับฟังก์ชันสำหรับเปลี่ยนหน้า
     onPageChange: (page: number, size: number) => void; 
 }
 
 export function WorkerAssignedJobs({ jobs, isLoading, projectId, onPageChange }: WorkerAssignedJobsProps) {
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
-
+    // ดึงข้อมูลจาก props jobs ที่ส่งมาจาก useGetJobByWorker
     const jobItems = jobs?.items || [];
     const totalItems = jobs?.total || 0;
-
-    const handleChangePage = (_: unknown, newPage: number) => {
-        setPage(newPage);
-        onPageChange(newPage, rowsPerPage);
-    };
-
-    const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newSize = parseInt(event.target.value, 10);
-        setRowsPerPage(newSize);
-        setPage(0);
-        onPageChange(0, newSize);
-    };
+    
+    // สำคัญ: ดึงค่าหน้าปัจจุบันและขนาดจาก API Response 
+    // (API ส่วนใหญ่ส่งมาเป็น 1-based เราจึงลบ 1 เพื่อให้ MUI แสดงผลหน้า 0-based ได้ถูกต้อง)
+    const currentPage = jobs?.page ? jobs.page - 1 : 0;
+    const currentSize = jobs?.size || 5;
 
     if (isLoading) {
         return (
@@ -61,26 +51,18 @@ export function WorkerAssignedJobs({ jobs, isLoading, projectId, onPageChange }:
                             <JobItemCard key={job.id} job={job} projectId={projectId} />
                         ))}
                         
-                        {/* Pagination Component */}
-                        <Box sx={{ 
-                            mt: 2, 
-                            display: 'flex', 
-                            justifyContent: 'flex-end',
-                            ".MuiTablePagination-root": { color: "#9AA6A8" },
-                            ".MuiIconButton-root": { color: "#8FFF9C" },
-                            ".MuiSelect-icon": { color: "#404F57" }
-                        }}>
-                            <TablePagination
-                                component="div"
-                                count={totalItems}
-                                page={page}
-                                onPageChange={handleChangePage}
-                                rowsPerPage={rowsPerPage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
-                                rowsPerPageOptions={[5, 10, 25]}
-                                labelRowsPerPage="Jobs per page:"
-                            />
-                        </Box>
+                        {/* ปรับให้ตรงกับ Interface ใหม่ของ GenericPagination */}
+                        <GenericPagination 
+                            count={totalItems}
+                            page={currentPage}
+                            rowsPerPage={currentSize}
+                            // เมื่อเปลี่ยนหน้า: ส่งหน้าใหม่ และใช้ขนาดเดิม
+                            onPageChange={(newPage) => onPageChange(newPage, currentSize)}
+                            // เมื่อเปลี่ยนขนาด: ให้กลับไปหน้า 0 และใช้ขนาดใหม่
+                            onRowsPerPageChange={(newSize) => onPageChange(0, newSize)}
+                            labelRowsPerPage="Jobs per page:"
+                            rowsPerPageOptions={[5, 10, 25]}
+                        />
                     </>
                 ) : (
                     <Box sx={{ 
