@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { jobService } from "@/src/services/job.service";
 
-export function useSummaryInfoByWorker(workerId: number) {
+export function useGetJobByWorker(workerId: number) {
   return useQuery({
     // Key ต้องมี ID เพื่อให้แยก cache ของแต่ละโปรเจกต์
-    queryKey: ["jobs", "summary", workerId],
-    queryFn: () => jobService.getSummaryInfoByWorker(workerId),
+    queryKey: ["jobs", "worker", workerId],
+    queryFn: () => jobService.getJobByWorker(workerId),
     
     // enabled: !!id คือถ้าไม่มี id (เช่นเป็น null/0) จะไม่ยิง API
     enabled: !!workerId, 
