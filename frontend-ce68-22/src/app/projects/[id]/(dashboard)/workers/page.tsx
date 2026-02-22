@@ -6,17 +6,19 @@ import { useWorkerPage } from "@/src/hooks/worker/use-workerPage";
 import { useWorkers } from "@/src/hooks/worker/use-workers";
 import { useWorkerInfoSummary } from "@/src/hooks/worker/use-workerInfoSummary";
 import { useTable } from "@/src/hooks/use-table";
-import { useDebounce } from "@/src/hooks/use-debounce"; // ต้องมี hook นี้
+import { useDebounce } from "@/src/hooks/use-debounce";
+import { workerService } from "@/src/services/worker.service";
+import { Worker as WorkerType } from "@/src/types/worker";
 
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import { GenericPagination } from "@/src/components/Common/GenericPagination";
+import { WorkerUnlinkModal } from "@/src/components/workers/WorkerUnLinkModal";
+import { WorkerCard } from "@/src/components/workers/WorkerCard";
 import CreateWorkerIcon from "@/src/components/icon/CreateWorker";
 
-import { WorkerCard } from "@/src/components/workers/WorkerCard";
-
-import { Box, Typography, InputBase, Button, Stack, MenuItem, Menu } from "@mui/material";
+import { Box, Typography, InputBase, Button, Stack, MenuItem, Menu, CircularProgress } from "@mui/material";
 import { 
   Engineering as TotalIcon, 
   Dns as OnlineIcon, 
@@ -43,6 +45,14 @@ export default function WorkersPage({ params }: PageProps) {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
+  // --- Unlink State ---
+  const [unlinkModal, setUnlinkModal] = useState<{ open: boolean; target: WorkerType | null; isAll: boolean; loading: boolean }>({
+    open: false,
+    target: null,
+    isAll: false,
+    loading: false,
+  });
+
   const {
     page,
     rowsPerPage,
@@ -53,39 +63,52 @@ export default function WorkersPage({ params }: PageProps) {
   } = useTable();
 
   const { data: project, isLoading: isProjectLoading } = useProject(projectId);
-
-  // อัปเดต useWorkers ให้รับ search และ filter (ตรวจสอบว่า hook ของคุณรองรับพารามิเตอร์เหล่านี้)
   const { data: response, isLoading, refetch } = useWorkers(
     projectId,
     page + 1, 
     rowsPerPage, 
     sortBy, 
     sortOrder,
-    debouncedSearch, // ส่งคำค้นหา
-    statusFilter     // ส่งฟิลเตอร์สถานะ
+    debouncedSearch,
+    statusFilter
   );
 
   const { data: workerInfo = { total: 0, online: 0, busy: 0, total_jobs: 0 } } = useWorkerInfoSummary(projectId);
   const { deleteState } = useWorkerPage(refetch);
 
-  // รีเซ็ตหน้ากลับไปที่ 0 เมื่อมีการค้นหาหรือเปลี่ยนฟิลเตอร์
   useEffect(() => {
-    // ใช้ handleChangePage(null, 0) เพื่อสั่งให้กลับไปหน้าแรก (หน้า 0)
     handleChangePage(null, 0);
   }, [debouncedSearch, statusFilter, handleChangePage]);
+
+  // --- Handlers ---
+  const handleUnlinkClick = (worker: WorkerType) => {
+    setUnlinkModal({ open: true, target: worker, isAll: false, loading: false });
+  };
+
+  const handleUnlinkAllClick = () => {
+    setUnlinkModal({ open: true, target: null, isAll: true, loading: false });
+  };
+
+  const handleConfirmUnlink = async () => {
+    setUnlinkModal(prev => ({ ...prev, loading: true }));
+    try {
+      if (unlinkModal.isAll) {
+        await workerService.unLinkAll(projectId);
+      } else if (unlinkModal.target) {
+        await workerService.unLink(unlinkModal.target.id);
+      }
+      setUnlinkModal({ open: false, target: null, isAll: false, loading: false });
+      refetch();
+    } catch (error) {
+      alert("Action failed");
+    } finally {
+      setUnlinkModal(prev => ({ ...prev, loading: false }));
+    }
+  };
 
   const isOwner = project?.role === "owner";
   const workers = response?.items || [];
   const totalCnt = response?.total || 0;
-
-  const handleFilterClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleFilterSelect = (status: string) => {
-    setStatusFilter(status);
-    setAnchorEl(null);
-  };
 
   const breadcrumbItems = [
     { label: "Home", href: "/main" },
@@ -99,11 +122,7 @@ export default function WorkersPage({ params }: PageProps) {
       <div className="flex justify-between items-center text-4xl text-[#E6F0E6] font-bold my-6">
         Worker
         {isOwner && (
-          <GenericGreenButton
-            name="New Worker"
-            href={`/projects/${projectId}/workers/create`}
-            icon={<CreateWorkerIcon />}
-          />
+          <GenericGreenButton name="New Worker" href={`/projects/${projectId}/workers/create`} icon={<CreateWorkerIcon />} />
         )}
       </div>
 
@@ -120,111 +139,62 @@ export default function WorkersPage({ params }: PageProps) {
               <Typography variant="h4" sx={{ color: item.color, fontWeight: 900 }}>{item.value}</Typography>
               <Typography sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: 'uppercase' }}>{item.label}</Typography>
             </Box>
-            <Box sx={{ width: 44, height: 44, borderRadius: "12px", display: 'flex', alignItems: 'center', justifyContent: 'center', color: item.color, bgcolor: `${item.color}10` }}>
-              {item.icon}
-            </Box>
+            <Box sx={{ width: 44, height: 44, borderRadius: "12px", display: 'flex', alignItems: 'center', justifyContent: 'center', color: item.color, bgcolor: `${item.color}10` }}>{item.icon}</Box>
           </Box>
         ))}
       </div>
 
-      {/* --- Toolbar: Search & Filter --- */}
+      {/* Toolbar Area */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, gap: 2, flexWrap: 'wrap' }}>
         <Stack direction="row" spacing={2} sx={{ flex: 1, maxWidth: 600 }}>
-          <Box sx={{ 
-            display: 'flex', alignItems: 'center', bgcolor: '#1A2023', px: 2, py: 0.5, 
-            borderRadius: '10px', border: '1px solid #2A3033', flex: 1, '&:focus-within': { borderColor: '#8FFF9C' }
-          }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: '#1A2023', px: 2, py: 0.5, borderRadius: '10px', border: '1px solid #2A3033', flex: 1, '&:focus-within': { borderColor: '#8FFF9C' } }}>
             <SearchIcon sx={{ color: '#404F57', mr: 1, fontSize: 20 }} />
-            <InputBase 
-              placeholder="Search by name, hostname, or IP..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              sx={{ color: '#E6F0E6', fontSize: '14px', width: '100%' }} 
-            />
+            <InputBase placeholder="Search by name, hostname, or IP..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} sx={{ color: '#E6F0E6', fontSize: '14px', width: '100%' }} />
           </Box>
-          
-          <Button 
-            variant="outlined" 
-            onClick={handleFilterClick}
-            startIcon={<FilterIcon />} 
-            sx={{ 
-              color: statusFilter !== "ALL" ? "#8FFF9C" : "#9AA6A8", 
-              borderColor: statusFilter !== "ALL" ? "#8FFF9C" : "#2A3033", 
-              textTransform: 'none', borderRadius: '10px', px: 3 
-            }}
-          >
+          <Button variant="outlined" onClick={(e) => setAnchorEl(e.currentTarget)} startIcon={<FilterIcon />} sx={{ color: statusFilter !== "ALL" ? "#8FFF9C" : "#9AA6A8", borderColor: statusFilter !== "ALL" ? "#8FFF9C" : "#2A3033", textTransform: 'none', borderRadius: '10px' }}>
             {statusFilter === "ALL" ? "Filter" : statusFilter.toUpperCase()}
           </Button>
-
-          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)} sx={{ "& .MuiPaper-root": { bgcolor: "#1A2023", color: "#E6F0E6", border: "1px solid #2A3033" } }}>
+          <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)} sx={{ "& .MuiPaper-root": { bgcolor: "#1A2023", color: "#E6F0E6" } }}>
             {["ALL", "online", "offline", "busy"].map((status) => (
-              <MenuItem key={status} onClick={() => handleFilterSelect(status)} sx={{ fontSize: "14px", textTransform: "uppercase", "&:hover": { bgcolor: "#2A3033" } }}>
-                {status}
-              </MenuItem>
+              <MenuItem key={status} onClick={() => { setStatusFilter(status); setAnchorEl(null); }}>{status.toUpperCase()}</MenuItem>
             ))}
           </Menu>
         </Stack>
 
-        {isOwner && (
-          <Button variant="text" startIcon={<UnlinkIcon />} sx={{ color: '#FE3B46', fontWeight: 'bold', textTransform: 'none', '&:hover': { bgcolor: 'rgba(254, 59, 70, 0.1)' } }}>
-            Unlink All Workers
-          </Button>
+        {isOwner && totalCnt > 0 && (
+          <Button variant="text" startIcon={<UnlinkIcon />} onClick={handleUnlinkAllClick} sx={{ color: '#FE3B46', fontWeight: 'bold', textTransform: 'none' }}>Unlink All Workers</Button>
         )}
       </Box>
 
-      {/* Workers Grid */}
-      {isLoading ? (
-        <Typography sx={{ color: "#404F57", textAlign: "center", py: 10 }}>Searching workers...</Typography>
-      ) : workers.length > 0 ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 scrollbar-hide">
-          {workers.map((worker) => (
-            <Link key={worker.id} href={`/projects/${projectId}/workers/${worker.id}`} className="block no-underline">
-              <WorkerCard 
-                worker={worker}
-                canManage={isOwner}
-                onDelete={(e, w) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  deleteState.handleDeleteClick(w);
-                }}
-              />
-            </Link>
-          ))}
-        </div>
-      ) : (
-        <Box sx={{ py: 10, textAlign: 'center', border: '1px dashed #2A3033', borderRadius: '16px' }}>
-            <Typography sx={{ color: '#404F57' }}>No workers found matching your criteria.</Typography>
-        </Box>
-      )}
+      {/* Content Area */}
+      <div className="flex-1">
+        {isLoading ? (
+          <Box sx={{ textAlign: "center", py: 10 }}><CircularProgress sx={{ color: "#8FFF9C" }} /></Box>
+        ) : workers.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 scrollbar-hide">
+              {workers.map((worker: WorkerType) => (
+                <Link key={worker.id} href={`/projects/${projectId}/workers/${worker.id}`} className="block no-underline">
+                  <WorkerCard 
+                    worker={worker} canManage={isOwner}
+                    onDelete={(e, w) => { e.stopPropagation(); e.preventDefault(); deleteState.handleDeleteClick(w); }}
+                    onUnlink={(e, w) => { e.stopPropagation(); e.preventDefault(); handleUnlinkClick(w); }}
+                  />
+                </Link>
+              ))}
+            </div>
+            <GenericPagination count={totalCnt} page={page} rowsPerPage={rowsPerPage} onPageChange={(newPage, newSize) => { handleChangePage(null, newPage); if (newSize !== rowsPerPage) handleChangeRowsPerPage({ target: { value: newSize.toString() } } as any); }} />
+          </>
+        ) : (
+          <Box sx={{ py: 10, textAlign: 'center', border: '1px dashed #2A3033', borderRadius: '16px' }}><Typography sx={{ color: '#404F57' }}>No workers found matching your criteria.</Typography></Box>
+        )}
+      </div>
 
-      {/* Pagination */}
-      {totalCnt > 0 && (
-        <GenericPagination 
-          count={totalCnt}
-          page={page}
-          rowsPerPage={rowsPerPage}
-          onPageChange={(newPage, newSize) => {
-             handleChangePage(null, newPage);
-             if(newSize !== rowsPerPage) {
-                const mockEvent = { target: { value: newSize.toString() } } as React.ChangeEvent<HTMLInputElement>;
-                handleChangeRowsPerPage(mockEvent);
-             }
-          }}
-          rowsPerPageOptions={[6, 12, 24]}
-          labelRowsPerPage="Workers per page:"
-        />
-      )}
-
+      {/* Modals */}
       {isOwner && deleteState.target && (
-        <GenericDeleteModal
-          open={deleteState.isOpen}
-          onClose={() => deleteState.setIsOpen(false)}
-          onConfirm={deleteState.handleConfirmDelete}
-          entityType="Worker"
-          entityName={deleteState.target.name}
-          loading={deleteState.isLoading}
-        />
+        <GenericDeleteModal open={deleteState.isOpen} onClose={() => deleteState.setIsOpen(false)} onConfirm={deleteState.handleConfirmDelete} entityType="Worker" entityName={deleteState.target.name} loading={deleteState.isLoading} />
       )}
+      <WorkerUnlinkModal open={unlinkModal.open} onClose={() => setUnlinkModal(p => ({ ...p, open: false }))} onConfirm={handleConfirmUnlink} workerName={unlinkModal.isAll ? "ALL workers" : (unlinkModal.target?.name || "")} loading={unlinkModal.loading} />
     </div>
   );
 }
