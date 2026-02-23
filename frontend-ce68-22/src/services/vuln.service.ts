@@ -1,5 +1,5 @@
 import apiClient from "../lib/api-client";
-import { SummaryStatusVlun, VulnIssue } from "../types/vuln";
+import { SummaryStatusVlun, VulnIssue, VulnDetails } from "../types/vuln";
 import { PaginatedResult } from "../types/common";
 
 export const vulnService = {
@@ -21,6 +21,12 @@ export const vulnService = {
     });
     return data;
   },
+
+  getById: async (vulnId: number) => {
+    const { data } = await apiClient.get<VulnDetails>(`/vulns/${vulnId}`);
+    return data;
+  },
+
   cntByProjectId: async (projectId: number) => {
     const { data } = await apiClient.get<number>(`/vulns/cnt/${projectId}`);
     return data;

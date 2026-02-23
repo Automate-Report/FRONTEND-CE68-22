@@ -28,6 +28,7 @@ interface CVSSDetails {
     vector: string;
     version: string;
 }
+
 export interface VulnIssue {
     id: number;
     title: string;
@@ -38,6 +39,27 @@ export interface VulnIssue {
     severity: string;
     status: string;
     occurrance_count: number;
+    cvss_details: CVSSDetails;
+    reproduce_info: ReProduceInfo;
+    dates: VulnDates;
+    recommendation: string;
+}
+
+export interface VulnDetails {
+    id: number;
+    title: string;
+    vuln_type: string;
+    description: string;
+    asset_id: number;
+    asset_name: string;
+    assigned_to?: string;
+    verified_by?: string;
+    evidence: Evidence;
+    severity: string;
+    status: string;
+    verify?: string;
+    occurrance_count: number;
+    occurrance_date: string[];
     cvss_details: CVSSDetails;
     reproduce_info: ReProduceInfo;
     dates: VulnDates;
