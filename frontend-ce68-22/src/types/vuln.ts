@@ -38,7 +38,7 @@ export interface VulnIssue {
     severity: string;
     status: string;
     occurrance_count: number;
-    cvss_detials: CVSSDetails;
+    cvss_details: CVSSDetails;
     reproduce_info: ReProduceInfo;
     dates: VulnDates;
     recommendation: string;

@@ -1,48 +1,70 @@
 "use client";
 
-import { use } from "react";
+import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { 
-  Box, Typography, Stack, Divider, 
+  Box, Typography, Stack, 
   TextField, MenuItem, Select, 
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
-  Paper, Chip, IconButton, Tooltip 
 } from "@mui/material";
-import { 
-  BugReport as BugIcon, 
-  Search as SearchIcon,
-  Visibility as ViewIcon,
-  ErrorOutline as CriticalIcon,
-  WarningAmber as HighIcon,
-  CheckCircleOutline as FixedIcon,
-  FiberManualRecord as OpenIcon
-} from "@mui/icons-material";
+import { Search as SearchIcon } from "@mui/icons-material";
 
 import { useProject } from "@/src/hooks/project/use-project";
-import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
+import { useVulns } from "@/src/hooks/vuln/use-vulns";
+import { useDebounce } from "@/src/hooks/use-debounce";
 
+import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
+import { VulnIssueTable } from "@/src/components/vulns/VulnIssueTable";
 import { VulnerabilitySummary } from "@/src/components/vulns/VulnerabilitySummary";
+import { GenericPagination } from "@/src/components/Common/GenericPagination";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-// Dummy Data สำหรับตาราง
-const DUMMY_ISSUES = [
-  { id: 1, severity: "Critical", name: "SQL Injection", url: "https://api.example.com/v1/user", payload: "id=1' OR '1'='1", asset: "API Server", status: "Open", firstSeen: "20 Feb 2026" },
-  { id: 2, severity: "High", name: "Cross-Site Scripting (XSS)", url: "https://example.com/search", payload: "<script>alert(1)</script>", asset: "Frontend Web", status: "In Progress", firstSeen: "19 Feb 2026" },
-  { id: 3, severity: "Medium", name: "Broken Authentication", url: "https://auth.example.com/login", payload: "None", asset: "Auth Service", status: "Fixed", firstSeen: "18 Feb 2026" },
-  { id: 4, severity: "Low", name: "Information Disclosure", url: "https://example.com/robots.txt", payload: "None", asset: "Frontend Web", status: "Open", firstSeen: "15 Feb 2026" },
-];
-
 export default function ProjectsIssuePage({ params }: PageProps) {
-  const router = useRouter();
   const resolveParams = use(params);
   const projectId = parseInt(resolveParams.id);
 
-  const { data: project, isLoading, isError } = useProject(projectId);
+  // --- Pagination & Filter States ---
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(12); // ตั้งค่าเริ่มต้น 12 ตามความกว้างหน้าจอ
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 500);
+  const [statusFilter, setStatusFilter] = useState("ALL");
 
-  if (isLoading) return <div className="p-8 text-[#8FFF9C]">Loading...</div>;
+  const { data: project, isLoading: isProjectLoading, isError } = useProject(projectId);
+
+  // --- Data Fetching ---
+  const { data, isLoading: isVulnLoading } = useVulns(
+    projectId,
+    page + 1, // API รับ 1-based index
+    rowsPerPage,
+    "updated_at",
+    "desc",
+    debouncedSearch,
+    statusFilter
+  );
+
+  const issues = data?.items || [];
+  const totalCount = data?.total || 0;
+
+  // --- Handlers ---
+  const handlePageChange = (newPage: number, currentRowsPerPage: number) => {
+    setPage(newPage);
+    setRowsPerPage(currentRowsPerPage);
+  };
+
+  const handleRowsPerPageChange = (newSize: number) => {
+    setRowsPerPage(newSize);
+    setPage(0); // กลับไปหน้าแรกเมื่อเปลี่ยนจำนวนแถว
+  };
+
+  // รีเซ็ตหน้ากลับไปที่หน้าแรกเมื่อค้นหาหรือกรองข้อมูลใหม่
+  useEffect(() => {
+    setPage(0);
+  }, [debouncedSearch, statusFilter]);
+
+  if (isProjectLoading) return <div className="p-8 text-[#8FFF9C]">Loading...</div>;
   if (isError || !project) return <div className="p-8 text-red-500">Project not found</div>;
 
   const breadcrumbItems = [
@@ -51,110 +73,75 @@ export default function ProjectsIssuePage({ params }: PageProps) {
     { label: "All Issues", href: undefined }
   ];
 
-  const getSeverityColor = (sev: string) => {
-    switch (sev) {
-      case "Critical": return "#FF3B30";
-      case "High": return "#FF9500";
-      case "Medium": return "#FFCC00";
-      case "Low": return "#007AFF";
-      default: return "#9AA6A8";
-    }
-  };
-
   return (
-    <div className="flex flex-col w-full text-[#E6F0E6] max-w-7xl font-sans">
+    <div className="flex flex-col w-full text-[#E6F0E6] max-w-7xl font-sans pb-10">
       
       {/* Section 1: Breadcrumbs */}
-    <GenericBreadcrums items={breadcrumbItems} />
+      <GenericBreadcrums items={breadcrumbItems} />
 
-      
       {/* Section 2: Header */}
-      <Box mb={4}>
+      <Box mb={4} mt={2}>
         <Typography variant="h4" sx={{ fontWeight: 900, color: "#FBFBFB", mb: 1 }}>All Issues</Typography>
-        <Typography variant="body1" sx={{ color: "#9AA6A8" }}>Analyze and manage security vulnerabilities detected in this project.</Typography>
+        <Typography variant="body1" sx={{ color: "#9AA6A8" }}>
+          Analyze and manage security vulnerabilities detected in this project.
+        </Typography>
       </Box>
 
       {/* Section 3: Overview Cards */}
-      <VulnerabilitySummary projectId={projectId} />
+      <VulnerabilitySummary 
+        projectId={projectId} 
+        currentFilter={statusFilter}
+        onFilterChange={(newFilter: string) => setStatusFilter(newFilter)}
+      />
 
-      {/* Section 4: Search and filter */}
+      {/* Section 4: Search and Filter Toolbar */}
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} mb={3}>
         <TextField 
           placeholder="Search by issue name or URL..."
           size="small"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
           sx={{ 
             flex: 2, bgcolor: "#1A1E23", borderRadius: "8px", 
             "& .MuiOutlinedInput-root": { color: "#FBFBFB", "& fieldset": { borderColor: "#404F57" } } 
           }}
           InputProps={{ startAdornment: <SearchIcon sx={{ color: "#404F57", mr: 1 }} /> }}
         />
+        
+        {/* Status Filter */}
         <Select 
-          defaultValue="all" size="small" 
+          value={statusFilter} 
+          size="small" 
+          onChange={(e) => setStatusFilter(e.target.value)}
           sx={{ flex: 1, bgcolor: "#1A1E23", color: "#FBFBFB", "& fieldset": { borderColor: "#404F57" } }}
         >
-          <MenuItem value="all">All Severities</MenuItem>
-          <MenuItem value="critical">Critical</MenuItem>
-          <MenuItem value="high">High</MenuItem>
-        </Select>
-        <Select 
-          defaultValue="all" size="small" 
-          sx={{ flex: 1, bgcolor: "#1A1E23", color: "#FBFBFB", "& fieldset": { borderColor: "#404F57" } }}
-        >
-          <MenuItem value="all">All Status</MenuItem>
+          <MenuItem value="ALL">All Status</MenuItem>
           <MenuItem value="open">Open</MenuItem>
+          <MenuItem value="tp">True Positive</MenuItem>
+          <MenuItem value="in_progress">In Progress</MenuItem>
           <MenuItem value="fixed">Fixed</MenuItem>
         </Select>
       </Stack>
 
       {/* Section 5: Table of Issues */}
-      <TableContainer component={Paper} sx={{ bgcolor: "#272D31", borderRadius: "16px", border: "1px solid #404F57", overflow: 'hidden' }}>
-        <Table>
-          <TableHead sx={{ bgcolor: "#1E2429" }}>
-            <TableRow>
-              <TableCell sx={{ color: "#9AA6A8", fontWeight: "bold", borderBottom: "1px solid #404F57" }}>Severity</TableCell>
-              <TableCell sx={{ color: "#9AA6A8", fontWeight: "bold", borderBottom: "1px solid #404F57" }}>Issue Detail</TableCell>
-              <TableCell sx={{ color: "#9AA6A8", fontWeight: "bold", borderBottom: "1px solid #404F57" }}>Asset</TableCell>
-              <TableCell sx={{ color: "#9AA6A8", fontWeight: "bold", borderBottom: "1px solid #404F57" }}>Status</TableCell>
-              <TableCell sx={{ color: "#9AA6A8", fontWeight: "bold", borderBottom: "1px solid #404F57" }}>First Seen</TableCell>
-              <TableCell sx={{ color: "#9AA6A8", fontWeight: "bold", borderBottom: "1px solid #404F57" }} align="center">Action</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {DUMMY_ISSUES.map((issue) => (
-              <TableRow key={issue.id} sx={{ "&:hover": { bgcolor: "rgba(143, 255, 156, 0.05)" } }}>
-                <TableCell sx={{ borderBottom: "1px solid #404F57" }}>
-                  <Chip 
-                    label={issue.severity} 
-                    size="small"
-                    sx={{ bgcolor: `${getSeverityColor(issue.severity)}20`, color: getSeverityColor(issue.severity), fontWeight: "bold", borderRadius: "4px" }}
-                  />
-                </TableCell>
-                <TableCell sx={{ borderBottom: "1px solid #404F57" }}>
-                  <Typography variant="subtitle2" sx={{ color: "#FBFBFB", fontWeight: "bold" }}>{issue.name}</Typography>
-                  <Typography variant="caption" sx={{ color: "#9AA6A8", display: 'block' }}>{issue.url}</Typography>
-                  <Typography variant="caption" sx={{ color: "#8FFF9C", fontFamily: 'monospace' }}>Payload: {issue.payload}</Typography>
-                </TableCell>
-                <TableCell sx={{ borderBottom: "1px solid #404F57", color: "#FBFBFB" }}>{issue.asset}</TableCell>
-                <TableCell sx={{ borderBottom: "1px solid #404F57" }}>
-                  <Chip label={issue.status} variant="outlined" size="small" sx={{ color: issue.status === "Fixed" ? "#34C759" : "#FFCC00", borderColor: issue.status === "Fixed" ? "#34C759" : "#FFCC00" }} />
-                </TableCell>
-                <TableCell sx={{ borderBottom: "1px solid #404F57", color: "#9AA6A8" }}>{issue.firstSeen}</TableCell>
-                <TableCell sx={{ borderBottom: "1px solid #404F57" }} align="center">
-                  <Tooltip title="View Triage & Fix">
-                    <IconButton 
-                      onClick={() => router.push(`/projects/${projectId}/triage`)}
-                      sx={{ color: "#8FFF9C", "&:hover": { bgcolor: "rgba(143, 255, 156, 0.1)" } }}
-                    >
-                      <ViewIcon />
-                    </IconButton>
-                  </Tooltip>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <VulnIssueTable 
+        issues={issues}
+        projectId={projectId}
+        isLoading={isVulnLoading}
+      />
 
+      {/* Section 6: Pagination */}
+      {totalCount > 0 && (
+        <GenericPagination 
+          count={totalCount}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={handleRowsPerPageChange}
+          rowsPerPageOptions={[12, 24, 48]}
+          labelRowsPerPage="Issues per page:"
+        />
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { vulnService } from "@/src/services/vuln.service";
 
-export function useVuln(
+export function useVulns(
   projectId: number,
   page: number, 
   size: number, 

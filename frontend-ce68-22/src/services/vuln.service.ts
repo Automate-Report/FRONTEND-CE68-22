@@ -9,9 +9,8 @@ export const vulnService = {
     const orderParam = sortOrder === "none" ? undefined : sortOrder;
     const sortParam = sortBy || undefined;
 
-    const { data } = await apiClient.get<PaginatedResult<Worker>>(`vuln/all/${projectId}`, {
+    const { data } = await apiClient.get<PaginatedResult<VulnIssue>>(`vulns/all/${projectId}`, {
       params: {
-        project_id: projectId,
         page,
         size,
         sort_by: sortParam, // ชื่อต้องตรงกับ Backend (FastAPI)
