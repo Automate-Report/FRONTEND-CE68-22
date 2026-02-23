@@ -19,6 +19,8 @@ import {
 import { useProject } from "@/src/hooks/project/use-project";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 
+import { VulnerabilitySummary } from "@/src/components/vulns/VulnerabilitySummary";
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }
@@ -61,30 +63,9 @@ export default function TriageFixPage({ params }: PageProps) {
       </Box>
 
       {/* ส่วนที่ 2: Overview Cards (4 ใบ) - ใช้ CSS Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        {[
-          { label: "ต้องแก้ไข", count: 8, color: "#8FFF9C", icon: <TriageIcon /> },
-          { label: "Critical", count: 2, color: "#FF3B30", icon: <CriticalIcon /> },
-          { label: "High", count: 6, color: "#FF9500", icon: <HighIcon /> },
-          { label: "แก้ไขแล้ว", count: 12, color: "#34C759", icon: <FixedIcon /> },
-        ].map((stat, index) => (
-          <Box 
-            key={index} 
-            sx={{ 
-              bgcolor: "#1E2429", p: 2.5, borderRadius: "16px", border: "1px solid #404F57", 
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center' 
-            }}
-          >
-            <Box>
-              <Typography variant="h4" sx={{ color: "#FBFBFB", fontWeight: 900, lineHeight: 1 }}>{stat.count}</Typography>
-              <Typography sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: 'uppercase', mt: 0.5 }}>{stat.label}</Typography>
-            </Box>
-            <Box sx={{ width: 44, height: 44, borderRadius: "12px", display: 'flex', alignItems: 'center', justifyContent: 'center', color: stat.color, bgcolor: `${stat.color}10`, border: `1px solid ${stat.color}25` }}>
-              {stat.icon}
-            </Box>
-          </Box>
-        ))}
-      </div>
+      <VulnerabilitySummary 
+        projectId={projectId}
+      />
 
       {/* ส่วนที่ 3: รายการ และ รายละเอียด (Split Layout) - ใช้ CSS Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[600px]">

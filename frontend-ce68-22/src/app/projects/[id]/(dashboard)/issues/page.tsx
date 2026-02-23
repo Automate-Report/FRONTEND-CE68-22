@@ -21,6 +21,8 @@ import {
 import { useProject } from "@/src/hooks/project/use-project";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 
+import { VulnerabilitySummary } from "@/src/components/vulns/VulnerabilitySummary";
+
 interface PageProps {
   params: Promise<{ id: string }>;
 }
@@ -73,60 +75,7 @@ export default function ProjectsIssuePage({ params }: PageProps) {
       </Box>
 
       {/* Section 3: Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-        {[
-            { label: "Total", count: 5, color: "#8FFF9C", icon: <BugIcon /> },
-            { label: "Critical", count: 1, color: "#FF3B30", icon: <CriticalIcon /> },
-            { label: "High", count: 2, color: "#FF9500", icon: <HighIcon /> },
-            { label: "Open", count: 3, color: "#FFCC00", icon: <OpenIcon /> },
-            { label: "Fixed", count: 1, color: "#34C759", icon: <FixedIcon /> },
-        ].map((stat, index) => (
-            <Box 
-            key={index}
-            sx={{ 
-                bgcolor: "#1E2429", 
-                p: 2.5, 
-                borderRadius: "16px", 
-                border: "1px solid #404F57",
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                transition: 'all 0.2s ease-in-out',
-                '&:hover': { 
-                borderColor: stat.color,
-                bgcolor: "#232A30" 
-                }
-            }}
-            >
-            <Box>
-                {/* สลับเอาตัวเลขขึ้นก่อน */}
-                <Typography variant="h4" sx={{ color: "#FBFBFB", fontWeight: 900, lineHeight: 1 }}>
-                {stat.count}
-                </Typography>
-                <Typography sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1, mt: 0.5 }}>
-                {stat.label}
-                </Typography>
-            </Box>
-
-            {/* ส่วน Icon ทรงสี่เหลี่ยมมน (Rounded Square) */}
-            <Box 
-                sx={{ 
-                width: 48, 
-                height: 48, 
-                borderRadius: "12px", // เปลี่ยนเป็นสี่เหลี่ยมมน
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                color: stat.color, 
-                bgcolor: `${stat.color}10`, // พื้นหลังจางๆ
-                border: `1px solid ${stat.color}25`,
-                }}
-            >
-                {stat.icon}
-            </Box>
-            </Box>
-        ))}
-        </div>
+      <VulnerabilitySummary projectId={projectId} />
 
       {/* Section 4: Search and filter */}
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} mb={3}>
