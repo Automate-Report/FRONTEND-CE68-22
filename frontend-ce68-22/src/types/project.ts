@@ -30,3 +30,11 @@ export interface CreateProjectPayload {
   description?: string;
   tag_ids?: number[];
 }
+
+export interface Member {
+  email: string;
+  firstname: string;
+  lastname: string;
+  role: string;
+  joinned_at: string;
+}

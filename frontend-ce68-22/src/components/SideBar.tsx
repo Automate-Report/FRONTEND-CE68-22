@@ -12,11 +12,11 @@ import AssetIcon from "./icon/AssetIcon";
 import ScheduleIcon from "./icon/ScheduleIcon";
 import ReportIcon from "./icon/ReportIcon";
 import LogIcon from "./icon/LogIcon";
-import { Divider } from "@mui/material";
+import { Divider, Tooltip, IconButton } from "@mui/material";
 import EditProjectIcon from "./icon/Edit";
 import DeleteProjectIcon from "./icon/Delete";
-// เพิ่มไอคอนสำหรับ Worker
 import EngineeringIcon from "@mui/icons-material/Engineering";
+import PeopleIcon from "@mui/icons-material/People";
 
 interface SideBarProps {
   project_id: number;
@@ -30,8 +30,7 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const canEdit = role === "owner";
-  const canDelete = role === "owner";
+  const isOwner = role === "owner";
 
   const menuSections = [
     {
@@ -46,12 +45,7 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
       items: [
         { name: "Schedule Scan", href: `/projects/${project_id}/schedule`, icon: <ScheduleIcon />, roles: ["owner", "pentester"] },
         { name: "Assets", href: `/projects/${project_id}/asset`, icon: <AssetIcon /> },
-        { 
-          name: "Worker Nodes", 
-          href: `/projects/${project_id}/workers`, 
-          icon: <EngineeringIcon sx={{ fontSize: 20 }} /> 
-          // เข้าถึงได้ทุก Role เพราะไม่มีการระบุ roles
-        },
+        { name: "Worker Nodes", href: `/projects/${project_id}/workers`, icon: <EngineeringIcon sx={{ fontSize: 20 }} /> },
         { name: "Logs", href: `/projects/${project_id}/log`, icon: <LogIcon />, roles: ["owner", "pentester"] },
       ],
     },
@@ -60,6 +54,12 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
       items: [
         { name: "All Issues", href: `/projects/${project_id}/issues`, icon: <LogIcon /> },
         { name: "Triage & Fix", href: `/projects/${project_id}/triage`, icon: <EditProjectIcon /> },
+      ],
+    },
+    {
+      title: "PROJECT SETTINGS",
+      items: [
+        { name: "Member", href: `/projects/${project_id}/member`, icon: <PeopleIcon sx={{ fontSize: 20 }} /> },
       ],
     },
   ];
@@ -100,7 +100,7 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
         .custom-scrollbar { scrollbar-width: thin; scrollbar-color: #2D2F39 transparent; }
       `}</style>
 
-      {/* ส่วนบน: เมนู */}
+      {/* เมนูนำทางหลัก */}
       <nav className="flex-1 overflow-y-auto custom-scrollbar pr-2"> 
         {menuSections.map((section) => {
           const filteredItems = section.items.filter(
@@ -110,7 +110,7 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
           return (
             <div key={section.title} className="mb-6">
               <div className="px-2 mb-2">
-                <h3 className="text-[#404F57] text-[11px] font-black tracking-[0.05em] uppercase whitespace-nowrap overflow-hidden text-ellipsis">
+                <h3 className="text-[#404F57] text-[11px] font-black tracking-[0.05em] uppercase">
                   {section.title}
                 </h3>
               </div>
@@ -128,7 +128,7 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
                       <div className={`text-xl ${isActive ? "text-[#8FFF9C]" : "text-[#AAAAAA] group-hover:text-white"}`}>
                         {item.icon}
                       </div>
-                      <div className="text-[16px] font-semibold leading-none">{item.name}</div>
+                      <div className="text-[15px] font-semibold">{item.name}</div>
                     </Link>
                   );
                 })}
@@ -138,36 +138,41 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
         })}
       </nav>
 
-      {/* ส่วนล่าง: ล็อคติดขอบล่างเสมอ */}
+      {/* ส่วนล่าง: Compact Action Icons & Role Display */}
       <div className="mt-auto pt-4 bg-[#0D1014]">
-        <Divider sx={{ mb: 2, borderColor: "#2D2F39", opacity: 0.5 }} />
+        <Divider sx={{ mb: 2, borderColor: "#2D2F39", opacity: 0.3 }} />
         
-        <div className="space-y-1 mb-4">
-          {canEdit && (
-            <Link
-              href={`/projects/${project_id}/edit`}
-              className="flex items-center px-4 py-2.5 gap-3 text-[#E6F0E6] hover:bg-[#1F1F1F] rounded-lg transition-colors text-[14px] font-semibold"
-            >
-              <div className="text-xl opacity-70"><EditProjectIcon /></div>
-              <span>Edit Project</span>
-            </Link>
-          )}
-          {canDelete && (
-            <div
-              onClick={() => setDeleteModalOpen(true)}
-              className="flex items-center px-4 py-2.5 gap-3 text-[#FF3B30] cursor-pointer hover:bg-[#FF3B3010] rounded-lg transition-colors text-[14px] font-semibold"
-            >
-              <div className="text-xl opacity-70"><DeleteProjectIcon /></div>
-              <span>Delete Project</span>
-            </div>
-          )}
-        </div>
+        {/* Horizontal Action Buttons (Only for Owner) */}
+        {isOwner && (
+          <div className="flex justify-between gap-2 px-2 mb-4">
+            <Tooltip title="Edit Project" arrow placement="top">
+              <Link
+                href={`/projects/${project_id}/edit`}
+                className={`flex-1 flex justify-center py-2 rounded-lg transition-all border
+                  ${pathname === `/projects/${project_id}/edit` 
+                    ? "bg-[#8FFF9C15] border-[#8FFF9C] text-[#8FFF9C]" 
+                    : "border-[#2D2F39] text-[#404F57] hover:border-[#8FFF9C] hover:text-[#8FFF9C] hover:bg-[#1F1F1F]"}`}
+              >
+                <EditProjectIcon />
+              </Link>
+            </Tooltip>
 
-        <div className="px-4 pb-2">
+            <Tooltip title="Delete Project" arrow placement="top">
+              <button
+                onClick={() => setDeleteModalOpen(true)}
+                className="flex-1 flex justify-center py-2 rounded-lg transition-all border border-[#2D2F39] text-[#404F57] hover:border-[#FF3B30] hover:text-[#FF3B30] hover:bg-[#FF3B3010]"
+              >
+                <DeleteProjectIcon />
+              </button>
+            </Tooltip>
+          </div>
+        )}
+
+        <div className="px-2 pb-2">
           <div className="flex flex-col gap-1.5">
-            <span className="text-[#404F57] text-[10px] font-bold tracking-wider uppercase">Your Role</span>
+            <span className="text-[#404F57] text-[9px] font-black tracking-[0.1em] uppercase ml-1">Current Identity</span>
             <div 
-              className="inline-flex items-center justify-center py-2 px-3 rounded-md border text-[12px] font-black tracking-widest uppercase w-full"
+              className="inline-flex items-center justify-center py-2 px-3 rounded-md border text-[11px] font-black tracking-widest uppercase w-full shadow-lg"
               style={{ 
                 backgroundColor: roleStyle.bg, 
                 color: roleStyle.color, 

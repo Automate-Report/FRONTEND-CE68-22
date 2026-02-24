@@ -3,6 +3,7 @@ import { PaginatedResult } from "../types/common";
 import { getMe } from "./auth.service";
 
 import apiClient from "../lib/api-client";
+import { Member } from "../types/project";
 
 export const projectService = {
   // รับค่า page และ size (กำหนด default ไว้กันเหนียว)
@@ -42,6 +43,11 @@ export const projectService = {
 
   edit: async (id: number, payload: CreateProjectPayload) => {
     const { data } = await apiClient.put(`/projects/${id}`, payload);
+    return data;
+  },
+
+  getMember: async (projectId: number) => {
+    const { data } = await apiClient.get<Member[]>(`/projects/user/${projectId}`);
     return data;
   },
 
