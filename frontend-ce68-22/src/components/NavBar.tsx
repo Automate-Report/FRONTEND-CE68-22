@@ -17,6 +17,17 @@ import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import RobotIcon from './icon/RobotIcon';
 
 export function NavBar() {
+    const [mounted, setMounted] = useState(false);
+
+    // ป้องกัน Hydration Error โดยรอให้ Client Mount เสร็จก่อน
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // ถ้ายังไม่ mounted ให้ render โครงสร้างว่างๆ หรือ Placeholder ที่มีขนาดเท่ากัน
+    if (!mounted) {
+        return <div className="bg-[#0D1014] h-[74px] w-full border-b border-[#2D2F39]"></div>;
+    }
 
     const notiRef = useRef<HTMLDivElement>(null);
     const bellRef = useRef<HTMLButtonElement>(null);
@@ -127,8 +138,10 @@ export function NavBar() {
                                 padding: "10px",
                                 color: "#E6F0E6",
                                 backgroundColor: "#272D31",
-
-                                borderRadius: "16px"
+                                borderRadius: "14px",
+                                "&:hover": {
+                                    backgroundColor: "#3a4146",
+                                }
                             }}
                             onClick={toggleNotiWindow}
                             ref={bellRef}

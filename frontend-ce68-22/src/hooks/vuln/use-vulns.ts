@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { workerService } from "@/src/services/worker.service";
+import { vulnService } from "@/src/services/vuln.service";
 
-export function useWorkers(
+export function useVulns(
   projectId: number,
   page: number, 
   size: number, 
@@ -12,9 +12,9 @@ export function useWorkers(
 ) {
   return useQuery({
     // สำคัญมาก: ต้องใส่ sortBy, sortOrder ใน Key
-    queryKey: ['workers', projectId, page, size, sortBy, sortOrder, search, filter], 
+    queryKey: ['vulns', 'all', projectId, page, size, sortBy, sortOrder, search, filter], 
     
-    queryFn: () => workerService.getAll(projectId, page, size, sortBy, sortOrder, search, filter),
+    queryFn: () => vulnService.getAll(projectId, page, size, sortBy, sortOrder, search, filter),
     
     placeholderData: (previousData) => previousData,
   });

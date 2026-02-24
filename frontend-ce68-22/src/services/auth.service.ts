@@ -30,3 +30,8 @@ export const isAuthen = async () => {
         return false;
     }
 };
+
+export const getUsername = async (userId: string) => {
+    const { data } = await apiClient.get(`/auth/username/${userId}`);
+    return data;
+}

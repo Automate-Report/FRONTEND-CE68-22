@@ -1,6 +1,11 @@
 import { ReactNode } from "react";
+
 import { SideBar } from "@/src/components/SideBar";
+
 import { projectService } from "@/src/services/project.service";
+
+import { Project } from "@/src/types/project";
+
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
@@ -22,6 +27,7 @@ export default async function ProjectLayout({ children, params }: ProjectLayoutP
 
   let projectName = "Unknown Project";
   let isUnauthorized = false;
+  let role: Project["role"] = "owner";
 
   try {
     const customHeaders = {
@@ -31,6 +37,7 @@ export default async function ProjectLayout({ children, params }: ProjectLayoutP
 
     const project = await projectService.getById(projectId, customHeaders);
     projectName = project.name;
+    role = project.role;
   } catch (error: any) {
       const status = error.response?.status || error.status;
       console.log("DEBUG: Status Code on Server:", status);
@@ -46,19 +53,16 @@ export default async function ProjectLayout({ children, params }: ProjectLayoutP
   }
 
   return (
-    // จัด Layout ให้ Sidebar อยู่ซ้าย Content อยู่ขวา
-    <div className="flex h-full w-full bg-[#0F1518]"> 
+    // ใช้ h-[calc(100vh-navbarHeight)] ถ้ามี navbar หรือใช้ h-screen ถ้า navbar อยู่ในหน้า
+    // ในกรณีของคุณ navbar อยู่ใน RootLayout ดังนั้นใช้ h-[calc(100vh-74px)] (สมมติ navbar สูง 74px)
+    <div className="flex h-[calc(100vh-74px)] w-full overflow-hidden bg-[#0F1518]"> 
       
-      {/* 2. Sidebar จะถูก Render ครั้งเดียวตรงนี้และ Fix อยู่กับที่ */}
-      <SideBar 
-        project_id={projectId} 
-        project_name={projectName}
-      />
+      {/* Sidebar: ล็อคความสูง h-full ของพื้นที่ที่เหลือ */}
+      <SideBar project_id={projectId} project_name={projectName} role={role} />
 
-      {/* 3. ส่วนเนื้อหา (Page) จะเปลี่ยนไปเรื่อยๆ ตรงนี้ */}
-      <main className="flex-1 p-6 ml-[300px] ">
-        {/* อาจจะใส่ wrapper อีกชั้นถ้าต้องการ padding หรือ margin แบบเฉพาะเจาะจง */}
-        <div className="mx-12 mt-0"> 
+      {/* Main Content: หัวใจหลักของการเลื่อน */}
+      <main className="flex-1 ml-[300px] h-full overflow-y-auto custom-scrollbar">
+        <div className="px-12 py-6"> {/* เปลี่ยนจาก mx-12 มาใช้ px-12 เพื่อกันขอบล้น */}
             {children}
         </div>
       </main>
