@@ -1,24 +1,42 @@
 "use client";
 
-import Avatar from '@mui/material/Avatar';
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
-import SettingsIcon from '@mui/icons-material/Settings';
-import { Divider, Tooltip, Button, Badge } from "@mui/material";
-import RobotIcon from './icon/RobotIcon';
-import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import NotiReportdone from './Notification/Noti_ReportDone';
+import { useNotifications } from '../hooks/noti/use-noti';
+import { NotificationStatus, NotificationType } from '../types/noti';
+import { useQueryClient } from '@tanstack/react-query';
+import Link from 'next/link';
 
+// Components
+import NotiReportdone from './Notification/Noti_ReportDone';
+import Avatar from '@mui/material/Avatar';
+import { Divider, Button } from "@mui/material";
+
+// Icons
+import SettingsIcon from '@mui/icons-material/Settings';
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import RobotIcon from './icon/RobotIcon';
 
 export function NavBar() {
 
     const notiRef = useRef<HTMLDivElement>(null);
     const bellRef = useRef<HTMLButtonElement>(null);
     const [showNoti, setShowNoti] = useState(false);
+    const [allNoti, setAllnoti] = useState(true);
+    const [unread, setUnread] = useState(false);
+    const [isWaiting, setIsWaiting] = useState(false);
+
+    // Fetching data
+    const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useNotifications(showNoti, unread);
+    const notifications = data?.pages.flat() ?? []; // Change shape from [[1,2],[3,4]] to [1,2,3,4]
+
+
+    ////////////////////////////// Start of Noti functions //////////////////////////////
+    const queryClient = useQueryClient();
+
+    // Notiwindow Click Check
     const toggleNotiWindow = () => {
         setShowNoti(prev => !prev);
     }
-
     useEffect(() => {
         function handleClickOutsideNoti(e: MouseEvent) {
             if (notiRef.current && !notiRef.current.contains(e.target as Node) &&
@@ -35,6 +53,42 @@ export function NavBar() {
             document.removeEventListener("mousedown", handleClickOutsideNoti);
         };
     }, [showNoti]);
+
+    // Scroll to bottom check
+    const handleScrollToBottom = () => {
+        const notiwindow = notiRef.current;
+        if (!notiwindow) return;
+
+        const isBottom =
+            notiwindow.scrollTop + notiwindow.clientHeight >= notiwindow.scrollHeight - 5;
+
+        if (isBottom && hasNextPage && !isFetchingNextPage) {
+            setIsWaiting(true);
+
+            setTimeout(() => {
+                fetchNextPage();
+                setIsWaiting(false);
+            }, 1000);
+        }
+    };
+
+    // Reset noti to show latest 5
+    useEffect(() => {
+        if (!showNoti) {
+            queryClient.removeQueries({ queryKey: ["notifications"] });
+        }
+    }, [showNoti]);
+
+    // Choosing Notitype
+    const chooseNotiType = (type: NotificationType, projectName: string, hyperlink: string, status: NotificationStatus) => {
+        if (type == "report") {
+            return <NotiReportdone projectName={projectName}
+                hyperlink={hyperlink}
+                status={status} />
+        }
+    }
+
+    ////////////////////////////// End of Noti functions //////////////////////////////
 
     return (
         <>
@@ -102,20 +156,69 @@ export function NavBar() {
 
             {/* Notification Window */}
             {showNoti &&
-                <div ref={notiRef}
-                    className={`fixed top-[88px] right-[24px] min-w-[400px] w-[30%] max-h-[50vh] overflow-y-auto bg-[#0F1518]
+                <div ref={notiRef} onScroll={handleScrollToBottom}
+                    className={`fixed top-[88px] right-[24px] min-w-[400px] w-[30%] max-h-[60vh] overflow-y-auto bg-[#0F1518]
                     border border-[#E6F0E6] rounded-xl shadow-lg z-50 transition-opacity duration-300
                     ${showNoti ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                    <h3 className="text-xl font-semibold text-[#E6F0E6] p-4 border-b border-[#272D31] bg-[#0F1518] sticky top-0">Notifications</h3>
-                    <div className='flex flex-col'>
-                        <NotiReportdone projectName='Bunny is cute but bunnygirl is cutest' hyperlink='/main' />
-                        <NotiReportdone projectName='Another Project' hyperlink='/main' />
-                        <NotiReportdone projectName='Third Project' hyperlink='/main' />
-                        <NotiReportdone projectName='Fourth Project' hyperlink='/main' />
+                    <h3 className="text-xl font-semibold text-[#E6F0E6] p-4 border-b border-[#272D31] bg-[#0F1518] sticky top-0 z-50 h-[62px]">Notifications</h3>
+
+                    {/* Allnoti / Unread */}
+                    <div className="grid grid-cols-2 p-0 gap-0 h-[40px] border-b border-[#272D31] bg-[#0F1518] text-[#E6F0E6] sticky top-[62px] z-50">
+                        <div className={`flex items-center justify-center font-semibold
+                                ${allNoti
+                                ? "bg-[#8FFF9C] text-[#0B0F12] hover:bg-[#AFFFB9]"
+                                : "bg-[#0F1518] text-[#E6F0E6] hover:bg-[#272D31]"
+                            }`}
+                            onClick={() => (setAllnoti(true), setUnread(false),
+                                queryClient.removeQueries({ queryKey: ["notifications"] }))}> All Notification
+                        </div>
+
+                        <div className={`flex items-center justify-center font-semibold
+                                ${unread
+                                ? "bg-[#8FFF9C] text-[#0B0F12] hover:bg-[#AFFFB9]"
+                                : "bg-[#0F1518] text-[#E6F0E6] hover:bg-[#272D31]"
+                            }`}
+                            onClick={() => (setUnread(true), setAllnoti(false),
+                                queryClient.removeQueries({ queryKey: ["notifications"] }))}> Unread Only
+                        </div>
                     </div>
 
-                    {/* if noticount == 0 display below*/}
-                    {/* <p className="text-sm text-[#E6F0E6]">No new notifications.</p>  */}
+                    {/* Noti List */}
+                    {allNoti &&
+                        <div className='flex flex-col'>
+                            {notifications?.map((noti) => (
+                                <div key={noti.noti_id}>
+                                    {(chooseNotiType(noti.type, noti.message, noti.hyperlink, noti.status))}
+                                </div>
+                            ))}
+                        </div>
+                    }
+                    {unread &&
+                        <div className='flex flex-col'>
+                            {notifications?.filter((noti) => noti.status === "unread")
+                                .map((noti) =>
+                                    <div key={noti.noti_id}>
+                                        {(chooseNotiType(noti.type, noti.message, noti.hyperlink, noti.status))}
+                                    </div>
+                                )}
+                        </div>
+                    }
+
+                    {(isFetchingNextPage || isWaiting) && (
+                        <div className="px-4 py-6">
+                            <div className="relative h-1 w-full bg-neutral-800 rounded-full overflow-hidden">
+                                <div className="absolute inset-0">
+                                    <div className="h-full w-1/3 bg-gradient-to-r from-[#8FFF9C] via-[#FDFFDE] to-[#8FFF9C] animate-[slide_0.8s_linear_infinite]" />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {!hasNextPage && notifications.length > 0 && (
+                        <div className="px-4 pb-4">
+                            <div className="h-[3px] w-full bg-gradient-to-r from-transparent via-neutral-700 to-transparent opacity-60" />
+                        </div>
+                    )}
                 </div>
             }
         </>
