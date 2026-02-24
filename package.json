@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "cronstrue": "^3.11.0",
+    "react-hot-toast": "^2.6.0",
     "recharts": "^3.7.0"
   }
 }

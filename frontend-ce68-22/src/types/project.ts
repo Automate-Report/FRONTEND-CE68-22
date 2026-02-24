@@ -38,3 +38,8 @@ export interface Member {
   role: string;
   joinned_at: string;
 }
+
+export interface ChangeRole{
+  email: string;
+  role: string;
+}

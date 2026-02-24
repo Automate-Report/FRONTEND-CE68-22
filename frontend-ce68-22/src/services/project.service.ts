@@ -3,7 +3,7 @@ import { PaginatedResult } from "../types/common";
 import { getMe } from "./auth.service";
 
 import apiClient from "../lib/api-client";
-import { Member } from "../types/project";
+import { Member, ChangeRole } from "../types/project";
 
 export const projectService = {
   // รับค่า page และ size (กำหนด default ไว้กันเหนียว)
@@ -46,8 +46,26 @@ export const projectService = {
     return data;
   },
 
-  getMember: async (projectId: number) => {
-    const { data } = await apiClient.get<Member[]>(`/projects/user/${projectId}`);
+  changeRole: async (projectId: number, payload: ChangeRole) => {
+    const { data } = await apiClient.put(`/projects/change_role/${projectId}`, payload);
+    return data;
+  },
+
+  getMember: async (projectId: number, page: number, size: number, sortBy?: string | null, sortOrder?: "asc" | "desc" | "none", search?: string | null, filter?: string | "ALL") => {
+    const orderParam = sortOrder === "none" ? undefined : sortOrder;
+    const sortParam = sortBy || undefined;
+    
+    const { data } = await apiClient.get<PaginatedResult<Member>>(`/projects/members/${projectId}`, {
+    
+      params: {
+        page,
+        size,
+        sort_by: sortParam, // ชื่อต้องตรงกับ Backend (FastAPI)
+        order: orderParam,
+        search,
+        filter
+      },
+    });
     return data;
   },
 
@@ -55,5 +73,9 @@ export const projectService = {
     // method delete ปกติจะไม่ return content
     await apiClient.delete(`/projects/${id}`);
   },
+
+  deleteMember: async (projectId: number, userId: string) => {
+    await apiClient.delete(`/projects/rel/${projectId}/${userId}`);
+  }
 
 };
