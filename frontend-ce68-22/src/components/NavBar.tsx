@@ -19,16 +19,6 @@ import RobotIcon from './icon/RobotIcon';
 export function NavBar() {
     const [mounted, setMounted] = useState(false);
 
-    // ป้องกัน Hydration Error โดยรอให้ Client Mount เสร็จก่อน
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    // ถ้ายังไม่ mounted ให้ render โครงสร้างว่างๆ หรือ Placeholder ที่มีขนาดเท่ากัน
-    if (!mounted) {
-        return <div className="bg-[#0D1014] h-[74px] w-full border-b border-[#2D2F39]"></div>;
-    }
-
     const notiRef = useRef<HTMLDivElement>(null);
     const bellRef = useRef<HTMLButtonElement>(null);
     const [showNoti, setShowNoti] = useState(false);
@@ -37,17 +27,16 @@ export function NavBar() {
     const [isWaiting, setIsWaiting] = useState(false);
 
     // Fetching data
+    ////////////////////////////// Start of Noti functions //////////////////////////////
+    const queryClient = useQueryClient();
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useNotifications(showNoti, unread);
     const notifications = data?.pages.flat() ?? []; // Change shape from [[1,2],[3,4]] to [1,2,3,4]
 
+    // ป้องกัน Hydration Error โดยรอให้ Client Mount เสร็จก่อน
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
-    ////////////////////////////// Start of Noti functions //////////////////////////////
-    const queryClient = useQueryClient();
-
-    // Notiwindow Click Check
-    const toggleNotiWindow = () => {
-        setShowNoti(prev => !prev);
-    }
     useEffect(() => {
         function handleClickOutsideNoti(e: MouseEvent) {
             if (notiRef.current && !notiRef.current.contains(e.target as Node) &&
@@ -64,6 +53,23 @@ export function NavBar() {
             document.removeEventListener("mousedown", handleClickOutsideNoti);
         };
     }, [showNoti]);
+
+    // Reset noti to show latest 5
+    useEffect(() => {
+        if (!showNoti) {
+            queryClient.removeQueries({ queryKey: ["notifications"] });
+        }
+    }, [showNoti]);
+
+    // ถ้ายังไม่ mounted ให้ render โครงสร้างว่างๆ หรือ Placeholder ที่มีขนาดเท่ากัน
+    if (!mounted) {
+        return <div className="bg-[#0D1014] h-[74px] w-full border-b border-[#2D2F39]"></div>;
+    }
+
+    // Notiwindow Click Check
+    const toggleNotiWindow = () => {
+        setShowNoti(prev => !prev);
+    }
 
     // Scroll to bottom check
     const handleScrollToBottom = () => {
@@ -82,13 +88,6 @@ export function NavBar() {
             }, 1000);
         }
     };
-
-    // Reset noti to show latest 5
-    useEffect(() => {
-        if (!showNoti) {
-            queryClient.removeQueries({ queryKey: ["notifications"] });
-        }
-    }, [showNoti]);
 
     // Choosing Notitype
     const chooseNotiType = (type: NotificationType, projectName: string, hyperlink: string, status: NotificationStatus) => {
