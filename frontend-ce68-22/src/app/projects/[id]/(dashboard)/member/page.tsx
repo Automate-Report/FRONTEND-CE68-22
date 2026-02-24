@@ -24,7 +24,8 @@ import {
 import { useMembers } from "@/src/hooks/project/use-members";
 import { useProject } from "@/src/hooks/project/use-project";
 import { useChangeRole } from "@/src/hooks/project/use-changeRole";
-import { projectService } from "@/src/services/project.service"; // ✅ Import service
+import { useMe } from "@/src/hooks/user/use-me";
+import { projectService } from "@/src/services/project.service";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericPagination } from "@/src/components/Common/GenericPagination";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
@@ -33,32 +34,41 @@ export default function MemberPage() {
   const params = useParams();
   const projectId = parseInt(params.id as string);
   const queryClient = useQueryClient();
-  
-  // TODO: เปลี่ยนเป็น email ของ user ปัจจุบัน
-  const currentUserEmail = "owner@example.com"; 
 
+  // 1. ดึงข้อมูล Project (เพื่อเอา Role ของเราในโปรเจกต์นี้)
   const { data: project, isLoading: isProjectLoading } = useProject(projectId);
+  // 2. ดึงข้อมูลตัวตนจาก Backend (/auth/me)
+  const { data: meData, isLoading: isMeLoading } = useMe(); 
+
+  const myRole = project?.role?.toLowerCase();
+  const isOwner = myRole === "owner";
   
+  // ✅ ใช้ meData.user (จาก user["sub"] ใน Backend)
+  const currentUserEmail = meData?.user; 
+
+  // --- Pagination & Search States ---
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("ALL");
 
+  // --- Inline Edit & Delete States ---
   const [editingEmail, setEditingEmail] = useState<string | null>(null);
   const [pendingRole, setPendingRole] = useState<string>("");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [memberToDelete, setMemberToDelete] = useState<{email: string, name: string} | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // --- Data Fetching & Mutations ---
   const { data: membersData, isLoading: isMembersLoading } = useMembers(
     projectId, page + 1, size, "firstname", "asc", search, roleFilter
   );
-  
   const { mutate: updateRole, isPending: isUpdating } = useChangeRole(projectId);
 
   const members = membersData?.items || [];
   const totalCount = membersData?.total || 0;
 
+  // --- Handlers ---
   const handleStartEdit = (member: any) => {
     setEditingEmail(member.email);
     setPendingRole(member.role.toLowerCase());
@@ -106,7 +116,8 @@ export default function MemberPage() {
     return { color: "#9AA6A8", bg: "rgba(154, 166, 168, 0.05)", border: "rgba(154, 166, 168, 0.1)" };
   };
 
-  if (isProjectLoading || isMembersLoading) return (
+  // ✅ รวมสถานะ Loading
+  if (isProjectLoading || isMembersLoading || isMeLoading) return (
     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
       <CircularProgress sx={{ color: "#8FFF9C" }} />
     </Box>
@@ -121,22 +132,34 @@ export default function MemberPage() {
       ]} />
 
       <Box mb={5} mt={4}>
-        <Typography variant="h4" sx={{ fontWeight: 900, color: "#FBFBFB", mb: 1 }}>Access Management</Typography>
-        <Typography variant="body2" sx={{ color: "#404F57", fontWeight: 600 }}>Manage identities and modify team permissions.</Typography>
+        <Typography variant="h4" sx={{ fontWeight: 900, color: "#FBFBFB", mb: 1, letterSpacing: '-0.02em' }}>
+          Access Management
+        </Typography>
+        <Typography variant="body2" sx={{ color: "#404F57", fontWeight: 600 }}>
+          Authenticated as: <span className="text-[#8FFF9C]">{meData?.name}</span> ({myRole})
+        </Typography>
       </Box>
 
       {/* Toolbar */}
       <Stack direction="row" spacing={2} mb={3}>
         <TextField
-          placeholder="Filter by name or email..."
+          placeholder="Filter by name or email identity..."
           variant="outlined" size="small" value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-          sx={{ flexGrow: 1, bgcolor: "#1E2429", borderRadius: '12px', "& .MuiOutlinedInput-notchedOutline": { borderColor: "#404F57" }, "& .MuiInputBase-input": { color: "#FBFBFB" } }}
+          sx={{ 
+            flexGrow: 1, bgcolor: "#1E2429", borderRadius: '12px',
+            "& .MuiOutlinedInput-notchedOutline": { borderColor: "#404F57" },
+            "& .MuiInputBase-input": { color: "#FBFBFB", fontSize: '14px' }
+          }}
           InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: "#404F57", fontSize: 20 }} /></InputAdornment> }}
         />
         <Select
           size="small" value={roleFilter} onChange={(e) => { setRoleFilter(e.target.value); setPage(0); }}
-          sx={{ minWidth: 180, bgcolor: "#1E2429", color: "#FBFBFB", borderRadius: '12px', ".MuiOutlinedInput-notchedOutline": { borderColor: "#404F57" } }}
+          sx={{ 
+            minWidth: 180, bgcolor: "#1E2429", color: "#FBFBFB", borderRadius: '12px',
+            fontSize: '14px', fontWeight: 600,
+            ".MuiOutlinedInput-notchedOutline": { borderColor: "#404F57" }
+          }}
         >
           <MenuItem value="ALL">All Authorities</MenuItem>
           <MenuItem value="owner">Owner</MenuItem>
@@ -145,12 +168,18 @@ export default function MemberPage() {
         </Select>
       </Stack>
 
-      {/* Table */}
-      <TableContainer component={Paper} sx={{ bgcolor: "#0D1014", border: "1px solid #2D2F39", borderRadius: "16px", overflow: "hidden" }}>
+      <TableContainer 
+        component={Paper} 
+        sx={{ 
+          bgcolor: "#0D1014", border: "1px solid #2D2F39", 
+          borderRadius: "16px", overflow: "hidden",
+          boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+        }}
+      >
         <Table>
           <TableHead sx={{ bgcolor: "#161B1F" }}>
             <TableRow>
-              <TableCell sx={{ color: "#404F57", fontWeight: 900, fontSize: '11px', borderBottom: '1px solid #2D2F39' }}>MEMBER IDENTITY</TableCell>
+              <TableCell sx={{ color: "#404F57", fontWeight: 900, fontSize: '11px', borderBottom: '1px solid #2D2F39', py: 2.5 }}>MEMBER IDENTITY</TableCell>
               <TableCell sx={{ color: "#404F57", fontWeight: 900, fontSize: '11px', borderBottom: '1px solid #2D2F39' }}>AUTHORITY LEVEL</TableCell>
               <TableCell sx={{ color: "#404F57", fontWeight: 900, fontSize: '11px', borderBottom: '1px solid #2D2F39' }}>ACCESS GRANTED</TableCell>
               <TableCell align="right" sx={{ color: "#404F57", fontWeight: 900, fontSize: '11px', borderBottom: '1px solid #2D2F39' }}>CONTROL</TableCell>
@@ -163,36 +192,67 @@ export default function MemberPage() {
               const isTargetOwner = member.role.toLowerCase() === "owner";
               const rStyle = getRoleStyle(isEditing ? pendingRole : member.role);
 
+              // ✅ สรุป Logic การ Disable:
+              // 1. เราไม่ใช่ Owner -> แก้ไม่ได้
+              // 2. แถวนั้นเป็นตัวเอง -> แก้ไม่ได้
+              // 3. แถวนั้นเป็น Owner คนอื่น -> แก้ไม่ได้
+              const isDisabled = !isOwner || isMe || isTargetOwner;
+
               return (
                 <TableRow key={member.email} sx={{ "&:hover": { bgcolor: "rgba(143, 255, 156, 0.02)" } }}>
                   <TableCell sx={{ borderBottom: "1px solid #1C2126" }}>
                     <Stack direction="row" spacing={2} alignItems="center">
-                      <Avatar sx={{ bgcolor: isMe ? "rgba(143, 255, 156, 0.1)" : "#1E2429", color: isMe ? "#8FFF9C" : "#9AA6A8", border: `1px solid ${isMe ? "#8FFF9C30" : "#404F57"}` }}>{member.firstname[0]}</Avatar>
+                      <Avatar sx={{ 
+                        bgcolor: isMe ? "rgba(143, 255, 156, 0.1)" : "#1E2429", 
+                        color: isMe ? "#8FFF9C" : "#9AA6A8", 
+                        border: isMe ? '2px solid #8FFF9C' : '1px solid #404F57' 
+                      }}>
+                        {member.firstname[0]}
+                      </Avatar>
                       <Box>
                         <Stack direction="row" spacing={1} alignItems="center">
-                          <Typography sx={{ color: "#FBFBFB", fontWeight: 700, fontSize: '14px' }}>{member.firstname} {member.lastname}</Typography>
+                          <Typography sx={{ color: "#FBFBFB", fontWeight: 700, fontSize: '14px' }}>
+                            {member.firstname} {member.lastname}
+                          </Typography>
                           {isMe && <Chip label="YOU" size="small" sx={{ height: 16, fontSize: '9px', fontWeight: 900, bgcolor: "#8FFF9C", color: "#0D1014" }} />}
                           {isTargetOwner && !isMe && <ShieldIcon sx={{ fontSize: 14, color: "#8FFF9C", opacity: 0.6 }} />}
                         </Stack>
-                        <Typography sx={{ color: "#404F57", fontSize: '12px', display: 'flex', alignItems: 'center', gap: 0.5 }}><MailIcon sx={{ fontSize: 13 }} /> {member.email}</Typography>
+                        <Typography sx={{ color: "#404F57", fontSize: '12px', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <MailIcon sx={{ fontSize: 13 }} /> {member.email}
+                        </Typography>
                       </Box>
                     </Stack>
                   </TableCell>
                   
                   <TableCell sx={{ borderBottom: "1px solid #1C2126" }}>
                     {isEditing ? (
-                      <Select size="small" value={pendingRole} disabled={isUpdating} onChange={(e) => setPendingRole(e.target.value)} sx={{ minWidth: 120, height: 32, fontSize: '11px', fontWeight: 900, color: rStyle.color, bgcolor: rStyle.bg, border: `1px solid ${rStyle.color}`, ".MuiOutlinedInput-notchedOutline": { border: "none" } }}>
+                      <Select 
+                        size="small" value={pendingRole} disabled={isUpdating}
+                        onChange={(e) => setPendingRole(e.target.value)} 
+                        sx={{ 
+                          minWidth: 120, height: 32, fontSize: '11px', fontWeight: 900, 
+                          color: rStyle.color, bgcolor: rStyle.bg, border: `1px solid ${rStyle.color}`, 
+                          ".MuiOutlinedInput-notchedOutline": { border: "none" },
+                          textTransform: 'uppercase'
+                        }}
+                      >
                         <MenuItem value="owner">OWNER</MenuItem>
                         <MenuItem value="pentester">PENTESTER</MenuItem>
                         <MenuItem value="developer">DEVELOPER</MenuItem>
                       </Select>
                     ) : (
-                      <Chip label={member.role.toUpperCase()} sx={{ height: 24, fontSize: '10px', fontWeight: 900, color: rStyle.color, bgcolor: rStyle.bg, border: `1px solid ${rStyle.border}` }} />
+                      <Chip 
+                        label={member.role.toUpperCase()} 
+                        sx={{ height: 24, fontSize: '10px', fontWeight: 900, color: rStyle.color, bgcolor: rStyle.bg, border: `1px solid ${rStyle.border}` }} 
+                      />
                     )}
                   </TableCell>
                   
                   <TableCell sx={{ borderBottom: "1px solid #1C2126" }}>
-                    <Typography sx={{ color: "#9AA6A8", fontSize: '12px', display: 'flex', alignItems: 'center', gap: 0.8 }}><JoinIcon sx={{ fontSize: 14 }} /> {new Date(member.joinned_at).toLocaleDateString('en-GB')}</Typography>
+                    <Typography sx={{ color: "#9AA6A8", fontSize: '12px', display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                      <JoinIcon sx={{ fontSize: 14, color: '#404F57' }} />
+                      {new Date(member.joinned_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </Typography>
                   </TableCell>
                   
                   <TableCell align="right" sx={{ borderBottom: "1px solid #1C2126" }}>
@@ -206,14 +266,39 @@ export default function MemberPage() {
                         </>
                       ) : (
                         <>
-                          <Tooltip title={isMe ? "Self-modification restricted" : isTargetOwner ? "Owner accounts are immutable" : "Modify Authority"}>
+                          {/* ปุ่มแก้ไข */}
+                          <Tooltip title={
+                            !isOwner ? "Insufficient permissions" : 
+                            isMe ? "Self-modification restricted" : 
+                            isTargetOwner ? "Owner accounts are immutable" : 
+                            "Modify Authority"
+                          }>
                             <span>
-                              <IconButton size="small" disabled={isMe || isTargetOwner} onClick={() => handleStartEdit(member)} sx={{ color: "#404F57", "&:hover": { color: "#8FFF9C" } }}><EditIcon sx={{ fontSize: 18 }} /></IconButton>
+                              <IconButton 
+                                size="small" disabled={isDisabled} 
+                                onClick={() => handleStartEdit(member)} 
+                                sx={{ color: "#404F57", "&:hover": { color: "#8FFF9C" } }}
+                              >
+                                <EditIcon sx={{ fontSize: 18 }} />
+                              </IconButton>
                             </span>
                           </Tooltip>
-                          <Tooltip title={isMe ? "You cannot remove yourself" : isTargetOwner ? "Owners cannot be removed by peers" : "Remove Member"}>
+
+                          {/* ปุ่มลบ */}
+                          <Tooltip title={
+                            !isOwner ? "Insufficient permissions" : 
+                            isMe ? "You cannot remove yourself" : 
+                            isTargetOwner ? "Owners cannot be removed by peers" : 
+                            "Remove Member"
+                          }>
                             <span>
-                              <IconButton size="small" disabled={isMe || isTargetOwner} onClick={() => handleOpenDeleteModal(member.email, member.firstname, member.lastname)} sx={{ color: "#404F57", "&:hover": { color: "#FE3B46" } }}><DeleteIcon sx={{ fontSize: 18 }} /></IconButton>
+                              <IconButton 
+                                size="small" disabled={isDisabled} 
+                                onClick={() => handleOpenDeleteModal(member.email, member.firstname, member.lastname)} 
+                                sx={{ color: "#404F57", "&:hover": { color: "#FE3B46" } }}
+                              >
+                                <DeleteIcon sx={{ fontSize: 18 }} />
+                              </IconButton>
                             </span>
                           </Tooltip>
                         </>
@@ -228,7 +313,11 @@ export default function MemberPage() {
           </TableBody>
         </Table>
         <Box sx={{ p: 1, borderTop: "1px solid #2D2F39", bgcolor: "#161B1F" }}>
-          <GenericPagination count={totalCount} page={page} rowsPerPage={size} onPageChange={setPage} onRowsPerPageChange={(newSize) => { setSize(newSize); setPage(0); }} />
+          <GenericPagination 
+            count={totalCount} page={page} rowsPerPage={size} 
+            onPageChange={setPage} 
+            onRowsPerPageChange={(v) => { setSize(v); setPage(0); }} 
+          />
         </Box>
       </TableContainer>
 
