@@ -20,7 +20,7 @@ export function WorkerUnlinkModal({ open, onClose, onConfirm, workerName, loadin
                     <Box sx={{ width: 64, height: 64, borderRadius: '50%', bgcolor: 'rgba(255, 152, 0, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2, border: '1px solid rgba(255, 152, 0, 0.2)' }}><UnlinkIcon sx={{ fontSize: 32, color: '#FF9800' }} /></Box>
                     <Typography variant="h5" sx={{ color: '#E6F0E6', fontWeight: 'bold', mb: 1 }}>Disconnect Worker?</Typography>
                     <Typography sx={{ color: '#9AA6A8', fontSize: '14px', mb: 3, lineHeight: 1.6 }}>
-                        This will disconnect <span style={{ color: '#FBFBFB', fontWeight: 'bold' }}>{workerName}</span> from the current host. The machine will be released for <span style={{ color: '#8FFF9C' }}>re-registration</span>.
+                        This will disconnect <span style={{ color: '#FBFBFB', fontWeight: 'bold' }}>{workerName}</span> from the current host. The machine will be released for <span style={{ color: '#8FFF9C' }}>re-download</span>.
                     </Typography>
                     <Stack direction="row" spacing={2}>
                         <Button fullWidth onClick={onClose} disabled={loading} sx={{ color: '#9AA6A8', border: '1px solid #404F57', borderRadius: '12px', textTransform: 'none' }}>Cancel</Button>
