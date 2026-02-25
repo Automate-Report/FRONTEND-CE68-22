@@ -58,10 +58,17 @@ export interface VulnDetails {
     severity: string;
     status: string;
     verify?: string;
+    parameters?: string;
     occurrance_count: number;
     occurrance_date: string[];
     cvss_details: CVSSDetails;
     reproduce_info: ReProduceInfo;
     dates: VulnDates;
     recommendation: string;
+}
+
+export interface VulnAssignPayload {
+    vuln_id: number;
+    position: string;
+    user_id: string;
 }

@@ -1,5 +1,5 @@
 import apiClient from "../lib/api-client";
-import { SummaryStatusVlun, VulnIssue, VulnDetails } from "../types/vuln";
+import { SummaryStatusVlun, VulnIssue, VulnDetails, VulnAssignPayload } from "../types/vuln";
 import { PaginatedResult } from "../types/common";
 
 export const vulnService = {
@@ -35,5 +35,8 @@ export const vulnService = {
     const { data } = await apiClient.get<SummaryStatusVlun>(`/vulns/summary/status/${projectId}`);
     return data;
   },
-
+  assign: async (payload: VulnAssignPayload) => {
+    const { data } = await apiClient.post(`/vulns/assign/`, payload);
+    return data;
+  }
 };
