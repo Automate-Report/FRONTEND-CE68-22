@@ -38,5 +38,13 @@ export const vulnService = {
   assign: async (payload: VulnAssignPayload) => {
     const { data } = await apiClient.post(`/vulns/assign/`, payload);
     return data;
+  },
+  changeStatus: async (vulnId: number, newStatus: string) => {
+    const { data } = await apiClient.post(`/vulns/change-status/`, { vuln_id: vulnId, new_status: newStatus });
+    return data;
+  },
+  changeVerify: async (vulnId: number, newVerify: string) => {
+    const { data } = await apiClient.post(`/vulns/change-verify/`, { vuln_id: vulnId, new_verify: newVerify });
+    return data;
   }
 };
