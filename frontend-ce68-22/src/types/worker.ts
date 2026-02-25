@@ -11,6 +11,7 @@ export interface Worker {
   created_at: string;
   updated_at: string;
   last_heartbeat: string;
+  owner?: string;
 }
 
 export interface CreateWorkerPayload {

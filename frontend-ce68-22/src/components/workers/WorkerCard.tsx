@@ -43,6 +43,9 @@ export function WorkerCard({ worker, canManage, onEdit, onDelete, onDownload, on
             )}
           </Stack>
           <Stack spacing={1} sx={{ mt: 1 }}>
+            <Box>
+              <Typography variant="body2" sx={{ color: "#9AA6A8" }}>Owner: {worker.owner ?? "Firstname Lastname Link Profile"}</Typography>
+            </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <Typography variant="body2" sx={{ color: "#9AA6A8", display: "flex", alignItems: "center", gap: 1 }}><HostIcon sx={{ fontSize: 16 }} /> {worker.hostname ?? "No Hostname"}</Typography>
               <div className={`text-[12px] font-bold px-2 py-0.5 rounded-md ${worker.isActive === false ? "text-[#6EDD99] bg-[#DEFFE2]/10" : "text-[#DD6E6E] bg-[#FFDEDE]/10"}`}>{worker.isActive === false ? "Available" : "In Use"}</div>
