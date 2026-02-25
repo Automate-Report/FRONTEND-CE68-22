@@ -52,7 +52,7 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
     {
       title: "VULNERABILITY MANAGEMENT",
       items: [
-        { name: "All Issues", href: `/projects/${project_id}/issues`, icon: <LogIcon /> },
+        { name: "Issues", href: `/projects/${project_id}/issues`, icon: <LogIcon /> },
         { name: "Triage & Fix", href: `/projects/${project_id}/triage`, icon: <EditProjectIcon /> },
       ],
     },
