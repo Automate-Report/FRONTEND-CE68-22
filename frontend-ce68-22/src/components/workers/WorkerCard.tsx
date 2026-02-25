@@ -1,7 +1,22 @@
 "use client";
 
-import { Box, Typography, Stack, IconButton, LinearProgress, Tooltip } from "@mui/material";
-import { Engineering as WorkerIcon, Delete as DeleteIcon, Edit as EditIcon, Download as DownloadIcon, Dns as HostIcon, Wifi as IpIcon, Favorite as HeartbeatIcon, LinkOff as UnlinkIcon } from "@mui/icons-material";
+import { 
+  Box, 
+  Typography, 
+  Stack, 
+  IconButton, 
+  LinearProgress, 
+  Tooltip, 
+  CircularProgress } from "@mui/material";
+import { 
+  Engineering as WorkerIcon, 
+  Delete as DeleteIcon, 
+  Edit as EditIcon, 
+  Download as DownloadIcon, 
+  Dns as HostIcon, 
+  Wifi as IpIcon, 
+  Favorite as HeartbeatIcon, 
+  LinkOff as UnlinkIcon } from "@mui/icons-material";
 import { WORKER_STATUS_MAP } from "@/src/constants/worker-status";
 import { Worker as WorkerType } from "@/src/types/worker";
 
@@ -10,11 +25,12 @@ interface WorkerCardProps {
   canManage: boolean;
   onEdit?: (e: React.MouseEvent) => void;
   onDelete: (e: React.MouseEvent, worker: WorkerType) => void;
+  isDownloading?: boolean;
   onDownload?: (e: React.MouseEvent) => void;
   onUnlink: (e: React.MouseEvent, worker: WorkerType) => void;
 }
 
-export function WorkerCard({ worker, canManage, onEdit, onDelete, onDownload, onUnlink }: WorkerCardProps) {
+export function WorkerCard({ worker, canManage, onEdit, onDelete, isDownloading, onDownload, onUnlink }: WorkerCardProps) {
   const statusConfig = WORKER_STATUS_MAP[worker.status] || WORKER_STATUS_MAP.unknown;
   const currentLoad = worker.current_load ?? 0;
   const maxThread = worker.thread_number ?? 1;
@@ -32,10 +48,23 @@ export function WorkerCard({ worker, canManage, onEdit, onDelete, onDownload, on
             </Box>
             {canManage && (
               <Stack direction="row" spacing={0.5} alignItems="center">
-                {worker.isActive ? (
+                {worker.owner ? (
                   <Tooltip title="Disconnect Node"><IconButton size="small" onClick={(e) => onUnlink(e, worker)} sx={{ color: "#FF9800", bgcolor: "rgba(255, 152, 0, 0.05)", "&:hover": { bgcolor: "rgba(255, 152, 0, 0.15)" } }}><UnlinkIcon fontSize="small" /></IconButton></Tooltip>
                 ) : (
-                  <Tooltip title="Download Config"><IconButton size="small" onClick={onDownload} sx={{ color: "#8FFF9C", "&:hover": { bgcolor: "rgba(143, 255, 156, 0.1)" } }}><DownloadIcon fontSize="small" /></IconButton></Tooltip>
+                  <Tooltip title="Download Config">
+                    <IconButton 
+                      size="small" 
+                      onClick={onDownload} 
+                      disabled={isDownloading} // ✅ ป้องกันการกดซ้ำ
+                      sx={{ color: "#8FFF9C" }}
+                    >
+                      {isDownloading ? (
+                        <CircularProgress size={20} sx={{ color: "#8FFF9C" }} /> // ✅ หมุนๆ แทนไอคอน
+                      ) : (
+                        <DownloadIcon fontSize="small" />
+                      )}
+                    </IconButton>
+                  </Tooltip>
                 )}
                 <Tooltip title="Edit"><IconButton size="small" onClick={onEdit} sx={{ color: "#9AA6A8", "&:hover": { color: "#FBFBFB" } }}><EditIcon fontSize="small" /></IconButton></Tooltip>
                 <Tooltip title="Delete"><IconButton size="small" onClick={(e) => onDelete(e, worker)} sx={{ color: "#FE3B46", opacity: 0.8, "&:hover": { opacity: 1, bgcolor: "rgba(254, 59, 70, 0.1)" } }}><DeleteIcon fontSize="small" /></IconButton></Tooltip>
@@ -43,12 +72,12 @@ export function WorkerCard({ worker, canManage, onEdit, onDelete, onDownload, on
             )}
           </Stack>
           <Stack spacing={1} sx={{ mt: 1 }}>
-            <Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <Typography variant="body2" sx={{ color: "#9AA6A8" }}>Owner: {worker.owner ?? "Firstname Lastname Link Profile"}</Typography>
+              <div className={`text-[12px] font-bold px-2 py-0.5 rounded-md ${worker.owner === null ? "text-[#6EDD99] bg-[#DEFFE2]/10" : "text-[#DD6E6E] bg-[#FFDEDE]/10"}`}>{worker.owner === null ? "Available" : "In Use"}</div>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <Typography variant="body2" sx={{ color: "#9AA6A8", display: "flex", alignItems: "center", gap: 1 }}><HostIcon sx={{ fontSize: 16 }} /> {worker.hostname ?? "No Hostname"}</Typography>
-              <div className={`text-[12px] font-bold px-2 py-0.5 rounded-md ${worker.isActive === false ? "text-[#6EDD99] bg-[#DEFFE2]/10" : "text-[#DD6E6E] bg-[#FFDEDE]/10"}`}>{worker.isActive === false ? "Available" : "In Use"}</div>
             </Box>
             <Box>
               <Stack direction="row" justifyContent="space-between" mb={0.5}><Typography variant="caption" sx={{ color: "#FBFBFB", fontWeight: "bold" }}>Load: {currentLoad}/{maxThread}</Typography><Typography variant="caption" sx={{ color: "#9AA6A8" }}>{Math.round(loadPercentage)}%</Typography></Stack>

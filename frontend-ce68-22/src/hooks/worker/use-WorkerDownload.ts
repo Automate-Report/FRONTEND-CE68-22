@@ -1,61 +1,56 @@
 import { useState } from "react";
 import { workerService } from "@/src/services/worker.service";
+import toast from "react-hot-toast";
 
 export const useWorkerDownload = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const downloadWorker = async (workerId: number, fallbackName: string) => {
-    setIsLoading(true);
-    setError(null);
+  setIsLoading(true);
+  try {
+    const response = await workerService.download_worker(workerId);
 
-    try {
-      // 1. เรียก Service 
-      // *** สำคัญมาก: ใน axios/service ต้องระบุ responseType: 'blob' ด้วยนะครับ ***
-      const response = await workerService.download_worker(workerId);
-
-      // 2. แกะชื่อไฟล์จาก Header (Content-Disposition)
-      // Backend ส่งมา: attachment; filename="SecurityWorker_ProjectA.zip"
-      
-      // เปลี่ยน Default เป็น .zip
-      let filename = `worker_${fallbackName}.zip`; 
-      
-      // ดึง Header (Axios มักจะส่ง headers เป็น lowercase ทั้งหมด)
-      const disposition = response.headers["content-disposition"];
-
-      if (disposition && disposition.indexOf("attachment") !== -1) {
-        // Regex นี้ครอบคลุมทั้งแบบมี quotes และไม่มี quotes
-        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-        const matches = filenameRegex.exec(disposition);
-        if (matches != null && matches[1]) {
-          // ลบ quotes ออก (เช่น "file.zip" -> file.zip)
-          filename = matches[1].replace(/['"]/g, "");
-        }
-      }
-
-      // 3. สร้าง Blob URL และระบุ Type เป็น Zip
-      const blob = new Blob([response.data], { type: "application/zip" });
-      const url = window.URL.createObjectURL(blob);
-      
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", filename);
-      
-      // ต้อง append เข้า body ก่อน click (สำหรับบาง Browser เช่น Firefox)
-      document.body.appendChild(link);
-      link.click();
-
-      // 4. Cleanup
-      link.parentNode?.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-    } catch (err) {
-      console.error("Download failed:", err);
-      setError("ไม่สามารถดาวน์โหลดไฟล์ได้ กรุณาลองใหม่");
-    } finally {
-      setIsLoading(false);
+    // 1. ตรวจสอบว่าได้ข้อมูลมาจริงไหม
+    if (!response.data || response.data.size === 0) {
+      throw new Error("Empty file received");
     }
-  };
+
+    // 2. สร้าง Blob และ URL
+    const blob = new Blob([response.data], { type: "application/zip" });
+    const url = window.URL.createObjectURL(blob);
+    
+    // 3. จัดการเรื่องชื่อไฟล์
+    let filename = `worker_${fallbackName}.zip`;
+    const disposition = response.headers["content-disposition"];
+    if (disposition?.includes("attachment")) {
+       const matches = /filename="?([^";\n]*)"?/.exec(disposition);
+       if (matches?.[1]) filename = matches[1];
+    }
+
+    // 4. วิธีสร้าง Link ที่ Chrome มั่นใจว่าไม่ใช่ Bot/Malware
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.style.display = "none"; // ซ่อนไว้
+    document.body.appendChild(link);
+    
+    link.click(); // สั่งดาวน์โหลด
+
+    // 5. ให้เวลาระบบนิดนึงก่อนลบ (Chrome ต้องการสิ่งนี้ในบางกรณี)
+    setTimeout(() => {
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    }, 100);
+
+    toast.success("ดาวน์โหลดสำเร็จ");
+  } catch (err) {
+    console.error("Chrome Download Blocked/Failed:", err);
+    toast.error("ไม่สามารถดาวน์โหลดไฟล์ได้");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return { downloadWorker, isLoading, error };
 };

@@ -7,7 +7,11 @@ import { useWorkers } from "@/src/hooks/worker/use-workers";
 import { useWorkerInfoSummary } from "@/src/hooks/worker/use-workerInfoSummary";
 import { useTable } from "@/src/hooks/use-table";
 import { useDebounce } from "@/src/hooks/use-debounce";
+import { useWorkerDownload } from "@/src/hooks/worker/use-WorkerDownload";
+import { toast } from "react-hot-toast";
+
 import { workerService } from "@/src/services/worker.service";
+
 import { Worker as WorkerType } from "@/src/types/worker";
 
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
@@ -52,6 +56,10 @@ export default function WorkersPage({ params }: PageProps) {
     isAll: false,
     loading: false,
   });
+
+  // --- Download ---
+  const { downloadWorker, isLoading: isDownloading } = useWorkerDownload();
+  const [downloadingId, setDownloadingId] = useState<number | null>(null);
 
   const {
     page,
@@ -103,6 +111,23 @@ export default function WorkersPage({ params }: PageProps) {
       alert("Action failed");
     } finally {
       setUnlinkModal(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleDownload = async (e: React.MouseEvent, workerId: number, workerName: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setDownloadingId(workerId); // เริ่มต้นดาวน์โหลด: เก็บ ID ไว้แสดง Spinner
+    try {
+      toast.loading("Preparing your configuration...", { id: "dl-toast" });
+      await downloadWorker(workerId, workerName);
+      toast.success("Download started!", { id: "dl-toast" });
+      refetch(); // รีเฟรชข้อมูลหลังดาวน์โหลด เผื่อสถานะเปลี่ยน
+    } catch (err) {
+      toast.error("Download failed", { id: "dl-toast" });
+    } finally {
+      setDownloadingId(null); // ดาวน์โหลดเสร็จ (หรือพัง): เอา Spinner ออก
     }
   };
 
@@ -177,6 +202,8 @@ export default function WorkersPage({ params }: PageProps) {
                 <Link key={worker.id} href={`/projects/${projectId}/workers/${worker.id}`} className="block no-underline">
                   <WorkerCard 
                     worker={worker} canManage={isOwner}
+                    isDownloading={downloadingId === worker.id && isDownloading}
+                    onDownload={(e) => handleDownload(e, worker.id, worker.name)}
                     onDelete={(e, w) => { e.stopPropagation(); e.preventDefault(); deleteState.handleDeleteClick(w); }}
                     onUnlink={(e, w) => { e.stopPropagation(); e.preventDefault(); handleUnlinkClick(w); }}
                   />
