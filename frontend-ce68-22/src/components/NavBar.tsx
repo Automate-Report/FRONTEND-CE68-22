@@ -116,13 +116,6 @@ export function NavBar() {
                     </Link>
                     <div className="flex items-center gap-6">
                         <div className="flex gap-10 text-xl font-semibold">
-                            <Link href="/workers">
-                                <div className="flex items-center gap-3 hover:text-[#AFFFB9]">
-                                    <span className="leading-none">Worker</span>
-                                    <RobotIcon />
-                                </div>
-                            </Link>
-
                             <Link href="/settings">
                                 <div className="flex items-center gap-3 hover:text-[#AFFFB9]">
                                     <span className="leading-none">Setting</span>
