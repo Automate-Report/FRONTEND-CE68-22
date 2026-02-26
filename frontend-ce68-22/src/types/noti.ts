@@ -1,4 +1,4 @@
-export type NotificationType = "report" | "schedule_start" | "schedule_stop";
+export type NotificationType = "report" | "schedule_start" | "schedule_stop" | "error";
 
 export type NotificationStatus = "unread" | "read";
 
