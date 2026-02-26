@@ -116,7 +116,10 @@ export default function ProjectsPage() {
       {/* Toolbar */}
       <div className="flex justify-between items-center mb-6 text-[#E6F0E6]">
         <div className="flex justify-between items-center pr-5 flex-1">
-          <div className="relative w-1/3 flex items-center h-[40px] gap-3 max-w-md bg-white rounded-xl pl-2 shadow-sm">
+
+          {/* Search bar */}
+          <div className="relative w-[40%] flex items-center h-[42px] gap-3 max-w-md rounded-xl pl-3 shadow-sm
+            border-[2px] border-[#404F57] focus-within:border-[#8FFF9C] transition">
             <MagIcon />
             <input
               type="text"
@@ -130,7 +133,8 @@ export default function ProjectsPage() {
           <div className="relative">
             <button
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 px-6 py-2 text-[#E6F0E6] border border-[#E6F0E6] rounded-xl hover:bg-white/10 cursor-pointer transition"
+              className="flex items-center h-[42px] gap-2 px-6 py-2 text-[#E6F0E6] border-[2px] border-[#404F57] rounded-xl 
+              hover:bg-[#404F57] hover:text-white cursor-pointer transition"
             >
               Filter <FilterIcon />
             </button>

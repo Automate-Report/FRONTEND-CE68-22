@@ -1,20 +1,11 @@
 "use client";
 
 import React from "react";
-import { 
-  Card, 
-  Typography, 
-  Box, 
-  Chip, 
-  IconButton, 
-  Tooltip,
-  Divider,
-  Stack
-} from "@mui/material";
-import { 
+import { Card, Typography, Box, Chip, IconButton, Tooltip, Divider, Stack } from "@mui/material";
+import {
   AccessTime as TimeIcon,
   Storage as AssetIcon,
-  ReportProblem as VulnIcon 
+  ReportProblem as VulnIcon
 } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import { ProjectSummary } from "@/src/types/project";
@@ -47,16 +38,16 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
   const roleStyle = getRoleStyle(project.role);
 
   return (
-    <Card 
-      sx={{ 
-        width: '100%', 
-        display: 'flex', 
+    <Card
+      sx={{
+        width: '100%',
+        display: 'flex',
         flexDirection: { xs: 'column', md: 'row' },
-        bgcolor: "#272D31", 
+        bgcolor: "#21292d",
         border: "1px solid #404F57",
         borderRadius: "16px",
         overflow: "hidden",
-        position: "relative", 
+        position: "relative",
         transition: "all 0.2s ease-in-out",
         cursor: 'pointer',
         "&:hover": {
@@ -67,27 +58,12 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
       }}
       onClick={handleOpenProject}
     >
-      {/* --- Role Badge: มุมขวาบนสุดของ Card --- */}
-      <Box sx={{ position: 'absolute', top: 12, right: 12, zIndex: 3 }}>
-        <Chip 
-          label={project.role.toUpperCase()} 
-          sx={{ 
-            bgcolor: roleStyle.bg, 
-            color: roleStyle.color, 
-            fontWeight: 900, 
-            fontSize: "10px", 
-            borderRadius: "6px",
-            border: `1px solid ${roleStyle.border}`,
-            height: '22px',
-          }} 
-        />
-      </Box>
 
       {/* --- ฝั่งซ้าย: ข้อมูลเนื้อหาหลัก (สัดส่วน 2) --- */}
       <Box sx={{ flex: 2, p: 3, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minWidth: 0 }}>
         <Box>
           {/* 1. ชื่อ Project */}
-          <Typography variant="h6" sx={{ color: "#FBFBFB", fontWeight: "bold", lineHeight: 1.2, mb: 0.5, pr: 10 }} noWrap>
+          <Typography variant="h6" sx={{ color: "#FBFBFB", fontWeight: "bold", lineHeight: 1.2, mb: 1.5 }} noWrap>
             {project.name}
           </Typography>
 
@@ -100,7 +76,7 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
                 size="small"
                 sx={{
                   height: '18px',
-                  fontSize: '9px',
+                  fontSize: '10px',
                   fontWeight: 800,
                   bgcolor: tag.bg_color || "#404F57",
                   color: tag.text_color || "#EDF6EE",
@@ -109,7 +85,7 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  '& .MuiChip-label': { px: 1 }
+                  '& .MuiChip-label': { px: 1}
                 }}
               />
             ))}
@@ -140,35 +116,51 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
       </Box>
 
       {/* --- ฝั่งขวา: Stats และ Actions (สัดส่วน 1) --- */}
-      <Box 
-        sx={{ 
-          flex: 1, 
-          bgcolor: "#1E2429", 
+      <Box
+        sx={{
+          flex: 1,
+          bgcolor: "#151b1d",
           borderLeft: { md: "1px solid #404F57" },
-          p: 3, 
-          pt: 6, // เว้นที่ให้ Role Badge ด้านบน
-          display: 'flex', 
-          flexDirection: 'column', 
+          p: 3,
+          display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'space-between',
-          minHeight: { md: '180px' } 
+          minHeight: { md: '180px' }
         }}
       >
-        {/* Stats Pocket */}
-        <Box 
-          sx={{ 
+        {/* --- Role Badge --- */}
+        <Chip
+          label={project.role.toUpperCase()}
+          sx={{
+            mb: 2,
+            py: 1.5,
             width: '100%',
-            bgcolor: "#0F1518", 
-            border: "1px solid rgba(64, 79, 87, 0.4)", 
-            borderRadius: "12px", 
-            display: 'flex', 
+            bgcolor: roleStyle.bg,
+            color: roleStyle.color,
+            fontWeight: 700,
+            fontSize: "12px",
+            borderRadius: "6px",
+            border: `1px solid ${roleStyle.border}`,
+            height: '22px',
+          }}
+        />
+
+        {/* Stats Pocket */}
+        <Box
+          sx={{
+            width: '100%',
+            bgcolor: "#0F1518",
+            border: "2px solid rgba(64, 79, 87, 0.4)",
+            borderRadius: "12px",
+            display: 'flex',
             py: 2
           }}
         >
           <Box flex={1} textAlign="center">
             <Typography variant="caption" sx={{ color: "#404F57", fontWeight: 900, letterSpacing: 1, display: 'block', mb: 0.5 }}>ASSETS</Typography>
             <Stack direction="row" justifyContent="center" alignItems="center" spacing={0.5}>
-              <AssetIcon sx={{ fontSize: 16, color: "#404F57" }} />
+              <AssetIcon sx={{ fontSize: 16, color: "#EDF6EE" }} />
               <Typography variant="h5" sx={{ color: "#EDF6EE", fontWeight: "bold" }}>{project.assets_cnt}</Typography>
             </Stack>
           </Box>
@@ -183,37 +175,67 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
         </Box>
 
         {/* Action Buttons Zone */}
-        <Box 
-          display="flex" 
-          justifyContent="center" 
+        <Box
+          display="flex"
+          justifyContent="center"
           alignItems="center"
-          sx={{ height: '40px', width: '100%', mt: 1 }}
+          sx={{ width: '100%', mt: 2 }}
         >
           {isOwner ? (
-            <Stack direction="row" spacing={2}>
+            <Stack direction="row" spacing={2} sx={{ width: "100%" }}>
+
+              {/* Edit */}
               <Tooltip title="Edit Project">
-                <IconButton 
-                  size="small" 
-                  onClick={(e) => { e.stopPropagation(); router.push(`/projects/${project.id}/edit`); }}
-                  sx={{ color: "#F8F8F8", "&:hover": { color: "#8FFF9C", bgcolor: "rgba(143, 255, 156, 0.1)" } }}
-                >
+                <Box onClick={(e) => { e.stopPropagation(); router.push(`/projects/${project.id}/edit`); }}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: '50%',
+                    bgcolor: "#0F1518",
+                    border: "1px solid rgba(64, 79, 87, 0.4)",
+                    borderRadius: "12px",
+                    py: 2,
+                    color: "#F8F8F8",
+                    "&:hover": { color: "#8FFF9C", bgcolor: "rgba(143, 255, 156, 0.1)" }
+                  }}>
                   <EditIcon />
-                </IconButton>
+                </Box>
               </Tooltip>
+
+              {/* Delete */}
               <Tooltip title="Delete Project">
-                <IconButton 
-                  size="small" 
-                  onClick={(e) => { e.stopPropagation(); onDelete(project.id, project.name); }}
-                  sx={{ color: "#F8F8F8", "&:hover": { color: "#FF3B30", bgcolor: "rgba(255,59,48,0.1)" } }}
-                >
+                <Box onClick={(e) => { e.stopPropagation(); onDelete(project.id, project.name); }}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: '50%',
+                    bgcolor: "#0F1518",
+                    border: "1px solid rgba(64, 79, 87, 0.4)",
+                    borderRadius: "12px",
+                    py: 2,
+                    color: "#F8F8F8",
+                    "&:hover": { color: "#FF3B30", bgcolor: "rgba(255,59,48,0.1)" }
+                  }}>
                   <DeleteProjectIcon />
-                </IconButton>
+                </Box>
               </Tooltip>
             </Stack>
           ) : (
-            <Typography variant="caption" sx={{ color: "rgba(143, 255, 156, 0.5)", fontWeight: 800, letterSpacing: 1 }}>
-              VIEW ONLY
-            </Typography>
+            <Chip
+              label="VIEW ONLY"
+              sx={{
+                py: 2.5,
+                width: '100%',
+                bgcolor: "#0F1518",
+                color: "rgba(143, 255, 156, 0.5)",
+                fontWeight: 800,
+                fontSize: "14px",
+                border: "1px solid rgba(64, 79, 87, 0.4)",
+                borderRadius: "12px",
+              }}
+            />
           )}
         </Box>
       </Box>
