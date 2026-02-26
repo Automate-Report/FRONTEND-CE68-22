@@ -1,217 +1,215 @@
 "use client";
 
-import { use } from "react";
-import { useRouter } from "next/navigation";
-import { Box, Typography, Stack, Divider, Chip } from "@mui/material";
+import { use, useState } from "react";
+import { Box, Typography, Stack, Divider, Chip, Paper, CircularProgress } from "@mui/material";
 import { 
-  Language as AssetIcon, 
   BugReport as BugIcon, 
-  CheckCircle as FixedIcon, 
-  Schedule as PendingIcon,
-  PlayCircleOutline as RunningIcon,
-  CheckCircleOutline as CompletedIcon,
-  TrendingUp as TrendUpIcon
+  Language as AssetIcon,
+  CheckCircle as FixedIcon,
+  Timeline as TrendIcon,
+  ErrorOutline as CriticalIcon,
+  History as RecentIcon
 } from "@mui/icons-material";
+
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 import { useProject } from "@/src/hooks/project/use-project";
 import { useTags } from "@/src/hooks/project/use-Tags";
-import { Tag } from "@/src/types/tag";
+import { useProjectOverview } from "@/src/hooks/project/use-projectOverview";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 
-interface PageProps {
-  params: Promise<{ id: string }>;
-}
+interface PageProps { params: Promise<{ id: string }> }
 
 export default function ProjectsOverviewPage({ params }: PageProps) {
   const resolveParams = use(params);
   const projectId = parseInt(resolveParams.id);
 
-  const { data: project, isLoading, isError } = useProject(projectId);
+  const { data: project, isLoading: isProjectLoading } = useProject(projectId);
   const { data: tags } = useTags(projectId);
+  const { data: overview, isLoading: isOverviewLoading } = useProjectOverview(projectId);
 
-  if (isLoading) return <div className="p-8 text-[#8FFF9C]">Loading...</div>;
-  if (isError || !project) return <div className="p-8 text-red-500">Project not found</div>;
+  if (isProjectLoading || isOverviewLoading) return (
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', bgcolor: "#0D1014" }}>
+      <CircularProgress sx={{ color: "#8FFF9C" }} />
+    </Box>
+  );
 
-  const breadcrumbItems = [
-    { label: "Home", href: "/main" },
-    { label: project.name, href: undefined }
-  ];
+  const stats = overview?.stats;
+  const trendData = overview?.trend || [];
+  const topAssets = overview?.top_risky_assets || [];
+  const recentVulns = overview?.recent_vulnerabilities || [];
+
+  const severityChartData = stats ? [
+    { name: 'Critical', value: stats.severity_counts.critical || 0, color: '#FE3B46' },
+    { name: 'High', value: stats.severity_counts.high || 0, color: '#FF9500' },
+    { name: 'Medium', value: stats.severity_counts.medium || 0, color: '#FFCC00' },
+    { name: 'Low', value: stats.severity_counts.low || 0, color: '#007AFF' },
+  ].filter(d => d.value > 0) : [];
 
   return (
-    <div className="flex flex-col w-full text-[#E6F0E6] max-w-7xl p-6 font-sans">
-      
-      {/* Section 1: Breadcrumbs & Tags */}
-      <Box mb={4}>
-        <GenericBreadcrums items={breadcrumbItems} />
-        {tags && tags.length > 0 && (
-          <Stack direction="row" spacing={1} mt={2} flexWrap="wrap">
-            {tags.map((tag: Tag) => (
-              <Chip 
-                key={tag.id} 
-                label={tag.name} 
-                variant="outlined" 
-                sx={{ color: "#8FFF9C", borderColor: "#8FFF9C", fontWeight: "bold" }} 
-              />
+    <Box sx={{ bgcolor: "#0D1014", minHeight: "100vh", p: { xs: 2, md: 4 }, color: "#E6F0E6" }}>
+      <GenericBreadcrums items={[{ label: "Home", href: "/main" }, { label: project?.name || "Project", href: undefined }]} />
+
+      {/* --- HEADER --- */}
+      <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'flex-end' }} spacing={2} mb={6} mt={2}>
+        <Box>
+          <Typography variant="h3" sx={{ fontWeight: 900, color: "#FBFBFB", letterSpacing: "-0.05em" }}>
+            {project?.name} <span style={{ color: "#404F57", fontSize: "24px" }}>#Overview</span>
+          </Typography>
+          <Stack direction="row" spacing={1} mt={1} flexWrap="wrap">
+            {tags?.map((tag) => (
+              <Chip key={tag.id} label={tag.name} size="small" sx={{ bgcolor: "#8FFF9C15", color: "#8FFF9C", border: "1px solid #8FFF9C40", fontWeight: 800, mb: 1 }} />
             ))}
           </Stack>
-        )}
-      </Box>
-
-      {/* Section 2: Project Header & Description */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-        <div className="lg:col-span-2">
-          <Typography variant="h3" sx={{ fontWeight: 900, color: "#FBFBFB", mb: 2 }}>
-            What's this project about?
+        </Box>
+        <Box sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
+          <Typography variant="caption" sx={{ color: "#404F57", fontWeight: 900, letterSpacing: 1 }}>PROJECT RISK RATING</Typography>
+          <Typography variant="h2" sx={{ color: (stats?.severity_counts.critical || 0) > 0 ? "#FE3B46" : "#8FFF9C", fontWeight: 900, lineHeight: 1 }}>
+            {(stats?.severity_counts.critical || 0) > 0 ? "D" : "A"}
           </Typography>
-          <Box sx={{ bgcolor: "#1E2429", p: 4, borderRadius: "20px", border: "1px solid #404F57" }}>
-            <Typography variant="body1" sx={{ color: "#E6F0E6", lineHeight: 1.8 }}>
-              {project.description || "No description provided for this project."}
-            </Typography>
-          </Box>
-        </div>
+        </Box>
+      </Stack>
 
-        {/* Quick Stats Sidebar */}
-        <div className="flex flex-col gap-4">
-          <Typography variant="h6" sx={{ fontWeight: "bold", color: "#8FFF9C" }}>Asset Overview</Typography>
-          <div className="grid grid-cols-2 gap-4">
-            <Box sx={{ bgcolor: "#1E2429", p: 3, borderRadius: "16px", border: "1px solid #404F57", textAlign: 'center' }}>
-              <AssetIcon sx={{ color: "#404F57", mb: 1 }} />
-              <Typography variant="h4" sx={{ fontWeight: 900 }}>{project.assets_cnt || 0}</Typography>
-              <Typography variant="caption" sx={{ color: "#9AA6A8", fontWeight: "bold" }}>TOTAL ASSETS</Typography>
-            </Box>
-            <Box sx={{ bgcolor: "#1E2429", p: 3, borderRadius: "16px", border: "1px solid #404F57", textAlign: 'center' }}>
-              <BugIcon sx={{ color: "#FF3B30", mb: 1 }} />
-              <Typography variant="h4" sx={{ fontWeight: 900, color: "#FF3B30" }}>{project.vuln_cnt || 0}</Typography>
-              <Typography variant="caption" sx={{ color: "#9AA6A8", fontWeight: "bold" }}>TOTAL VULNS</Typography>
-            </Box>
-          </div>
-        </div>
-      </div>
-
-      {/* Section 3: Main Dashboard Metrics */}
-      <Typography variant="h4" sx={{ fontWeight: 900, color: "#FBFBFB", mb: 4 }}>Security Dashboard</Typography>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* --- SECTION 1: TOP METRICS (Flexbox Row) --- */}
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} mb={6}>
         {[
-          { label: "Total Vulnerabilities", value: 10, color: "#FBFBFB", icon: <BugIcon /> },
-          { label: "Critical Issues", value: 2, color: "#FF3B30", icon: <BugIcon /> },
-          { label: "Fixed Issues", value: 15, color: "#34C759", icon: <FixedIcon /> },
-          { label: "Pending Scans", value: 1, color: "#FFCC00", icon: <PendingIcon /> },
+          { label: "Total Assets", value: stats?.total_assets, icon: <AssetIcon />, color: "#FBFBFB" },
+          { label: "Open Vulns", value: stats?.vulns_total, icon: <BugIcon />, color: "#FE3B46" },
+          { label: "Critical Issues", value: stats?.severity_counts.critical, icon: <CriticalIcon />, color: "#FE3B46" },
+          { label: "Remediation Rate", value: `${stats?.remediation_rate}`, icon: <FixedIcon />, color: "#8FFF9C" },
         ].map((item, i) => (
-          <Box key={i} sx={{ bgcolor: "#1E2429", p: 3, borderRadius: "16px", border: "1px solid #404F57" }}>
-            <Stack direction="row" justifyContent="space-between" mb={1}>
-              <Typography variant="h4" sx={{ fontWeight: 900, color: item.color }}>{item.value}</Typography>
+          <Paper key={i} sx={{ p: 3, bgcolor: "#161B1F", border: "1px solid #2D2F39", borderRadius: "16px", flex: 1 }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Box>
+                <Typography variant="h3" sx={{ fontWeight: 900, color: item.color }}>{item.value ?? 0}</Typography>
+                <Typography variant="caption" sx={{ color: "#9AA6A8", fontWeight: 800, textTransform: 'uppercase' }}>{item.label}</Typography>
+              </Box>
               <Box sx={{ color: "#404F57" }}>{item.icon}</Box>
             </Stack>
-            <Typography variant="caption" sx={{ color: "#9AA6A8", fontWeight: 800, textTransform: 'uppercase' }}>{item.label}</Typography>
-          </Box>
+          </Paper>
         ))}
-      </div>
+      </Stack>
 
-      {/* Section 4: Charts & Recent Scans */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
-        
-        {/* NEW: Vulnerability Trend (Linear Simulation) */}
-        <Box className="lg:col-span-4 bg-[#1E2429] p-6 rounded-2xl border border-[#404F57]">
-          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-            <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>Vulnerability Trend</Typography>
-            <TrendUpIcon sx={{ color: "#FF3B30", fontSize: 20 }} />
+      {/* --- SECTION 2: VISUALIZATION (Flexbox Row) --- */}
+      <Stack direction={{ xs: 'column', lg: 'row' }} spacing={3} mb={6}>
+        {/* Discovery Trend */}
+        <Paper sx={{ p: 4, bgcolor: "#161B1F", border: "1px solid #2D2F39", borderRadius: "20px", height: "400px", flex: 2 }}>
+          <Stack direction="row" spacing={1} alignItems="center" mb={4}>
+            <TrendIcon sx={{ color: "#8FFF9C" }} />
+            <Typography variant="h6" sx={{ fontWeight: 900 }}>Vulnerability Pipeline (7 Days)</Typography>
           </Stack>
-          {/* Mock Graph */}
-          <div className="h-40 w-full flex items-end gap-2 px-2">
-            {[40, 70, 45, 90, 65, 80, 50].map((h, i) => (
-              <div key={i} className="flex-1 bg-gradient-to-t from-[#8FFF9C20] to-[#8FFF9C] rounded-t-sm" style={{ height: `${h}%` }} />
-            ))}
-          </div>
-          <Stack direction="row" justifyContent="space-between" mt={2} px={1}>
-             <Typography variant="caption" sx={{ color: "#404F57" }}>Mon</Typography>
-             <Typography variant="caption" sx={{ color: "#404F57" }}>Sun</Typography>
-          </Stack>
-        </Box>
+          <ResponsiveContainer width="100%" height="80%">
+            <AreaChart data={trendData}>
+              <defs>
+                <linearGradient id="colorDetected" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#FE3B46" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#FE3B46" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#2D2F39" vertical={false} />
+              <XAxis dataKey="day" stroke="#404F57" fontSize={12} tickLine={false} axisLine={false} />
+              <YAxis stroke="#404F57" fontSize={12} tickLine={false} axisLine={false} />
+              <Tooltip contentStyle={{ backgroundColor: '#1E2429', border: '1px solid #2D2F39', borderRadius: '8px' }} />
+              <Area type="monotone" dataKey="detected" name="New Vulns" stroke="#FE3B46" fillOpacity={1} fill="url(#colorDetected)" strokeWidth={3} />
+              <Area type="monotone" dataKey="fixed" name="Fixed" stroke="#8FFF9C" fill="transparent" strokeWidth={2} strokeDasharray="5 5" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </Paper>
 
         {/* Severity Distribution */}
-        <Box className="lg:col-span-4 bg-[#1E2429] p-6 rounded-2xl border border-[#404F57]">
-          <Typography variant="subtitle1" sx={{ fontWeight: "bold", mb: 4 }}>Severity Distribution</Typography>
-          <div className="flex flex-col gap-4">
-            {[
-              { label: "Critical", value: "15%", color: "#FF3B30" },
-              { label: "High", value: "25%", color: "#FF9500" },
-              { label: "Medium", value: "40%", color: "#FFCC00" },
-              { label: "Low", value: "20%", color: "#007AFF" },
-            ].map((d, i) => (
-              <div key={i}>
-                <Stack direction="row" justifyContent="space-between" mb={0.5}>
-                  <Typography variant="caption" sx={{ fontWeight: "bold" }}>{d.label}</Typography>
-                  <Typography variant="caption" sx={{ color: d.color, fontWeight: "bold" }}>{d.value}</Typography>
-                </Stack>
-                <div className="w-full h-2 bg-[#0D1014] rounded-full overflow-hidden">
-                  <div className="h-full" style={{ width: d.value, backgroundColor: d.color }}></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Box>
-
-        {/* Recent Scans Table (ปรับเป็น 4/12 เพื่อให้เรียงกัน 3 กล่องในหน้าจอใหญ่) */}
-        <Box className="lg:col-span-4 bg-[#1E2429] rounded-2xl border border-[#404F57] overflow-hidden">
-          <Box p={3} borderBottom="1px solid #404F57">
-            <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>Quick Logs</Typography>
-          </Box>
-          <div className="p-4 space-y-4">
-            {[
-              { name: "Full Audit", status: "Done", color: "#34C759" },
-              { name: "API Scan", status: "Running", color: "#007AFF" },
-              { name: "Asset Discovery", status: "Done", color: "#34C759" },
-            ].map((log, i) => (
-              <Stack key={i} direction="row" justifyContent="space-between" alignItems="center">
-                <Typography variant="body2" sx={{ fontWeight: "bold" }}>{log.name}</Typography>
-                <Chip label={log.status} size="small" sx={{ bgcolor: `${log.color}20`, color: log.color, fontWeight: "bold", fontSize: "10px" }} />
+        <Paper sx={{ p: 4, bgcolor: "#161B1F", border: "1px solid #2D2F39", borderRadius: "20px", height: "400px", flex: 1 }}>
+          <Typography variant="h6" sx={{ fontWeight: 900, mb: 4 }}>Risk Distribution</Typography>
+          <ResponsiveContainer width="100%" height="70%">
+            <PieChart>
+              <Pie data={severityChartData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                {severityChartData.map((entry, index) => <Cell key={index} fill={entry.color} />)}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+          <Stack direction="row" flexWrap="wrap" justifyContent="center" gap={2} mt={2}>
+            {severityChartData.map((d) => (
+              <Stack key={d.name} direction="row" alignItems="center" spacing={1}>
+                <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: d.color }} />
+                <Typography variant="caption" sx={{ color: "#9AA6A8", fontWeight: 700 }}>{d.name}</Typography>
               </Stack>
             ))}
-          </div>
-        </Box>
-      </div>
+          </Stack>
+        </Paper>
+      </Stack>
 
-      {/* Section 5: Full Recent Scans Table */}
-      <Box className="bg-[#1E2429] rounded-2xl border border-[#404F57] overflow-hidden">
-        <Box p={3} borderBottom="1px solid #404F57">
-          <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>Detailed Recent Scans</Typography>
-        </Box>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-[#161B1F] text-[#9AA6A8] text-[12px] uppercase">
-              <tr>
-                <th className="px-6 py-4">Scan Name</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Findings</th>
-                <th className="px-6 py-4">Started At</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#2D2F39]">
-              {[
-                { name: "Full Web Audit", status: "Completed", icon: <CompletedIcon />, color: "#34C759", findings: 12, date: "20 Feb 2026" },
-                { name: "Daily API Check", status: "Running", icon: <RunningIcon />, color: "#007AFF", findings: 3, date: "Running Now" },
-                { name: "Weekly Asset Scan", status: "Pending", icon: <PendingIcon />, color: "#FFCC00", findings: 0, date: "Scheduled" },
-              ].map((scan, i) => (
-                <tr key={i} className="hover:bg-[#1A1E23] transition-colors">
-                  <td className="px-6 py-4 font-bold text-[14px]">{scan.name}</td>
-                  <td className="px-6 py-4">
-                    <Stack direction="row" spacing={1} alignItems="center" sx={{ color: scan.color }}>
-                      {scan.icon}
-                      <Typography variant="caption" sx={{ fontWeight: "bold" }}>{scan.status}</Typography>
-                    </Stack>
-                  </td>
-                  <td className="px-6 py-4">
-                    <Typography variant="body2" sx={{ fontWeight: "bold" }}>{scan.findings} issues</Typography>
-                  </td>
-                  <td className="px-6 py-4 text-[#9AA6A8] text-[12px]">{scan.date}</td>
+      {/* --- SECTION 3: RECENT VULNS & HIGH RISK ASSETS (Flexbox Row) --- */}
+      <Stack direction={{ xs: 'column', lg: 'row' }} spacing={3} alignItems="stretch">
+        {/* Recent Vulnerabilities */}
+        <Paper sx={{ bgcolor: "#161B1F", border: "1px solid #2D2F39", borderRadius: "20px", overflow: "hidden", flex: 2 }}>
+          <Box p={3} borderBottom="1px solid #2D2F39" display="flex" justifyContent="space-between" alignItems="center">
+            <Stack direction="row" spacing={1} alignItems="center">
+              <RecentIcon sx={{ color: "#8FFF9C", fontSize: 20 }} />
+              <Typography variant="h6" sx={{ fontWeight: 900 }}>Recent Vulnerabilities</Typography>
+            </Stack>
+            <Chip label="Real-time" size="small" variant="outlined" sx={{ color: "#8FFF9C", borderColor: "#8FFF9C", fontSize: '10px' }} />
+          </Box>
+          <Box sx={{ overflowX: 'auto' }}>
+            <table className="w-full text-left">
+              <thead className="bg-[#0D1014] text-[#404F57] text-[11px] uppercase font-bold">
+                <tr>
+                  <th className="px-6 py-4">Title / CVE</th>
+                  <th className="px-6 py-4">Asset</th>
+                  <th className="px-6 py-4">Severity</th>
+                  <th className="px-6 py-4">SLA Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Box>
+              </thead>
+              <tbody className="divide-y divide-[#2D2F39]">
+                {recentVulns.map((vuln) => (
+                  <tr key={vuln.id} className="hover:bg-[#FFFFFF05] transition-colors">
+                    <td className="px-6 py-4">
+                      <Typography sx={{ fontWeight: 800, fontSize: '14px' }}>{vuln.title}</Typography>
+                      <Typography variant="caption" sx={{ color: "#404F57" }}>{vuln.cve}</Typography>
+                    </td>
+                    <td className="px-6 py-4 font-mono text-[12px] text-[#9AA6A8]">{vuln.affected_asset}</td>
+                    <td className="px-6 py-4">
+                       <Chip label={`${vuln.severity} (${vuln.cvss_score})`} size="small" 
+                          sx={{ 
+                              bgcolor: `${vuln.cvss_score >= 9 ? '#FE3B46' : vuln.cvss_score >= 7 ? '#FF9500' : '#FFCC00'}20`, 
+                              color: vuln.cvss_score >= 9 ? '#FE3B46' : vuln.cvss_score >= 7 ? '#FF9500' : '#FFCC00',
+                              fontWeight: 900, fontSize: '10px'
+                          }} 
+                       />
+                    </td>
+                    <td className="px-6 py-4">
+                      <Typography sx={{ color: vuln.is_sla_breached ? "#FE3B46" : "#8FFF9C", fontWeight: 800, fontSize: '12px' }}>
+                        {vuln.sla_status}
+                      </Typography>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Box>
+        </Paper>
 
-    </div>
+        {/* Top Risky Assets */}
+        <Paper sx={{ bgcolor: "#161B1F", border: "1px solid #2D2F39", borderRadius: "20px", overflow: "hidden", flex: 1 }}>
+          <Box p={3} borderBottom="1px solid #2D2F39">
+            <Typography variant="h6" sx={{ fontWeight: 900 }}>Top Risky Assets</Typography>
+          </Box>
+          <Stack divider={<Divider sx={{ borderColor: "#2D2F39" }} />}>
+            {topAssets.map((asset) => (
+              <Box key={asset.id} p={2.5} sx={{ '&:hover': { bgcolor: "#FFFFFF05" } }}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
+                  <Box>
+                    <Typography sx={{ fontWeight: 800, fontSize: '14px' }}>{asset.name}</Typography>
+                    <Typography variant="caption" sx={{ color: "#404F57" }}>{asset.vuln_count} vulnerabilities</Typography>
+                  </Box>
+                  <Chip label={asset.max_severity} size="small" 
+                      sx={{ bgcolor: asset.max_severity === 'CRITICAL' ? '#FE3B46' : '#FF9500', color: '#FFF', fontWeight: 900, fontSize: '9px' }} 
+                  />
+                </Stack>
+              </Box>
+            ))}
+          </Stack>
+        </Paper>
+      </Stack>
+    </Box>
   );
 }

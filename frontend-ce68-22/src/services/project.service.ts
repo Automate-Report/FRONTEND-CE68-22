@@ -1,4 +1,4 @@
-import { Project, CreateProjectPayload, ProjectSummary } from "../types/project";
+import { Project, CreateProjectPayload, ProjectSummary, ProjectOverviewResponse } from "../types/project";
 import { PaginatedResult } from "../types/common";
 import { getMe } from "./auth.service";
 
@@ -6,6 +6,10 @@ import apiClient from "../lib/api-client";
 import { Member, ChangeRole } from "../types/project";
 
 export const projectService = {
+  getOverview: async (projectId: number) => {
+    const { data } = await apiClient.get<ProjectOverviewResponse>(`/projects/${projectId}/overview`);
+    return data;
+  },
   // รับค่า page และ size (กำหนด default ไว้กันเหนียว)
   getAll: async (page: number, size: number, sortBy?: string | null, sortOrder?: "asc" | "desc" | "none", search?: string | null, filter?: string | "ALL") => {
 
