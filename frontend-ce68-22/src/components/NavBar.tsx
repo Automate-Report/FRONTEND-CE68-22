@@ -163,7 +163,7 @@ export function NavBar() {
             {showNoti &&
                 <div ref={notiRef} onScroll={handleScrollToBottom}
                     className={`fixed top-[88px] right-[24px] min-w-[400px] w-[30%] max-h-[60vh] overflow-y-auto bg-[#0F1518]
-                    border border-[#E6F0E6] rounded-xl shadow-lg z-50 transition-opacity duration-300
+                    border border-[#272D31] rounded-xl shadow-lg z-50 transition-opacity duration-300
                     ${showNoti ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                     <h3 className="text-xl font-semibold text-[#E6F0E6] p-4 border-b border-[#272D31] bg-[#0F1518] sticky top-0 z-50 h-[62px]">Notifications</h3>
 

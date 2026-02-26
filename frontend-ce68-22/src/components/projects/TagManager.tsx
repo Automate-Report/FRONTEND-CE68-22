@@ -36,7 +36,7 @@ export const TagManager = ({
   }, []);
 
   return (
-    <div className="pb-8">
+    <div className="pb-6">
       <div className="text-[#E6F0E6] font-bold text-[24px] pb-4">Project Tags</div>
 
       {fetchingTags && availableTags.length === 0 ? (

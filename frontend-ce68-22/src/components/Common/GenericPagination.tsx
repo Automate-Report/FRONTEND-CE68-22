@@ -33,7 +33,7 @@ export function GenericPagination({
 
   return (
     <Box sx={{ 
-      mt: 4, 
+      mb: 2, 
       display: 'flex', 
       justifyContent: 'flex-end',
       // จัดการกับ Toolbar หลัก
