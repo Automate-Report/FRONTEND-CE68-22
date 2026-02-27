@@ -8,11 +8,14 @@ import { useProject } from "@/src/hooks/project/use-project";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { ScheduleList } from "@/src/components/schedule/ScheduleList";
+import { INPUT_BOX_WITH_ICON_STYLE_DIV, INPUT_BOX_WITH_ICON_STYLE_INPUT } from "@/src/styles/inputBoxStyle";
+import { FILTER_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 
 //icons
 import CreateScheduleIcon from "@/src/components/icon/CreateSchedule";
-import SearchIcon from '@mui/icons-material/Search';
+import MagIcon from "@/src/components/icon/MagnifyingGlass";
 import FilterIcon from "@/src/components/icon/Filter";
+import { ScheduleCard } from "@/src/components/schedule/ScheduleCard";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -62,30 +65,26 @@ export default function ProjectSchedulePage({ params }: PageProps) {
       <div className="my-6 flex justify-between">
 
         {/* Search bar */}
-        <div className="relative w-2/4">
-          {/*ตัว Icon: สั่ง absolute ให้ลอยอยู่ซ้าย และจัดกึ่งกลางแนวตั้ง */}
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <SearchIcon sx={{ color: "#E6F0E6" }} />
-          </div>
-
-          {/*ตัว Input: เพิ่ม pl-10 เพื่อเว้นที่ให้ Icon */}
+        <div className={INPUT_BOX_WITH_ICON_STYLE_DIV}>
+          <MagIcon />
           <input
             type="text"
-            placeholder="Search projects..."
-            className="w-full bg-[#1A2023] border border-[#2A3033] rounded-lg pl-10 pr-4 py-2 text-[#E6F0E6]
-                      focus:outline-none focus:border-[#8FFF9C]"
+            placeholder="Search Projects"
+            className={INPUT_BOX_WITH_ICON_STYLE_INPUT}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        
+
         {/* Buttons */}
         <div className="flex gap-8 items-center">
-          <button className="flex items-center justify-center bg-[#0F1518] border border-[#E6F0E6] text-[#E6F0E6] text-[16px] font-semibold rounded-lg px-6 py-2 gap-3 cursor-pointer hover:bg-[#272D31]"
-            onClick={showFilter}>
-            Filter
-            <FilterIcon />
+          <button
+            onClick={showFilter}
+            className={FILTER_BUTTON_STYLE}
+          >
+            Filter <FilterIcon />
           </button>
+
           <GenericGreenButton
             name="New Schedule"
             href={`/projects/${projectId}/schedule/create`}
@@ -94,12 +93,16 @@ export default function ProjectSchedulePage({ params }: PageProps) {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
+        <ScheduleCard />
+      </div>
+
       {/* Section 4: Table */}
-      <ScheduleList
+      {/* <ScheduleList
         project_id={projectId}
         searchQuery={searchQuery}
         filterStatus={filterStatus}
-      />
+      /> */}
 
     </div>
   );
