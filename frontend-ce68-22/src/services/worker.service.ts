@@ -54,12 +54,18 @@ export const workerService = {
     await apiClient.delete(`/workers/${id}`);
   },
 
-  download_worker: async (workerId: number): Promise<AxiosResponse<Blob>> =>{
-    return apiClient.get<Blob>(`workers/download/${workerId}`,
-      {
-        responseType: "blob", // ขอเป็น Binary File
-      }
-    );
+  download_worker: async (workerId: number, onProgress: (percent: number) => void) => {
+    return apiClient.get(`workers/download/${workerId}`, {
+      responseType: "blob",
+      onDownloadProgress: (progressEvent) => {
+        const total = progressEvent.total || 0;
+        const current = progressEvent.loaded;
+        if (total > 0) {
+          const percentCompleted = Math.round((current * 100) / total);
+          onProgress(percentCompleted); // ✅ ส่งเปอร์เซ็นต์กลับไป
+        }
+      },
+    });
   },
 
   info: async (project_id: number) => {
@@ -74,7 +80,12 @@ export const workerService = {
   unLinkAll: async (projectId: number) => {
     const { data } = await apiClient.get(`/workers/unlink/all/${projectId}`);
     return data;
-  }
+  },
+
+  markAsDownloaded: async (workerId: number) => {
+    // ส่ง Request ไปบอก Backend (จะใช้ POST หรือ PATCH ก็ได้ตามการออกแบบ API)
+    return apiClient.post(`/workers/${workerId}/mark-downloaded`);
+  },
 
 };
 

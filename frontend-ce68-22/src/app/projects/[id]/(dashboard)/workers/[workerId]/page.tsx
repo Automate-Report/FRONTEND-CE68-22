@@ -2,17 +2,21 @@
 
 import { use, useState } from "react";
 import toast from "react-hot-toast";
-// ✅ เพิ่ม CircularProgress เข้ามา
 import { Box, Typography, Stack, CircularProgress } from "@mui/material"; 
 import { LinkOff as UnlinkIcon } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
+
+// Hooks
 import { useProject } from "@/src/hooks/project/use-project";
 import { useSummaryInfoByWorker } from "@/src/hooks/job/use-summaryInfoByWorker";
 import { useGetJobByWorker } from "@/src/hooks/job/use-getJobByWorker";
 import { useWorker } from "@/src/hooks/worker/use-worker";
-import { useWorkerDownload } from "@/src/hooks/worker/use-WorkerDownload";
+
+// ✅ นำเข้า Global Store เพื่อใช้แชร์สถานะการดาวน์โหลด (Progress) ข้าม Component
+import { useDownloadStore } from "@/src/hooks/worker/use-WorkerDownloadStore";
 import { workerService } from "@/src/services/worker.service";
 
+// Components
 import { WorkerAssignedJobs } from "@/src/components/workers/WorkerAssignedJobs";
 import { WorkerSummaryStats } from "@/src/components/workers/WorkerSummaryStats";
 import { WorkerConfigCard } from "@/src/components/workers/WorkerConfigCard";
@@ -33,9 +37,21 @@ export default function WorkerDetailPage({ params }: PageProps) {
     const projectId = parseInt(resolvePrams.id);
     const workerId = parseInt(resolvePrams.workerId);
 
+    // --- Data Fetching ---
     const { data: project } = useProject(projectId);
     const { data: worker, refetch } = useWorker(workerId);
     const { data: summaryInfoJob } = useSummaryInfoByWorker(workerId);
+
+    // --- ✅ Global Download State (Zustand) ---
+    // ดึงค่ามาจาก Store เพื่อให้หน้าจอนี้ "หมุนตาม" แม้จะกดดาวน์โหลดจากหน้าอื่น
+    const startDownload = useDownloadStore((state) => state.startDownload);
+    const globalIsLoading = useDownloadStore((state) => state.isDownloading);
+    const globalProgress = useDownloadStore((state) => state.progress);
+    const currentDownloadingId = useDownloadStore((state) => state.currentWorkerId);
+
+    // เช็คว่า Worker ที่หน้านี้กำลังแสดงผลอยู่ คือตัวที่กำลังดาวน์โหลดใน Store หรือไม่
+    const isThisWorkerDownloading = globalIsLoading && currentDownloadingId === workerId;
+
     const [jobQuery, setJobQuery] = useState({ 
         page: 0, 
         size: 5,
@@ -53,14 +69,13 @@ export default function WorkerDetailPage({ params }: PageProps) {
         jobQuery.filter
     );
 
-    // ✅ เรียกใช้ Hook ดาวน์โหลด
-    const { downloadWorker, isLoading: isDownloading } = useWorkerDownload();
-
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [unlinkModalOpen, setUnlinkModalOpen] = useState(false);
     const [isActionLoading, setIsActionLoading] = useState(false);
 
     if (!worker || !summaryInfoJob) return <Box sx={{ p: 8, color: '#E6F0E6' }}>Loading data...</Box>;
+
+    // --- Handlers ---
 
     const handleConfirmUnlink = async () => {
         setIsActionLoading(true);
@@ -69,7 +84,12 @@ export default function WorkerDetailPage({ params }: PageProps) {
             setUnlinkModalOpen(false);
             await refetch();
             router.refresh();
-        } catch (error) { alert("Failed to disconnect"); } finally { setIsActionLoading(false); }
+            toast.success("Disconnected successfully");
+        } catch (error) { 
+            toast.error("Failed to disconnect"); 
+        } finally { 
+            setIsActionLoading(false); 
+        }
     };
 
     const handleConfirmDelete = async () => {
@@ -79,26 +99,24 @@ export default function WorkerDetailPage({ params }: PageProps) {
             setDeleteModalOpen(false);
             router.push(`/projects/${projectId}/workers`);
             router.refresh();
-        } catch (error) { alert("Failed to delete"); } finally { setIsActionLoading(false); }
+            toast.success("Worker deleted");
+        } catch (error) { 
+            toast.error("Failed to delete"); 
+        } finally { 
+            setIsActionLoading(false); 
+        }
     };
 
     const handleJobPageChange = (newPage: number, newSize: number) => {
-        setJobQuery(prev => ({ 
-            ...prev, 
-            page: newPage, 
-            size: newSize 
-        }));
+        setJobQuery(prev => ({ ...prev, page: newPage, size: newSize }));
     };
 
-    const handleDownloadAndRefetch = async () => {
-        try {
-            await downloadWorker(worker.id, worker.name);
-            // ✅ เมื่อดาวน์โหลดสำเร็จ (หรือเริ่มดาวน์โหลดในฝั่ง Browser) ให้ดึงข้อมูลใหม่
-            await refetch(); 
-            toast.success("ดึงข้อมูลล่าสุดเรียบร้อย");
-        } catch (error) {
-            console.error("Download or refetch failed:", error);
-        }
+    // ✅ ฟังก์ชันเรียกดาวน์โหลดผ่าน Store
+    const handleDownloadAction = async () => {
+        await startDownload(worker.id, worker.name, async () => {
+            // เมื่อกระบวนการใน Store เสร็จสิ้น (ดาวน์โหลด + แจ้ง Connect) ให้รีเฟรชข้อมูลหน้าจอ
+            await refetch();
+        });
     };
 
     return (
@@ -125,20 +143,27 @@ export default function WorkerDetailPage({ params }: PageProps) {
                         </button>
                     ) : (
                         <button 
-                            onClick={handleDownloadAndRefetch}
-                            disabled={isDownloading} 
-                            className="flex items-center gap-3 px-6 h-10 rounded-lg font-semibold bg-[#8FFF9C] text-[#0B0F12] hover:bg-[#AFFFB9] disabled:opacity-70 disabled:cursor-not-allowed"
+                            onClick={handleDownloadAction}
+                            disabled={globalIsLoading} // ป้องกันกดซ้ำถ้ามีการดาวน์โหลดใดๆ กำลังทำงานอยู่
+                            className="flex items-center gap-3 px-6 h-10 rounded-lg font-semibold bg-[#8FFF9C] text-[#0B0F12] hover:bg-[#AFFFB9] disabled:opacity-70"
                         >
-                            {/* ✅ เปลี่ยนเป็น Spinner เมื่อกำลังโหลด */}
-                            {isDownloading ? (
-                                <>
-                                    Downloading...
-                                    <CircularProgress size={18} sx={{ color: "#0B0F12" }} />
-                                </>
+                            {/* ✅ เช็คสถานะการหมุนจาก Global State */}
+                            {isThisWorkerDownloading ? (
+                                <Stack direction="row" spacing={1.5} alignItems="center">
+                                    {globalProgress > 0 ? (
+                                        <>
+                                            <Typography variant="caption" sx={{ fontWeight: 'bold' }}>{globalProgress}%</Typography>
+                                            <CircularProgress variant="determinate" value={globalProgress} size={18} sx={{ color: "#0B0F12" }} />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Typography variant="caption" sx={{ fontWeight: 'bold' }}>Downloading...</Typography>
+                                            <CircularProgress size={18} sx={{ color: "#0B0F12" }} />
+                                        </>
+                                    )}
+                                </Stack>
                             ) : (
-                                <>
-                                    Download <DownloadIcon fontSize="small" />
-                                </>
+                                <>Download <DownloadIcon /></>
                             )}
                         </button>
                     )}
@@ -154,12 +179,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
 
             <WorkerSummaryStats summary={summaryInfoJob} worker={worker} />
             <WorkerConfigCard worker={worker} summaryInfoJob={summaryInfoJob} handleRevokeKey={async () => { await workerService.reGenKey(worker.id); refetch(); }} />
-            <WorkerAssignedJobs 
-                jobs={jobs} 
-                isLoading={isJobsLoading} 
-                projectId={projectId} 
-                onPageChange={handleJobPageChange}
-            />
+            <WorkerAssignedJobs jobs={jobs} isLoading={isJobsLoading} projectId={projectId} onPageChange={handleJobPageChange} />
             
             <WorkerUnlinkModal open={unlinkModalOpen} onClose={() => setUnlinkModalOpen(false)} onConfirm={handleConfirmUnlink} workerName={worker.name} loading={isActionLoading} />
             <GenericDeleteModal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} onConfirm={handleConfirmDelete} entityType="Worker" entityName={worker.name} loading={isActionLoading} />
