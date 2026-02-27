@@ -22,9 +22,10 @@ interface WorkerConfigCardProps {
         total_completed?: number;
     } | null;
     handleRevokeKey: () => Promise<void>;
+    role?: string;
 }
 
-export function WorkerConfigCard({ worker, summaryInfoJob, handleRevokeKey }: WorkerConfigCardProps) {
+export function WorkerConfigCard({ worker, summaryInfoJob, handleRevokeKey, role }: WorkerConfigCardProps) {
     // ดึง Config สถานะ
     const currentStatus = worker.status || "unknown";
     const statusConfig = WORKER_STATUS_MAP[currentStatus] || WORKER_STATUS_MAP.unknown;
@@ -109,6 +110,7 @@ export function WorkerConfigCard({ worker, summaryInfoJob, handleRevokeKey }: Wo
                     accessKeyId={worker.access_key_id} 
                     onRevoke={handleRevokeKey}
                     workerName={worker.name}
+                    role={role} // ส่ง prop role ไปยัง WorkerAccessKeySection
                 />
             </Box>
         </Box>

@@ -199,6 +199,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
                 worker={worker} 
                 summaryInfoJob={summaryInfoJob} 
                 handleRevokeKey={async () => { await workerService.reGenKey(worker.id); refetch(); }} 
+                role={project?.role}
             />
             
             <WorkerAssignedJobs 
