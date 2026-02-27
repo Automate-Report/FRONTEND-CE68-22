@@ -47,7 +47,7 @@ export function ScheduleCard({ schedule, onDelete }: ScheduleCardProps) {
                                 + schedule.job_status.ongoing + schedule.job_status.scheduled} Total jobs
                         </div>
                     </div>
-                    {/* V.Colorful */}
+                    
                     <div className="grid grid-cols-4 w-full gap-4">
                         <div className="flex flex-col items-center justify-center w-full h-18 bg-[#192024] text-[#8FFF9C] rounded-xl gap-1">
                             <p className="text-sm">Finished</p>
