@@ -17,6 +17,7 @@ export interface ScheduleDisplay {
     id: number,
     project_id: number,
     name: string,
+    asset_name: string,
     atk_type: string,
     start_date: Date,
     end_date: Date

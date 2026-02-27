@@ -105,7 +105,6 @@ export default function ProjectsPage() {
 
   // จัดการการเปลี่ยนหน้าผ่าน GenericPagination
   const handlePageChange = (newPage: number, newSize: number) => {
-    window.scrollTo({ top: 0, behavior: "smooth" })
     setPage(newPage);
     setRowsPerPage(newSize);
   };

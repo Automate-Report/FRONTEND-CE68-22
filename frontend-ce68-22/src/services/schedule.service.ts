@@ -14,22 +14,14 @@ export const scheduleService = {
         project_id: number,
         page: number, 
         size: number, 
-        sortBy?: string | null, 
-        sortOrder?: "asc" | "desc" | "none", 
         search?: string | null, 
         filter?: string | "ALL") => {
-
-        // แปลงค่า sortOrder ให้เป็น string ที่ Backend เข้าใจ (ถ้าเป็น none ให้ส่ง undefined)
-        const orderParam = sortOrder === "none" ? undefined : sortOrder;
-        const sortParam = sortBy || undefined;
 
         const { data } = await api.get<PaginatedResult<ScheduleDisplay>>(`/schedule/all/${project_id}`, {
             params: {
                 project_id,
                 page,
                 size,
-                sort_by: sortParam, // ชื่อต้องตรงกับ Backend (FastAPI)
-                order: orderParam,
                 search,
                 filter
             },

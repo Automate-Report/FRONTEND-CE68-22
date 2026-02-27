@@ -3,11 +3,16 @@
 import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useProject } from "@/src/hooks/project/use-project";
+import { useSchedule } from "@/src/hooks/schedule/use-schedule";
+import { scheduleService } from "@/src/services/schedule.service";
+import { ScheduleDelete } from "@/src/types/schedule";
+import Link from "next/link";
 
 //components
+import { GenericPagination } from "@/src/components/Common/GenericPagination";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
-import { ScheduleList } from "@/src/components/schedule/ScheduleList";
+import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import { INPUT_BOX_WITH_ICON_STYLE_DIV, INPUT_BOX_WITH_ICON_STYLE_INPUT } from "@/src/styles/inputBoxStyle";
 import { FILTER_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 
@@ -23,15 +28,71 @@ interface PageProps {
 
 export default function ProjectSchedulePage({ params }: PageProps) {
   const router = useRouter();
+  const resolvePrams = use(params);
+  const projectId = parseInt(resolvePrams.id);
 
   // Search
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("ALL");
 
-  const resolvePrams = use(params);
-  const projectId = parseInt(resolvePrams.id);
+  // --- Pagination States ---
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(6);
+  const [totalItems, setTotalItems] = useState(0);
 
+  const handlePageChange = (newPage: number, newSize: number) => {
+    setPage(newPage);
+    setRowsPerPage(newSize);
+  };
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [page]);
+
+  // --- End of Pagination ----
+
+  // Fetch Data
   const { data: project, isLoading, isError } = useProject(projectId);
+  const { data: schedules, refetch } = useSchedule(projectId, page + 1, rowsPerPage, searchQuery, filterStatus);
+
+  // --- Delete Related ---
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [scheduleToDelete, setscheduleToDelete] = useState<ScheduleDelete | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteClick = (schedule: ScheduleDelete) => {
+    setscheduleToDelete({ id: schedule.id, name: schedule.name });
+    setDeleteModalOpen(true);
+  };
+
+  // 2. เมื่อกดยืนยันใน Modal
+  const handleConfirmDelete = async () => {
+    if (!scheduleToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await scheduleService.delete(scheduleToDelete.id);
+
+      // ลบสำเร็จ -> ปิด Modal -> โหลดตารางใหม่
+      setDeleteModalOpen(false);
+      setscheduleToDelete(null);
+      refetch(); // *สำคัญ* ดึงข้อมูลใหม่
+
+    } catch (error) {
+      console.error("Failed to delete", error);
+      alert("Failed to delete schedule"); // หรือใช้ Snackbar/Toast
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // --- End of Delete Related ---
+
+  useEffect(() => {
+    if (schedules) {
+      setTotalItems(schedules.total);
+    }
+  }, [schedules]);
 
   if (isLoading) return <div className="p-8">Loading...</div>;
   if (isError || !project) return <div className="p-8 text-red-500">Project not found</div>;
@@ -93,22 +154,39 @@ export default function ProjectSchedulePage({ params }: PageProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
-        <ScheduleCard />
-        <ScheduleCard />
-        <ScheduleCard />
-        <ScheduleCard />
-        <ScheduleCard />
-        <ScheduleCard />
-        <ScheduleCard />
+      <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6 mb-4">
+        {schedules?.items.map((schedule) => (
+          <div
+            key={schedule.id}
+            onClick={() => router.push(`/projects/${schedule.project_id}/schedule/${schedule.id}`)}
+            className="cursor-pointer"
+          >
+            <ScheduleCard schedule={schedule} onDelete={handleDeleteClick} />
+          </div>
+        ))}
       </div>
 
-      {/* Section 4: Table */}
-      {/* <ScheduleList
-        project_id={projectId}
-        searchQuery={searchQuery}
-        filterStatus={filterStatus}
-      /> */}
+      <GenericPagination
+        count={totalItems}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={(newSize) => handlePageChange(0, newSize)}
+        labelRowsPerPage="Schedules per page:"
+      />
+
+      {scheduleToDelete && (
+        <GenericDeleteModal
+          open={deleteModalOpen}
+          onClose={() => setDeleteModalOpen(false)}
+          onConfirm={handleConfirmDelete}
+
+          // --- จุดที่ส่งข้อมูล ---
+          entityType="Project"             // บอกว่าเป็น "Project"
+          entityName={scheduleToDelete.name} // ส่งชื่อโปรเจกต์ไป
+          loading={isDeleting}
+        />
+      )}
 
     </div>
   );

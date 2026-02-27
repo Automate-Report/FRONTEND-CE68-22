@@ -15,7 +15,6 @@ interface ScheduleListProps {
     filterStatus: string;
 }
 
-
 export function ScheduleList({ project_id, searchQuery, filterStatus }: ScheduleListProps) {
 
     const {
@@ -32,24 +31,7 @@ export function ScheduleList({ project_id, searchQuery, filterStatus }: Schedule
     const [scheduleToDelete, setscheduleToDelete] = useState<ScheduleDelete | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    //(สำคัญ) เมื่อ Search หรือ Filter เปลี่ยน ควร reset page กลับไปหน้าแรก
-    useEffect(() => {
-        handleChangePage(null, 0);
-        // หมายเหตุ: ต้องเช็คว่า handleChangePage ของคุณรองรับ event null หรือไม่ 
-        // ถ้าไม่รองรับ อาจต้องใช้ setPage(0) ตรงๆ (ถ้า useTable expose ออกมา)
-    }, [searchQuery, filterStatus]);
-
-    const { data: response, isLoading, isError, refetch } = useSchedule(
-        project_id,
-        page + 1,
-        rowsPerPage,
-        sortBy,
-        sortOrder,
-        searchQuery,
-        filterStatus
-    );
-
-    const handleDeleteClick = (schedule: ScheduleDelete) => {
+        const handleDeleteClick = (schedule: ScheduleDelete) => {
         setscheduleToDelete({ id: schedule.id, name: schedule.name });
         setDeleteModalOpen(true);
     };
@@ -74,6 +56,23 @@ export function ScheduleList({ project_id, searchQuery, filterStatus }: Schedule
             setIsDeleting(false);
         }
     };
+    
+    //(สำคัญ) เมื่อ Search หรือ Filter เปลี่ยน ควร reset page กลับไปหน้าแรก
+    useEffect(() => {
+        handleChangePage(null, 0);
+        // หมายเหตุ: ต้องเช็คว่า handleChangePage ของคุณรองรับ event null หรือไม่ 
+        // ถ้าไม่รองรับ อาจต้องใช้ setPage(0) ตรงๆ (ถ้า useTable expose ออกมา)
+    }, [searchQuery, filterStatus]);
+
+    const { data: response, isLoading, isError, refetch } = useSchedule(
+        project_id,
+        page + 1,
+        rowsPerPage,
+        searchQuery,
+        filterStatus
+    );
+
+
 
     // ดึง items และ total จาก response (Handle กรณี response เป็น undefined)
     const allSchedules = response?.items || [];  
