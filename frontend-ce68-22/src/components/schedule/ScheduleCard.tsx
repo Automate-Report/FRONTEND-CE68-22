@@ -9,7 +9,7 @@ export function ScheduleCard() {
         <div className="flex flex-col items-center rounded-xl border border-[rgba(64,79,87,0.4)] w-full 
         transition-transform duration-200 hover:border-[#8FFF9C] hover:-translate-y-1 cursor-pointer">
             <div className="w-full py-4 px-5 bg-[#1A2025] rounded-t-xl">
-                <div className="flex flex-row gap-6 justify-between w-full">
+                <div className="flex flex-row items-center gap-6 justify-between w-full">
                     <div className="flex flex-col">
                         <h3 className="font-semibold text-xl pb-2">Schedule Name</h3>
                         <div className="flex flex-row gap-2 items-center text-[#8FFF9C]">
