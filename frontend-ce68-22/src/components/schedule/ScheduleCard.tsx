@@ -49,83 +49,23 @@ export function ScheduleCard({ schedule, onDelete }: ScheduleCardProps) {
                     </div>
                     {/* V.Colorful */}
                     <div className="grid grid-cols-4 w-full gap-4">
-                        <div className="flex flex-col items-center justify-center w-full h-18 bg-[#8FFF9C]/10 text-[#8FFF9C] rounded-xl gap-1">
+                        <div className="flex flex-col items-center justify-center w-full h-18 bg-[#192024] text-[#8FFF9C] rounded-xl gap-1">
                             <p className="text-sm">Finished</p>
                             <span className="font-bold text-2xl"> {schedule.job_status.finished} </span>
                         </div>
-                        <div className="flex flex-col items-center justify-center w-full h-18 bg-[#FF3B30]/10 text-[#FF3B30] rounded-xl gap-1">
+                        <div className="flex flex-col items-center justify-center w-full h-18 bg-[#192024] text-[#DD6E6E] rounded-xl gap-1">
                             <p className="text-sm">Failed</p>
                             <span className="font-bold text-2xl"> {schedule.job_status.failed} </span>
                         </div>
-                        <div className="flex flex-col items-center justify-center w-full h-18 bg-[#FFE18F]/10 text-[#FFE18F] rounded-xl gap-1">
+                        <div className="flex flex-col items-center justify-center w-full h-18 bg-[#192024] text-[#DDA96E] rounded-xl gap-1">
                             <p className="text-sm">Ongoing</p>
                             <span className="font-bold text-2xl"> {schedule.job_status.ongoing} </span>
                         </div>
-                        <div className="flex flex-col items-center justify-center w-full h-18 bg-[#8F91FF]/10 text-[#8F91FF] rounded-xl gap-1">
+                        <div className="flex flex-col items-center justify-center w-full h-18 bg-[#192024] text-[#6E9ADD] rounded-xl gap-1">
                             <p className="text-sm">Scheduled</p>
                             <span className="font-bold text-2xl"> {schedule.job_status.scheduled} </span>
                         </div>
                     </div>
-
-                    {/* V.Green only */}
-                    {/* <div className="grid grid-cols-4 w-full gap-4">
-                        <div className="flex flex-col items-center justify-center w-full h-18 bg-[#8FFF9C]/10 text-[#8FFF9C] rounded-xl gap-1">
-                            <p className="text-sm">Finished</p>
-                            <span className="font-bold text-2xl"> {schedule.job_status.finished} </span>
-                        </div>
-                        <div className="flex flex-col items-center justify-center w-full h-18 bg-[#8FFF9C]/10 text-[#8FFF9C] rounded-xl gap-1">
-                            <p className="text-sm">Failed</p>
-                            <span className="font-bold text-2xl"> {schedule.job_status.failed} </span>
-                        </div>
-                        <div className="flex flex-col items-center justify-center w-full h-18 bg-[#8FFF9C]/10 text-[#8FFF9C] rounded-xl gap-1">
-                            <p className="text-sm">Ongoing</p>
-                            <span className="font-bold text-2xl"> {schedule.job_status.ongoing} </span>
-                        </div>
-                        <div className="flex flex-col items-center justify-center w-full h-18 bg-[#8FFF9C]/10 text-[#8FFF9C] rounded-xl gap-1">
-                            <p className="text-sm">Scheduled</p>
-                            <span className="font-bold text-2xl"> {schedule.job_status.scheduled} </span>
-                        </div>
-                    </div> */}
-
-                    {/* V.black only */}
-                    {/* <div className="grid grid-cols-4 w-full gap-4">
-                        <div className="flex flex-col items-center justify-center w-full h-18 border border-[#404F57] text-[#8FFF9C] rounded-xl gap-1">
-                            <p className="text-sm">Finished</p>
-                            <span className="font-bold text-2xl"> {schedule.job_status.finished} </span>
-                        </div>
-                        <div className="flex flex-col items-center justify-center w-full h-18 border border-[#404F57] text-[#8FFF9C] rounded-xl gap-1">
-                            <p className="text-sm">Failed</p>
-                            <span className="font-bold text-2xl"> {schedule.job_status.failed} </span>
-                        </div>
-                        <div className="flex flex-col items-center justify-center w-full h-18 border border-[#404F57] text-[#8FFF9C] rounded-xl gap-1">
-                            <p className="text-sm">Ongoing</p>
-                            <span className="font-bold text-2xl"> {schedule.job_status.ongoing} </span>
-                        </div>
-                        <div className="flex flex-col items-center justify-center w-full h-18 border border-[#404F57] text-[#8FFF9C] rounded-xl gap-1">
-                            <p className="text-sm">Scheduled</p>
-                            <span className="font-bold text-2xl"> {schedule.job_status.scheduled} </span>
-                        </div>
-                    </div> */}
-
-                    {/* V.Black but color text */}
-                    {/* <div className="grid grid-cols-4 w-full gap-4">
-                        <div className="flex flex-col items-center justify-center w-full h-18 border border-[#404F57] text-[#8FFF9C] rounded-xl gap-1">
-                            <p className="text-sm">Finished</p>
-                            <span className="font-bold text-2xl"> {schedule.job_status.finished} </span>
-                        </div>
-                        <div className="flex flex-col items-center justify-center w-full h-18 border border-[#404F57] text-[#FF3B30] rounded-xl gap-1">
-                            <p className="text-sm">Failed</p>
-                            <span className="font-bold text-2xl"> {schedule.job_status.failed} </span>
-                        </div>
-                        <div className="flex flex-col items-center justify-center w-full h-18 border border-[#404F57] text-[#FFE18F] rounded-xl gap-1">
-                            <p className="text-sm">Ongoing</p>
-                            <span className="font-bold text-2xl"> {schedule.job_status.ongoing} </span>
-                        </div>
-                        <div className="flex flex-col items-center justify-center w-full h-18 border border-[#404F57] text-[#8F91FF] rounded-xl gap-1">
-                            <p className="text-sm">Scheduled</p>
-                            <span className="font-bold text-2xl"> {schedule.job_status.scheduled} </span>
-                        </div>
-                    </div> */}
 
                     <Divider sx={{ borderColor: "#404F57", width: "100%" }} />
                     <div className="flex flex-row gap-6 justify-between items-center w-full text-[#9AA6A8]">

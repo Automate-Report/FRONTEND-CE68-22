@@ -83,7 +83,7 @@ export default function ViewSchedulePage() {
             {/* Section 2: Headline */}
             <div className="w-full flex flex-row justify-between">
                 <h1 className="font-bold text-[32px]">
-                    {schedule?.schedule_name || "Loading..."}
+                    {schedule?.schedule_name || "Fetching info..."}
                 </h1>
                 <div className="flex gap-8 items-center">
                     <button className="flex items-center justify-center bg-[#0F1518] border border-[#FE3B46] 
@@ -104,6 +104,7 @@ export default function ViewSchedulePage() {
             {/* Section 3: Detail Boxes */}
             <div className="my-6 flex flex-col gap-6">
 
+                
                 {/* Atk type */}
                 <div className="flex flex-col w-[40%] gap-3">
                     <span className="font-semibold text-2xl">Attack Type </span>
