@@ -95,6 +95,12 @@ export default function ProjectSchedulePage({ params }: PageProps) {
 
       <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
         <ScheduleCard />
+        <ScheduleCard />
+        <ScheduleCard />
+        <ScheduleCard />
+        <ScheduleCard />
+        <ScheduleCard />
+        <ScheduleCard />
       </div>
 
       {/* Section 4: Table */}
