@@ -156,10 +156,11 @@ export default function CreateSchedulePage() {
         const allCronExpression = cronTimes.map(({ hr, min }) => ({
             min,
             hr,
-            day: dates === "" ? "*" : dates,
+            day: dates === "" || dates === "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31" ? "*" : dates,
             month,
-            week: week === "" ? "*" : week
+            week: week === "" || week === "0,1,2,3,4,5,6" ? "*" : week
         }));
+
 
         const cronString = allCronExpression
             .map(({ min, hr, day, month, week }) => `${min} ${hr} ${day} ${month} ${week}`)

@@ -22,7 +22,7 @@ export function ScheduleCard({ schedule, onDelete }: ScheduleCardProps) {
                         <h3 className="font-semibold text-xl pb-2 truncate">{schedule.name}</h3>
                         <div className="flex flex-row gap-2 items-center text-[#8FFF9C]">
                             <NetworkIcon />
-                            <p className="font-light text-sm truncate">{schedule.asset_name}</p>
+                            <p className="font-bold text-sm truncate">{schedule.asset_name}</p>
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">

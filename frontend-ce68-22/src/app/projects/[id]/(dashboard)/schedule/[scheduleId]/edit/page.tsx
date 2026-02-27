@@ -118,7 +118,7 @@ export default function EditSchedulePage() {
         // Set monthly date
         const monthly = parsed[0]?.day;
         if (monthly === "*") {
-            setDayOfMonth(prev => prev.map(d => ({ ...d, active: true })));
+            setDayOfMonth(prev => prev.map(d => ({ ...d, active: false })));
         }
         else {
             setDayOfMonth(prev => prev.map((d, i) => ({
@@ -210,9 +210,9 @@ export default function EditSchedulePage() {
         const allCronExpression = cronTimes.map(({ hr, min }) => ({
             min,
             hr,
-            day: dates === "" ? "*" : dates,
+            day: dates === "" || dates === "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31" ? "*" : dates,
             month,
-            week: week === "" ? "*" : week
+            week: week === "" || week === "0,1,2,3,4,5,6" ? "*" : week
         }));
 
         const cronString = allCronExpression

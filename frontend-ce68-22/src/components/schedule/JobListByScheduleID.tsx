@@ -5,6 +5,7 @@ import { useTable } from "@/src/hooks/use-table";
 import { JobDisplay } from "@/src/types/schedule";
 import { useGetJobByScheduleID } from "@/src/hooks/schedule/use-getJobByScheduleID";
 import { JobListByScheduleTable } from "./JobListByScheduleTable";
+import { Box, Typography } from "@mui/material";
 
 //นิยาม Interface สำหรับ Props
 interface ScheduleListProps {
@@ -40,8 +41,8 @@ export function JobListByScheduleID({ schedule_id }: ScheduleListProps) {
     );
 
     // ดึง items และ total จาก response (Handle กรณี response เป็น undefined)
-    const allJobs = response?.items || [];  
-    const totalCnt = response?.total || 0; 
+    const allJobs = response?.items || [];
+    const totalCnt = response?.total || 0;
 
     if (isLoading) {
         return (
@@ -63,8 +64,11 @@ export function JobListByScheduleID({ schedule_id }: ScheduleListProps) {
     }
 
     if (totalCnt === 0) {
-        // ... แสดงหน้า Empty State ตามเดิม ...
-        return <div className="text-center py-10">ไม่พบตารางเวลา</div>;
+        return (
+            <Box textAlign="center" py={10} sx={{ border: "1px dashed #2D353B", borderRadius: 4 }}>
+                <Typography sx={{ color: "#9AA6A8" }}>No job is scheduled for this schedule.</Typography>
+            </Box>
+        );
     }
 
     return (

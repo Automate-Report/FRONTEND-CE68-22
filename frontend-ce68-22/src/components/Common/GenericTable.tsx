@@ -73,7 +73,7 @@ export function GenericTable<T extends { id: number | string }>({
   };
 
   return (
-    <Paper elevation={0} sx={{ borderRadius: 3, overflow: "hidden", border: "1px solid #e5e7eb", bgcolor: "#0F1518", color: "#E6F0E6" }}>
+    <Paper elevation={0} sx={{ borderRadius: 3, overflow: "hidden", border: "2px solid rgba(64,79,87,0.4)", bgcolor: "#0F1518", color: "#9ca3af" }}>
       <TableContainer>
         <Table sx={{ minWidth: 650 }}>
           {/* --- Table Head (Dynamic) --- */}
@@ -87,7 +87,7 @@ export function GenericTable<T extends { id: number | string }>({
                   sx={{
                     whiteSpace: "nowrap",
                     cursor: col.sortable ? "pointer" : "default",
-                    
+                    borderBottom: "none"
                   }}
                   onClick={() => col.sortable && onSort(col.id)}
                 >
@@ -97,10 +97,10 @@ export function GenericTable<T extends { id: number | string }>({
                     }`}
                   >
                     {/* Label */}
-                    <span className="text-[#E6F0E6]">{col.label}</span>
+                    <span className="text-[#9ca3af]">{col.label}</span>
                     
                     {/* Sort Icon (แสดงเฉพาะถ้า column นั้น sortable) */}
-                    {col.sortable && <div className="pl-2">{sortIndicator(col.id)}</div>}
+                    {col.sortable && <div className="pl-2 text-[#9ca3af]">{sortIndicator(col.id)}</div>}
                   </div>
                 </TableCell>
               ))}
@@ -115,7 +115,7 @@ export function GenericTable<T extends { id: number | string }>({
                 <TableRow
                   key={rowKey} 
                   sx={{
-                    backgroundColor: index % 2 === 0 ? "#FBFBFB" : "#EFF1F0",
+                    backgroundColor: index % 2 === 0 ? "#192024" : "#151b1d",
                     border: 0
                   }}
                 >
@@ -123,7 +123,8 @@ export function GenericTable<T extends { id: number | string }>({
                     <TableCell 
                       key={`${row.id}-${col.id}`} 
                       align={col.align || "left"}
-                      sx = {{ color: "#404F57" }}
+                      sx = {{ color: "#E6F0E6", borderBottom: "none"}}
+                      
                     >
                       {/* ถ้ามี function render ให้ใช้ render, ถ้าไม่มีให้ดึงค่าจาก object ตรงๆ */}
                       {col.render 
@@ -150,7 +151,7 @@ export function GenericTable<T extends { id: number | string }>({
 
       {/* Pagination Reuse */}
       <TablePagination
-        sx = {{ color: "#E6F0E6" }}
+        sx = {{ color: "#747688" }}
         rowsPerPageOptions={[5, 10, 20]}
         component="div"
         count={totalCount}

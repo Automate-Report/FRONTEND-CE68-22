@@ -43,8 +43,7 @@ export function JobListByScheduleTable({
             id: "worker",
             label: "Worker",
             align: "center",
-            sortable: false,
-            width: "120px", // ให้หดเหลือพื้นที่เท่าที่จำเป็น
+            sortable: false, 
             render: (row) => (
                 <Link
                     href={`/workers/${row.worker_id}`}
@@ -57,7 +56,6 @@ export function JobListByScheduleTable({
             label: "Assigned at",
             align: "center",
             sortable: true,
-            width: "120px", // ให้หดเหลือพื้นที่เท่าที่จำเป็น
             render: (row) => {
                 const d = new Date(row.created_at);
                 return (
@@ -70,23 +68,23 @@ export function JobListByScheduleTable({
             label: "Status", // หัวตารางว่าง
             align: "center",
             sortable: true,
-            width: "100px",
+            width: "150px",
             render: (row) => (
                 <div className="flex justify-center items-center">
                     {row.status === "failed" && <div className="flex justify-center items-center rounded-lg w-[70px] h-[24px] 
-                    text-[#DD6E6E] bg-[#FFDEDE] font-bold">
+                    text-[#FF4D4F] bg-[#3A1F1F] font-bold">
                         Failed
                     </div>}
                     {row.status === "completed" && <div className="flex justify-center items-center rounded-lg w-[90px] h-[24px] 
-                    text-[#6EDD99] bg-[#DEFFE2] font-bold">
+                    text-[#4CFF88] bg-[#1E3A2A] font-bold">
                         Finished
                     </div>}
                     {row.status === "running" && <div className="flex justify-center items-center rounded-lg w-[90px] h-[24px] 
-                    text-[#DDA96E] bg-[#FDFFDE] font-bold">
+                    text-[#FFD666] bg-[#3A3A1E] font-bold">
                         On Going
                     </div>}
                     {row.status === "pending" && <div className="flex justify-center items-center rounded-lg w-[90px] h-[24px] 
-                    text-[#6E9ADD] bg-[#DEFFFD] font-bold">
+                    text-[#7C9CFF] bg-[#1E2A3A] font-bold">
                         Scheduled
                     </div>}
                 </div>
