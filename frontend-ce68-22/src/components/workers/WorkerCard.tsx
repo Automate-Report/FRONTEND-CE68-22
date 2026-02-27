@@ -5,6 +5,7 @@ import { Engineering as WorkerIcon, Delete as DeleteIcon, Edit as EditIcon, Down
 import { useDownloadStore } from "@/src/hooks/worker/use-WorkerDownloadStore";
 import { WORKER_STATUS_MAP } from "@/src/constants/worker-status";
 import { Worker as WorkerType } from "@/src/types/worker";
+import { useRouter, useParams } from "next/navigation";
 
 
 
@@ -20,6 +21,9 @@ interface WorkerCardProps {
 }
 
 export function WorkerCard({ worker, canManage, isProjectOwner, currentUserId, onEdit, onDelete, onUnlink, onDownload }: WorkerCardProps) {
+  const router = useRouter();
+  const params = useParams();
+  const projectId = params.id;
   const startDownload = useDownloadStore((state) => state.startDownload);
   const globalIsLoading = useDownloadStore((state) => state.isDownloading);
   const globalProgress = useDownloadStore((state) => state.progress);
@@ -39,7 +43,11 @@ export function WorkerCard({ worker, canManage, isProjectOwner, currentUserId, o
   const handleDownloadClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); onDownload ? onDownload(e) : startDownload(worker.id, worker.name); };
   const handleUnlinkClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); onUnlink(e, worker); };
   const handleDeleteClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); onDelete(e, worker); };
-  const handleEditClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); if (onEdit) onEdit(e); };
+  const handleEditClick = (e: React.MouseEvent) => { 
+    e.preventDefault(); 
+    e.stopPropagation(); 
+    router.push(`/projects/${projectId}/workers/${worker.id}/edit`);
+  };
 
   return (
     <Box sx={{ bgcolor: "#1E2429", borderRadius: "20px", border: "1px solid #404F57", p: 3, transition: "0.3s", cursor: "pointer", "&:hover": { borderColor: "#8FFF9C", transform: "translateY(-4px)" } }}>
@@ -97,7 +105,11 @@ export function WorkerCard({ worker, canManage, isProjectOwner, currentUserId, o
               {/* --- 2. ส่วนของ Edit: Pentester & Owner เห็น --- */}
               {canManage && (
                 <Tooltip title="Edit">
-                  <IconButton size="small" onClick={handleEditClick} sx={{ color: "#9AA6A8", "&:hover": { color: "#FBFBFB" } }}>
+                  <IconButton 
+                    size="small" 
+                    onClick={handleEditClick} // Use the handler which stops propagation
+                    sx={{ color: "#9AA6A8", "&:hover": { color: "#FBFBFB" } }}
+                  >
                     <EditIcon fontSize="small" />
                   </IconButton>
                 </Tooltip>
