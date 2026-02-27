@@ -28,17 +28,17 @@ import { Worker as WorkerType } from "@/src/types/worker";
 interface WorkerCardProps {
   worker: WorkerType;
   canManage: boolean;
+  currentUserId?: string | number | null;
   onEdit?: (e: React.MouseEvent) => void;
   onDelete: (e: React.MouseEvent, worker: WorkerType) => void;
   onUnlink: (e: React.MouseEvent, worker: WorkerType) => void;
-  // หมายเหตุ: onDownload จะถูกเรียกใช้ผ่าน Store ภายในตัวคอมโพเนนต์เอง 
-  // หรือรับมาจากหน้า Page เพื่อหยุด Event Bubbling
   onDownload?: (e: React.MouseEvent) => void;
 }
 
 export function WorkerCard({ 
   worker, 
   canManage, 
+  currentUserId,
   onEdit, 
   onDelete, 
   onUnlink,
@@ -58,6 +58,8 @@ export function WorkerCard({
   const currentLoad = worker.current_load ?? 0;
   const maxThread = worker.thread_number ?? 1;
   const loadPercentage = (currentLoad / maxThread) * 100;
+
+  const canUnlink = canManage || (worker.owner != null && worker.owner === currentUserId);
 
   // --- 🛠️ Event Handlers (หยุดการ Click ทะลุไปยัง Link ด้านนอก) ---
 
@@ -129,11 +131,13 @@ export function WorkerCard({
             {canManage && (
               <Stack direction="row" spacing={0.5} alignItems="center">
                 {worker.owner ? (
-                  <Tooltip title="Disconnect Node">
-                    <IconButton size="small" onClick={handleUnlinkClick} sx={{ color: "#FF9800", bgcolor: "rgba(255, 152, 0, 0.05)", "&:hover": { bgcolor: "rgba(255, 152, 0, 0.15)" } }}>
-                      <UnlinkIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
+                  canUnlink && (
+                    <Tooltip title="Disconnect Node">
+                      <IconButton size="small" onClick={handleUnlinkClick} sx={{ color: "#FF9800", bgcolor: "rgba(255, 152, 0, 0.05)", "&:hover": { bgcolor: "rgba(255, 152, 0, 0.15)" } }}>
+                        <UnlinkIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  )
                 ) : (
                   <Tooltip title="Download Config">
                     <IconButton 
