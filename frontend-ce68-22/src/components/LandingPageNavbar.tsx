@@ -34,7 +34,7 @@ export function LandingPageNavbar() {
             </div>
             <Divider
                 sx={{
-                    borderColor: "#D8D4D4", // กำหนดสีของเส้น (ถ้าพื้นหลังดำ ควรใช้สีเทาเข้ม)
+                    borderColor: "#272D31", // กำหนดสีของเส้น (ถ้าพื้นหลังดำ ควรใช้สีเทาเข้ม)
                     padding: 0
                 }}
             />

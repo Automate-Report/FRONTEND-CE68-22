@@ -78,12 +78,14 @@ export function NavBar() {
                         </div>
                     </Link>
                     <div className="flex items-center gap-6">
-                        <Link href="/settings">
-                            <div className="flex items-center gap-3 hover:text-[#AFFFB9] font-semibold text-xl">
-                                <span>Setting</span>
-                                <SettingsIcon sx={{ fontSize: 24 }} />
-                            </div>
-                        </Link>
+                        <div className="flex gap-10 text-xl font-semibold">
+                            {/* <Link href="/settings">
+                                <div className="flex items-center gap-3 hover:text-[#AFFFB9]">
+                                    <span className="leading-none">Setting</span>
+                                    <SettingsIcon sx={{ fontSize: 24 }} />
+                                </div>
+                            </Link> */}
+                        </div>
                         <Button
                             sx={{ minHeight: 0, minWidth: 0, padding: "10px", color: "#E6F0E6", backgroundColor: "#272D31", borderRadius: "14px", "&:hover": { backgroundColor: "#3a4146" } }}
                             onClick={() => setShowNoti(!showNoti)}
@@ -96,14 +98,21 @@ export function NavBar() {
                         </Link>
                     </div>
                 </div>
-                <Divider sx={{ borderColor: "#2D2F39" }} />
+                <Divider
+                    sx={{
+                        borderColor: "#272D31", // กำหนดสีของเส้น (ถ้าพื้นหลังดำ ควรใช้สีเทาเข้ม)
+                        padding: 0
+                    }}
+                />
             </div>
 
             {/* Notification Window */}
             {showNoti && (
                 <div ref={notiRef} onScroll={handleScrollToBottom}
-                    className="fixed top-[88px] right-[24px] min-w-[400px] w-[30%] max-h-[60vh] overflow-y-auto bg-[#0F1518] border border-[#2D2F39] rounded-xl shadow-2xl z-50">
-                    <h3 className="text-xl font-semibold text-[#E6F0E6] p-4 border-b border-[#272D31] sticky top-0 bg-[#0F1518] z-50">Notifications</h3>
+                    className={`fixed top-[88px] right-[24px] min-w-[400px] w-[30%] max-h-[60vh] overflow-y-auto bg-[#0F1518]
+                    border border-[#272D31] rounded-xl shadow-lg z-50 transition-opacity duration-300
+                    ${showNoti ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                    <h3 className="text-xl font-semibold text-[#E6F0E6] p-4 border-b border-[#272D31] bg-[#0F1518] sticky top-0 z-50 h-[62px]">Notifications</h3>
 
                     {/* Tab Switcher */}
                     <div className="grid grid-cols-2 h-[40px] border-b border-[#272D31] sticky top-[62px] z-50 cursor-pointer">

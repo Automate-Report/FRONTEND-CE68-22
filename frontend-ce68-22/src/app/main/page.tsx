@@ -13,6 +13,8 @@ import { ProjectCard } from "@/src/components/projects/ProjectCard";
 import { projectService } from "@/src/services/project.service";
 import { ProjectSummary } from "@/src/types/project";
 import { Box, CircularProgress, Typography } from "@mui/material";
+import { INPUT_BOX_WITH_ICON_STYLE_DIV, INPUT_BOX_WITH_ICON_STYLE_INPUT } from "@/src/styles/inputBoxStyle";
+import { FILTER_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
@@ -24,8 +26,8 @@ export default function ProjectsPage() {
   const [displayName, setDisplayName] = useState<string>("");
 
   // --- Pagination States ---
-  const [page, setPage] = useState(0); 
-  const [rowsPerPage, setRowsPerPage] = useState(6); 
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(6);
   const [totalItems, setTotalItems] = useState(0);
 
   const filterStatusOptions = ["ALL", "owner", "pentester", "developer"];
@@ -39,11 +41,11 @@ export default function ProjectsPage() {
     try {
       // ใช้ page + 1 สำหรับ API Call เสมอ
       const data = await projectService.getAll(
-        page + 1, 
-        rowsPerPage, 
-        "updated_at", 
-        "desc", 
-        debouncedSearch, 
+        page + 1,
+        rowsPerPage,
+        "updated_at",
+        "desc",
+        debouncedSearch,
         filterStatus
       );
       setProjects(data.items || []);
@@ -76,6 +78,11 @@ export default function ProjectsPage() {
     fetchUser();
   }, []);
 
+  // เลื่อนขึ้นบนสุดเมื่อเปลี่ยนหน้า
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [page]);
+
   const handleApply = () => {
     setFilterStatus(tempFilter);
     setPage(0); // กลับไปหน้าแรกหลัง Apply Filter
@@ -90,7 +97,7 @@ export default function ProjectsPage() {
     try {
       await projectService.delete(deleteModal.id);
       setDeleteModal({ ...deleteModal, open: false });
-      fetchProjects(); 
+      fetchProjects();
     } catch (error) {
       console.error(error);
     }
@@ -98,6 +105,7 @@ export default function ProjectsPage() {
 
   // จัดการการเปลี่ยนหน้าผ่าน GenericPagination
   const handlePageChange = (newPage: number, newSize: number) => {
+    window.scrollTo({ top: 0, behavior: "smooth" })
     setPage(newPage);
     setRowsPerPage(newSize);
   };
@@ -116,12 +124,14 @@ export default function ProjectsPage() {
       {/* Toolbar */}
       <div className="flex justify-between items-center mb-6 text-[#E6F0E6]">
         <div className="flex justify-between items-center pr-5 flex-1">
-          <div className="relative w-1/3 flex items-center h-[40px] gap-3 max-w-md bg-white rounded-xl pl-2 shadow-sm">
+
+          {/* Search bar */}
+          <div className={INPUT_BOX_WITH_ICON_STYLE_DIV}>
             <MagIcon />
             <input
               type="text"
               placeholder="Search Projects"
-              className="w-full h-full rounded-lg text-[#4F4057] placeholder-[#9AA6A8] focus:outline-none"
+              className={INPUT_BOX_WITH_ICON_STYLE_INPUT}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -130,11 +140,11 @@ export default function ProjectsPage() {
           <div className="relative">
             <button
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 px-6 py-2 text-[#E6F0E6] border border-[#E6F0E6] rounded-xl hover:bg-white/10 cursor-pointer transition"
+              className={FILTER_BUTTON_STYLE}
             >
               Filter <FilterIcon />
             </button>
-            
+
             {isModalOpen && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
                 <div className="bg-[#121212] border border-white/10 w-full max-w-md p-6 rounded-2xl">
@@ -178,20 +188,20 @@ export default function ProjectsPage() {
                 <ProjectCard key={project.id} project={project} onDelete={openDeleteConfirm} />
               ))}
             </div>
-            
+
             {/* ใช้อินเทอร์เฟซที่คุยกันไว้ใน GenericPagination */}
-            <GenericPagination 
-                count={totalItems}
-                page={page}
-                rowsPerPage={rowsPerPage}
-                
-                // 1. ส่งฟังก์ชันเปลี่ยนหน้า (รับ 2 args: newPage และ currentRowsPerPage)
-                onPageChange={handlePageChange} 
-                
-                // 2. ส่งฟังก์ชันเปลี่ยนขนาด (รับ 1 arg: newSize แล้วเราสั่งให้ Reset หน้าไป 0)
-                onRowsPerPageChange={(newSize) => handlePageChange(0, newSize)}
-                
-                labelRowsPerPage="Projects per page:"
+            <GenericPagination
+              count={totalItems}
+              page={page}
+              rowsPerPage={rowsPerPage}
+
+              // 1. ส่งฟังก์ชันเปลี่ยนหน้า (รับ 2 args: newPage และ currentRowsPerPage)
+              onPageChange={handlePageChange}
+
+              // 2. ส่งฟังก์ชันเปลี่ยนขนาด (รับ 1 arg: newSize แล้วเราสั่งให้ Reset หน้าไป 0)
+              onRowsPerPageChange={(newSize) => handlePageChange(0, newSize)}
+
+              labelRowsPerPage="Projects per page:"
             />
           </>
         ) : (
