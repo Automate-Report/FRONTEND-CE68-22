@@ -1,200 +1,91 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { Box, Typography, Stack, Button, Paper, CircularProgress, Divider } from "@mui/material";
+import { Save as SaveIcon, Visibility as PreviewIcon, ArrowBack as BackIcon } from "@mui/icons-material";
 import { useRouter, useParams } from "next/navigation";
-import { 
-  Box, Typography, Stack, Button, TextField, 
-  Paper, Divider, CircularProgress 
-} from "@mui/material";
-import { 
-  Save as SaveIcon, 
-  Visibility as PreviewIcon, 
-  ArrowBack as BackIcon,
-  Description as ReportIcon
-} from "@mui/icons-material";
-
-// Components
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { useProject } from "@/src/hooks/project/use-project";
 
-export default function EditPentestReportPage() {
+export default function EditWordReportPage() {
   const router = useRouter();
-  const params = useParams();
-  const projectId = params.id as string;
-  const reportId = params.reportId as string;
-
-  const { data: project, isLoading: isProjectLoading } = useProject(parseInt(projectId));
+  const { id: projectId, reportId } = useParams();
+  const { data: project, isLoading } = useProject(parseInt(projectId as string));
   const [saving, setSaving] = useState(false);
 
-  // --- State สำหรับเนื้อหาตามหัวข้อหลักใน Template [cite: 8, 31, 91] ---
+  // สมมติสถานะเนื้อหา (ในอนาคตจะใช้ Rich Text Editor Library มาแทนที่ช่อง TextArea)
   const [reportContent, setReportContent] = useState({
-    executiveSummary: "", // บทสรุปผู้บริหาร [cite: 8, 17]
-    managementRecommendations: {
-      shortTerm: "มอบหมายผู้รับผิดชอบเข้าแก้ไขช่องโหว่ระดับวิกฤตและระดับสูง...", // [cite: 33]
-      mediumTerm: "บูรณาการระบบตรวจสอบความปลอดภัยอัตโนมัติเข้ากับ CI/CD...", // [cite: 34]
-      longTerm: "พัฒนาทักษะบุคลากรด้าน Security Coding..." // [cite: 35]
-    },
-    overallConclusion: "" // บทสรุปภาพรวมความปลอดภัย [cite: 91]
+    executiveSummary: "วัตถุประสงค์หลักเพื่อประเมินระดับความมั่นคงปลอดภัยและค้นหาช่องโหว่...", // [cite: 18, 19]
+    recommendations: "มอบหมายผู้รับผิดชอบเข้าแก้ไขช่องโหว่ระดับวิกฤตและระดับสูง...", // [cite: 31, 33]
+    conclusion: "สภาวะความมั่นคงปลอดภัยของระบบอยู่ในระดับสูง..." // [cite: 91, 92]
   });
 
-  const handleSave = async () => {
-    setSaving(true);
-    // Simulation API call
-    setTimeout(() => {
-      setSaving(false);
-      alert("Draft saved successfully!");
-    }, 1000);
-  };
-
-  if (isProjectLoading) return <CircularProgress />;
+  if (isLoading) return <CircularProgress />;
 
   return (
-    <Box sx={{ pb: 10, px: 4, bgcolor: "#0F1518", minHeight: "100vh" }}>
-      {/* Navigation Breadcrumbs */}
+    <Box sx={{ p: 4, bgcolor: "#0F1518", minHeight: "100vh" }}>
       <GenericBreadcrums 
         items={[
           { label: "Home", href: "/main" },
           { label: project?.name || "Project", href: `/projects/${projectId}/overview` },
           { label: "Report Center", href: `/projects/${projectId}/reports` },
-          { label: "Edit Pentest Report", href: undefined }
+          { label: "Edit Content", href: undefined }
         ]} 
       />
 
-      {/* Header Actions Stack */}
-      <Stack 
-        direction={{ xs: "column", md: "row" }} 
-        justifyContent="space-between" 
-        alignItems={{ xs: "flex-start", md: "center" }} 
-        spacing={2}
-        my={4}
-      >
-        <Stack direction="row" spacing={2} alignItems="center">
-          <ReportIcon sx={{ color: "#8FFF9C", fontSize: 32 }} />
-          <Typography variant="h4" sx={{ fontWeight: 900, color: "#FBFBFB" }}>
-            Edit Report Content
-          </Typography>
-        </Stack>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" my={4}>
+        <Typography variant="h4" fontWeight={900} color="#FBFBFB">Editor Mode</Typography>
         <Stack direction="row" spacing={2}>
-          <Button 
-            startIcon={<PreviewIcon />} 
-            onClick={() => router.push(`/projects/${projectId}/reports/${reportId}/preview`)}
-            sx={{ color: "#8FFF9C", fontWeight: 700 }}
-          >
-            Live Preview
-          </Button>
+          <Button startIcon={<PreviewIcon />} sx={{ color: "#8FFF9C" }}>Preview PDF/Word</Button>
           <Button 
             variant="contained" 
-            startIcon={<SaveIcon />}
-            onClick={handleSave}
-            disabled={saving}
-            sx={{ bgcolor: "#8FFF9C", color: "#0D1014", fontWeight: 800, px: 4 }}
+            startIcon={<SaveIcon />} 
+            sx={{ bgcolor: "#8FFF9C", color: "#0D1014", fontWeight: 800 }}
+            onClick={() => setSaving(true)}
           >
-            {saving ? "Saving..." : "Save Draft"}
+            {saving ? "Saving..." : "Save Changes"}
           </Button>
         </Stack>
       </Stack>
 
-      {/* Main Layout Container (Flexbox) */}
-      <Box sx={{ display: "flex", flexDirection: { xs: "column", lg: "row" }, gap: 4 }}>
-        
-        {/* Left Side: Editor Form (Flex: 2) */}
-        <Box sx={{ flex: 2 }}>
-          <Stack spacing={4}>
-            
-            {/* Section 1: Executive Summary [cite: 8, 17] */}
-            <Paper sx={{ p: 4, bgcolor: "#1E2429", border: "1px solid #2D2F39", borderRadius: "16px" }}>
-              <Typography variant="h6" color="#8FFF9C" fontWeight={900} mb={2}>
-                1. EXECUTIVE SUMMARY (บทสรุปผู้บริหาร)
-              </Typography>
-              <TextField 
-                fullWidth multiline rows={10}
-                placeholder="ระบุวัตถุประสงค์และภาพรวมการดำเนินงานของโครงการ..."
-                value={reportContent.executiveSummary}
-                onChange={(e) => setReportContent({...reportContent, executiveSummary: e.target.value})}
-                sx={{ 
-                  bgcolor: "#0D1014", borderRadius: "8px", 
-                  "& .MuiInputBase-input": { color: "#FBFBFB", lineHeight: 1.7 } 
-                }}
-              />
-            </Paper>
-
-            {/* Section 2: Management Recommendations [cite: 31, 32] */}
-            <Paper sx={{ p: 4, bgcolor: "#1E2429", border: "1px solid #2D2F39", borderRadius: "16px" }}>
-              <Typography variant="h6" color="#8FFF9C" fontWeight={900} mb={3}>
-                2. STRATEGIC RECOMMENDATIONS (ข้อเสนอแนะเชิงกลยุทธ์)
-              </Typography>
-              <Stack spacing={3}>
-                <TextField 
-                  label="ระยะสั้น (Short-term)" fullWidth multiline rows={2}
-                  value={reportContent.managementRecommendations.shortTerm}
-                  onChange={(e) => setReportContent({
-                    ...reportContent, 
-                    managementRecommendations: {...reportContent.managementRecommendations, shortTerm: e.target.value}
-                  })}
-                  InputLabelProps={{ sx: { color: '#404F57' } }}
-                  sx={{ bgcolor: "#0D1014", borderRadius: "8px", "& .MuiInputBase-input": { color: "#FBFBFB" } }}
-                />
-                <TextField 
-                  label="ระยะกลาง (Medium-term)" fullWidth multiline rows={2}
-                  value={reportContent.managementRecommendations.mediumTerm}
-                  InputLabelProps={{ sx: { color: '#404F57' } }}
-                  sx={{ bgcolor: "#0D1014", borderRadius: "8px", "& .MuiInputBase-input": { color: "#FBFBFB" } }}
-                />
-                <TextField 
-                  label="ระยะยาว (Long-term)" fullWidth multiline rows={2}
-                  value={reportContent.managementRecommendations.longTerm}
-                  InputLabelProps={{ sx: { color: '#404F57' } }}
-                  sx={{ bgcolor: "#0D1014", borderRadius: "8px", "& .MuiInputBase-input": { color: "#FBFBFB" } }}
-                />
-              </Stack>
-            </Paper>
-
-            {/* Section 3: Overall Conclusion [cite: 90, 91] */}
-            <Paper sx={{ p: 4, bgcolor: "#1E2429", border: "1px solid #2D2F39", borderRadius: "16px" }}>
-              <Typography variant="h6" color="#8FFF9C" fontWeight={900} mb={2}>
-                3. OVERALL CONCLUSION (บทสรุปภาพรวมความปลอดภัย)
-              </Typography>
-              <TextField 
-                fullWidth multiline rows={4}
-                placeholder="ระบุสภาวะความมั่นคงปลอดภัยโดยรวมของโครงการ {project_name}..."
-                value={reportContent.overallConclusion}
-                onChange={(e) => setReportContent({...reportContent, overallConclusion: e.target.value})}
-                sx={{ bgcolor: "#0D1014", borderRadius: "8px", "& .MuiInputBase-input": { color: "#FBFBFB" } }}
-              />
-            </Paper>
-          </Stack>
-        </Box>
-
-        {/* Right Side: Read-only Info (Flex: 1) [cite: 53] */}
-        <Box sx={{ flex: 1 }}>
-          <Box sx={{ position: 'sticky', top: 24 }}>
-            <Paper sx={{ p: 3, bgcolor: "#111518", border: "1px solid #2D2F39", borderRadius: "16px" }}>
-              <Typography variant="subtitle2" color="#404F57" fontWeight={900} mb={2}>
-                AUTO-GENERATED SECTIONS
-              </Typography>
-              <Stack spacing={1.5}>
-                {[
-                  "Vulnerability Profile (CVSS v3.1 Chart)", // [cite: 20, 135]
-                  "Asset-Based Risk Summary Table", // [cite: 28, 29]
-                  "Audit Methodology (OWASP/NIST)", // [cite: 102, 103]
-                  "Technical Findings (Details & PoC)", // [cite: 51, 56]
-                  "Vulnerability Lifecycle Tracking" // [cite: 81, 82]
-                ].map((item, i) => (
-                  <Stack key={i} direction="row" spacing={1} alignItems="center">
-                    <Box sx={{ width: 6, height: 6, bgcolor: "#8FFF9C", borderRadius: '50%' }} />
-                    <Typography variant="caption" color="#9AA6A8">{item}</Typography>
-                  </Stack>
-                ))}
-              </Stack>
-              <Divider sx={{ my: 2, borderColor: "#2D2F39" }} />
-              <Typography variant="caption" color="#404F57" fontStyle="italic">
-                * ข้อมูลในส่วนนี้จะถูกจัดทำโดยอัตโนมัติตามผลการทดสอบเชิงเทคนิค [cite: 53]
-              </Typography>
-            </Paper>
+      <Stack spacing={4}>
+        {/* ส่วนที่ 1: บทสรุปผู้บริหาร [cite: 17] */}
+        <Paper sx={{ p: 4, bgcolor: "#1E2429", borderRadius: "16px", border: "1px solid #2D2F39" }}>
+          <Typography variant="h6" color="#8FFF9C" fontWeight={900} mb={2}>
+            บทสรุปผู้บริหาร (EXECUTIVE SUMMARY)
+          </Typography>
+          <Box sx={{ minHeight: 200, bgcolor: "#0D1014", p: 2, borderRadius: "8px", border: "1px solid #2D2F39" }}>
+            {/* ตรงนี้คือจุดที่วาง Rich Text Editor Library */}
+            <Typography color="#9AA6A8" variant="caption" display="block" mb={1}>
+              Tip: คุณสามารถจัดรูปแบบตัวหนา หรือใส่ Bullet points ได้เหมือนใน Word
+            </Typography>
+            <textarea 
+              style={{ width: '100%', background: 'transparent', color: '#FBFBFB', border: 'none', outline: 'none', minHeight: 150, fontFamily: 'inherit' }}
+              value={reportContent.executiveSummary}
+              onChange={(e) => setReportContent({...reportContent, executiveSummary: e.target.value})}
+            />
           </Box>
-        </Box>
+        </Paper>
 
-      </Box>
+        {/* ส่วนที่ 2: ข้อเสนอแนะ [cite: 31] */}
+        <Paper sx={{ p: 4, bgcolor: "#1E2429", borderRadius: "16px", border: "1px solid #2D2F39" }}>
+          <Typography variant="h6" color="#8FFF9C" fontWeight={900} mb={2}>
+            ข้อเสนอแนะเชิงกลยุทธ์ (STRATEGIC RECOMMENDATIONS)
+          </Typography>
+          <textarea 
+            style={{ width: '100%', background: '#0D1014', color: '#FBFBFB', border: '1px solid #2D2F39', borderRadius: '8px', padding: 16, minHeight: 100 }}
+            value={reportContent.recommendations}
+            onChange={(e) => setReportContent({...reportContent, recommendations: e.target.value})}
+          />
+        </Paper>
+        
+        {/* ส่วนที่แจ้งเตือนว่าข้อมูลอื่นจะดึงมาอัตโนมัติ [cite: 53, 56] */}
+        <Box sx={{ p: 3, bgcolor: "rgba(143, 255, 156, 0.05)", borderRadius: "12px", border: "1px dashed #8FFF9C30" }}>
+          <Typography variant="body2" color="#8FFF9C">
+            💡 <b>Note:</b> ข้อมูลทางเทคนิค (Technical Findings), PoC, cURL และภาพหน้าจอหลักฐาน จะถูกดึงจากระบบมาใส่ใน Template อัตโนมัติ [cite: 50, 54, 72, 77]
+          </Typography>
+        </Box>
+      </Stack>
     </Box>
   );
 }
