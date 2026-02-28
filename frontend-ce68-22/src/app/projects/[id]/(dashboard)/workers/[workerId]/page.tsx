@@ -89,7 +89,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
     const handleConfirmUnlink = async () => {
         setIsActionLoading(true);
         try {
-            await workerService.unLink(worker.id);
+            await workerService.unLink(worker.id, projectId);
             setUnlinkModalOpen(false);
             await refetch();
             router.refresh();
@@ -101,7 +101,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
     const handleConfirmDelete = async () => {
         setIsActionLoading(true);
         try {
-            await workerService.delete(worker.id);
+            await workerService.delete(worker.id, projectId);
             setDeleteModalOpen(false);
             router.push(`/projects/${projectId}/workers`);
             router.refresh();
@@ -111,7 +111,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
     };
 
     const handleDownloadAction = async () => {
-        await startDownload(worker.id, worker.name, async () => {
+        await startDownload(worker.id, projectId, worker.name, async () => {
             await refetch();
         });
     };
@@ -198,7 +198,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
             <WorkerConfigCard 
                 worker={worker} 
                 summaryInfoJob={summaryInfoJob} 
-                handleRevokeKey={async () => { await workerService.reGenKey(worker.id); refetch(); }} 
+                handleRevokeKey={async () => { await workerService.reGenKey(worker.id, projectId); refetch(); }} 
                 role={project?.role}
             />
             

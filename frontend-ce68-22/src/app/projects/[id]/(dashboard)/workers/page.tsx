@@ -76,8 +76,8 @@ export default function WorkersPage({ params }: PageProps) {
 
   const handleDownload = useCallback(async (e: React.MouseEvent, workerId: number, workerName: string) => {
     e.preventDefault(); e.stopPropagation(); 
-    await startDownload(workerId, workerName, async () => { refetch(); });
-  }, [startDownload, refetch]);
+    await startDownload(workerId, projectId, workerName, async () => { refetch(); });
+  }, [startDownload, projectId, refetch]);
 
   const handleUnlinkClick = (e: React.MouseEvent, worker: WorkerType) => {
     e.preventDefault(); e.stopPropagation();
@@ -95,7 +95,7 @@ export default function WorkersPage({ params }: PageProps) {
         await workerService.unLinkAll(projectId);
         toast.success("All workers disconnected");
       } else if (unlinkModal.target) {
-        await workerService.unLink(unlinkModal.target.id);
+        await workerService.unLink(unlinkModal.target.id, projectId);
         toast.success("Worker disconnected");
       }
       setUnlinkModal({ open: false, target: null, isAll: false, loading: false });

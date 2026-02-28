@@ -1,11 +1,6 @@
-import { AxiosResponse } from "axios";
-
 import apiClient from "../lib/api-client";
-
 import { CreateWorkerPayload, Worker } from "../types/worker";
-import { AccessKey } from "../types/access_key";
 import { PaginatedResult } from "../types/common";
-
 
 export const workerService = {
   // รับค่า page และ size (กำหนด default ไว้กันเหนียว)
@@ -34,8 +29,8 @@ export const workerService = {
     return data;
   },
 
-  reGenKey: async (workerId: number) =>{
-    const { data } = await apiClient.post<Worker>(`/workers/regen-key/${workerId}`);
+  reGenKey: async (workerId: number, projectId: number) =>{
+    const { data } = await apiClient.post<Worker>(`/workers/regen-key/${workerId}?project_id=${projectId}`);
     return data;
   },
 
@@ -44,18 +39,18 @@ export const workerService = {
     return data;
   },
 
-  edit: async (id: number, payload: CreateWorkerPayload) => {
-      const { data } = await apiClient.put(`/workers/${id}`, payload);
+  edit: async (id: number, projectId: number, payload: CreateWorkerPayload) => {
+      const { data } = await apiClient.put(`/workers/${id}?project_id=${projectId}`, payload);
       return data;
     },
 
-  delete: async (id: number) => {
+  delete: async (id: number, projectId: number) => {
     // method delete ปกติจะไม่ return content
-    await apiClient.delete(`/workers/${id}`);
+    await apiClient.delete(`/workers/${id}?project_id=${projectId}`);
   },
 
-  download_worker: async (workerId: number, onProgress: (percent: number) => void) => {
-    return apiClient.get(`workers/download/${workerId}`, {
+  download_worker: async (workerId: number, projectId: number, onProgress: (percent: number) => void) => {
+    return apiClient.get(`workers/download/${workerId}?project_id=${projectId}`, {
       responseType: "blob",
       onDownloadProgress: (progressEvent) => {
         const total = progressEvent.total || 0;
@@ -73,8 +68,8 @@ export const workerService = {
     return data;
   },
 
-  unLink: async (workerId: number) => {
-    const { data } = await apiClient.get(`/workers/unlink/${workerId}`);
+  unLink: async (workerId: number, projectId: number) => {
+    const { data } = await apiClient.get(`/workers/unlink/${workerId}?project_id=${projectId}`);
     return data;
   },
   unLinkAll: async (projectId: number) => {

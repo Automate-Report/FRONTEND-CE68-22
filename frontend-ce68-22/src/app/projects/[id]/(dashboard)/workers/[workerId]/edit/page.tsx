@@ -59,9 +59,10 @@ export default function EditWorkerPage() {
             name: name.trim(),
             thread_number: parseInt(String(threads), 10) // ✅ บังคับให้เป็น Integer แน่นอน
         };
+        console.log("Submitting payload:", payload);
 
         try {
-            await workerService.edit(workerId, payload);
+            await workerService.edit(workerId, projectId, payload);
             
             toast.success("Worker updated successfully!"); // ✅ เพิ่ม Feedback
             

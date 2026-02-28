@@ -7,7 +7,7 @@ interface DownloadState {
   progress: number;
   currentWorkerId: number | null;
   currentWorkerName: string | null;
-  startDownload: (workerId: number, workerName: string, onComplete?: () => Promise<void>) => Promise<void>;
+  startDownload: (workerId: number, projectId: number, workerName: string, onComplete?: () => Promise<void>) => Promise<void>;
 }
 
 export const useDownloadStore = create<DownloadState>((set) => ({
@@ -16,12 +16,12 @@ export const useDownloadStore = create<DownloadState>((set) => ({
   currentWorkerId: null,
   currentWorkerName: null,
 
-  startDownload: async (workerId, workerName, onComplete) => {
+  startDownload: async (workerId, projectId, workerName, onComplete) => {
     set({ isDownloading: true, progress: 0, currentWorkerId: workerId, currentWorkerName: workerName });
     const toastId = toast.loading(`Preparing ${workerName}...`);
 
     try {
-      const response = await workerService.download_worker(workerId, (p) => {
+      const response = await workerService.download_worker(workerId, projectId, (p) => {
         set({ progress: p });
         toast.loading(`Downloading ${workerName}: ${p}%`, { id: toastId });
       });

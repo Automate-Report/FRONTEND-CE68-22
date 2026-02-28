@@ -40,7 +40,7 @@ export function WorkerCard({ worker, canManage, isProjectOwner, currentUserId, o
 
 
   // --- Handlers ---
-  const handleDownloadClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); onDownload ? onDownload(e) : startDownload(worker.id, worker.name); };
+  const handleDownloadClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); onDownload ? onDownload(e) : startDownload(worker.id, worker.project_id, worker.name); };
   const handleUnlinkClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); onUnlink(e, worker); };
   const handleDeleteClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); onDelete(e, worker); };
   const handleEditClick = (e: React.MouseEvent) => { 
