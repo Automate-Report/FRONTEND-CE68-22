@@ -261,7 +261,7 @@ export default function VulnDetailPage() {
 
         {activeTab === 3 && (
           <Box className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <Typography variant="subtitle2" sx={{ color: "#8FFF9C", mb: 4, fontWeight: 900 }}>DETECTION TIMELINE ({vuln.occurrance_count} Occurrences)</Typography>
+            <Typography variant="subtitle2" sx={{ color: "#8FFF9C", mb: 4, fontWeight: 900 }}>DETECTION TIMELINE ({vuln.occurrence_count} Occurrences)</Typography>
             <Stack spacing={0} sx={{ position: 'relative', ml: 1 }}>
               <Box sx={{ position: 'absolute', left: 7, top: 0, bottom: 0, width: '2px', bgcolor: '#2D2F39' }} />
               <Box sx={{ position: 'relative', pl: 5, mb: 4 }}>
@@ -271,12 +271,17 @@ export default function VulnDetailPage() {
                   <Typography sx={{ color: "#FBFBFB", fontSize: '14px', fontWeight: 700 }}>{new Date(vuln.dates.last_seen).toLocaleString('en-GB')}</Typography>
                 </Box>
               </Box>
-              {vuln.occurrance_date.map((date, i) => (
+              {vuln.occurrence_date.slice(1).map((date, i) => (
                 <Box key={i} sx={{ position: 'relative', pl: 5, mb: 2.5 }}>
                   <Box sx={{ position: 'absolute', left: 0, top: 8, width: 16, height: 16, borderRadius: '50%', bgcolor: '#404F57', border: `4px solid #111518`, zIndex: 1 }} />
                   <Box sx={{ p: 2, bgcolor: '#1E2429', borderRadius: '12px', border: '1px solid #2D2F39' }}>
-                    <Typography sx={{ color: "#9AA6A8", fontSize: '11px', fontWeight: 900 }}>DETECTION #{vuln.occurrance_count - i}</Typography>
-                    <Typography sx={{ color: "#FBFBFB", fontSize: '14px', fontWeight: 700 }}>{new Date(date).toLocaleString('en-GB')}</Typography>
+                    {/* ลำดับครั้งจะลบ i+1 เพราะเราข้ามตัวแรกไป */}
+                    <Typography sx={{ color: "#9AA6A8", fontSize: '11px', fontWeight: 900 }}>
+                      DETECTION #{vuln.occurrence_count - (i + 1)}
+                    </Typography>
+                    <Typography sx={{ color: "#FBFBFB", fontSize: '14px', fontWeight: 700 }}>
+                      {new Date(date).toLocaleString('en-GB')}
+                    </Typography>
                   </Box>
                 </Box>
               ))}

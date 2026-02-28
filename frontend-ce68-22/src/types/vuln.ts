@@ -39,7 +39,7 @@ export interface VulnIssue {
     severity: string;
     status: string;
     verify?: string;
-    occurrance_count: number;
+    occurrence_count: number;
     cvss_details: CVSSDetails;
     reproduce_info: ReProduceInfo;
     dates: VulnDates;
@@ -60,8 +60,8 @@ export interface VulnDetails {
     status: string;
     verify?: string;
     parameters?: string;
-    occurrance_count: number;
-    occurrance_date: string[];
+    occurrence_count: number;
+    occurrence_date: string[];
     cvss_details: CVSSDetails;
     reproduce_info: ReProduceInfo;
     dates: VulnDates;
