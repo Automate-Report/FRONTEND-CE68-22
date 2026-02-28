@@ -39,10 +39,22 @@ export default function WorkersPage({ params }: PageProps) {
   const resolvePrams = use(params);
   const projectId = parseInt(resolvePrams.id);
 
+  // Search
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearch = useDebounce(searchQuery, 500);
+
+  // Filter by Status
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const filterOptions = [
+    { label: "All Status", value: "ALL" },
+    { label: "Online", value: "online" },
+    { label: "Offline", value: "offline" },
+    { label: "Not Activated", value: "notActivated" },
+    { label: "Available", value: "available" },
+    { label: "In Use", value: "inUse" },
+  ];
   
   // ✅ เก็บชื่อผู้ใช้เพื่อนำไปเทียบกับ worker.owner
   const [currentUserId, setCurrentUserId] = useState<string | undefined>(undefined);
@@ -104,6 +116,18 @@ export default function WorkersPage({ params }: PageProps) {
     finally { setUnlinkModal(prev => ({ ...prev, loading: false })); }
   };
 
+  const handleFilterClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleFilterClose = (value?: string) => {
+    if (value) {
+      setStatusFilter(value);
+      handleChangePage(null, 0); // รีเซ็ตไปหน้าแรกเมื่อเปลี่ยนฟิลเตอร์
+    }
+    setAnchorEl(null);
+  };
+
   const isOwner = project?.role === "owner";
   const isPentester = project?.role === "pentester";
   const workers = response?.items || [];
@@ -133,10 +157,56 @@ export default function WorkersPage({ params }: PageProps) {
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, gap: 2, flexWrap: 'wrap' }}>
         <Stack direction="row" spacing={2} sx={{ flex: 1, maxWidth: 600 }}>
+          {/* Search */}
           <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: '#1A2023', px: 2, py: 0.5, borderRadius: '10px', border: '1px solid #2A3033', flex: 1 }}>
             <SearchIcon sx={{ color: '#404F57', mr: 1 }} />
             <InputBase placeholder="Search nodes..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} sx={{ color: '#E6F0E6', width: '100%' }} />
           </Box>
+          {/* Filter */}
+          <Button
+            variant="outlined"
+            onClick={handleFilterClick}
+            startIcon={<FilterIcon />}
+            sx={{ 
+              color: statusFilter !== "ALL" ? "#8FFF9C" : "#9AA6A8", 
+              borderColor: statusFilter !== "ALL" ? "#8FFF9C" : "#2A3033",
+              textTransform: 'none',
+              borderRadius: '10px',
+              px: 3,
+              '&:hover': { borderColor: '#8FFF9C', bgcolor: 'rgba(143, 255, 156, 0.05)' }
+            }}
+          >
+            {filterOptions.find(opt => opt.value === statusFilter)?.label || "Filter"}
+          </Button>
+
+          {/* Menu สำหรับแสดงรายการ Filter */}
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={() => handleFilterClose()}
+            sx={{ 
+              "& .MuiPaper-root": { 
+                bgcolor: "#1A2023", 
+                color: "#E6F0E6",
+                border: "1px solid #2A3033",
+                mt: 1
+              } 
+            }}
+          >
+            {filterOptions.map((option) => (
+              <MenuItem 
+                key={option.value} 
+                onClick={() => handleFilterClose(option.value)}
+                sx={{ 
+                  fontSize: '14px',
+                  color: statusFilter === option.value ? "#8FFF9C" : "inherit",
+                  '&:hover': { bgcolor: 'rgba(143, 255, 156, 0.1)' }
+                }}
+              >
+                {option.label}
+              </MenuItem>
+            ))}
+          </Menu>
         </Stack>
         {isOwner && totalCnt > 0 && (
           <Button variant="text" startIcon={<UnlinkIcon />} onClick={handleUnlinkAllClick} sx={{ color: '#FE3B46', fontWeight: 'bold', textTransform: 'none' }}>Unlink All Workers</Button>

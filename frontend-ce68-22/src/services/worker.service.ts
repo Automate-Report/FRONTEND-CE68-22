@@ -24,8 +24,8 @@ export const workerService = {
     return data;
   },
 
-  getById: async (id: number) =>{
-    const { data } = await apiClient.get<Worker>(`/workers/${id}`);
+  getById: async (id: number, projectId: number) =>{
+    const { data } = await apiClient.get<Worker>(`/workers/${id}?project_id=${projectId}`);
     return data;
   },
 

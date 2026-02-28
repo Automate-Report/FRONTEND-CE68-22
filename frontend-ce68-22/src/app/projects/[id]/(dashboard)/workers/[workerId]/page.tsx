@@ -41,7 +41,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
 
     // --- Data Fetching ---
     const { data: project } = useProject(projectId);
-    const { data: worker, refetch } = useWorker(workerId);
+    const { data: worker, refetch } = useWorker(workerId, projectId);
     const { data: summaryInfoJob } = useSummaryInfoByWorker(workerId);
     
     // --- ✅ Current User & Permission Logic ---
