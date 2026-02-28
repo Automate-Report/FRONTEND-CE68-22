@@ -2,11 +2,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { vulnService } from "@/src/services/vuln.service";
 import { toast } from "react-hot-toast";
 
-export function useUpdateVerify(vulnId: number) {
+export function useUpdateVerify(vulnId: number, projectId: number) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (newVerify: string) => vulnService.changeVerify(vulnId, newVerify),
+    mutationFn: (newVerify: string) => vulnService.changeVerify(vulnId, newVerify, projectId),
     onSuccess: () => {
       // ✅ Refresh ข้อมูลเพื่อให้ Chip/Select และสถานะอื่นๆ อัปเดต
       queryClient.invalidateQueries({ queryKey: ["vulns", vulnId] });

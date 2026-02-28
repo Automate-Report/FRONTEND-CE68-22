@@ -42,16 +42,16 @@ export default function VulnDetailPage() {
   const queryClient = useQueryClient();
 
   // --- 1. Data Fetching ---
-  const { data: vuln, isLoading: isVulnLoading, isError } = useVuln(vulnId);
+  const { data: vuln, isLoading: isVulnLoading, isError } = useVuln(vulnId, projectId);
   const { data: membersData, isLoading: isMembersLoading } = useMembers(
     projectId, 1, 100, "firstname", "asc", "", "ALL"
   );
   const { data: project } = useProject(projectId);
 
   // --- 2. Mutations ---
-  const { mutate: assignVuln, isPending: isAssigning } = useAssignVuln(vulnId);
-  const { mutate: updateStatus, isPending: isUpdatingStatus } = useUpdateStatus(vulnId);
-  const { mutate: updateVerify, isPending: isUpdatingVerify } = useUpdateVerify(vulnId);
+  const { mutate: assignVuln, isPending: isAssigning } = useAssignVuln(vulnId, projectId);
+  const { mutate: updateStatus, isPending: isUpdatingStatus } = useUpdateStatus(vulnId, projectId);
+  const { mutate: updateVerify, isPending: isUpdatingVerify } = useUpdateVerify(vulnId, projectId);
 
   // --- 3. Permissions Logic ---
   const myRole = project?.role?.toLowerCase();

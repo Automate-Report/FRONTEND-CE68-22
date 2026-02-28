@@ -2,11 +2,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { vulnService } from "@/src/services/vuln.service";
 import { toast } from "react-hot-toast";
 
-export function useUpdateStatus(vulnId: number) {
+export function useUpdateStatus(vulnId: number, projectId: number) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (newStatus: string) => vulnService.changeStatus(vulnId, newStatus),
+    mutationFn: (newStatus: string) => vulnService.changeStatus(vulnId, newStatus, projectId),
     onSuccess: () => {
       // ✅ ล้างแคชเพื่อให้ UI โหลดข้อมูลล่าสุดมาแสดงผล
       queryClient.invalidateQueries({ queryKey: ["vulns", vulnId] });
