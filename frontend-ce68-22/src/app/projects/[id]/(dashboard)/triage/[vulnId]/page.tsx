@@ -57,6 +57,7 @@ export default function VulnDetailPage() {
   const myRole = project?.role?.toLowerCase();
   const canChangeStatus = myRole === "owner" || myRole === "developer";
   const canVerify = myRole === "owner" || myRole === "pentester";
+  const assignRole = myRole === "owner";
 
   const members = membersData?.items || [];
 
@@ -172,21 +173,30 @@ export default function VulnDetailPage() {
         <Stack direction="row" spacing={3}>
           <Box flex={1}>
             <Typography variant="caption" sx={{ color: "#404F57", fontWeight: 900, display: 'block', mb: 1, letterSpacing: 1.5 }}>ASSIGNED TO (DEV/OWNER)</Typography>
-            <Select fullWidth size="small" value={vuln.assigned_to || ""} displayEmpty disabled={isAssigning} onChange={(e) => handleAssignChange("assigned_to", e.target.value)} sx={{ bgcolor: "#0D1014", color: "#E6F0E6", borderRadius: '8px', ".MuiOutlinedInput-notchedOutline": { borderColor: "#2D2F39" } }}>
-              <MenuItem value=""><em>Unassigned</em></MenuItem>
-              {members.filter(m => m.role.toLowerCase() === 'developer' || m.role.toLowerCase() === 'owner').map((m) => (
-                <MenuItem key={m.email} value={m.email}>{m.firstname} {m.lastname} ({m.role})</MenuItem>
-              ))}
-            </Select>
+              {assignRole ? ( 
+                <Select fullWidth size="small" value={vuln.assigned_to || ""} displayEmpty disabled={isAssigning} onChange={(e) => handleAssignChange("assigned_to", e.target.value)} sx={{ bgcolor: "#0D1014", color: "#E6F0E6", borderRadius: '8px', ".MuiOutlinedInput-notchedOutline": { borderColor: "#2D2F39" } }}>
+                  <MenuItem value=""><em>Unassigned</em></MenuItem>
+                  {members.filter(m => m.role.toLowerCase() === 'developer' || m.role.toLowerCase() === 'owner').map((m) => (
+                    <MenuItem key={m.email} value={m.email}>{m.firstname} {m.lastname} ({m.role})</MenuItem>
+                  ))}
+                </Select>
+              ) : (
+                <Typography sx={{ color: vuln.assigned_to ? "#FBFBFB" : "#404F57", fontWeight: 700 }}>{vuln.assigned_to ? members.find(m => m.email === vuln.assigned_to)?.firstname + " " + members.find(m => m.email === vuln.assigned_to)?.lastname + " (" + members.find(m => m.email === vuln.assigned_to)?.role + ")" : "Unassigned"}</Typography>
+              )}
           </Box>
           <Box flex={1}>
             <Typography variant="caption" sx={{ color: "#404F57", fontWeight: 900, display: 'block', mb: 1, letterSpacing: 1.5 }}>VERIFIED BY (PENTESTER/OWNER)</Typography>
-            <Select fullWidth size="small" value={vuln.verified_by || ""} displayEmpty disabled={isAssigning} onChange={(e) => handleAssignChange("verified_by", e.target.value)} sx={{ bgcolor: "#0D1014", color: "#E6F0E6", borderRadius: '8px', ".MuiOutlinedInput-notchedOutline": { borderColor: "#2D2F39" } }}>
-              <MenuItem value=""><em>Not Verified</em></MenuItem>
-              {members.filter(m => m.role.toLowerCase() === 'pentester' || m.role.toLowerCase() === 'owner').map((m) => (
-                <MenuItem key={m.email} value={m.email}>{m.firstname} {m.lastname} ({m.role})</MenuItem>
-              ))}
-            </Select>
+            {assignRole ? (
+              <Select fullWidth size="small" value={vuln.verified_by || ""} displayEmpty disabled={isAssigning} onChange={(e) => handleAssignChange("verified_by", e.target.value)} sx={{ bgcolor: "#0D1014", color: "#E6F0E6", borderRadius: '8px', ".MuiOutlinedInput-notchedOutline": { borderColor: "#2D2F39" } }}>
+                <MenuItem value=""><em>Not Verified</em></MenuItem>
+                {members.filter(m => m.role.toLowerCase() === 'pentester' || m.role.toLowerCase() === 'owner').map((m) => (
+                  <MenuItem key={m.email} value={m.email}>{m.firstname} {m.lastname} ({m.role})</MenuItem>
+                ))}
+              </Select>
+            ) : (
+              <Typography sx={{ color: vuln.verified_by ? "#FBFBFB" : "#404F57", fontWeight: 700 }}>{vuln.verified_by ? members.find(m => m.email === vuln.verified_by)?.firstname + " " + members.find(m => m.email === vuln.verified_by)?.lastname + " (" + members.find(m => m.email === vuln.verified_by)?.role + ")" : "Not Verified"}</Typography>
+            )}
+            
           </Box>
         </Stack>
       </Box>
