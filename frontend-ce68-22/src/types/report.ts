@@ -1,12 +1,12 @@
 export interface PenTestReport {
     id: number;
-    job_id: number;
-    job_name: string;
-    schedule_id: number;
-    schedule_name: string;
+    project_id: number;
+    asset_id?: number;
+    asset_name: string;
     file_name: string;
-    file_path: string;
-    file_size: string;
+    file_size: number;
+    file_type: string;
+    created_by: string;
     created_at: string;
 }
 
