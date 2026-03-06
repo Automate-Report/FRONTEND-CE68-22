@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^41.4.2",
+    "@ckeditor/ckeditor5-react": "^11.0.1",
     "cronstrue": "^3.11.0",
     "react-hot-toast": "^2.6.0",
     "recharts": "^3.7.0"

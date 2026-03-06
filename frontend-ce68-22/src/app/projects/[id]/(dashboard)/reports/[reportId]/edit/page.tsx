@@ -1,89 +1,147 @@
 "use client";
 
-import { useState } from "react";
-import { Box, Typography, Stack, Button, Paper, CircularProgress, Divider } from "@mui/material";
-import { Save as SaveIcon, Visibility as PreviewIcon, ArrowBack as BackIcon } from "@mui/icons-material";
+import { useState, useEffect } from "react";
+import { 
+  Box, Typography, Stack, Button, Paper, 
+  CircularProgress, Divider, IconButton, Tooltip 
+} from "@mui/material";
+import { 
+  Save as SaveIcon, 
+  ArrowBack as BackIcon, 
+  PictureAsPdf as PdfIcon,
+  Visibility as PreviewIcon,
+  CloudDone as SavedIcon
+} from "@mui/icons-material";
 import { useRouter, useParams } from "next/navigation";
-import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
-import { useProject } from "@/src/hooks/project/use-project";
+import dynamic from 'next/dynamic';
+import toast from "react-hot-toast";
 
-export default function EditWordReportPage() {
+// โหลด Editor แบบ Dynamic
+const PentestEditor = dynamic(() => import('@/src/components/reports/PentestEditor'), { 
+  ssr: false, 
+  loading: () => (
+    <Box sx={{ display: 'flex', justifyContent: 'center', p: 10 }}>
+      <CircularProgress sx={{ color: "#34D399" }} />
+    </Box>
+  )
+});
+
+export default function EditReportPage() {
   const router = useRouter();
   const { id: projectId, reportId } = useParams();
-  const { data: project, isLoading } = useProject(parseInt(projectId as string));
-  const [saving, setSaving] = useState(false);
+  
+  const [htmlContent, setHtmlContent] = useState("<h1>Executive Summary</h1><p>Loading template...</p>");
+  const [isSaving, setIsSaving] = useState(false);
+  const [isFinalizing, setIsFinalizing] = useState(false);
 
-  // สมมติสถานะเนื้อหา (ในอนาคตจะใช้ Rich Text Editor Library มาแทนที่ช่อง TextArea)
-  const [reportContent, setReportContent] = useState({
-    executiveSummary: "วัตถุประสงค์หลักเพื่อประเมินระดับความมั่นคงปลอดภัยและค้นหาช่องโหว่...", // [cite: 18, 19]
-    recommendations: "มอบหมายผู้รับผิดชอบเข้าแก้ไขช่องโหว่ระดับวิกฤตและระดับสูง...", // [cite: 31, 33]
-    conclusion: "สภาวะความมั่นคงปลอดภัยของระบบอยู่ในระดับสูง..." // [cite: 91, 92]
-  });
+  // สมมติการดึงข้อมูล Draft จาก Backend
+  useEffect(() => {
+    // fetchData(reportId).then(res => setHtmlContent(res.content_html));
+  }, [reportId]);
 
-  if (isLoading) return <CircularProgress />;
+  const handleSaveDraft = async () => {
+    setIsSaving(true);
+    try {
+      // API PATCH: /reports/{reportId} { content_html: htmlContent }
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Mock API
+      toast.success("Draft saved successfully");
+    } catch (error) {
+      toast.error("Failed to save draft");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleFinalize = async () => {
+    setIsFinalizing(true);
+    try {
+      // API POST: /reports/{reportId}/finalize
+      // ส่งคำสั่งให้ Backend นำ HTML ไป Build เป็น PDF จริงลง Storage
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      toast.success("Report finalized and stored as PDF!");
+      router.push(`/projects/${projectId}/reports`);
+    } catch (error) {
+      toast.error("Error generating final PDF");
+    } finally {
+      setIsFinalizing(false);
+    }
+  };
 
   return (
     <Box sx={{ p: 4, bgcolor: "#0F1518", minHeight: "100vh" }}>
-      <GenericBreadcrums 
-        items={[
-          { label: "Home", href: "/main" },
-          { label: project?.name || "Project", href: `/projects/${projectId}/overview` },
-          { label: "Report Center", href: `/projects/${projectId}/reports` },
-          { label: "Edit Content", href: undefined }
-        ]} 
-      />
+      {/* Top Header Section */}
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <IconButton onClick={() => router.back()} sx={{ color: "#9AA6A8" }}>
+            <BackIcon />
+          </IconButton>
+          <Box>
+            <Typography variant="h5" fontWeight={900} color="#FBFBFB">
+              Edit Report Content
+            </Typography>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <SavedIcon sx={{ fontSize: 14, color: "#34D399" }} />
+              <Typography variant="caption" color="#404F57">Auto-save enabled</Typography>
+            </Stack>
+          </Box>
+        </Stack>
 
-      <Stack direction="row" justifyContent="space-between" alignItems="center" my={4}>
-        <Typography variant="h4" fontWeight={900} color="#FBFBFB">Editor Mode</Typography>
         <Stack direction="row" spacing={2}>
-          <Button startIcon={<PreviewIcon />} sx={{ color: "#8FFF9C" }}>Preview PDF/Word</Button>
+          <Button 
+            variant="outlined" 
+            startIcon={<PreviewIcon />}
+            sx={{ color: "#34D399", borderColor: "rgba(52, 211, 153, 0.3)" }}
+          >
+            Preview PDF
+          </Button>
           <Button 
             variant="contained" 
-            startIcon={<SaveIcon />} 
-            sx={{ bgcolor: "#8FFF9C", color: "#0D1014", fontWeight: 800 }}
-            onClick={() => setSaving(true)}
+            startIcon={isSaving ? <CircularProgress size={20} /> : <SaveIcon />}
+            onClick={handleSaveDraft}
+            sx={{ bgcolor: "rgba(52, 211, 153, 0.1)", color: "#34D399", fontWeight: 800 }}
           >
-            {saving ? "Saving..." : "Save Changes"}
+            Save Draft
+          </Button>
+          <Button 
+            variant="contained" 
+            startIcon={isFinalizing ? <CircularProgress size={20} color="inherit" /> : <PdfIcon />}
+            onClick={handleFinalize}
+            sx={{ bgcolor: "#34D399", color: "#0D1014", fontWeight: 800, "&:hover": { bgcolor: "#10B981" } }}
+          >
+            Finalize & Save
           </Button>
         </Stack>
       </Stack>
 
-      <Stack spacing={4}>
-        {/* ส่วนที่ 1: บทสรุปผู้บริหาร [cite: 17] */}
-        <Paper sx={{ p: 4, bgcolor: "#1E2429", borderRadius: "16px", border: "1px solid #2D2F39" }}>
-          <Typography variant="h6" color="#8FFF9C" fontWeight={900} mb={2}>
-            บทสรุปผู้บริหาร (EXECUTIVE SUMMARY)
-          </Typography>
-          <Box sx={{ minHeight: 200, bgcolor: "#0D1014", p: 2, borderRadius: "8px", border: "1px solid #2D2F39" }}>
-            {/* ตรงนี้คือจุดที่วาง Rich Text Editor Library */}
-            <Typography color="#9AA6A8" variant="caption" display="block" mb={1}>
-              Tip: คุณสามารถจัดรูปแบบตัวหนา หรือใส่ Bullet points ได้เหมือนใน Word
-            </Typography>
-            <textarea 
-              style={{ width: '100%', background: 'transparent', color: '#FBFBFB', border: 'none', outline: 'none', minHeight: 150, fontFamily: 'inherit' }}
-              value={reportContent.executiveSummary}
-              onChange={(e) => setReportContent({...reportContent, executiveSummary: e.target.value})}
-            />
-          </Box>
+      {/* Editor & Sidebar Layout */}
+      <Stack direction="row" spacing={3} alignItems="flex-start">
+        {/* Main Editor Paper */}
+        <Paper sx={{ 
+          flex: 1, p: 4, bgcolor: "#1E2429", borderRadius: "16px", border: "1px solid #2D2F39",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.5)" 
+        }}>
+          <PentestEditor value={htmlContent} onChange={setHtmlContent} />
         </Paper>
 
-        {/* ส่วนที่ 2: ข้อเสนอแนะ [cite: 31] */}
-        <Paper sx={{ p: 4, bgcolor: "#1E2429", borderRadius: "16px", border: "1px solid #2D2F39" }}>
-          <Typography variant="h6" color="#8FFF9C" fontWeight={900} mb={2}>
-            ข้อเสนอแนะเชิงกลยุทธ์ (STRATEGIC RECOMMENDATIONS)
-          </Typography>
-          <textarea 
-            style={{ width: '100%', background: '#0D1014', color: '#FBFBFB', border: '1px solid #2D2F39', borderRadius: '8px', padding: 16, minHeight: 100 }}
-            value={reportContent.recommendations}
-            onChange={(e) => setReportContent({...reportContent, recommendations: e.target.value})}
-          />
-        </Paper>
-        
-        {/* ส่วนที่แจ้งเตือนว่าข้อมูลอื่นจะดึงมาอัตโนมัติ [cite: 53, 56] */}
-        <Box sx={{ p: 3, bgcolor: "rgba(143, 255, 156, 0.05)", borderRadius: "12px", border: "1px dashed #8FFF9C30" }}>
-          <Typography variant="body2" color="#8FFF9C">
-            💡 <b>Note:</b> ข้อมูลทางเทคนิค (Technical Findings), PoC, cURL และภาพหน้าจอหลักฐาน จะถูกดึงจากระบบมาใส่ใน Template อัตโนมัติ [cite: 50, 54, 72, 77]
-          </Typography>
+        {/* Right Sidebar: Guide & Variables */}
+        <Box sx={{ width: 300, display: { xs: 'none', lg: 'block' } }}>
+          <Paper sx={{ p: 3, bgcolor: "#151B1F", borderRadius: "12px", border: "1px solid #2D2F39" }}>
+            <Typography variant="subtitle2" color="#34D399" fontWeight={800} mb={2}>
+              REPORT GUIDELINES
+            </Typography>
+            <Typography variant="body2" color="#9AA6A8" mb={2}>
+              เขียนบทสรุปสำหรับผู้บริหารที่ครอบคลุมวัตถุประสงค์, ขอบเขต และภาพรวมความเสี่ยงที่พบในโปรเจกต์นี้
+            </Typography>
+            <Divider sx={{ bgcolor: "#2D2F39", my: 2 }} />
+            <Typography variant="subtitle2" color="#34D399" fontWeight={800} mb={1}>
+              QUICK TIPS
+            </Typography>
+            <ul style={{ color: "#404F57", fontSize: '12px', paddingLeft: '16px' }}>
+              <li>ใช้ตารางเพื่อสรุปช่องโหว่</li>
+              <li>เน้นคำแนะนำที่ทำได้จริง (Actionable)</li>
+              <li>แนบ PoC สำหรับช่องโหว่ระดับ High</li>
+            </ul>
+          </Paper>
         </Box>
       </Stack>
     </Box>
