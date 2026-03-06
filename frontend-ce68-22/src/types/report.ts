@@ -13,5 +13,6 @@ export interface PenTestReport {
 export interface CreateReportPayload {
     report_name: string;
     asset_ids?: number[]; 
+    type: "draft" | "final";
 }
     

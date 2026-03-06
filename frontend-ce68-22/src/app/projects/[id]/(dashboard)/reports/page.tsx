@@ -6,7 +6,7 @@ import {
   Chip, TextField, MenuItem, Select, 
   FormControl, InputLabel, Dialog, DialogTitle, 
   DialogContent, DialogActions, CircularProgress,
-  OutlinedInput
+  OutlinedInput, RadioGroup, FormControlLabel, Radio
 } from "@mui/material";
 import { Add as AddIcon, Search as SearchIcon } from "@mui/icons-material";
 import { useRouter, useParams } from "next/navigation";
@@ -43,7 +43,11 @@ export default function ReportCenterPage() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [assetOptions, setAssetOptions] = useState<AssetNameAndId[]>([]);
-  const [newReport, setNewReport] = useState({ name: "", assets: ["ALL"] as string[] });
+  const [newReport, setNewReport] = useState({ 
+    name: "", 
+    assets: ["ALL"] as string[],
+    type: "draft" as "draft" | "final" 
+  });
 
   // --- Data Fetching ---
   const { data: project, isLoading: isProjectLoading } = useProject(projectId);
@@ -71,11 +75,16 @@ export default function ReportCenterPage() {
     try {
       const payload: CreateReportPayload = {
         report_name: newReport.name,
-        asset_ids: newReport.assets.includes("ALL") ? undefined : newReport.assets.map(id => Number(id)) 
+        asset_ids: newReport.assets.includes("ALL") ? undefined : newReport.assets.map(id => Number(id)) ,
+        type: newReport.type
       };
       await penTestReportService.create(projectId, payload);
       setOpenCreate(false);
-      setNewReport({ name: "", assets: ["ALL"] });
+      setNewReport({ name: "", assets: ["ALL"], type: "draft" });
+      const successMsg = newReport.type === "draft" 
+        ? "Draft report created! You can now edit the content." 
+        : "Final report generation started.";
+
       toast.success("Report generation started");
       refetch(); 
     } catch (error: any) {
@@ -146,15 +155,29 @@ export default function ReportCenterPage() {
       )}
 
       {/* --- Create Dialog (Multiple Assets Selection) --- */}
-      <Dialog open={openCreate} onClose={() => !isGenerating && setOpenCreate(false)} PaperProps={{ sx: { bgcolor: '#1E2429', color: '#FBFBFB', borderRadius: '16px', minWidth: '450px' } }}>
+      <Dialog 
+        open={openCreate} 
+        onClose={() => !isGenerating && setOpenCreate(false)} 
+        PaperProps={{ sx: { bgcolor: '#1E2429', color: '#FBFBFB', borderRadius: '16px', minWidth: '450px', border: '1px solid #2D2F39' } }}
+      >
         <DialogTitle sx={{ fontWeight: 900 }}>Generate Pentest Report</DialogTitle>
         <DialogContent>
           <Stack spacing={3} sx={{ mt: 1 }}>
-            <TextField fullWidth label="Report Name" value={newReport.name} onChange={(e) => setNewReport({...newReport, name: e.target.value})} InputLabelProps={{ sx: { color: '#404F57' } }} sx={{ "& .MuiOutlinedInput-root": { color: '#FBFBFB' } }} />
+            {/* Report Name */}
+            <TextField 
+              fullWidth label="Report Name" 
+              value={newReport.name} 
+              onChange={(e) => setNewReport({...newReport, name: e.target.value})} 
+              InputLabelProps={{ sx: { color: '#404F57' } }} 
+              sx={{ "& .MuiOutlinedInput-root": { color: '#FBFBFB', "& fieldset": { borderColor: '#2D2F39' } } }} 
+            />
+            
+            {/* Asset Selection */}
             <FormControl fullWidth>
-              <InputLabel sx={{ color: '#404F57' }}>Select Asset Scope [cite: 37]</InputLabel>
+              <InputLabel sx={{ color: '#404F57' }}>Select Asset Scope</InputLabel>
               <Select
-                multiple value={newReport.assets}
+                multiple 
+                value={newReport.assets}
                 onChange={(e) => setNewReport({...newReport, assets: typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value})}
                 input={<OutlinedInput label="Select Asset Scope" />}
                 renderValue={(selected) => (
@@ -164,17 +187,47 @@ export default function ReportCenterPage() {
                     ))}
                   </Box>
                 )}
-                sx={{ bgcolor: '#0D1014', color: '#FBFBFB' }}
+                sx={{ bgcolor: '#0D1014', color: '#FBFBFB', ".MuiOutlinedInput-notchedOutline": { borderColor: "#2D2F39" } }}
               >
                 <MenuItem value="ALL">All Assets (Global)</MenuItem>
                 {assetOptions.map(opt => <MenuItem key={opt.id} value={opt.id.toString()}>{opt.name}</MenuItem>)}
               </Select>
             </FormControl>
+
+            {/* ✅ ส่วนเลือกประเภท Report (Draft / Final) */}
+            <Box>
+              <Typography variant="body2" sx={{ color: "#9AA6A8", mb: 1, fontWeight: 600 }}>Report Type</Typography>
+              <RadioGroup
+                row
+                value={newReport.type}
+                onChange={(e) => setNewReport({
+                  ...newReport, 
+                  type: e.target.value as "draft" | "final" 
+                })}
+              >
+                <FormControlLabel 
+                  value="draft" 
+                  control={<Radio sx={{ color: "#34D399", '&.Mui-checked': { color: "#34D399" } }} />} 
+                  label={<Typography variant="body2" sx={{ color: "#FBFBFB" }}>Save as Draft (Editable)</Typography>} 
+                />
+                <FormControlLabel 
+                  value="final" 
+                  control={<Radio sx={{ color: "#34D399", '&.Mui-checked': { color: "#34D399" } }} />} 
+                  label={<Typography variant="body2" sx={{ color: "#FBFBFB" }}>Final PDF (Instant Build)</Typography>} 
+                />
+              </RadioGroup>
+            </Box>
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
+        
+        <DialogActions sx={{ p: 3, borderTop: '1px solid #2D2F39' }}>
           <Button onClick={() => setOpenCreate(false)} sx={{ color: '#FBFBFB' }}>Cancel</Button>
-          <Button variant="contained" disabled={!newReport.name || isGenerating} onClick={handleCreateReport} sx={{ bgcolor: "#34D399", color: "#0D1014", fontWeight: 800 }}>
+          <Button 
+            variant="contained" 
+            disabled={!newReport.name || isGenerating} 
+            onClick={handleCreateReport} 
+            sx={{ bgcolor: "#34D399", color: "#0D1014", fontWeight: 800, px: 4, "&:hover": { bgcolor: "#10B981" } }}
+          >
             {isGenerating ? <CircularProgress size={24} color="inherit" /> : "Generate"}
           </Button>
         </DialogActions>
