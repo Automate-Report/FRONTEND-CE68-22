@@ -3,26 +3,22 @@
 import { useState, useMemo, useEffect } from "react";
 import { 
   Box, Typography, Stack, Button, IconButton, 
-  Chip, Tooltip, TextField, MenuItem, Select, 
+  Chip, TextField, MenuItem, Select, 
   FormControl, InputLabel, Dialog, DialogTitle, 
   DialogContent, DialogActions, CircularProgress,
-  Pagination
+  OutlinedInput
 } from "@mui/material";
-import { 
-  Add as AddIcon, 
-  Edit as EditIcon, 
-  GetApp as DownloadIcon, 
-  Delete as DeleteIcon, 
-  CheckCircle as FinalizeIcon,
-  Description as ReportIcon,
-  Search as SearchIcon
-} from "@mui/icons-material";
+import { Add as AddIcon, Search as SearchIcon } from "@mui/icons-material";
 import { useRouter, useParams } from "next/navigation";
 import toast from "react-hot-toast";
 
-// Hooks & Services
+// Components
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
+import { GenericPagination } from "@/src/components/Common/GenericPagination";
+import { ReportCard } from "@/src/components/reports/ReportCard";
+
+// Hooks & Services
 import { useProject } from "@/src/hooks/project/use-project";
 import { getMe } from "@/src/services/auth.service";
 import { penTestReportService } from "@/src/services/penTestReport.service";
@@ -38,29 +34,20 @@ export default function ReportCenterPage() {
   const { id: projectIdStr } = useParams();
   const projectId = parseInt(projectIdStr as string);
 
-  // --- States สำหรับ Pagination & Filtering ---
-  const [page, setPage] = useState(1);
-  const [size] = useState(10);
+  // --- States ---
+  const [page, setPage] = useState(0); 
+  const [size, setSize] = useState(6);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("ALL");
-  const [sortBy] = useState<string | null>("created_at");
-  const [sortOrder] = useState<"asc" | "desc" | "none">("desc");
-
-  // --- States สำหรับ UI ---
   const [openCreate, setOpenCreate] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [assetOptions, setAssetOptions] = useState<AssetNameAndId[]>([]);
-  const [newReport, setNewReport] = useState({ name: "", asset: "ALL" });
+  const [newReport, setNewReport] = useState({ name: "", assets: ["ALL"] as string[] });
 
-  // --- Data Fetching ด้วย useQuery Hook ---
+  // --- Data Fetching ---
   const { data: project, isLoading: isProjectLoading } = useProject(projectId);
-  const { 
-    data: reportsData, 
-    isLoading: isReportsLoading, 
-    refetch 
-  } = usePenTestReports(projectId, page, size, sortBy, sortOrder, search, filter);
+  const { data: reportsData, isLoading: isReportsLoading, refetch } = usePenTestReports(projectId, page + 1, size, "created_at", "desc", search, "ALL");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,47 +63,27 @@ export default function ReportCenterPage() {
     fetchData();
   }, [projectId]);
 
-  // --- Permissions Logic ---
-  const isOwner = project?.role?.toLowerCase() === "owner";
-  
-  // กรองข้อมูลเบื้องต้น (ความปลอดภัยชั้นที่ 2 ฝั่ง Frontend)
-  const reports = useMemo(() => {
-    if (!reportsData?.items || !currentUser) return [];
-    if (isOwner) return reportsData.items;
-    return reportsData.items.filter(r => r.created_by === currentUser.email || r.created_by === currentUser.username);
-  }, [reportsData, currentUser, isOwner]);
+  const reports = useMemo(() => reportsData?.items || [], [reportsData]);
 
-  // --- Handlers ---
   const handleCreateReport = async () => {
-    if (!newReport.name) return;
+    if (!newReport.name || newReport.assets.length === 0) return;
     setIsGenerating(true);
     try {
       const payload: CreateReportPayload = {
         report_name: newReport.name,
-        asset_ids: newReport.asset === "ALL" ? undefined : [Number(newReport.asset)] 
+        asset_ids: newReport.assets.includes("ALL") ? undefined : newReport.assets.map(id => Number(id)) 
       };
-
       await penTestReportService.create(projectId, payload);
       setOpenCreate(false);
-      setNewReport({ name: "", asset: "ALL" });
+      setNewReport({ name: "", assets: ["ALL"] });
       toast.success("Report generation started");
-      refetch(); // ดึงข้อมูลใหม่หลังสร้างสำเร็จ
+      refetch(); 
     } catch (error: any) {
       toast.error(error.message || "Failed to generate report");
-    } finally {
-      setIsGenerating(false);
-    }
+    } finally { setIsGenerating(false); }
   };
 
-  const handleFinalize = async (id: number) => {
-    try {
-      // สมมติว่ามี API สำหรับ Finalize [cite: 85, 89]
-      toast.success("Report finalized and locked");
-      refetch();
-    } catch (error) { toast.error("Failed to finalize report"); }
-  };
-
-  if (isProjectLoading) return <Box sx={{ p: 4 }}><CircularProgress sx={{ color: "#8FFF9C" }} /></Box>;
+  if (isProjectLoading) return <Box sx={{ p: 4 }}><CircularProgress sx={{ color: "#34D399" }} /></Box>;
 
   return (
     <Box sx={{ p: 4, pb: 10 }}>
@@ -128,25 +95,22 @@ export default function ReportCenterPage() {
         ]} 
       />
 
-      {/* Header & Search */}
-      <Stack direction={{ xs: "column", md: "row" }} justifyContent="space-between" alignItems="center" my={4} spacing={2}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" my={4} spacing={2}>
         <Box>
-          <Typography variant="h4" fontWeight={900} color="#FBFBFB" sx={{ letterSpacing: '-0.02em' }}>Report Center</Typography>
-          <Typography variant="body2" sx={{ color: "#9AA6A8", mt: 0.5 }}>Manage Penetration Testing Reports</Typography>
+          <Typography variant="h4" fontWeight={900} color="#FBFBFB">Report Center</Typography>
+          <Typography variant="body2" sx={{ color: "#9AA6A8", mt: 0.5 }}>Manage Penetration Testing Reports [cite: 1]</Typography>
         </Box>
         
-        <Stack direction="row" spacing={2} sx={{ width: { xs: "100%", md: "auto" } }}>
+        <Stack direction="row" spacing={2}>
           <TextField 
-            size="small"
-            placeholder="Search reports..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            size="small" placeholder="Search reports..." value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(0); }}
             InputProps={{ startAdornment: <SearchIcon sx={{ color: "#404F57", mr: 1 }} /> }}
             sx={{ bgcolor: "#1E2429", borderRadius: "8px", "& fieldset": { border: "none" }, input: { color: "white" } }}
           />
           <Button 
             variant="contained" startIcon={<AddIcon />}
-            sx={{ bgcolor: "#8FFF9C", color: "#0D1014", fontWeight: 800, borderRadius: '8px', px: 3, whiteSpace: "nowrap" }}
+            sx={{ bgcolor: "#34D399", color: "#0D1014", fontWeight: 800, px: 3 }}
             onClick={() => setOpenCreate(true)}
           >
             Generate Report
@@ -155,84 +119,72 @@ export default function ReportCenterPage() {
       </Stack>
 
       {/* List Section */}
-      <Stack spacing={2} minHeight="400px">
+      <Stack spacing={1.5} minHeight="450px">
         {isReportsLoading ? (
-          <CircularProgress sx={{ color: "#8FFF9C", alignSelf: "center", my: 5 }} />
+          <CircularProgress sx={{ color: "#34D399", alignSelf: "center", my: 10 }} />
         ) : (
           reports.map((report) => (
-            <Box key={report.id} sx={{ bgcolor: "#1E2429", p: 3, borderRadius: "16px", border: "1px solid #2D2F39", display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: "0.2s", "&:hover": { borderColor: "#8FFF9C" } }}>
-              <Stack direction="row" spacing={3} alignItems="center">
-                <Box>
-                  <Typography variant="h6" color="#FBFBFB" fontWeight={700}>{report.file_name}</Typography>
-                  <Typography variant="caption" color="#9AA6A8">Asset Scope: <b>{report.asset_name || "Global"}</b> </Typography>
-                </Box>
-              </Stack>
-            </Box>
+            <ReportCard 
+              key={report.id}
+              report={report}
+              onEdit={(id) => router.push(`/projects/${projectId}/reports/${id}/edit`)}
+              onDownload={() => toast.success("Downloading...")}
+              onDelete={(r) => setDeleteTarget(r)}
+            />
           ))
-        )}
-
-        {reports.length === 0 && !isReportsLoading && (
-          <Box sx={{ py: 10, textAlign: 'center', border: '1px dashed #2D2F39', borderRadius: '16px' }}>
-            <Typography color="#404F57">No reports found.</Typography>
-          </Box>
         )}
       </Stack>
 
-      {/* Pagination Container */}
-      {reportsData && reportsData.total_pages > 1 && (
-        <Stack alignItems="center" mt={4}>
-          <Pagination 
-            count={reportsData.total_pages} 
-            page={page} 
-            onChange={(_, v) => setPage(v)}
-            sx={{ "& .MuiPaginationItem-root": { color: "#FBFBFB" }, "& .Mui-selected": { bgcolor: "#8FFF9C !important", color: "#0D1014" } }}
-          />
-        </Stack>
+      {reportsData && reportsData.total > 0 && (
+        <GenericPagination
+          count={reportsData.total}
+          page={page}
+          rowsPerPage={size}
+          onPageChange={(newPage) => setPage(newPage)}
+          onRowsPerPageChange={(newSize) => { setSize(newSize); setPage(0); }}
+        />
       )}
 
-      {/* --- Create Dialog --- */}
-      <Dialog open={openCreate} onClose={() => !isGenerating && setOpenCreate(false)} PaperProps={{ sx: { bgcolor: '#1E2429', color: '#FBFBFB', borderRadius: '16px', border: '1px solid #2D2F39', minWidth: '450px' } }}>
+      {/* --- Create Dialog (Multiple Assets Selection) --- */}
+      <Dialog open={openCreate} onClose={() => !isGenerating && setOpenCreate(false)} PaperProps={{ sx: { bgcolor: '#1E2429', color: '#FBFBFB', borderRadius: '16px', minWidth: '450px' } }}>
         <DialogTitle sx={{ fontWeight: 900 }}>Generate Pentest Report</DialogTitle>
         <DialogContent>
           <Stack spacing={3} sx={{ mt: 1 }}>
-            <TextField fullWidth label="Report Name" value={newReport.name} onChange={(e) => setNewReport({...newReport, name: e.target.value})} InputLabelProps={{ sx: { color: '#404F57' } }} sx={{ "& .MuiOutlinedInput-root": { color: '#FBFBFB', "& fieldset": { borderColor: '#2D2F39' } } }} />
+            <TextField fullWidth label="Report Name" value={newReport.name} onChange={(e) => setNewReport({...newReport, name: e.target.value})} InputLabelProps={{ sx: { color: '#404F57' } }} sx={{ "& .MuiOutlinedInput-root": { color: '#FBFBFB' } }} />
             <FormControl fullWidth>
-              <InputLabel sx={{ color: '#404F57' }}>Select Asset Scope </InputLabel>
+              <InputLabel sx={{ color: '#404F57' }}>Select Asset Scope [cite: 37]</InputLabel>
               <Select
-                value={newReport.asset}
-                label="Select Asset Scope"
-                onChange={(e) => setNewReport({...newReport, asset: e.target.value})}
-                sx={{ bgcolor: '#0D1014', color: '#FBFBFB', borderRadius: '8px', ".MuiOutlinedInput-notchedOutline": { borderColor: "#2D2F39" } }}
+                multiple value={newReport.assets}
+                onChange={(e) => setNewReport({...newReport, assets: typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value})}
+                input={<OutlinedInput label="Select Asset Scope" />}
+                renderValue={(selected) => (
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    {selected.map((val) => (
+                      <Chip key={val} label={val === "ALL" ? "All Assets" : assetOptions.find(a => a.id.toString() === val)?.name} sx={{ bgcolor: "#34D399", color: "#0D1014", fontWeight: 700, height: '24px' }} />
+                    ))}
+                  </Box>
+                )}
+                sx={{ bgcolor: '#0D1014', color: '#FBFBFB' }}
               >
                 <MenuItem value="ALL">All Assets (Global)</MenuItem>
-                {assetOptions.map(opt => (
-                  <MenuItem key={opt.id} value={opt.id.toString()}>{opt.name}</MenuItem>
-                ))}
+                {assetOptions.map(opt => <MenuItem key={opt.id} value={opt.id.toString()}>{opt.name}</MenuItem>)}
               </Select>
             </FormControl>
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
-          <Button onClick={() => setOpenCreate(false)} sx={{ color: '#FBFBFB' }} disabled={isGenerating}>Cancel</Button>
-          <Button variant="contained" disabled={!newReport.name || isGenerating} onClick={handleCreateReport} sx={{ bgcolor: "#8FFF9C", color: "#0D1014", fontWeight: 800 }}>
+          <Button onClick={() => setOpenCreate(false)} sx={{ color: '#FBFBFB' }}>Cancel</Button>
+          <Button variant="contained" disabled={!newReport.name || isGenerating} onClick={handleCreateReport} sx={{ bgcolor: "#34D399", color: "#0D1014", fontWeight: 800 }}>
             {isGenerating ? <CircularProgress size={24} color="inherit" /> : "Generate"}
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Delete Modal */}
       {deleteTarget && (
         <GenericDeleteModal 
-          open={!!deleteTarget} 
-          entityName={deleteTarget.name} 
-          entityType="Report" 
+          open={!!deleteTarget} entityName={deleteTarget.name} entityType="Report" 
           onClose={() => setDeleteTarget(null)} 
-          onConfirm={async () => {
-             // Logic ลบผ่าน Service
-             toast.success("Report deleted");
-             setDeleteTarget(null);
-             refetch();
-          }} 
+          onConfirm={async () => { toast.success("Deleted"); setDeleteTarget(null); refetch(); }} 
         />
       )}
     </Box>
