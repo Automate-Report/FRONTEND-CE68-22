@@ -10,4 +10,8 @@ export interface PenTestReport {
     created_at: string;
 }
 
+export interface CreateReportPayload {
+    report_name: string;
+    asset_ids?: number[]; 
+}
     

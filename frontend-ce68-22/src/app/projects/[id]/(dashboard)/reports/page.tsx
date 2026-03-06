@@ -16,14 +16,16 @@ import {
   Description as ReportIcon
 } from "@mui/icons-material";
 import { useRouter, useParams } from "next/navigation";
+import toast from "react-hot-toast";
 
 // Hooks & Services
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import { useProject } from "@/src/hooks/project/use-project";
 import { getMe } from "@/src/services/auth.service";
+import { penTestReportService } from "@/src/services/penTestReport.service";
 
-// ข้อมูลตัวอย่างสำหรับแสดงผล
+// ข้อมูลตัวอย่าง (จะถูกแทนที่ด้วยข้อมูลจาก API ในภายหลัง)
 const INITIAL_REPORTS = [
   { id: 101, name: "Pentest_WebApp_Q1", status: "draft", asset: "All Assets", date: "2026-03-01", created_by: "pentester@ai.com", startDate: "2026-02-01", endDate: "2026-03-01" },
   { id: 102, name: "API_Security_Audit", status: "final", asset: "Mobile API", date: "2026-02-15", created_by: "owner@ai.com", startDate: "2026-02-01", endDate: "2026-02-15" },
@@ -41,6 +43,7 @@ export default function ReportCenterPage() {
   const [openCreate, setOpenCreate] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [newReport, setNewReport] = useState({ 
     name: "", 
     asset: "All Assets",
@@ -61,42 +64,65 @@ export default function ReportCenterPage() {
     fetchUser();
   }, []);
 
-  // --- Permissions & Filtering Logic ---
+  // --- Permissions Logic ---
   const isOwner = project?.role?.toLowerCase() === "owner";
   
   const filteredReports = useMemo(() => {
     if (!currentUser) return [];
     if (isOwner) return reports;
-    // ถ้าไม่ใช่ Owner เห็นเฉพาะที่ตัวเองสร้าง 
     return reports.filter(r => r.created_by === currentUser.email || r.created_by === currentUser.username);
   }, [reports, currentUser, isOwner]);
 
   // --- Handlers ---
-  const handleCreateReport = () => {
-    const reportData = {
-      id: Date.now(),
-      name: newReport.name,
-      status: "draft",
-      asset: newReport.asset,
-      date: new Date().toISOString().split('T')[0],
-      created_by: currentUser?.email || "me",
-      startDate: newReport.startDate,
-      endDate: newReport.endDate
-    };
-    setReports([reportData, ...reports]);
-    setOpenCreate(false);
-    setNewReport({ ...newReport, name: "" });
+  const handleCreateReport = async () => {
+    if (!newReport.name) return;
+    
+    setIsGenerating(true);
+    try {
+      const payload = {
+        report_name: newReport.name,
+        asset_ids: newReport.asset === "All Assets" 
+          ? []
+          : [Number(newReport.asset)]
+      };
+
+      // เรียกใช้ API ตามที่คุณส่งมา
+      const response = await penTestReportService.create(projectId, payload);
+      
+      // อัปเดต UI (ในโปรเจกต์จริงควรใช้ refetch จาก useQuery)
+      const reportData = {
+        id: response.id || Date.now(),
+        name: response.name || newReport.name,
+        status: "draft",
+        asset: newReport.asset,
+        date: new Date().toISOString().split('T')[0],
+        created_by: currentUser?.email || "me",
+        startDate: newReport.startDate,
+        endDate: newReport.endDate
+      };
+      
+      setReports([reportData, ...reports]);
+      setOpenCreate(false);
+      setNewReport({ ...newReport, name: "" });
+      toast.success("Report generation started");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to generate report");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleFinalize = (id: number) => {
+    // Logic สำหรับการเปลี่ยนสถานะจาก Draft เป็น Final (Lock ข้อมูล) [cite: 85, 89]
     setReports(reports.map(r => r.id === id ? { ...r, status: 'final' } : r));
+    toast.success("Report finalized and locked");
   };
 
   if (isProjectLoading) return <Box sx={{ p: 4 }}><CircularProgress sx={{ color: "#8FFF9C" }} /></Box>;
 
   return (
     <Box sx={{ p: 4, pb: 10 }}>
-      {/* Breadcrumbs  */}
+      {/* Breadcrumbs */}
       <GenericBreadcrums 
         items={[
           { label: "Home", href: "/main" },
@@ -112,7 +138,7 @@ export default function ReportCenterPage() {
             Report Center
           </Typography>
           <Typography variant="body2" sx={{ color: "#9AA6A8", mt: 0.5 }}>
-            Generate and manage your Penetration Testing Reports [cite: 1]
+            Generate and manage your Penetration Testing Reports 
           </Typography>
         </Box>
         <Button 
@@ -151,7 +177,7 @@ export default function ReportCenterPage() {
               <Box>
                 <Typography variant="h6" color="#FBFBFB" fontWeight={700}>{report.name}</Typography>
                 <Stack direction="row" spacing={2} mt={0.5} alignItems="center">
-                   <Typography variant="caption" color="#9AA6A8">Asset: <b>{report.asset}</b></Typography>
+                   <Typography variant="caption" color="#9AA6A8">Asset Scope: <b>{report.asset}</b> [cite: 37]</Typography>
                    <Box sx={{ width: 4, height: 4, bgcolor: "#404F57", borderRadius: '50%' }} />
                    <Typography variant="caption" color="#404F57">
                      Period: {report.startDate} - {report.endDate} 
@@ -163,7 +189,7 @@ export default function ReportCenterPage() {
             <Stack direction="row" spacing={1}>
               {report.status === 'draft' ? (
                 <>
-                  <Tooltip title="Edit Content">
+                  <Tooltip title="Edit Report Content">
                     <IconButton 
                       onClick={() => router.push(`/projects/${projectId}/reports/${report.id}/edit`)} 
                       sx={{ color: "#8FFF9C", bgcolor: "rgba(143, 255, 156, 0.05)" }}
@@ -171,7 +197,7 @@ export default function ReportCenterPage() {
                       <EditIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
-                  <Tooltip title="Finalize (Lock Data)">
+                  <Tooltip title="Finalize (Lock for Official Use) [cite: 89]">
                     <IconButton 
                       onClick={() => handleFinalize(report.id)} 
                       sx={{ color: "#8FFF9C", bgcolor: "rgba(143, 255, 156, 0.05)" }}
@@ -205,10 +231,10 @@ export default function ReportCenterPage() {
       {/* --- Dialog: Create Report --- */}
       <Dialog 
         open={openCreate} 
-        onClose={() => setOpenCreate(false)}
+        onClose={() => !isGenerating && setOpenCreate(false)}
         PaperProps={{ sx: { bgcolor: '#1E2429', color: '#FBFBFB', borderRadius: '16px', border: '1px solid #2D2F39', minWidth: '450px' } }}
       >
-        <DialogTitle sx={{ fontWeight: 900 }}>Generate Pentest Report [cite: 1]</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 900 }}>Generate Pentest Report </DialogTitle>
         <DialogContent>
           <Stack spacing={3} sx={{ mt: 1 }}>
             <TextField 
@@ -216,10 +242,11 @@ export default function ReportCenterPage() {
               value={newReport.name}
               onChange={(e) => setNewReport({...newReport, name: e.target.value})}
               placeholder="e.g. Internal_Security_Audit_Q1"
+              disabled={isGenerating}
               InputLabelProps={{ sx: { color: '#404F57' } }}
               sx={{ "& .MuiOutlinedInput-root": { color: '#FBFBFB', "& fieldset": { borderColor: '#2D2F39' } } }}
             />
-            <FormControl fullWidth>
+            <FormControl fullWidth disabled={isGenerating}>
               <InputLabel sx={{ color: '#404F57' }}>Select Asset Scope [cite: 37]</InputLabel>
               <Select
                 value={newReport.asset}
@@ -232,15 +259,17 @@ export default function ReportCenterPage() {
             </FormControl>
             <Stack direction="row" spacing={2}>
               <TextField 
-                type="date" label="Testing Start" fullWidth 
+                type="date" label="Testing Start " fullWidth 
                 value={newReport.startDate}
+                disabled={isGenerating}
                 onChange={(e) => setNewReport({...newReport, startDate: e.target.value})}
                 InputLabelProps={{ shrink: true, sx: { color: '#404F57' } }}
                 sx={{ "& .MuiOutlinedInput-root": { color: '#FBFBFB', "& fieldset": { borderColor: '#2D2F39' } } }}
               />
               <TextField 
-                type="date" label="Testing End" fullWidth 
+                type="date" label="Testing End " fullWidth 
                 value={newReport.endDate}
+                disabled={isGenerating}
                 onChange={(e) => setNewReport({...newReport, endDate: e.target.value})}
                 InputLabelProps={{ shrink: true, sx: { color: '#404F57' } }}
                 sx={{ "& .MuiOutlinedInput-root": { color: '#FBFBFB', "& fieldset": { borderColor: '#2D2F39' } } }}
@@ -249,14 +278,14 @@ export default function ReportCenterPage() {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
-          <Button onClick={() => setOpenCreate(false)} sx={{ color: '#FBFBFB' }}>Cancel</Button>
+          <Button onClick={() => setOpenCreate(false)} sx={{ color: '#FBFBFB' }} disabled={isGenerating}>Cancel</Button>
           <Button 
             variant="contained" 
-            disabled={!newReport.name}
+            disabled={!newReport.name || isGenerating}
             onClick={handleCreateReport}
             sx={{ bgcolor: "#8FFF9C", color: "#0D1014", fontWeight: 800 }}
           >
-            Generate
+            {isGenerating ? <CircularProgress size={24} color="inherit" /> : "Generate"}
           </Button>
         </DialogActions>
       </Dialog>
@@ -271,6 +300,7 @@ export default function ReportCenterPage() {
           onConfirm={() => {
             setReports(reports.filter(r => r.id !== deleteTarget.id));
             setDeleteTarget(null);
+            toast.success("Report deleted");
           }}
         />
       )}
