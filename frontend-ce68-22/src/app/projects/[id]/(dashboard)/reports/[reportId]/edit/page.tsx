@@ -1,49 +1,86 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { 
-  Box, Typography, Stack, Button, Paper, 
-  CircularProgress, Divider, IconButton, Tooltip 
+  Box, Typography, Stack, Button, Paper, CircularProgress, IconButton,
+  Divider, Accordion, AccordionSummary, AccordionDetails, Chip, Skeleton
 } from "@mui/material";
 import { 
+  ExpandMore as ExpandMoreIcon,
   Save as SaveIcon, 
   ArrowBack as BackIcon, 
   PictureAsPdf as PdfIcon,
-  Visibility as PreviewIcon,
   CloudDone as SavedIcon
 } from "@mui/icons-material";
 import { useRouter, useParams } from "next/navigation";
 import dynamic from 'next/dynamic';
 import toast from "react-hot-toast";
 
-// โหลด Editor แบบ Dynamic
+// Service
+import { penTestReportService } from "@/src/services/penTestReport.service";
+
+// โหลด Editor แบบ Dynamic พร้อมปิด SSR และตั้งค่า Loading state
 const PentestEditor = dynamic(() => import('@/src/components/reports/PentestEditor'), { 
   ssr: false, 
-  loading: () => (
-    <Box sx={{ display: 'flex', justifyContent: 'center', p: 10 }}>
-      <CircularProgress sx={{ color: "#34D399" }} />
-    </Box>
-  )
+  loading: () => <Box sx={{ py: 2 }}><CircularProgress size={20} sx={{ color: "#34D399" }} /></Box> 
 });
 
 export default function EditReportPage() {
   const router = useRouter();
   const { id: projectId, reportId } = useParams();
   
-  const [htmlContent, setHtmlContent] = useState("<h1>Executive Summary</h1><p>Loading template...</p>");
+  const [draftData, setDraftData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isFinalizing, setIsFinalizing] = useState(false);
 
-  // สมมติการดึงข้อมูล Draft จาก Backend
+  // 1. ดึงข้อมูล Draft (จัดการเรื่อง Nested data Object)
   useEffect(() => {
-    // fetchData(reportId).then(res => setHtmlContent(res.content_html));
+    const fetchDraft = async () => {
+      try {
+        const response = await penTestReportService.getDraft(Number(reportId));
+        // ตรวจสอบโครงสร้าง response.data ตามที่ API ส่งมา
+        if (response && response.status === "success") {
+          setDraftData(response.data);
+        } else {
+          setDraftData(response);
+        }
+      } catch (error) {
+        toast.error("Failed to load report draft");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchDraft();
   }, [reportId]);
 
+  // 2. ฟังก์ชันอัปเดตข้อมูลใน State (Immutability Pattern)
+  const handleSectionChange = useCallback((sectionId: string, subSectionId: string | null, newText: string) => {
+    setDraftData((prev: any) => {
+      if (!prev) return prev;
+      const nextSections = prev.sections.map((sec: any) => {
+        if (sec.id === sectionId) {
+          if (subSectionId && sec.sub_sections) {
+            return {
+              ...sec,
+              sub_sections: sec.sub_sections.map((sub: any) =>
+                sub.id === subSectionId ? { ...sub, text: newText } : sub
+              ),
+            };
+          }
+          return { ...sec, text: newText };
+        }
+        return sec;
+      });
+      return { ...prev, sections: nextSections };
+    });
+  }, []);
+
+  // 3. บันทึกข้อมูลกลับไปยัง Backend (HTML Draft)
   const handleSaveDraft = async () => {
     setIsSaving(true);
     try {
-      // API PATCH: /reports/{reportId} { content_html: htmlContent }
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Mock API
+      // สมมติชื่อฟังก์ชัน updateDraft ใน service
+      // await penTestReportService.updateDraft(Number(reportId), draftData);
       toast.success("Draft saved successfully");
     } catch (error) {
       toast.error("Failed to save draft");
@@ -52,97 +89,137 @@ export default function EditReportPage() {
     }
   };
 
-  const handleFinalize = async () => {
-    setIsFinalizing(true);
-    try {
-      // API POST: /reports/{reportId}/finalize
-      // ส่งคำสั่งให้ Backend นำ HTML ไป Build เป็น PDF จริงลง Storage
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      toast.success("Report finalized and stored as PDF!");
-      router.push(`/projects/${projectId}/reports`);
-    } catch (error) {
-      toast.error("Error generating final PDF");
-    } finally {
-      setIsFinalizing(false);
-    }
-  };
+  // --- Loading State (Skeleton) ---
+  if (isLoading || !draftData) {
+    return (
+      <Box sx={{ p: 4, bgcolor: "#0F1518", minHeight: "100vh" }}>
+        <Stack spacing={2}>
+          <Skeleton variant="text" width="30%" height={40} sx={{ bgcolor: "#1E2429" }} />
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} variant="rectangular" height={60} sx={{ bgcolor: "#1E2429", borderRadius: "12px" }} />
+          ))}
+        </Stack>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ p: 4, bgcolor: "#0F1518", minHeight: "100vh" }}>
-      {/* Top Header Section */}
+      {/* Header Section */}
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
         <Stack direction="row" spacing={2} alignItems="center">
-          <IconButton onClick={() => router.back()} sx={{ color: "#9AA6A8" }}>
-            <BackIcon />
-          </IconButton>
+          <IconButton onClick={() => router.back()} sx={{ color: "#9AA6A8" }}><BackIcon /></IconButton>
           <Box>
             <Typography variant="h5" fontWeight={900} color="#FBFBFB">
-              Edit Report Content
+              {draftData.report_metadata?.report_name}
             </Typography>
             <Stack direction="row" spacing={1} alignItems="center">
               <SavedIcon sx={{ fontSize: 14, color: "#34D399" }} />
-              <Typography variant="caption" color="#404F57">Auto-save enabled</Typography>
+              <Typography variant="caption" color="#404F57">
+                Project: {draftData.context?.project_name} | {draftData.context?.total_vulns} Findings
+              </Typography>
             </Stack>
           </Box>
         </Stack>
 
         <Stack direction="row" spacing={2}>
           <Button 
-            variant="outlined" 
-            startIcon={<PreviewIcon />}
-            sx={{ color: "#34D399", borderColor: "rgba(52, 211, 153, 0.3)" }}
-          >
-            Preview PDF
-          </Button>
-          <Button 
             variant="contained" 
-            startIcon={isSaving ? <CircularProgress size={20} /> : <SaveIcon />}
+            startIcon={isSaving ? <CircularProgress size={20} color="inherit" /> : <SaveIcon />} 
             onClick={handleSaveDraft}
-            sx={{ bgcolor: "rgba(52, 211, 153, 0.1)", color: "#34D399", fontWeight: 800 }}
+            sx={{ bgcolor: "rgba(52, 211, 153, 0.1)", color: "#34D399", fontWeight: 700 }}
           >
             Save Draft
           </Button>
-          <Button 
-            variant="contained" 
-            startIcon={isFinalizing ? <CircularProgress size={20} color="inherit" /> : <PdfIcon />}
-            onClick={handleFinalize}
-            sx={{ bgcolor: "#34D399", color: "#0D1014", fontWeight: 800, "&:hover": { bgcolor: "#10B981" } }}
-          >
-            Finalize & Save
+          <Button variant="contained" startIcon={<PdfIcon />} sx={{ bgcolor: "#34D399", color: "#0D1014", fontWeight: 800 }}>
+            Finalize PDF
           </Button>
         </Stack>
       </Stack>
 
-      {/* Editor & Sidebar Layout */}
-      <Stack direction="row" spacing={3} alignItems="flex-start">
-        {/* Main Editor Paper */}
-        <Paper sx={{ 
-          flex: 1, p: 4, bgcolor: "#1E2429", borderRadius: "16px", border: "1px solid #2D2F39",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.5)" 
-        }}>
-          <PentestEditor value={htmlContent} onChange={setHtmlContent} />
-        </Paper>
+      {/* Render Sections (Accordion based) */}
+      <Stack spacing={2}>
+        {draftData?.sections?.map((section: any) => (
+          <Accordion 
+            key={section.id} 
+            // ✅ ใช้ TransitionProps เพื่อสั่ง unmount เนื้อหาข้างในเมื่อปิด Accordion
+            TransitionProps={{ unmountOnExit: true }}
+            sx={{ 
+              bgcolor: "#1E2429", 
+              color: "#FBFBFB", 
+              border: "1px solid #2D2F39", 
+              borderRadius: "12px !important",
+              "&:before": { display: "none" }
+            }}
+          >
+            <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: "#34D399" }} />}>
+              <Typography fontWeight={700} sx={{ color: section.is_editable ? "#34D399" : "#9AA6A8" }}>
+                {section.title}
+              </Typography>
+            </AccordionSummary>
+            
+            <AccordionDetails sx={{ bgcolor: "#151B1F", p: 3, borderTop: "1px solid #2D2F39" }}>
+              
+              {/* 1. Rich Text Section (Editor) */}
+              {section.content_type === "rich_text" && (
+                <Stack spacing={4}>
+                  {section.sub_sections?.map((sub: any) => (
+                    <Box key={sub.id}>
+                      <Typography variant="subtitle2" color="#9AA6A8" mb={1}>{sub.title}</Typography>
+                      <PentestEditor 
+                        value={sub.text || ""} 
+                        onChange={(data) => handleSectionChange(section.id, sub.id, data)} 
+                      />
+                    </Box>
+                  ))}
+                </Stack>
+              )}
 
-        {/* Right Sidebar: Guide & Variables */}
-        <Box sx={{ width: 300, display: { xs: 'none', lg: 'block' } }}>
-          <Paper sx={{ p: 3, bgcolor: "#151B1F", borderRadius: "12px", border: "1px solid #2D2F39" }}>
-            <Typography variant="subtitle2" color="#34D399" fontWeight={800} mb={2}>
-              REPORT GUIDELINES
-            </Typography>
-            <Typography variant="body2" color="#9AA6A8" mb={2}>
-              เขียนบทสรุปสำหรับผู้บริหารที่ครอบคลุมวัตถุประสงค์, ขอบเขต และภาพรวมความเสี่ยงที่พบในโปรเจกต์นี้
-            </Typography>
-            <Divider sx={{ bgcolor: "#2D2F39", my: 2 }} />
-            <Typography variant="subtitle2" color="#34D399" fontWeight={800} mb={1}>
-              QUICK TIPS
-            </Typography>
-            <ul style={{ color: "#404F57", fontSize: '12px', paddingLeft: '16px' }}>
-              <li>ใช้ตารางเพื่อสรุปช่องโหว่</li>
-              <li>เน้นคำแนะนำที่ทำได้จริง (Actionable)</li>
-              <li>แนบ PoC สำหรับช่องโหว่ระดับ High</li>
-            </ul>
-          </Paper>
-        </Box>
+              {/* 2. Finding List (Read Only Cards) */}
+              {section.content_type === "finding_list" && (
+                <Stack spacing={2}>
+                  {section.items?.map((item: any) => (
+                    <Paper key={item.vuln_id} sx={{ p: 2, bgcolor: "#1E2429", border: "1px solid #2D2F39" }}>
+                      <Stack direction="row" justifyContent="space-between" alignItems="center">
+                        <Box>
+                          <Typography variant="body1" fontWeight={700} color="#FBFBFB">
+                            {item.vuln_id}: {item.vuln_type}
+                          </Typography>
+                          <Typography variant="caption" color="#404F57">Target: {item.target}</Typography>
+                        </Box>
+                        <Chip 
+                          label={item.severity} 
+                          size="small" 
+                          sx={{ 
+                            bgcolor: item.severity === "CRITICAL" ? "#ef4444" : "#f59e0b", 
+                            color: "white", fontWeight: 700 
+                          }} 
+                        />
+                      </Stack>
+                    </Paper>
+                  ))}
+                </Stack>
+              )}
+
+              {/* 3. Static / Fixed Template */}
+              {(section.content_type === "static_reference" || section.content_type === "fixed_template") && (
+                <Typography variant="body2" color="#9AA6A8" sx={{ whiteSpace: "pre-line", lineHeight: 1.8 }}>
+                  {section.text || section.data?.title}
+                </Typography>
+              )}
+
+              {/* 4. Table Placeholder (Summary of Assets) */}
+              {section.content_type === "table" && (
+                <Box sx={{ p: 2, bgcolor: "#1E2429", borderRadius: "8px", textAlign: 'center', border: '1px dashed #404F57' }}>
+                   <Typography variant="caption" color="#404F57">
+                     Table data will be rendered in Final PDF (Assets: {section.sub_sections?.[0]?.rows?.length || 0})
+                   </Typography>
+                </Box>
+              )}
+
+            </AccordionDetails>
+          </Accordion>
+        ))}
       </Stack>
     </Box>
   );
