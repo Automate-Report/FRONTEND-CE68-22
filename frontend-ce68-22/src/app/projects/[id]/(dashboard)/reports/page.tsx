@@ -182,9 +182,24 @@ export default function ReportCenterPage() {
 
       {deleteTarget && (
         <GenericDeleteModal 
-          open={!!deleteTarget} entityName={deleteTarget.name} entityType="Report" 
+          open={!!deleteTarget} 
+          entityName={deleteTarget.file_name}
+          entityType="Report" 
           onClose={() => setDeleteTarget(null)} 
-          onConfirm={async () => { toast.success("Deleted"); setDeleteTarget(null); refetch(); }} 
+          onConfirm={async () => { 
+            try {
+              // ✅ เรียกใช้ Service สำหรับลบข้อมูลจาก Database/Storage
+              await penTestReportService.delete(deleteTarget.id);
+              
+              toast.success("Report deleted successfully");
+              setDeleteTarget(null);
+              
+              // ✅ รีเฟรชข้อมูลในรายการเพื่อให้ยอดรวมและลำดับถูกต้อง
+              refetch(); 
+            } catch (error: any) {
+              toast.error(error.message || "Failed to delete report");
+            }
+          }} 
         />
       )}
     </Box>
