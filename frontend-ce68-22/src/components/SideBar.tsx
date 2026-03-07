@@ -37,7 +37,7 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
       title: "INSIGHT & OVERVIEW",
       items: [
         { name: "Dashboard", href: `/projects/${project_id}/overview`, icon: <OverviewIcon /> },
-        { name: "Reports Center", href: `/projects/${project_id}/report`, icon: <ReportIcon /> },
+        { name: "Reports Center", href: `/projects/${project_id}/reports`, icon: <ReportIcon /> },
       ],
     },
     {

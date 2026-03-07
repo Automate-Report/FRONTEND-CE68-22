@@ -18,7 +18,7 @@ export const useWorkerPage = (refetchList: () => void) => {
         if (!workerToDelete) return;
         setIsDeleting(true);
         try {
-            await workerService.delete(workerToDelete.id);
+            await workerService.delete(workerToDelete.id, workerToDelete.project_id);
             setDeleteModalOpen(false);
             setWorkerToDelete(null);
             refetchList();

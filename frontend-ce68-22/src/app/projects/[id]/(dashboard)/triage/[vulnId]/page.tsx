@@ -42,21 +42,22 @@ export default function VulnDetailPage() {
   const queryClient = useQueryClient();
 
   // --- 1. Data Fetching ---
-  const { data: vuln, isLoading: isVulnLoading, isError } = useVuln(vulnId);
+  const { data: vuln, isLoading: isVulnLoading, isError } = useVuln(vulnId, projectId);
   const { data: membersData, isLoading: isMembersLoading } = useMembers(
     projectId, 1, 100, "firstname", "asc", "", "ALL"
   );
   const { data: project } = useProject(projectId);
 
   // --- 2. Mutations ---
-  const { mutate: assignVuln, isPending: isAssigning } = useAssignVuln(vulnId);
-  const { mutate: updateStatus, isPending: isUpdatingStatus } = useUpdateStatus(vulnId);
-  const { mutate: updateVerify, isPending: isUpdatingVerify } = useUpdateVerify(vulnId);
+  const { mutate: assignVuln, isPending: isAssigning } = useAssignVuln(vulnId, projectId);
+  const { mutate: updateStatus, isPending: isUpdatingStatus } = useUpdateStatus(vulnId, projectId);
+  const { mutate: updateVerify, isPending: isUpdatingVerify } = useUpdateVerify(vulnId, projectId);
 
   // --- 3. Permissions Logic ---
   const myRole = project?.role?.toLowerCase();
   const canChangeStatus = myRole === "owner" || myRole === "developer";
   const canVerify = myRole === "owner" || myRole === "pentester";
+  const assignRole = myRole === "owner";
 
   const members = membersData?.items || [];
 
@@ -172,21 +173,30 @@ export default function VulnDetailPage() {
         <Stack direction="row" spacing={3}>
           <Box flex={1}>
             <Typography variant="caption" sx={{ color: "#404F57", fontWeight: 900, display: 'block', mb: 1, letterSpacing: 1.5 }}>ASSIGNED TO (DEV/OWNER)</Typography>
-            <Select fullWidth size="small" value={vuln.assigned_to || ""} displayEmpty disabled={isAssigning} onChange={(e) => handleAssignChange("assigned_to", e.target.value)} sx={{ bgcolor: "#0D1014", color: "#E6F0E6", borderRadius: '8px', ".MuiOutlinedInput-notchedOutline": { borderColor: "#2D2F39" } }}>
-              <MenuItem value=""><em>Unassigned</em></MenuItem>
-              {members.filter(m => m.role.toLowerCase() === 'developer' || m.role.toLowerCase() === 'owner').map((m) => (
-                <MenuItem key={m.email} value={m.email}>{m.firstname} {m.lastname} ({m.role})</MenuItem>
-              ))}
-            </Select>
+              {assignRole ? ( 
+                <Select fullWidth size="small" value={vuln.assigned_to || ""} displayEmpty disabled={isAssigning} onChange={(e) => handleAssignChange("assigned_to", e.target.value)} sx={{ bgcolor: "#0D1014", color: "#E6F0E6", borderRadius: '8px', ".MuiOutlinedInput-notchedOutline": { borderColor: "#2D2F39" } }}>
+                  <MenuItem value=""><em>Unassigned</em></MenuItem>
+                  {members.filter(m => m.role.toLowerCase() === 'developer' || m.role.toLowerCase() === 'owner').map((m) => (
+                    <MenuItem key={m.email} value={m.email}>{m.firstname} {m.lastname} ({m.role})</MenuItem>
+                  ))}
+                </Select>
+              ) : (
+                <Typography sx={{ color: vuln.assigned_to ? "#FBFBFB" : "#404F57", fontWeight: 700 }}>{vuln.assigned_to ? members.find(m => m.email === vuln.assigned_to)?.firstname + " " + members.find(m => m.email === vuln.assigned_to)?.lastname + " (" + members.find(m => m.email === vuln.assigned_to)?.role + ")" : "Unassigned"}</Typography>
+              )}
           </Box>
           <Box flex={1}>
             <Typography variant="caption" sx={{ color: "#404F57", fontWeight: 900, display: 'block', mb: 1, letterSpacing: 1.5 }}>VERIFIED BY (PENTESTER/OWNER)</Typography>
-            <Select fullWidth size="small" value={vuln.verified_by || ""} displayEmpty disabled={isAssigning} onChange={(e) => handleAssignChange("verified_by", e.target.value)} sx={{ bgcolor: "#0D1014", color: "#E6F0E6", borderRadius: '8px', ".MuiOutlinedInput-notchedOutline": { borderColor: "#2D2F39" } }}>
-              <MenuItem value=""><em>Not Verified</em></MenuItem>
-              {members.filter(m => m.role.toLowerCase() === 'pentester' || m.role.toLowerCase() === 'owner').map((m) => (
-                <MenuItem key={m.email} value={m.email}>{m.firstname} {m.lastname} ({m.role})</MenuItem>
-              ))}
-            </Select>
+            {assignRole ? (
+              <Select fullWidth size="small" value={vuln.verified_by || ""} displayEmpty disabled={isAssigning} onChange={(e) => handleAssignChange("verified_by", e.target.value)} sx={{ bgcolor: "#0D1014", color: "#E6F0E6", borderRadius: '8px', ".MuiOutlinedInput-notchedOutline": { borderColor: "#2D2F39" } }}>
+                <MenuItem value=""><em>Not Verified</em></MenuItem>
+                {members.filter(m => m.role.toLowerCase() === 'pentester' || m.role.toLowerCase() === 'owner').map((m) => (
+                  <MenuItem key={m.email} value={m.email}>{m.firstname} {m.lastname} ({m.role})</MenuItem>
+                ))}
+              </Select>
+            ) : (
+              <Typography sx={{ color: vuln.verified_by ? "#FBFBFB" : "#404F57", fontWeight: 700 }}>{vuln.verified_by ? members.find(m => m.email === vuln.verified_by)?.firstname + " " + members.find(m => m.email === vuln.verified_by)?.lastname + " (" + members.find(m => m.email === vuln.verified_by)?.role + ")" : "Not Verified"}</Typography>
+            )}
+            
           </Box>
         </Stack>
       </Box>
@@ -251,7 +261,7 @@ export default function VulnDetailPage() {
 
         {activeTab === 3 && (
           <Box className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <Typography variant="subtitle2" sx={{ color: "#8FFF9C", mb: 4, fontWeight: 900 }}>DETECTION TIMELINE ({vuln.occurrance_count} Occurrences)</Typography>
+            <Typography variant="subtitle2" sx={{ color: "#8FFF9C", mb: 4, fontWeight: 900 }}>DETECTION TIMELINE ({vuln.occurrence_count} Occurrences)</Typography>
             <Stack spacing={0} sx={{ position: 'relative', ml: 1 }}>
               <Box sx={{ position: 'absolute', left: 7, top: 0, bottom: 0, width: '2px', bgcolor: '#2D2F39' }} />
               <Box sx={{ position: 'relative', pl: 5, mb: 4 }}>
@@ -261,12 +271,17 @@ export default function VulnDetailPage() {
                   <Typography sx={{ color: "#FBFBFB", fontSize: '14px', fontWeight: 700 }}>{new Date(vuln.dates.last_seen).toLocaleString('en-GB')}</Typography>
                 </Box>
               </Box>
-              {vuln.occurrance_date.map((date, i) => (
+              {vuln.occurrence_date.slice(1).map((date, i) => (
                 <Box key={i} sx={{ position: 'relative', pl: 5, mb: 2.5 }}>
                   <Box sx={{ position: 'absolute', left: 0, top: 8, width: 16, height: 16, borderRadius: '50%', bgcolor: '#404F57', border: `4px solid #111518`, zIndex: 1 }} />
                   <Box sx={{ p: 2, bgcolor: '#1E2429', borderRadius: '12px', border: '1px solid #2D2F39' }}>
-                    <Typography sx={{ color: "#9AA6A8", fontSize: '11px', fontWeight: 900 }}>DETECTION #{vuln.occurrance_count - i}</Typography>
-                    <Typography sx={{ color: "#FBFBFB", fontSize: '14px', fontWeight: 700 }}>{new Date(date).toLocaleString('en-GB')}</Typography>
+                    {/* ลำดับครั้งจะลบ i+1 เพราะเราข้ามตัวแรกไป */}
+                    <Typography sx={{ color: "#9AA6A8", fontSize: '11px', fontWeight: 900 }}>
+                      DETECTION #{vuln.occurrence_count - (i + 1)}
+                    </Typography>
+                    <Typography sx={{ color: "#FBFBFB", fontSize: '14px', fontWeight: 700 }}>
+                      {new Date(date).toLocaleString('en-GB')}
+                    </Typography>
                   </Box>
                 </Box>
               ))}

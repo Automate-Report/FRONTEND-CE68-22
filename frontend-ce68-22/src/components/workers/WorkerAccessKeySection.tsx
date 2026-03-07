@@ -18,15 +18,18 @@ interface WorkerAccessKeySectionProps {
   workerName: string;
   onRevoke: () => Promise<void>; // รับ Function ที่เรียก API Re-create
   isLoading?: boolean;
+  role?: string; // เพิ่ม prop สำหรับ role ของผู้ใช้
 }
 
-export function WorkerAccessKeySection({ accessKeyId, onRevoke, isLoading = false, workerName }: WorkerAccessKeySectionProps) {
+export function WorkerAccessKeySection({ accessKeyId, onRevoke, isLoading = false, workerName, role }: WorkerAccessKeySectionProps) {
 
   const { data: accessKey, isError: isAccessKeyError } = useAccessKey(accessKeyId);
   const [showKey, setShowKey] = useState(false);
   const [copied, setCopied] = useState(false);
   const [revokeModalOpen, setRevokeModalOpen] = useState(false);
   const [isRevoking, setIsRevoking] = useState(false);
+
+  const isDeveloper = role === "developer"; // ตรวจสอบว่าเป็น developer หรือไม่
 
   const handleCopy = () => {
     if (accessKey?.key) {
@@ -54,19 +57,22 @@ export function WorkerAccessKeySection({ accessKeyId, onRevoke, isLoading = fals
         </Typography>
         
         {/* ปุ่ม Revoke Key */}
-        <Button
-          size="small"
-          startIcon={isRevoking ? <CircularProgress size={16} color="inherit" /> : <RevokeIcon />}
-          onClick={() => setRevokeModalOpen(true)}
-          sx={{ 
-            color: "#FE3B46", 
-            fontSize: "11px", 
-            fontWeight: "bold",
-            "&:hover": { bgcolor: "rgba(254, 59, 70, 0.1)" }
-          }}
-        >
-          Revoke & Re-create
-        </Button>
+        {!isDeveloper && (
+          <Button
+            size="small"
+            startIcon={isRevoking ? <CircularProgress size={16} color="inherit" /> : <RevokeIcon />}
+            onClick={() => setRevokeModalOpen(true)}
+            sx={{ 
+              color: "#FE3B46", 
+              fontSize: "11px", 
+              fontWeight: "bold",
+              "&:hover": { bgcolor: "rgba(254, 59, 70, 0.1)" }
+            }}
+          >
+            Revoke & Re-create
+          </Button>
+        )}
+        
       </Stack>
 
       <Box sx={{ 

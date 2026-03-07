@@ -22,8 +22,8 @@ export const vulnService = {
     return data;
   },
 
-  getById: async (vulnId: number) => {
-    const { data } = await apiClient.get<VulnDetails>(`/vulns/${vulnId}`);
+  getById: async (vulnId: number, projectId: number) => {
+    const { data } = await apiClient.get<VulnDetails>(`/vulns/${vulnId}?project_id=${projectId}`);
     return data;
   },
 
@@ -35,16 +35,16 @@ export const vulnService = {
     const { data } = await apiClient.get<SummaryStatusVlun>(`/vulns/summary/status/${projectId}`);
     return data;
   },
-  assign: async (payload: VulnAssignPayload) => {
-    const { data } = await apiClient.post(`/vulns/assign/`, payload);
+  assign: async (projectId: number, payload: VulnAssignPayload) => {
+    const { data } = await apiClient.post(`/vulns/assign/?project_id=${projectId}`, payload);
     return data;
   },
-  changeStatus: async (vulnId: number, newStatus: string) => {
-    const { data } = await apiClient.post(`/vulns/change-status/`, { vuln_id: vulnId, new_status: newStatus });
+  changeStatus: async (vulnId: number, newStatus: string, projectId: number) => {
+    const { data } = await apiClient.post(`/vulns/change-status/?project_id=${projectId}`, { vuln_id: vulnId, new_status: newStatus });
     return data;
   },
-  changeVerify: async (vulnId: number, newVerify: string) => {
-    const { data } = await apiClient.post(`/vulns/change-verify/`, { vuln_id: vulnId, new_verify: newVerify });
+  changeVerify: async (vulnId: number, newVerify: string, projectId: number) => {
+    const { data } = await apiClient.post(`/vulns/change-verify/?project_id=${projectId}`, { vuln_id: vulnId, new_verify: newVerify });
     return data;
   }
 };

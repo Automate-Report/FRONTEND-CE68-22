@@ -1,11 +1,6 @@
-import { AxiosResponse } from "axios";
-
 import apiClient from "../lib/api-client";
-
 import { CreateWorkerPayload, Worker } from "../types/worker";
-import { AccessKey } from "../types/access_key";
 import { PaginatedResult } from "../types/common";
-
 
 export const workerService = {
   // รับค่า page และ size (กำหนด default ไว้กันเหนียว)
@@ -29,13 +24,13 @@ export const workerService = {
     return data;
   },
 
-  getById: async (id: number) =>{
-    const { data } = await apiClient.get<Worker>(`/workers/${id}`);
+  getById: async (id: number, projectId: number) =>{
+    const { data } = await apiClient.get<Worker>(`/workers/${id}?project_id=${projectId}`);
     return data;
   },
 
-  reGenKey: async (workerId: number) =>{
-    const { data } = await apiClient.post<Worker>(`/workers/regen-key/${workerId}`);
+  reGenKey: async (workerId: number, projectId: number) =>{
+    const { data } = await apiClient.post<Worker>(`/workers/regen-key/${workerId}?project_id=${projectId}`);
     return data;
   },
 
@@ -44,22 +39,28 @@ export const workerService = {
     return data;
   },
 
-  edit: async (id: number, payload: CreateWorkerPayload) => {
-      const { data } = await apiClient.put(`/workers/${id}`, payload);
+  edit: async (id: number, projectId: number, payload: CreateWorkerPayload) => {
+      const { data } = await apiClient.put(`/workers/${id}?project_id=${projectId}`, payload);
       return data;
     },
 
-  delete: async (id: number) => {
+  delete: async (id: number, projectId: number) => {
     // method delete ปกติจะไม่ return content
-    await apiClient.delete(`/workers/${id}`);
+    await apiClient.delete(`/workers/${id}?project_id=${projectId}`);
   },
 
-  download_worker: async (workerId: number): Promise<AxiosResponse<Blob>> =>{
-    return apiClient.get<Blob>(`workers/download/${workerId}`,
-      {
-        responseType: "blob", // ขอเป็น Binary File
-      }
-    );
+  download_worker: async (workerId: number, projectId: number, onProgress: (percent: number) => void) => {
+    return apiClient.get(`workers/download/${workerId}?project_id=${projectId}`, {
+      responseType: "blob",
+      onDownloadProgress: (progressEvent) => {
+        const total = progressEvent.total || 0;
+        const current = progressEvent.loaded;
+        if (total > 0) {
+          const percentCompleted = Math.round((current * 100) / total);
+          onProgress(percentCompleted); // ✅ ส่งเปอร์เซ็นต์กลับไป
+        }
+      },
+    });
   },
 
   info: async (project_id: number) => {
@@ -67,14 +68,19 @@ export const workerService = {
     return data;
   },
 
-  unLink: async (workerId: number) => {
-    const { data } = await apiClient.get(`/workers/unlink/${workerId}`);
+  unLink: async (workerId: number, projectId: number) => {
+    const { data } = await apiClient.get(`/workers/unlink/${workerId}?project_id=${projectId}`);
     return data;
   },
   unLinkAll: async (projectId: number) => {
     const { data } = await apiClient.get(`/workers/unlink/all/${projectId}`);
     return data;
-  }
+  },
+
+  markAsDownloaded: async (workerId: number) => {
+    // ส่ง Request ไปบอก Backend (จะใช้ POST หรือ PATCH ก็ได้ตามการออกแบบ API)
+    return apiClient.post(`/workers/${workerId}/mark-downloaded`);
+  },
 
 };
 

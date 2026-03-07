@@ -25,7 +25,7 @@ export function AccessKeyBoxSection({ worker, onRefresh }: WorkerItemProps)
     const handleGenerateKey = async () => {
         setLoading(true);
         try {
-            const data = await workerService.genKey(worker.id);
+            const data = await workerService.reGenKey(worker.id, worker.project_id);
             if (!data) {
                 console.error("Backend returned null data");
                 // อาจจะแจ้งเตือน user ว่า "สร้าง Key สำเร็จแต่ไม่ได้รับข้อมูลกลับ" หรือจัดการตามความเหมาะสม
@@ -43,7 +43,7 @@ export function AccessKeyBoxSection({ worker, onRefresh }: WorkerItemProps)
     const handleRevokeSuccess = async () => {
         // อัปเดตฝั่ง worker ว่าไม่มี key แล้ว (ถ้า Backend ไม่ได้ทำให้)
         // แต่ปกติแค่เรียก onRefresh() ก็พอ ถ้า Backend เคลียร์ค่า worker.access_key_id ให้แล้ว
-        await workerService.removeKey(worker.id); // ส่ง null ไปอัปเดต (ถ้าจำเป็น)
+        // await workerService.removeKey(worker.id); // ส่ง null ไปอัปเดต (ถ้าจำเป็น)
         
         onRefresh(); // ดึงข้อมูล worker ใหม่ -> access_key_id จะหายไป -> ปุ่ม Generate จะกลับมา
     };
