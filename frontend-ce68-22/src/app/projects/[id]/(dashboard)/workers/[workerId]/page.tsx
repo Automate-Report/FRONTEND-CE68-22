@@ -1,8 +1,8 @@
 "use client";
 
-import { use, useState, useEffect, useCallback } from "react";
+import { use, useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { Box, Typography, Stack, CircularProgress } from "@mui/material"; 
+import { CircularProgress } from "@mui/material";
 import { LinkOff as UnlinkIcon } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 
@@ -25,13 +25,16 @@ import { WorkerUnlinkModal } from "@/src/components/workers/WorkerUnLinkModal";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
+import { YELLOW_BUTTON_STYLE, GREEN_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 
 // Icons
 import EditIcon from "@/src/components/icon/Edit";
-import DeleteIcon from '@mui/icons-material/Delete';
-import DownloadIcon from '@mui/icons-material/Download';
+import DownloadIcon from "@/src/components/icon/DownloadIcon";
+import DeleteProjectIcon from "@/src/components/icon/Delete";
 
-interface PageProps { params: Promise<{ id: string; workerId: string; }> }
+interface PageProps {
+    params: Promise<{ id: string; workerId: string }>;
+}
 
 export default function WorkerDetailPage({ params }: PageProps) {
     const router = useRouter();
@@ -43,33 +46,30 @@ export default function WorkerDetailPage({ params }: PageProps) {
     const { data: project } = useProject(projectId);
     const { data: worker, refetch } = useWorker(workerId, projectId);
     const { data: summaryInfoJob } = useSummaryInfoByWorker(workerId);
-    
-    // --- ✅ Current User & Permission Logic ---
-    const [currentUserName, setCurrentUserName] = useState<string | undefined>(undefined);
 
+    // --- Current User ---
+    const [currentUserName, setCurrentUserName] = useState<string | undefined>(undefined);
     useEffect(() => {
         const fetchUser = async () => {
             try {
                 const res = await getMe();
-                // ✅ เก็บชื่อ/username เพื่อเทียบกับ worker.owner (คนที่ Connect worker ตัวนี้อยู่)
                 setCurrentUserName(res?.user?.name || res?.user?.username || res?.user);
-            } catch (error) { console.error("Fetch user failed", error); }
+            } catch (error) {
+                console.error("Fetch user failed", error);
+            }
         };
         fetchUser();
     }, []);
 
     const isProjectOwner = project?.role === "owner";
     const isPentester = project?.role === "pentester";
-    
-    // ✅ เงื่อนไข Unlink: เป็นเจ้าของโปรเจกต์ หรือ เป็นคนเดียวกับที่ Connect worker ตัวนี้อยู่
     const canUnlink = isProjectOwner || (worker?.owner !== null && worker?.owner === currentUserName);
 
-    // --- ✅ Global Download State ---
+    // --- Download Store ---
     const startDownload = useDownloadStore((state) => state.startDownload);
     const globalIsLoading = useDownloadStore((state) => state.isDownloading);
     const globalProgress = useDownloadStore((state) => state.progress);
     const currentDownloadingId = useDownloadStore((state) => state.currentWorkerId);
-
     const isThisWorkerDownloading = globalIsLoading && currentDownloadingId === workerId;
 
     // --- Local States ---
@@ -82,10 +82,19 @@ export default function WorkerDetailPage({ params }: PageProps) {
         workerId, jobQuery.page + 1, jobQuery.size, "created_at", "desc", jobQuery.search, jobQuery.filter
     );
 
-    if (!worker || !summaryInfoJob) return <Box sx={{ p: 8, color: '#E6F0E6' }}>Loading data...</Box>;
+    // --- Loading state ---
+    if (!worker || !summaryInfoJob) {
+        return (
+            <div className="flex items-center justify-center min-h-[60vh]">
+                <div className="flex flex-col items-center gap-4">
+                    <CircularProgress size={36} sx={{ color: "#8FFF9C" }} />
+                    <span className="text-[#4A6068] text-sm">Loading worker data...</span>
+                </div>
+            </div>
+        );
+    }
 
     // --- Handlers ---
-
     const handleConfirmUnlink = async () => {
         setIsActionLoading(true);
         try {
@@ -94,8 +103,11 @@ export default function WorkerDetailPage({ params }: PageProps) {
             await refetch();
             router.refresh();
             toast.success("Disconnected successfully");
-        } catch (error) { toast.error("Failed to disconnect"); } 
-        finally { setIsActionLoading(false); }
+        } catch {
+            toast.error("Failed to disconnect");
+        } finally {
+            setIsActionLoading(false);
+        }
     };
 
     const handleConfirmDelete = async () => {
@@ -106,8 +118,11 @@ export default function WorkerDetailPage({ params }: PageProps) {
             router.push(`/projects/${projectId}/workers`);
             router.refresh();
             toast.success("Worker deleted");
-        } catch (error) { toast.error("Failed to delete"); } 
-        finally { setIsActionLoading(false); }
+        } catch {
+            toast.error("Failed to delete");
+        } finally {
+            setIsActionLoading(false);
+        }
     };
 
     const handleDownloadAction = async () => {
@@ -117,100 +132,157 @@ export default function WorkerDetailPage({ params }: PageProps) {
     };
 
     const handleJobPageChange = (newPage: number, newSize: number) => {
-        setJobQuery(prev => ({ ...prev, page: newPage, size: newSize }));
+        setJobQuery((prev) => ({ ...prev, page: newPage, size: newSize }));
     };
 
+
     return (
-        <Box sx={{ pb: 10 }}>
-            <GenericBreadcrums items={[
-                { label: "Home", href: "/main" }, 
-                { label: project?.name || "Project", href: `/projects/${projectId}/overview` }, 
-                { label: "Worker Nodes", href: `/projects/${projectId}/workers` }, 
-                { label: worker.name, href: undefined }
-            ]} />
-            
-            <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ py: 4 }}>
-                <div>
-                    <Typography variant="h3" sx={{ color: "#E6F0E6", fontWeight: "bold" }}>{worker.name}</Typography>
-                    <Typography variant="h4" sx={{ color: "#9AA6A8", fontWeight: "bold" }}>Owner: {worker.owner || "n/a"}</Typography>
+        <div>
+
+            {/* Breadcrumbs */}
+            <GenericBreadcrums
+                items={[
+                    { label: "Home", href: "/main" },
+                    { label: project?.name || "Project", href: `/projects/${projectId}/overview` },
+                    { label: "Worker Nodes", href: `/projects/${projectId}/workers` },
+                    { label: worker.name, href: undefined },
+                ]}
+            />
+
+            {/* ── Header ── */}
+            <div className="relative mt-2 mb-8">
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+
+                    {/* Title block */}
+                    <div className="flex items-center gap-4">
+                        <div>
+                            <h1 className="text-[32px] font-bold text-[#E6F0E6] leading-tight tracking-tight">
+                                {worker.name}
+                            </h1>
+                            <p className="text-base text-[#4A6068] mt-0.5">
+                                Owner:{" "}
+                                <span className={worker.owner ? "text-[#DD6E6E]" : "text-[#8FFF9C]"}>
+                                    {worker.owner || "n/a"}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-6 flex-wrap">
+
+                        {/* Edit */}
+                        {(isProjectOwner || isPentester) && (
+                            <GenericGreenButton
+                                name="Edit"
+                                href={`/projects/${projectId}/workers/${worker.id}/edit`}
+                                icon={<EditIcon />}
+                            />
+                        )}
+
+                        {/* Disconnect or Download */}
+                        {worker.owner ? (
+                            canUnlink && (
+                                <button
+                                    onClick={() => setUnlinkModalOpen(true)}
+                                    disabled={isActionLoading}
+                                    className={YELLOW_BUTTON_STYLE}
+                                >
+                                    {isActionLoading ? (
+                                        <>
+                                            <CircularProgress size={15} sx={{ color: "#FF9800" }} />
+                                            <span>Disconnecting...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <UnlinkIcon sx={{ fontSize: 17 }} />
+                                            <span>Disconnect</span>
+                                        </>
+                                    )}
+                                </button>
+                            )
+                        ) : (
+                            (isProjectOwner || isPentester) && (
+                                <button
+                                    onClick={handleDownloadAction}
+                                    disabled={globalIsLoading}
+                                    className={GREEN_BUTTON_STYLE}
+                                >
+                                    {isThisWorkerDownloading ? (
+                                        <>
+                                            {globalProgress > 0 ? (
+                                                <>
+                                                    <span>{globalProgress}%</span>
+                                                    <CircularProgress variant="determinate" value={globalProgress} size={15} sx={{ color: "#0B0F12" }} />
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <span>Downloading...</span>
+                                                    <CircularProgress size={15} sx={{ color: "#0B0F12" }} />
+                                                </>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span>Download</span>
+                                            <DownloadIcon />
+                                        </>
+                                    )}
+                                </button>
+                            )
+                        )}
+
+                        {/* Delete */}
+                        {isProjectOwner && (
+                            <button className={RED_BUTTON_STYLE}
+                                onClick={() => setDeleteModalOpen(true)}>
+                                Delete
+                                <DeleteProjectIcon />
+                            </button>
+                        )}
+                    </div>
                 </div>
-                
-                <Stack direction="row" spacing={2}>
-                    {/* ✅ ปุ่ม Edit: แสดงผลให้ทั้ง Project Owner และ Pentester */}
-                    {(isProjectOwner || isPentester) && (
-                        <GenericGreenButton name="Edit" href={`/projects/${projectId}/workers/${worker.id}/edit`} icon={<EditIcon />} />
-                    )}
-                    
-                    {worker.owner ? (
-                        /* ✅ แสดงปุ่ม Disconnect เฉพาะผู้ที่มีสิทธิ์ (Admin หรือ คนที่ถือครอง worker นี้) */
-                        canUnlink && (
-                            <button 
-                                onClick={() => setUnlinkModalOpen(true)} 
-                                disabled={isActionLoading}
-                                className="flex items-center gap-3 px-6 h-10 rounded-lg font-semibold bg-[#0B0F12] text-[#FF9800] border border-[#FF9800] hover:bg-[#FF9800] hover:text-[#0B0F12]"
-                            >
-                                {isActionLoading ? "Disconnecting..." : "Disconnect"} 
-                                {isActionLoading ? <CircularProgress size={18} sx={{ color: "#FF9800" }} /> : <UnlinkIcon fontSize="small" />}
-                            </button>
-                        )
-                    ) : (
-                        /* ✅ ปุ่ม Download: สิทธิ์ Pentester/Owner สามารถโหลดได้ถ้ายังไม่มีใครถือครอง */
-                        (isProjectOwner || isPentester) && (
-                            <button 
-                                onClick={handleDownloadAction}
-                                disabled={globalIsLoading} 
-                                className="flex items-center gap-3 px-6 h-10 rounded-lg font-semibold bg-[#8FFF9C] text-[#0B0F12] hover:bg-[#AFFFB9] disabled:opacity-70"
-                            >
-                                {isThisWorkerDownloading ? (
-                                    <Stack direction="row" spacing={1.5} alignItems="center">
-                                        {globalProgress > 0 ? (
-                                            <>
-                                                <Typography variant="caption" sx={{ fontWeight: 'bold' }}>{globalProgress}%</Typography>
-                                                <CircularProgress variant="determinate" value={globalProgress} size={18} sx={{ color: "#0B0F12" }} />
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Typography variant="caption" sx={{ fontWeight: 'bold' }}>Downloading...</Typography>
-                                                <CircularProgress size={18} sx={{ color: "#0B0F12" }} />
-                                            </>
-                                        )}
-                                    </Stack>
-                                ) : (
-                                    <>Download <DownloadIcon /></>
-                                )}
-                            </button>
-                        )
-                    )}
+            </div>
 
-                    {/* ✅ ปุ่ม Delete: แสดงผลเฉพาะ Project Owner เท่านั้น (Pentester ลบไม่ได้) */}
-                    {isProjectOwner && (
-                        <button 
-                            onClick={() => setDeleteModalOpen(true)} 
-                            className="flex items-center gap-3 bg-[#0B0F12] text-[#FE3B46] border border-[#FE3B46] font-semibold rounded-lg px-6 h-10 hover:bg-[#FE3B46] hover:text-[#FBFBFB]"
-                        >
-                            Delete <DeleteIcon fontSize="small" />
-                        </button>
-                    )}
-                </Stack>
-            </Stack>
+            {/* ── Content sections ── */}
+            <div className="space-y-6">
+                <WorkerSummaryStats summary={summaryInfoJob} worker={worker} />
 
-            <WorkerSummaryStats summary={summaryInfoJob} worker={worker} />
-            <WorkerConfigCard 
-                worker={worker} 
-                summaryInfoJob={summaryInfoJob} 
-                handleRevokeKey={async () => { await workerService.reGenKey(worker.id, projectId); refetch(); }} 
-                role={project?.role}
+                <WorkerConfigCard
+                    worker={worker}
+                    summaryInfoJob={summaryInfoJob}
+                    handleRevokeKey={async () => {
+                        await workerService.reGenKey(worker.id, projectId);
+                        refetch();
+                    }}
+                    role={project?.role}
+                />
+
+                <WorkerAssignedJobs
+                    jobs={jobs}
+                    isLoading={isJobsLoading}
+                    projectId={projectId}
+                    onPageChange={handleJobPageChange}
+                />
+            </div>
+
+            {/* ── Modals ── */}
+            <WorkerUnlinkModal
+                open={unlinkModalOpen}
+                onClose={() => setUnlinkModalOpen(false)}
+                onConfirm={handleConfirmUnlink}
+                workerName={worker.name}
+                loading={isActionLoading}
             />
-            
-            <WorkerAssignedJobs 
-                jobs={jobs} 
-                isLoading={isJobsLoading} 
-                projectId={projectId} 
-                onPageChange={handleJobPageChange} 
+            <GenericDeleteModal
+                open={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                entityType="Worker"
+                entityName={worker.name}
+                loading={isActionLoading}
             />
-            
-            <WorkerUnlinkModal open={unlinkModalOpen} onClose={() => setUnlinkModalOpen(false)} onConfirm={handleConfirmUnlink} workerName={worker.name} loading={isActionLoading} />
-            <GenericDeleteModal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} onConfirm={handleConfirmDelete} entityType="Worker" entityName={worker.name} loading={isActionLoading} />
-        </Box>
+        </div>
     );
 }

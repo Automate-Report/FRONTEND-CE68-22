@@ -7,7 +7,6 @@ import { ScheduleDelete } from "@/src/types/schedule";
 import { scheduleService } from "@/src/services/schedule.service";
 import { useGetScheduleByID } from "@/src/hooks/schedule/use-getScheduleByID";
 import { useAsset } from '@/src/hooks/asset/use-asset';
-import { Box, Typography } from "@mui/material";
 
 //components
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
@@ -22,6 +21,7 @@ import NetworkIcon from '@/src/components/icon/NetworkIcon';
 import StopIcon from '@/src/components/icon/StopIcon';
 import StartIcon from '@/src/components/icon/StartIcon';
 import { formatCronExpressions } from "@/src/lib/format";
+import { RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 
 export default function ViewSchedulePage() {
 
@@ -90,9 +90,7 @@ export default function ViewSchedulePage() {
                     {schedule?.schedule_name || "Fetching info..."}
                 </h1>
                 <div className="flex gap-8 items-center">
-                    <button className="flex items-center justify-center bg-[#0F1518] border border-[#FE3B46] 
-                    text-[#FE3B46] text-[16px] font-semibold rounded-lg px-6 py-2 gap-3 cursor-pointer 
-                    hover:bg-[#FE3B46] hover:text-[#FBFBFB] transition-colors"
+                    <button className={RED_BUTTON_STYLE}
                         onClick={() => handleDeleteClick({ id: scheduleId, name: schedule?.schedule_name || "" })}>
                         Delete
                         <DeleteProjectIcon />

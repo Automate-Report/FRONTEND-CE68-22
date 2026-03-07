@@ -7,12 +7,13 @@
 interface CardWithIconProps {
     icon: React.ReactNode;
     title: string;
-    dataDisplay: string;
+    dataDisplay: string | number;
     description: string;
     descriptioncolor?: string;
     dataDisplayColor?: string;
     iconColor?: string;
     dataDisplaySize?: string;
+    responsive?: string;
 }
 
 export default function CardWithIcon({
@@ -23,12 +24,13 @@ export default function CardWithIcon({
     descriptioncolor = "#404F57",
     dataDisplayColor = "#E6F0E6",
     iconColor = "#E6F0E6",
-    dataDisplaySize = "20px"
+    dataDisplaySize = "20px",
+    responsive = ""
 }: CardWithIconProps) {
     const isDescriptionEmpty = description === '';
 
     return (
-        <div className="flex flex-row items-center rounded-xl border border-[rgba(64,79,87,0.4)] w-full h-full p-4 gap-6">
+        <div className={`${responsive} flex flex-row items-center rounded-xl border border-[rgba(64,79,87,0.4)] w-full h-full p-4 gap-6`}>
             <div
                 className="flex items-center justify-center w-14 h-full bg-[#272D31] rounded-xl"
                 style={{ color: iconColor }}
