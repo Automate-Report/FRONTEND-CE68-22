@@ -5,7 +5,7 @@ import { useState } from "react";
 export type SortOrder = "asc" | "desc" | "none";
 
 // ใช้ T แทน Project เพื่อให้ใช้กับ Type อะไรก็ได้
-export function useTable<T>(defaultRowsPerPage = 10) {
+export function useTable<T>(defaultRowsPerPage = 6) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
   
@@ -23,7 +23,7 @@ export function useTable<T>(defaultRowsPerPage = 10) {
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    setRowsPerPage(parseInt(event.target.value, 6));
     setPage(0);
   };
 

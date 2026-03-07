@@ -9,21 +9,47 @@ interface CardWithIconProps {
     title: string;
     dataDisplay: string;
     description: string;
-    descriptioncolor?: string; // Optional prop for description text color
+    descriptioncolor?: string;
+    dataDisplayColor?: string;
+    iconColor?: string;
+    dataDisplaySize?: string;
 }
 
+export default function CardWithIcon({
+    icon,
+    title,
+    dataDisplay,
+    description,
+    descriptioncolor = "#404F57",
+    dataDisplayColor = "#E6F0E6",
+    iconColor = "#E6F0E6",
+    dataDisplaySize = "20px"
+}: CardWithIconProps) {
+    const isDescriptionEmpty = description === '';
 
-export default function CardWithIcon({ icon, title, dataDisplay, description, descriptioncolor="#404F57" }: CardWithIconProps) {
-    const isDescriptionEmpty = (description === '')
     return (
         <div className="flex flex-row items-center rounded-xl border border-[rgba(64,79,87,0.4)] w-full h-full p-4 gap-6">
-            <div className="flex items-center justify-center w-14 h-full bg-[#272D31] rounded-xl">
+            <div
+                className="flex items-center justify-center w-14 h-full bg-[#272D31] rounded-xl"
+                style={{ color: iconColor }}
+            >
                 {icon}
             </div>
             <div className="flex flex-col justify-center h-full">
-                <span className="font-bold text-sm text-[#96A6A6] tracking-wider leading-5 pb-1">{title}</span>
-                <span className="font-semibold text-xl pb-1">{dataDisplay}</span>
-                <span className={`text-xs text-[${descriptioncolor}] ${isDescriptionEmpty ? 'hidden' : ''}`}>{description}</span>
+                <span className="font-bold text-sm text-[#96A6A6] tracking-wider leading-5 pb-1">
+                    {title}
+                </span>
+                <span
+                    className="font-semibold pb-1"
+                    style={{ color: dataDisplayColor, fontSize: dataDisplaySize }}
+                >
+                    {dataDisplay}
+                </span>
+                {!isDescriptionEmpty && (
+                    <span className="text-xs" style={{ color: descriptioncolor }}>
+                        {description}
+                    </span>
+                )}
             </div>
         </div>
     );

@@ -15,7 +15,7 @@ export function WorkerUnlinkModal({ open, onClose, onConfirm, workerName, loadin
     return (
         <Modal open={open} onClose={!loading ? onClose : undefined}>
             <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: { xs: '90%', sm: 450 }, bgcolor: '#1A2023', borderRadius: '20px', border: '1px solid #404F57', boxShadow: 24, outline: 'none' }}>
-                <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}><IconButton onClick={onClose} disabled={loading} sx={{ color: '#9AA6A8' }}><CloseIcon /></IconButton></Box>
+                <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}><IconButton onClick={onClose} disabled={loading} sx={{ color: '#9AA6A8', position: 'absolute' }}><CloseIcon /></IconButton></Box>
                 <Box sx={{ px: 4, pb: 4, textAlign: 'center' }}>
                     <Box sx={{ width: 64, height: 64, borderRadius: '50%', bgcolor: 'rgba(255, 152, 0, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2, border: '1px solid rgba(255, 152, 0, 0.2)' }}><UnlinkIcon sx={{ fontSize: 32, color: '#FF9800' }} /></Box>
                     <Typography variant="h5" sx={{ color: '#E6F0E6', fontWeight: 'bold', mb: 1 }}>Disconnect Worker?</Typography>

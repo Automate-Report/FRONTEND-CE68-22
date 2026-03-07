@@ -21,10 +21,10 @@ export function ScheduleCard({ index, schedule, onDelete }: ScheduleCardProps) {
             <div className="w-full py-4 px-5 bg-[#1A2025] rounded-t-xl">
                 <div className="flex flex-row items-center gap-6 justify-between w-full">
                     <div className="flex flex-col w-[60%]">
-                        <h3 className="font-semibold text-xl pb-2 truncate">{schedule.name}</h3>
+                        <h3 className="font-bold text-xl pb-2 truncate">{schedule.name}</h3>
                         <div className="flex flex-row gap-2 items-center text-[#8FFF9C]">
                             <NetworkIcon />
-                            <p className="font-bold text-sm truncate">{schedule.asset_name}</p>
+                            <p className="font-md text-xs truncate">{schedule.asset_name}</p>
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -39,7 +39,7 @@ export function ScheduleCard({ index, schedule, onDelete }: ScheduleCardProps) {
         </div>
             </div >
             <Divider sx={{ borderColor: "#404F57", width: "100%" }} />
-            <div className="w-full py-4 px-5 bg-[#151b1d] rounded-b-xl">
+            <div className="w-full py-4 px-5 rounded-b-xl">
                 <div className="flex flex-col w-full gap-4">
                     <div className="flex flex-row gap-6 justify-between items-center w-full">
                         <h3 className="font-md text-md text-[#9AA6A8]">Status Breakdown</h3>

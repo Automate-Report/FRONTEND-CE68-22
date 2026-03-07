@@ -7,7 +7,7 @@ import { useWorkers } from "@/src/hooks/worker/use-workers";
 import { useWorkerInfoSummary } from "@/src/hooks/worker/use-workerInfoSummary";
 import { useTable } from "@/src/hooks/use-table";
 import { useDebounce } from "@/src/hooks/use-debounce";
-import { useDownloadStore } from "@/src/hooks/worker/use-WorkerDownloadStore"; 
+import { useDownloadStore } from "@/src/hooks/worker/use-WorkerDownloadStore";
 import { toast } from "react-hot-toast";
 import { workerService } from "@/src/services/worker.service";
 import { Worker as WorkerType } from "@/src/types/worker";
@@ -22,16 +22,20 @@ import { WorkerCard } from "@/src/components/workers/WorkerCard";
 import CreateWorkerIcon from "@/src/components/icon/CreateWorker";
 
 import { Box, Typography, InputBase, Button, Stack, MenuItem, Menu, CircularProgress } from "@mui/material";
-import { 
-  Engineering as TotalIcon, 
-  Dns as OnlineIcon, 
-  Speed as BusyIcon, 
+import {
+  Engineering as TotalIcon,
+  Dns as OnlineIcon,
+  Speed as BusyIcon,
   AssignmentTurnedIn as JobIcon,
-  Search as SearchIcon, 
-  FilterList as FilterIcon, 
-  LinkOff as UnlinkIcon 
+  Search as SearchIcon,
+  LinkOff as UnlinkIcon
 } from "@mui/icons-material";
 import Link from "next/link";
+import CardWithIcon from "@/src/components/Common/CardWithIcon";
+import { INPUT_BOX_WITH_ICON_STYLE_DIV, INPUT_BOX_WITH_ICON_STYLE_INPUT } from "@/src/styles/inputBoxStyle";
+import { FILTER_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
+import FilterIcon from "@/src/components/icon/Filter";
+import MagIcon from "@/src/components/icon/MagnifyingGlass";
 
 interface PageProps { params: Promise<{ id: string }>; }
 
@@ -55,7 +59,7 @@ export default function WorkersPage({ params }: PageProps) {
     { label: "Available", value: "available" },
     { label: "In Use", value: "inUse" },
   ];
-  
+
   // ✅ เก็บชื่อผู้ใช้เพื่อนำไปเทียบกับ worker.owner
   const [currentUserId, setCurrentUserId] = useState<string | undefined>(undefined);
 
@@ -80,14 +84,14 @@ export default function WorkersPage({ params }: PageProps) {
       try {
         const res = await getMe();
         // ✅ สำคัญ: ต้องเป็นฟิลด์เดียวกับที่ API ส่งมาใน worker.owner (มักจะเป็น Name หรือ Username)
-        setCurrentUserId(res?.["user"]); 
+        setCurrentUserId(res?.["user"]);
       } catch (error) { console.error(error); }
     };
     fetchUser();
   }, []);
 
   const handleDownload = useCallback(async (e: React.MouseEvent, workerId: number, workerName: string) => {
-    e.preventDefault(); e.stopPropagation(); 
+    e.preventDefault(); e.stopPropagation();
     await startDownload(workerId, projectId, workerName, async () => { refetch(); });
   }, [startDownload, projectId, refetch]);
 
@@ -112,7 +116,7 @@ export default function WorkersPage({ params }: PageProps) {
       }
       setUnlinkModal({ open: false, target: null, isAll: false, loading: false });
       refetch();
-    } catch (error) { toast.error("Action failed"); } 
+    } catch (error) { toast.error("Action failed"); }
     finally { setUnlinkModal(prev => ({ ...prev, loading: false })); }
   };
 
@@ -134,95 +138,107 @@ export default function WorkersPage({ params }: PageProps) {
   const totalCnt = response?.total || 0;
 
   return (
-    <div className="bg-[#0F1518] font-sans pb-10 min-h-screen px-4 md:px-8">
+    <div>
       <GenericBreadcrums items={[{ label: "Home", href: "/main" }, { label: project?.name || "Project", href: undefined }]} />
       <div className="flex justify-between items-center text-4xl text-[#E6F0E6] font-bold my-6">
         Worker Nodes
         {isOwner && <GenericGreenButton name="New Worker" href={`/projects/${projectId}/workers/create`} icon={<CreateWorkerIcon />} />}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-4 gap-4 mb-8">
         {[
           { label: "Total Workers", value: workerInfo.total, color: "#FBFBFB", icon: <TotalIcon /> },
           { label: "Online Status", value: workerInfo.online, color: "#8FFF9C", icon: <OnlineIcon /> },
           { label: "Busy Status", value: workerInfo.busy, color: "#FFCC00", icon: <BusyIcon /> },
           { label: "Processed Jobs", value: workerInfo.total_jobs, color: "#007AFF", icon: <JobIcon /> },
         ].map((item, i) => (
-          <Box key={i} sx={{ bgcolor: "#1E2429", p: 2.5, borderRadius: "16px", border: "1px solid #404F57", display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Box><Typography variant="h4" sx={{ color: item.color, fontWeight: 900 }}>{item.value}</Typography><Typography sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800 }}>{item.label.toUpperCase()}</Typography></Box>
-            <Box sx={{ color: item.color, opacity: 0.8 }}>{item.icon}</Box>
-          </Box>
+          <CardWithIcon
+            key={i}
+            icon={item.icon}
+            title={item.label}
+            dataDisplay={item.value}
+            dataDisplayColor={item.color}
+            iconColor={item.color}
+            dataDisplaySize="24px"
+            description=""
+          />
         ))}
       </div>
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, gap: 2, flexWrap: 'wrap' }}>
-        <Stack direction="row" spacing={2} sx={{ flex: 1, maxWidth: 600 }}>
-          {/* Search */}
-          <Box sx={{ display: 'flex', alignItems: 'center', bgcolor: '#1A2023', px: 2, py: 0.5, borderRadius: '10px', border: '1px solid #2A3033', flex: 1 }}>
-            <SearchIcon sx={{ color: '#404F57', mr: 1 }} />
-            <InputBase placeholder="Search nodes..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} sx={{ color: '#E6F0E6', width: '100%' }} />
-          </Box>
-          {/* Filter */}
-          <Button
-            variant="outlined"
-            onClick={handleFilterClick}
-            startIcon={<FilterIcon />}
-            sx={{ 
-              color: statusFilter !== "ALL" ? "#8FFF9C" : "#9AA6A8", 
-              borderColor: statusFilter !== "ALL" ? "#8FFF9C" : "#2A3033",
-              textTransform: 'none',
-              borderRadius: '10px',
-              px: 3,
-              '&:hover': { borderColor: '#8FFF9C', bgcolor: 'rgba(143, 255, 156, 0.05)' }
-            }}
-          >
-            {filterOptions.find(opt => opt.value === statusFilter)?.label || "Filter"}
-          </Button>
+      <div className="flex justify-between items-center mb-6 gap-4 flex-wrap">
+        <div className="flex flex-row gap-2 flex-1 max-w-xl">
 
-          {/* Menu สำหรับแสดงรายการ Filter */}
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={() => handleFilterClose()}
-            sx={{ 
-              "& .MuiPaper-root": { 
-                bgcolor: "#1A2023", 
-                color: "#E6F0E6",
-                border: "1px solid #2A3033",
-                mt: 1
-              } 
-            }}
-          >
-            {filterOptions.map((option) => (
-              <MenuItem 
-                key={option.value} 
-                onClick={() => handleFilterClose(option.value)}
-                sx={{ 
-                  fontSize: '14px',
-                  color: statusFilter === option.value ? "#8FFF9C" : "inherit",
-                  '&:hover': { bgcolor: 'rgba(143, 255, 156, 0.1)' }
-                }}
-              >
-                {option.label}
-              </MenuItem>
-            ))}
-          </Menu>
-        </Stack>
+          {/* Search */}
+          <div className={`${INPUT_BOX_WITH_ICON_STYLE_DIV} w-full`}>
+            <MagIcon />
+            <input
+              type="text"
+              placeholder="Search nodes"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={`${INPUT_BOX_WITH_ICON_STYLE_INPUT} w-full`}
+            />
+          </div>
+
+          {/* Filter Button */}
+          <div className="relative">
+
+            {/* Trigger */}
+            <button
+              onClick={handleFilterClick}
+              className={`${FILTER_BUTTON_STYLE} whitespace-nowrap`}
+            >
+              {filterOptions.find(opt => opt.value === statusFilter)?.label || "Filter"}
+              <FilterIcon />
+            </button>
+
+            {/* Dropdown Menu */}
+            {Boolean(anchorEl) && (
+              <div className="absolute z-10 mt-1 w-full bg-[#0F1518] border-[2px] border-[#404F57]
+                        rounded-xl shadow max-h-48 overflow-auto">
+                {filterOptions.map(opt => (
+                  <div
+                    key={String(opt.value)}
+                    onClick={() => {
+                      handleFilterClose(opt.value)
+                    }}
+                    className={`relative flex items-center h-[42px] rounded-xl pl-3 shadow-sm transition text-[#E6F0E6] placeholder-[#9AA6A8] focus:outline-none
+                                hover:bg-[#1D2226] cursor-pointer
+                                ${statusFilter === opt.value
+                        ? "bg-[#2D353B] font-semibold hover:bg-[#2D353B]"
+                        : ""
+                      }`}
+                  >
+                    {opt.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Unlink All */}
         {isOwner && totalCnt > 0 && (
-          <Button variant="text" startIcon={<UnlinkIcon />} onClick={handleUnlinkAllClick} sx={{ color: '#FE3B46', fontWeight: 'bold', textTransform: 'none' }}>Unlink All Workers</Button>
+          <button
+            onClick={handleUnlinkAllClick}
+            className={RED_BUTTON_STYLE}
+          >
+            <UnlinkIcon className="w-4 h-4" />
+            Unlink All Workers
+          </button>
         )}
-      </Box>
+      </div>
 
       <div className="flex-1">
         {isLoading ? (
           <Box sx={{ textAlign: "center", py: 10 }}><CircularProgress sx={{ color: "#8FFF9C" }} /></Box>
         ) : (
           <>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               {workers.map((worker: WorkerType) => (
                 <Link key={worker.id} href={`/projects/${projectId}/workers/${worker.id}`} className="block no-underline">
-                  <WorkerCard 
-                    worker={worker} 
+                  <WorkerCard
+                    worker={worker}
                     canManage={isOwner || isPentester}
                     isProjectOwner={isOwner}
                     currentUserId={currentUserId}
