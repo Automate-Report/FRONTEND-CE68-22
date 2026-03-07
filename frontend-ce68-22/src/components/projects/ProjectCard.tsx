@@ -14,11 +14,12 @@ import EditIcon from "../icon/Edit";
 import DeleteProjectIcon from "../icon/Delete";
 
 interface ProjectCardProps {
+  index: number;
   project: ProjectSummary;
   onDelete: (id: number, name: string) => void;
 }
 
-export function ProjectCard({ project, onDelete }: ProjectCardProps) {
+export function ProjectCard({ index, project, onDelete }: ProjectCardProps) {
   const router = useRouter();
   const isOwner = project.role === "owner";
 
@@ -39,6 +40,8 @@ export function ProjectCard({ project, onDelete }: ProjectCardProps) {
 
   return (
     <Card
+      className="animate-card-in opacity-0"
+      style={{ animationDelay: `${index * 80}ms` }}
       sx={{
         width: '100%',
         display: 'flex',

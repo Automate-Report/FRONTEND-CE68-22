@@ -17,6 +17,8 @@ import GenericDropdown from "@/src/components/Common/GenericDropdown";
 import AddTime from "@/src/components/icon/AddTime";
 import DeleteProjectIcon from "@/src/components/icon/Delete";
 import { Tooltip } from "@mui/material";
+import { GREEN_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
+import { INPUT_BOX_NO_ICON_STYLE } from "@/src/styles/inputBoxStyle";
 
 export default function CreateSchedulePage() {
 
@@ -146,7 +148,7 @@ export default function CreateSchedulePage() {
                 if (day.active) newArray.push(index);
                 return newArray;
             }, []).join(",");
-        
+
         const dates = dayOfMonth
             .reduce<number[]>((newArray, day, index) => {
                 if (day.active) newArray.push(index + 1);
@@ -185,7 +187,7 @@ export default function CreateSchedulePage() {
         if (form.scheduleName === "") { setNameError(true); flagError = true; }
         if (form.attackType === "") { setAttackTypeError(true); flagError = true; }
         if (!form.assetId || form.assetId === 0) { setAssetError(true); flagError = true; }
-        if (flagError) return;
+        if (flagError) { setRunNow(false); return; }
 
         if (runNow) {
             const payload: ScheduleCreatePayload = {
@@ -246,7 +248,7 @@ export default function CreateSchedulePage() {
                         <span className="font-semibold text-2xl">Schedule Name</span>
                         <input type="text" value={form.scheduleName || ""} placeholder="Your Schedule Name"
                             onChange={(e) => setForm({ ...form, scheduleName: e.target.value })}
-                            className="bg-[#FBFBFB] rounded-lg px-4 py-2 text-[#404F57] focus:outline-none" />
+                            className={INPUT_BOX_NO_ICON_STYLE} />
                         {nameError && (
                             <span className="text-red-500">Please enter a schedule name.</span>
                         )}
@@ -289,10 +291,10 @@ export default function CreateSchedulePage() {
                             <div className="flex flex-row w-full gap-3 items-center justify-start">
                                 <span className="font-medium">Start Date: </span>
                                 <input type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                                    className="bg-[#FBFBFB] rounded-lg px-4 py-2 text-[#404F57] focus:outline-none" />
+                                    className={`${INPUT_BOX_NO_ICON_STYLE} pr-3`} />
                                 <span className="font-medium">At</span>
                                 <input type="time" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })}
-                                    className="bg-[#FBFBFB] rounded-lg px-4 py-2 text-[#404F57] focus:outline-none" />
+                                    className={`${INPUT_BOX_NO_ICON_STYLE} pr-3`} />
                             </div>
 
                             {/* Repeat Button */}
@@ -331,7 +333,7 @@ export default function CreateSchedulePage() {
                                                                     )
                                                                 );
                                                             }}
-                                                            className="bg-[#FBFBFB] rounded-lg px-4 py-2 text-[#404F57] focus:outline-none"
+                                                            className={`${INPUT_BOX_NO_ICON_STYLE} pr-3`}
                                                         />
 
                                                         {cronTimes.length > 1 && (
@@ -341,11 +343,10 @@ export default function CreateSchedulePage() {
                                                         )}
                                                     </div>
                                                 ))}
-                                                <button className="cursor-pointer bg-[#8FFF9C] rounded-lg px-4 py-2 text-[#0B0F12] font-medium 
-                                                focus:outline-none flex flex-row gap-3 items-center w-fit hover:bg-[#AFFFB9]"
+                                                <button className={`${GREEN_BUTTON_STYLE}`}
                                                     type="button"
                                                     onClick={handleAddTime}>
-                                                    <span>Add Time</span> <AddTime />
+                                                    Add Time <AddTime />
                                                 </button>
                                                 {repeatedTimeError && (
                                                     <span className="text-red-500">You cannot specify the same time more than once.</span>
@@ -366,8 +367,8 @@ export default function CreateSchedulePage() {
                                                             className={`cursor-pointer rounded-lg py-2 font-bold w-[60px]
                                                         flex items-center justify-center transition-colors
                                                         ${day.active
-                                                                    ? "bg-[#8FFF9C] text-[#0B0F12] hover:bg-[#AFFFB9]"
-                                                                    : "bg-[#FBFBFB] text-[#404F57] hover:bg-[#E6F0E6]"
+                                                                    ? "border-[2px] border-[#8FFF9C]/0 bg-[#8FFF9C] text-[#0B0F12] hover:shadow-[0_0_18px_rgba(34,197,94,0.9)]"
+                                                                    : "border-[2px] border-[#404F57] text-[#404F57] hover:bg-[#404F57] hover:text-[#E6F0E6]"
                                                                 }`}
                                                         >
                                                             {day.name}
@@ -375,14 +376,12 @@ export default function CreateSchedulePage() {
                                                     ))}
                                                 </div>
                                                 <div className="flex flex-row gap-3">
-                                                    <button className="cursor-pointer bg-[#8FFF9C] rounded-lg px-4 py-2 text-[#0B0F12] font-medium 
-                                                    focus:outline-none flex flex-row gap-3 items-center w-fit hover:bg-[#AFFFB9]"
+                                                    <button className={GREEN_BUTTON_STYLE}
                                                         type="button"
                                                         onClick={handleAddAllWeek}>
                                                         <span>Set Everyday</span>
                                                     </button>
-                                                    <button className="flex items-center justify-center bg-[#0F1518] border border-[#FE3B46] text-[#FE3B46] text-[16px] 
-                                                    font-semibold rounded-lg px-6 py-2 gap-3 cursor-pointer hover:bg-[#FE3B46] hover:text-[#FBFBFB] transition-colors"
+                                                    <button className={RED_BUTTON_STYLE}
                                                         type="button" onClick={handleClearAllWeek}>
                                                         <span>Clear All Week</span>
                                                     </button>
@@ -403,8 +402,8 @@ export default function CreateSchedulePage() {
                                                             className={`cursor-pointer rounded-lg py-2 font-bold w-[60px]
                                                             flex items-center justify-center transition-colors
                                                             ${day.active
-                                                                    ? "bg-[#8FFF9C] text-[#0B0F12] hover:bg-[#AFFFB9]"
-                                                                    : "bg-[#FBFBFB] text-[#404F57] hover:bg-[#E6F0E6]"
+                                                                    ? "border-[2px] border-[#8FFF9C]/0 bg-[#8FFF9C] text-[#0B0F12] hover:shadow-[0_0_18px_rgba(34,197,94,0.9)]"
+                                                                    : "border-[2px] border-[#404F57] text-[#404F57] hover:bg-[#404F57] hover:text-[#E6F0E6]"
                                                                 }`}
                                                         >
                                                             {day.name}
@@ -412,14 +411,12 @@ export default function CreateSchedulePage() {
                                                     ))}
                                                 </div>
                                                 <div className="flex flex-row gap-3">
-                                                    <button className="cursor-pointer bg-[#8FFF9C] rounded-lg px-4 py-2 text-[#0B0F12] font-medium 
-                                                    focus:outline-none flex flex-row gap-3 items-center w-fit hover:bg-[#AFFFB9]"
+                                                    <button className={GREEN_BUTTON_STYLE}
                                                         type="button"
                                                         onClick={handleAddAllDate}>
                                                         <span>Set Everyday</span>
                                                     </button>
-                                                    <button className="flex items-center justify-center bg-[#0F1518] border border-[#FE3B46] text-[#FE3B46] text-[16px] 
-                                                    font-semibold rounded-lg px-6 py-2 gap-3 cursor-pointer hover:bg-[#FE3B46] hover:text-[#FBFBFB] transition-colors"
+                                                    <button className={RED_BUTTON_STYLE}
                                                         type="button" onClick={handleClearAllDate}>
                                                         <span>Clear All Date</span>
                                                     </button>
@@ -431,7 +428,7 @@ export default function CreateSchedulePage() {
                                         <div className="flex flex-row gap-3 items-center">
                                             <span className="font-medium w-[100px]">Repeat Until:</span>
                                             <input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                                                className="bg-[#FBFBFB] rounded-lg px-4 py-2 text-[#404F57] focus:outline-none" />
+                                                className={`${INPUT_BOX_NO_ICON_STYLE} pr-3`} />
                                         </div>
                                     </div>
                                 </div>
@@ -439,18 +436,13 @@ export default function CreateSchedulePage() {
 
                             {/* Action Buttons */}
                             <div className="flex gap-8 items-center">
-                                <button className="flex items-center justify-center bg-[#0F1518] border border-[#FE3B46] text-[#FE3B46] text-[16px] 
-                                        font-semibold rounded-lg px-6 py-2 gap-3 cursor-pointer hover:bg-[#272D31]"
+                                <button className={RED_BUTTON_STYLE}
                                     type="button" onClick={() => router.push(`/projects/${projectId}/schedule`)}>Cancel</button>
-                                <button className="cursor-pointer bg-[#8FFF9C] rounded-lg px-4 py-2 text-[#0B0F12] font-medium 
-                                        focus:outline-none flex flex-row gap-3 items-center w-fit hover:bg-[#AFFFB9]"
+                                <button className={GREEN_BUTTON_STYLE}
                                     type="submit">Create Schedule</button>
                                 <span> Or </span>
                                 <Tooltip title="Run this schedule immediately once">
-                                    <button className="cursor-pointer bg-[#8FFF9C] rounded-lg px-4 py-2 text-[#0B0F12] font-medium 
-                                            focus:outline-none flex flex-row gap-3 items-center w-fit hover:bg-[#AFFFB9]
-                                            animate-[shadowPulse_1.6s_ease-in-out_infinite]
-                                            shadow-[0_0_6px_rgba(34,197,94,0.4)]"
+                                    <button className={`${GREEN_BUTTON_STYLE} animate-[shadowPulse_1.6s_ease-in-out_infinite]`}
                                         onClick={() => setRunNow(true)}
                                         type="submit">Run NOW !!</button>
                                 </Tooltip>

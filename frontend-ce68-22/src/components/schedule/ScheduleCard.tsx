@@ -8,14 +8,16 @@ import { getDisplayDate } from "../Common/GetDisplayDate";
 import Link from "next/link";
 
 interface ScheduleCardProps {
+    index: number,
     schedule: ScheduleDisplay,
     onDelete: (schedule: ScheduleDelete) => void
 }
 
-export function ScheduleCard({ schedule, onDelete }: ScheduleCardProps) {
+export function ScheduleCard({ index, schedule, onDelete }: ScheduleCardProps) {
     return (
         <div className="flex flex-col items-center rounded-xl border border-[rgba(64,79,87,0.4)] w-full 
-        transition-transform duration-200 hover:border-[#8FFF9C] hover:-translate-y-1 cursor-pointer">
+        transition-transform duration-200 hover:border-[#8FFF9C] hover:-translate-y-1 cursor-pointer
+        animate-card-in opacity-0" style={{ animationDelay: `${index * 80}ms` }}>
             <div className="w-full py-4 px-5 bg-[#1A2025] rounded-t-xl">
                 <div className="flex flex-row items-center gap-6 justify-between w-full">
                     <div className="flex flex-col w-[60%]">

@@ -20,7 +20,7 @@ export default function ToggleSwitch({
         <button
             type="button"
             onClick={toggle}
-            className={`relative w-16 h-8 rounded-full transition-colors ${checked ? "bg-green-400" : "bg-gray-300"
+            className={`relative w-16 h-8 rounded-full transition-colors ${checked ? "bg-green-400" : "bg-gray-700"
                 }`}
             aria-pressed={checked}
         >

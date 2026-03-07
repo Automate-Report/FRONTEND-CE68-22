@@ -155,13 +155,13 @@ export default function ProjectSchedulePage({ params }: PageProps) {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6 mb-4">
-        {schedules?.items.map((schedule) => (
+        {schedules?.items.map((schedule, index) => (
           <div
             key={schedule.id}
             onClick={() => router.push(`/projects/${schedule.project_id}/schedule/${schedule.id}`)}
             className="cursor-pointer"
           >
-            <ScheduleCard schedule={schedule} onDelete={handleDeleteClick} />
+            <ScheduleCard schedule={schedule} onDelete={handleDeleteClick} index={index} />
           </div>
         ))}
       </div>

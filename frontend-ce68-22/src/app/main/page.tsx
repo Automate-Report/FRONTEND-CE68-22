@@ -183,8 +183,8 @@ export default function ProjectsPage() {
         ) : projects.length > 0 ? (
           <>
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-6">
-              {projects.map((project) => (
-                <ProjectCard key={project.id} project={project} onDelete={openDeleteConfirm} />
+              {projects.map((project, index) => (
+                <ProjectCard key={project.id} project={project} onDelete={openDeleteConfirm} index={index} />
               ))}
             </div>
 
