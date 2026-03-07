@@ -235,7 +235,7 @@ export default function EditSchedulePage() {
             asset: form.assetId,
             cron_expression: cronString,
             start_date: new Date(`${form.startDate}T${form.startTime}:00`),
-            end_date: (!repeatTrue && form.endDate) ? new Date(form.endDate) : new Date(form.startDate),
+            end_date: (!repeatTrue || form.endDate) ? new Date(form.startDate) : new Date(form.endDate),
         };
         const data = await scheduleService.edit(scheduleId, payload);
         router.push(`/projects/${projectId}/schedule/${scheduleId}`);
