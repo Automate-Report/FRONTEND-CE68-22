@@ -40,13 +40,13 @@ export function ProjectCard({ index, project, onDelete }: ProjectCardProps) {
 
   return (
     <Card
-      className="animate-card-in opacity-0"
+      className="animate-card-in opacity-0 hover:-translate-y-1"
       style={{ animationDelay: `${index * 80}ms` }}
       sx={{
         width: '100%',
         display: 'flex',
         flexDirection: { xs: 'column', md: 'row' },
-        bgcolor: "#21292d",
+        bgcolor: "#1A2025",
         border: "1px solid #404F57",
         borderRadius: "16px",
         overflow: "hidden",
@@ -122,7 +122,7 @@ export function ProjectCard({ index, project, onDelete }: ProjectCardProps) {
       <Box
         sx={{
           flex: 1,
-          bgcolor: "#151b1d",
+          bgcolor: "#0F1518",
           borderLeft: { md: "1px solid #404F57" },
           p: 3,
           display: 'flex',

@@ -24,7 +24,7 @@ export function WorkerAssignedJobs({ jobs, isLoading, projectId, onPageChange }:
 
     if (isLoading) {
         return (
-            <Box sx={{ textAlign: 'center', py: 8 }}>
+            <Box sx={{ textAlign: 'center', py: 8, fontFamily: "inherit" }}>
                 <CircularProgress size={32} sx={{ color: "#8FFF9C" }} />
                 <Typography sx={{ color: "#404F57", mt: 2, fontSize: "14px" }}>Fetching jobs...</Typography>
             </Box>
@@ -32,9 +32,9 @@ export function WorkerAssignedJobs({ jobs, isLoading, projectId, onPageChange }:
     }
 
     return (
-        <Box sx={{ mt: 6 }}>
+        <Box>
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-                <Typography variant="h4" sx={{ color: "#E6F0E6", fontWeight: "bold" }}>
+                <Typography sx={{ color: "#E6F0E6", fontWeight: 600, fontSize: "24px",fontFamily: "inherit" }}>
                     Job Assigned
                 </Typography>
                 {totalItems > 0 && (
@@ -66,10 +66,10 @@ export function WorkerAssignedJobs({ jobs, isLoading, projectId, onPageChange }:
                     </>
                 ) : (
                     <Box sx={{ 
-                        bgcolor: "#1E2429", p: 8, borderRadius: "20px", border: "1px dashed #404F57", 
+                        p: 8, borderRadius: "20px", border: "1px dashed #404F57", 
                         textAlign: 'center', color: '#404F57' 
                     }}>
-                        <PendingIcon sx={{ fontSize: 48, mb: 2, opacity: 0.2 }} />
+                        <PendingIcon sx={{ fontSize: 48, mb: 2, opacity: 0.5 }} />
                         <Typography>No active jobs currently assigned to this worker.</Typography>
                     </Box>
                 )}

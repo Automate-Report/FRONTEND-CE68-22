@@ -17,6 +17,7 @@ import { Worker as WorkerType } from "@/src/types/worker";
 import { useRouter, useParams } from "next/navigation";
 
 interface WorkerCardProps {
+  index: number;
   worker: WorkerType;
   canManage: boolean;
   isProjectOwner: boolean;
@@ -28,6 +29,7 @@ interface WorkerCardProps {
 }
 
 export function WorkerCard({
+  index,
   worker,
   canManage,
   isProjectOwner,
@@ -68,7 +70,9 @@ export function WorkerCard({
   };
 
   return (
-    <div className="group relative bg-[#0F1518] border border-[#1E2A30] rounded-2xl cursor-pointer transition-all duration-300 hover:border-[#8FFF9C] hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden">
+    <div className="group relative bg-[#0F1518] border border-[#1E2A30] rounded-2xl cursor-pointer transition-all 
+    duration-300 hover:border-[#8FFF9C] hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden
+    animate-card-in opacity-0" style={{ animationDelay: `${index * 80}ms` }}>
 
       {/* ── Row 1: Avatar + Name + Status + Actions ── */}
       <div className="p-5 flex items-center gap-4 bg-[#1A2025]">

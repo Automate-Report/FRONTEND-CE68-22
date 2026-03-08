@@ -42,7 +42,7 @@ export function ScheduleCard({ index, schedule, onDelete }: ScheduleCardProps) {
             <div className="w-full py-4 px-5 rounded-b-xl">
                 <div className="flex flex-col w-full gap-4">
                     <div className="flex flex-row gap-6 justify-between items-center w-full">
-                        <h3 className="font-md text-md text-[#9AA6A8]">Status Breakdown</h3>
+                        <h3 className="font-bold text-base text-[#9AA6A8]">Status Breakdown</h3>
                         <div className="font-semibold text-sm text-[#8FFF9C] border border-[rgba(143, 255, 156, 0.3)] bg-[#8FFF9C]/10 
                         rounded-xl px-4 py-1">
                             {schedule.job_status.finished + schedule.job_status.failed
@@ -52,27 +52,27 @@ export function ScheduleCard({ index, schedule, onDelete }: ScheduleCardProps) {
                     
                     <div className="grid grid-cols-4 w-full gap-4">
                         <div className="flex flex-col items-center justify-center w-full h-18 bg-[#192024] text-[#8FFF9C] rounded-xl gap-1">
-                            <p className="text-sm">Finished</p>
+                            <p className="text-xs">Finished</p>
                             <span className="font-bold text-2xl"> {schedule.job_status.finished} </span>
                         </div>
                         <div className="flex flex-col items-center justify-center w-full h-18 bg-[#192024] text-[#DD6E6E] rounded-xl gap-1">
-                            <p className="text-sm">Failed</p>
+                            <p className="text-xs">Failed</p>
                             <span className="font-bold text-2xl"> {schedule.job_status.failed} </span>
                         </div>
                         <div className="flex flex-col items-center justify-center w-full h-18 bg-[#192024] text-[#DDA96E] rounded-xl gap-1">
-                            <p className="text-sm">Ongoing</p>
+                            <p className="text-xs">Ongoing</p>
                             <span className="font-bold text-2xl"> {schedule.job_status.ongoing} </span>
                         </div>
                         <div className="flex flex-col items-center justify-center w-full h-18 bg-[#192024] text-[#6E9ADD] rounded-xl gap-1">
-                            <p className="text-sm">Scheduled</p>
+                            <p className="text-xs">Scheduled</p>
                             <span className="font-bold text-2xl"> {schedule.job_status.scheduled} </span>
                         </div>
                     </div>
 
                     <Divider sx={{ borderColor: "#404F57", width: "100%" }} />
                     <div className="flex flex-row gap-6 justify-between items-center w-full text-[#9AA6A8]">
-                        <h3 className="font-light text-md"><span className="font-bold">Start: </span>{getDisplayDate(new Date(schedule.start_date))}</h3>
-                        <h3 className="font-light text-md"><span className="font-bold">End: </span>{getDisplayDate(new Date(schedule.end_date))}</h3>
+                        <h3 className="font-light text-sm"><span className="font-bold">Start: </span>{getDisplayDate(new Date(schedule.start_date))}</h3>
+                        <h3 className="font-light text-sm"><span className="font-bold">End: </span>{getDisplayDate(new Date(schedule.end_date))}</h3>
                     </div>
                 </div>
             </div>

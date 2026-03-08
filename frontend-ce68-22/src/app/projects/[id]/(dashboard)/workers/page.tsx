@@ -235,9 +235,10 @@ export default function WorkersPage({ params }: PageProps) {
         ) : (
           <>
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              {workers.map((worker: WorkerType) => (
+              {workers.map((worker: WorkerType,index: number) => (
                 <Link key={worker.id} href={`/projects/${projectId}/workers/${worker.id}`} className="block no-underline">
                   <WorkerCard
+                    index={index}
                     worker={worker}
                     canManage={isOwner || isPentester}
                     isProjectOwner={isOwner}

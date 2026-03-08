@@ -150,7 +150,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
             />
 
             {/* ── Header ── */}
-            <div className="relative mt-2 mb-8">
+            <div className="relative pt-2 mb-6">
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
 
@@ -246,26 +246,24 @@ export default function WorkerDetailPage({ params }: PageProps) {
             </div>
 
             {/* ── Content sections ── */}
-            <div className="space-y-6">
-                <WorkerSummaryStats summary={summaryInfoJob} worker={worker} />
+            <WorkerSummaryStats summary={summaryInfoJob} worker={worker} />
 
-                <WorkerConfigCard
-                    worker={worker}
-                    summaryInfoJob={summaryInfoJob}
-                    handleRevokeKey={async () => {
-                        await workerService.reGenKey(worker.id, projectId);
-                        refetch();
-                    }}
-                    role={project?.role}
-                />
+            <WorkerConfigCard
+                worker={worker}
+                summaryInfoJob={summaryInfoJob}
+                handleRevokeKey={async () => {
+                    await workerService.reGenKey(worker.id, projectId);
+                    refetch();
+                }}
+                role={project?.role}
+            />
 
-                <WorkerAssignedJobs
-                    jobs={jobs}
-                    isLoading={isJobsLoading}
-                    projectId={projectId}
-                    onPageChange={handleJobPageChange}
-                />
-            </div>
+            <WorkerAssignedJobs
+                jobs={jobs}
+                isLoading={isJobsLoading}
+                projectId={projectId}
+                onPageChange={handleJobPageChange}
+            />
 
             {/* ── Modals ── */}
             <WorkerUnlinkModal

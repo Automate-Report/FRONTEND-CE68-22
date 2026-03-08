@@ -50,9 +50,9 @@ export function WorkerConfigCard({ worker, summaryInfoJob, handleRevokeKey, role
     ];
 
     return (
-        <Box sx={{ bgcolor: "#1E2429", borderRadius: "20px", border: "1px solid #404F57", overflow: "hidden", mb: 6 }}>
+        <Box sx={{ borderRadius: "20px", border: "1px solid #1E2A30", overflow: "hidden", mb: 3, fontFamily: "inherit" }}>
             {/* Header */}
-            <Box sx={{ px: 3, py: 2, borderBottom: "1px solid #404F57", display: "flex", alignItems: "center", gap: 1.5, bgcolor: "rgba(255, 255, 255, 0.02)" }}>
+            <Box sx={{ px: 3, py: 2, borderBottom: "1px solid #1E2A30", display: "flex", alignItems: "center", gap: 1.5, bgcolor: "#1A2025" }}>
                 <ConfigIcon sx={{ color: "#8FFF9C", fontSize: 20 }} />
                 <Typography sx={{ color: "#E6F0E6", fontWeight: "bold" }}>Worker Configuration</Typography>
             </Box>
@@ -62,12 +62,12 @@ export function WorkerConfigCard({ worker, summaryInfoJob, handleRevokeKey, role
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
                     {configItems.map((item, index) => (
                         <Box key={index}>
-                            <Typography sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: "uppercase", mb: 1, ml: 0.5 }}>
+                            <Typography sx={{ color: "#9AA6A8", fontSize: "14px", fontWeight: 600, mb: 1, ml: 0.5 }}>
                                 {item.label}
                             </Typography>
                             <Box sx={{ 
-                                bgcolor: "#0F1518", px: 2, py: 1.5, borderRadius: "12px", border: "1px solid #2D2F39", 
-                                display: 'flex', alignItems: 'center', minHeight: "48px",
+                                bgcolor: "#0B0F12", px: 2, py: 1.5, borderRadius: "12px", border: "1px solid #2D2F39", 
+                                display: 'flex', alignItems: 'center', maxHeight: "48px",
                                 transition: "0.2s", "&:hover": { borderColor: "#404F57" }
                             }}>
                                 <Stack direction="row" spacing={1.5} alignItems="center" sx={{ width: '100%' }}>
@@ -92,9 +92,9 @@ export function WorkerConfigCard({ worker, summaryInfoJob, handleRevokeKey, role
                                     ) : (
                                         <Typography sx={{ 
                                             color: item.color, 
-                                            fontSize: item.isBold ? "20px" : "15px", 
-                                            fontWeight: "bold", 
-                                            fontFamily: item.isMono ? "monospace" : "inherit" 
+                                            fontSize: "16px", 
+                                            fontWeight: "base", 
+                                            fontFamily: "inherit" 
                                         }}>
                                             {item.value}
                                         </Typography>
