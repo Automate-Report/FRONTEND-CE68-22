@@ -94,13 +94,13 @@ export default function ProjectsOverviewPage({ params }: PageProps) {
       {/* SECTION 2: CHARTS */}
       <div className="flex flex-col lg:flex-row gap-4 mb-6">
         {/* Trend Chart */}
-        <div className="border border-[#2D2F39] rounded-2xl h-[400px] flex-[2]">
-          <div className="bg-[#1A2025] flex items-center gap-2 mb-6 p-5 rounded-t-2xl">
+        <div className="flex flex-col justify-between border border-[#2D2F39] rounded-2xl h-[400px] flex-[2]">
+          <div className="bg-[#1A2025] flex items-center gap-2 p-5 rounded-t-2xl">
             <svg className="w-5 h-5 text-[#8FFF9C]" fill="currentColor" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-10" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" /></svg>
             <h2 className="text-lg font-bold">Vulnerability Pipeline (7 Days)</h2>
           </div>
-          <ResponsiveContainer width="100%" height="80%" className="pb-6 pr-6">
-            <AreaChart data={trendData}>
+          <ResponsiveContainer width="100%" height="80%" className="py-6 px-10">
+            <AreaChart data={trendData} margin={{ top: 0, right: 0, left: -40, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorDetected" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#FE3B46" stopOpacity={0.3} />
@@ -122,9 +122,9 @@ export default function ProjectsOverviewPage({ params }: PageProps) {
           <div className="bg-[#1A2025] flex items-center gap-2 mb-6 p-5 rounded-t-2xl">
             <h2 className="text-lg font-bold">Risk Distribution</h2>
           </div>
-          <ResponsiveContainer width="100%" height="70%">
+          <ResponsiveContainer width="100%" height="60%">
             <PieChart>
-              <Pie data={severityChartData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+              <Pie data={severityChartData} innerRadius={55} outerRadius={80} paddingAngle={3} dataKey="value" stroke="none">
                 {severityChartData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
               </Pie>
               <Tooltip />
@@ -133,8 +133,8 @@ export default function ProjectsOverviewPage({ params }: PageProps) {
           <div className="flex flex-wrap justify-center gap-4 mt-4">
             {severityChartData.map((d) => (
               <div key={d.name} className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />
-                <span className="text-xs font-bold text-[#9AA6A8]">{d.name}</span>
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: d.color }} />
+                <span className="text-sm font-bold text-[#9AA6A8]">{d.name}</span>
               </div>
             ))}
           </div>
@@ -145,12 +145,12 @@ export default function ProjectsOverviewPage({ params }: PageProps) {
       <div className="flex flex-col lg:flex-row gap-4 items-stretch">
         {/* Recent Vulnerabilities */}
         <div className="border border-[#2D2F39] rounded-2xl overflow-hidden flex-[2]">
-          <div className="bg-[#1A2025] flex justify-between items-center gap-2 mb-6 p-5 rounded-t-2xl">
+          <div className="bg-[#1A2025] flex justify-between items-center gap-2 p-5 rounded-t-2xl">
             <div className="flex items-center gap-2">
               <svg className="w-5 h-5 text-[#8FFF9C]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               <h2 className="text-lg font-bold">Recent Vulnerabilities</h2>
             </div>
-            <span className="text-[10px] font-bold text-[#8FFF9C] border border-[#8FFF9C] rounded-full px-2 py-0.5">Real-time</span>
+            <span className="px-3 py-1 text-xs font-bold rounded-full border text-[#8FFF9C] border-[#8FFF9C40] bg-[#8FFF9C15]">Real-time</span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
@@ -168,20 +168,20 @@ export default function ProjectsOverviewPage({ params }: PageProps) {
                   return (
                     <tr key={vuln.id} className="hover:bg-white/[0.02] transition-colors">
                       <td className="px-6 py-4">
-                        <p className="font-extrabold text-sm">{vuln.title}</p>
+                        <p className="font-bold text-sm">{vuln.title}</p>
                         <p className="text-xs text-[#404F57]">{vuln.cve}</p>
                       </td>
-                      <td className="px-6 py-4 font-mono text-xs text-[#9AA6A8]">{vuln.affected_asset}</td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 text-sm text-[#9AA6A8]">{vuln.affected_asset}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className="text-[10px] font-black px-2 py-0.5 rounded-full"
+                          className="px-3 py-1 text-xs font-bold rounded-full"
                           style={{ color: scoreColor, backgroundColor: `${scoreColor}20` }}
                         >
-                          {vuln.severity} ({vuln.cvss_score})
+                          {vuln.severity} ( {vuln.cvss_score} )
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`text-xs font-extrabold ${vuln.is_sla_breached ? 'text-[#FE3B46]' : 'text-[#8FFF9C]'}`}>
+                        <span className={`text-xs font-bold ${vuln.is_sla_breached ? 'text-[#FE3B46]' : 'text-[#8FFF9C]'}`}>
                           {vuln.sla_status}
                         </span>
                       </td>
@@ -195,7 +195,7 @@ export default function ProjectsOverviewPage({ params }: PageProps) {
 
         {/* Top Risky Assets */}
         <div className="border border-[#2D2F39] rounded-2xl overflow-hidden flex-1">
-          <div className="bg-[#1A2025] flex justify-between items-center gap-2 mb-6 p-5 rounded-t-2xl">
+          <div className="bg-[#1A2025] flex justify-between items-center gap-2 p-5 rounded-t-2xl">
             <h2 className="text-lg font-bold">Top Risky Assets</h2>
           </div>
           <div className="divide-y divide-[#2D2F39]">
@@ -203,12 +203,12 @@ export default function ProjectsOverviewPage({ params }: PageProps) {
               <div key={asset.id} className="px-5 py-4 hover:bg-white/[0.02] transition-colors">
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-sm font-extrabold">{asset.name}</p>
+                    <p className="text-sm font-bold">{asset.name}</p>
                     <p className="text-xs text-[#404F57]">{asset.vuln_count} vulnerabilities</p>
                   </div>
                   <span
-                    className="text-[9px] font-black text-white px-2 py-0.5 rounded-full"
-                    style={{ backgroundColor: asset.max_severity === 'CRITICAL' ? '#FE3B46' : '#FF9500' }}
+                    className="px-3 py-1 text-xs font-bold rounded-full"
+                    style={{ backgroundColor: asset.max_severity === 'CRITICAL' ? '#FE3B4690' : '#FF950090' }}
                   >
                     {asset.max_severity}
                   </span>
