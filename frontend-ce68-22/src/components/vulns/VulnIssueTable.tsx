@@ -70,23 +70,25 @@ export function VulnIssueTable({ issues, projectId, isLoading }: VulnIssueTableP
         <TableContainer 
             component={Paper} 
             sx={{ 
-                bgcolor: "#1E2429", 
+                bgcolor: "#0f1518", 
                 borderRadius: "20px", 
-                border: "1px solid #404F57", 
+                border: "2px solid #404F57", 
                 overflow: 'hidden',
-                boxShadow: "none"
+                boxShadow: "none",
+                width:"100%"
+                
             }}
         >
             <Table sx={{ minWidth: 1100 }}> 
                 <TableHead sx={{ bgcolor: "#0B0F12" }}>
                     <TableRow>
-                        <TableCell sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: 'uppercase', borderBottom: "1px solid #404F57", py: 2 }}>Severity</TableCell>
-                        <TableCell sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: 'uppercase', borderBottom: "1px solid #404F57", py: 2 }}>Issue Detail</TableCell>
-                        <TableCell sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: 'uppercase', borderBottom: "1px solid #404F57", py: 2 }}>Asset</TableCell>
-                        <TableCell sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: 'uppercase', borderBottom: "1px solid #404F57", py: 2 }}>Status & Verify</TableCell>
-                        <TableCell sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: 'uppercase', borderBottom: "1px solid #404F57", py: 2 }}>Assigned To</TableCell>
-                        <TableCell sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: 'uppercase', borderBottom: "1px solid #404F57", py: 2 }}>Verified By</TableCell>
-                        <TableCell sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: 'uppercase', borderBottom: "1px solid #404F57", py: 2, minWidth: '120px' }}>First Seen</TableCell>
+                        <TableCell sx={{ color: "#404F57",borderBottom: '0px', fontSize: "12px", fontWeight: 'bold', textTransform: 'uppercase', py: 2, textAlign: 'center' }}>Severity</TableCell>
+                        <TableCell sx={{ color: "#404F57",borderBottom: '0px', fontSize: "12px", fontWeight: 'bold', textTransform: 'uppercase', py: 2 }}>Issue Detail</TableCell>
+                        <TableCell sx={{ color: "#404F57",borderBottom: '0px', fontSize: "12px", fontWeight: 'bold', textTransform: 'uppercase', py: 2 }}>Asset</TableCell>
+                        <TableCell sx={{ color: "#404F57",borderBottom: '0px', fontSize: "12px", fontWeight: 'bold', textTransform: 'uppercase', py: 2 }}>Status & Verify</TableCell>
+                        <TableCell sx={{ color: "#404F57",borderBottom: '0px', fontSize: "12px", fontWeight: 'bold', textTransform: 'uppercase', py: 2 }}>Assigned To</TableCell>
+                        <TableCell sx={{ color: "#404F57",borderBottom: '0px', fontSize: "12px", fontWeight: 'bold', textTransform: 'uppercase', py: 2 }}>Verified By</TableCell>
+                        <TableCell sx={{ color: "#404F57",borderBottom: '0px', fontSize: "12px", fontWeight: 'bold', textTransform: 'uppercase', py: 2, minWidth: '120px' }}>First Seen</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -109,7 +111,7 @@ export function VulnIssueTable({ issues, projectId, isLoading }: VulnIssueTableP
                                     }}
                                 >
                                     <TableCell sx={{ borderBottom: "1px solid rgba(64, 79, 87, 0.2)", py: 2.5 }}>
-                                        <Box>
+                                        <div className="flex flex-col justify-center items-center gap-2">
                                             <Chip 
                                                 label={issue.severity} 
                                                 size="small"
@@ -123,7 +125,7 @@ export function VulnIssueTable({ issues, projectId, isLoading }: VulnIssueTableP
                                             <Typography sx={{ color: "#9AA6A8", fontSize: '11px', fontWeight: 600, ml: 0.5 }}>
                                                 CVSS {issue.cvss_details?.score ?? "N/A"}
                                             </Typography>
-                                        </Box>
+                                        </div>
                                     </TableCell>
 
                                     <TableCell sx={{ borderBottom: "1px solid rgba(64, 79, 87, 0.2)" }}>

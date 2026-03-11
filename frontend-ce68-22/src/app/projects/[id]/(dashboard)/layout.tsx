@@ -61,7 +61,7 @@ export default async function ProjectLayout({ children, params }: ProjectLayoutP
       <SideBar project_id={projectId} project_name={projectName} role={role} />
 
       {/* Main Content: หัวใจหลักของการเลื่อน */}
-      <main className="flex-1 ml-[300px] h-full overflow-y-auto custom-scrollbar">
+      <main className="flex-1 pl-[300px] h-full max-w-screen overflow-y-auto custom-scrollbar">
         <div className="px-12 py-6"> {/* เปลี่ยนจาก mx-12 มาใช้ px-12 เพื่อกันขอบล้น */}
             {children}
         </div>

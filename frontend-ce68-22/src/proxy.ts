@@ -26,7 +26,7 @@ export function proxy(request: NextRequest) {
     // user NOT logged in and trying to access protected page
     if (!isTokenValid && !publicRoutes.includes(pathname)) {
         const response = NextResponse.redirect(new URL("/login", request.url));
-        response.cookies.delete("access_token"); 
+        response.cookies.delete("access_token");
         return response;
     }
 
@@ -40,6 +40,9 @@ export function proxy(request: NextRequest) {
     // Set custom header to show NavBar only in Protected page
     if (isTokenValid && !publicRoutes.includes(pathname)) {
         response.headers.set("x-show-navbar", "true");
+    }
+    else {
+        response.headers.set("x-show-navbar", "false");
     }
 
 
