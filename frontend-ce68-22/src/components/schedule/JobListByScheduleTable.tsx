@@ -6,6 +6,7 @@ type SortOrder = "none" | "asc" | "desc";
 type SortColumn = "name" | "updated_at";
 
 interface JobListByScheduleTableProps {
+    project_id: number;
     data: JobDisplay[];
     totalCount: number;
     page: number;
@@ -18,6 +19,7 @@ interface JobListByScheduleTableProps {
 }
 
 export function JobListByScheduleTable({
+    project_id,
     data,
     totalCount,
     page,
@@ -46,7 +48,7 @@ export function JobListByScheduleTable({
             sortable: false, 
             render: (row) => (
                 <Link
-                    href={`/workers/${row.worker_id}`}
+                    href={`/projects/${project_id}/workers/${row.worker_id}`}
                 >
                     <div>{row.worker_name}</div>
                 </Link>
