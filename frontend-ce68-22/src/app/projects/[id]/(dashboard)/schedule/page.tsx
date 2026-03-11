@@ -182,8 +182,8 @@ export default function ProjectSchedulePage({ params }: PageProps) {
           onConfirm={handleConfirmDelete}
 
           // --- จุดที่ส่งข้อมูล ---
-          entityType="Project"             // บอกว่าเป็น "Project"
-          entityName={scheduleToDelete.name} // ส่งชื่อโปรเจกต์ไป
+          entityType="Schedule"             
+          entityName={scheduleToDelete.name} 
           loading={isDeleting}
         />
       )}
