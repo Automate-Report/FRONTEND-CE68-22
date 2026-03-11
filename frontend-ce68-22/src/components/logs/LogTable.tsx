@@ -8,6 +8,7 @@ type SortOrder = "none" | "asc" | "desc";
 type SortColumn = "name" | "updated_at";
 
 interface PenTestLogTableProps {
+  project_id: number;
   data: PenTestLog[];
   totalCount: number;
   page: number;
@@ -21,6 +22,7 @@ interface PenTestLogTableProps {
 }
 
 export function PenTestLogTable({
+  project_id,
   data,
   totalCount,
   page,
@@ -58,9 +60,14 @@ export function PenTestLogTable({
       sortable: true,
       width: "1%",
       render: (row) => (
-        <div>
-          {row.job_name}
-        </div>
+        <Link
+          href={`/projects/${project_id}/schedule/${row.schedule_id}`}
+        >
+          <div>
+            {row.job_name}
+          </div>
+        </Link>
+        
       )
     },
     {
@@ -69,9 +76,14 @@ export function PenTestLogTable({
         align: "center",
         width: "1%",
         render: (row) => (
-        <div>
-            {row.schedule_name}
-        </div>
+          <Link
+            href={`/projects/${project_id}/schedule/${row.schedule_id}`}
+          >
+            <div>
+              {row.schedule_name}
+            </div>
+          </Link>
+        
       )
     },
     {

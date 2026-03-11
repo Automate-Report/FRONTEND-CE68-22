@@ -109,6 +109,7 @@ export function PenTestLogList({ searchQuery, filterStatus, project_id }: PenTes
   return (
     <div>
       <PenTestLogTable
+        project_id={project_id}
         data={reports}           // ข้อมูล Array ของหน้านั้นๆ
         totalCount={totalCnt}   // จำนวนข้อมูลทั้งหมดใน DB (เพื่อคำนวณจำนวนหน้า)
         
