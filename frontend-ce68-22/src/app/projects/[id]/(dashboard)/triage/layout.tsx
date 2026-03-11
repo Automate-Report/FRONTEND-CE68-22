@@ -16,7 +16,7 @@ import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { VulnerabilitySummary } from "@/src/components/vulns/VulnerabilitySummary";
 import { GenericPagination } from "@/src/components/Common/GenericPagination";
 import { useProject } from "@/src/hooks/project/use-project";
-import { useVulns } from "@/src/hooks/vuln/use-vulns";
+import { useVulnsTask } from "@/src/hooks/vuln/use-vulnsTask";
 
 export default function TriageLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
@@ -33,7 +33,7 @@ export default function TriageLayout({ children }: { children: React.ReactNode }
     const openMenu = Boolean(anchorEl);
 
     const { data: project } = useProject(parseInt(projectId));
-    const { data: vulnData, isLoading: isVulnLoading } = useVulns(
+    const { data: vulnData, isLoading: isVulnLoading } = useVulnsTask(
         parseInt(projectId), page + 1, rowsPerPage, "severity", "desc", "", statusFilter
     );
 
