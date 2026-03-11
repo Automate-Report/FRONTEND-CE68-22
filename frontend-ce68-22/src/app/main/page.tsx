@@ -73,6 +73,7 @@ export default function ProjectsPage() {
         if (response && response.name) setDisplayName(response.name);
       } catch (error) {
         setDisplayName("Guest User");
+        router.push("/login");
       }
     };
     fetchUser();
