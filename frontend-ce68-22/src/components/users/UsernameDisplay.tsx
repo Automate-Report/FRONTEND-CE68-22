@@ -39,7 +39,6 @@ export function UsernameDisplay({ userId, onClick, color = "#FBFBFB" }: Username
         fontSize: '13px', 
         color: color, 
         fontWeight: 500,
-        whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         "&:hover": { color: "#8FFF9C" } 
