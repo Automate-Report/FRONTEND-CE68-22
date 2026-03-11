@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+
 import CreateProjectIcon from "@/src/components/icon/CreateProject";
 import MagIcon from "@/src/components/icon/MagnifyingGlass";
 import FilterIcon from "@/src/components/icon/Filter";
@@ -17,6 +19,7 @@ import { INPUT_BOX_WITH_ICON_STYLE_DIV, INPUT_BOX_WITH_ICON_STYLE_INPUT } from "
 import { FILTER_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 
 export default function ProjectsPage() {
+  const router = useRouter();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
