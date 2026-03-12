@@ -15,7 +15,7 @@ interface ScheduleCardProps {
 
 export function ScheduleCard({ index, schedule, onDelete }: ScheduleCardProps) {
     return (
-        <div className="flex flex-col items-center rounded-xl border border-[rgba(64,79,87,0.4)] w-full 
+        <div className="flex flex-col items-center rounded-xl border-[2px] border-[rgba(64,79,87,0.4)] w-full 
         transition-transform duration-200 hover:border-[#8FFF9C] hover:-translate-y-1 cursor-pointer
         animate-card-in opacity-0" style={{ animationDelay: `${index * 80}ms` }}>
             <div className="w-full py-4 px-5 bg-[#1A2025] rounded-t-xl">

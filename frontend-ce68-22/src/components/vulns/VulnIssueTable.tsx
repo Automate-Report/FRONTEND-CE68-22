@@ -1,16 +1,16 @@
 "use client";
 
-import { 
-    Table, TableBody, TableCell, TableContainer, TableHead, 
+import {
+    Table, TableBody, TableCell, TableContainer, TableHead,
     TableRow, Paper, Typography, Chip, Box, Avatar
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { UsernameDisplay } from "../users/UsernameDisplay";
 import { VulnIssue } from "@/src/types/vuln";
-import { 
-    CheckCircle as TPIcon, 
-    Cancel as FPIcon, 
-    HelpOutline as PendingIcon 
+import {
+    CheckCircle as TPIcon,
+    Cancel as FPIcon,
+    HelpOutline as PendingIcon
 } from "@mui/icons-material";
 
 // Helper components needed for the icons
@@ -62,31 +62,37 @@ export function VulnIssueTable({ issues, projectId, isLoading }: VulnIssueTableP
     };
 
     const handleSubLinkClick = (e: React.MouseEvent, path: string) => {
-        e.stopPropagation(); 
+        e.stopPropagation();
         router.push(path);
     };
 
     return (
-        <TableContainer 
-            component={Paper} 
-            sx={{ 
-                bgcolor: "#1E2429", 
-                borderRadius: "20px", 
-                border: "1px solid #404F57", 
-                overflow: 'hidden',
-                boxShadow: "none"
+        <TableContainer
+            component={Paper}
+            sx={{
+                bgcolor: "#0f1518",
+                borderRadius: "20px",
+                border: "2px solid #404F57",
+                borderBottom: "none",
+                overflowX: 'auto',
+                boxShadow: "none",
+                width: "100%",
+                zIndex: 2,
+                '&::-webkit-scrollbar': { height: 4 },
+                '&::-webkit-scrollbar-track': { background: '#0f1518' },
+                '&::-webkit-scrollbar-thumb': { background: '#404F57', borderRadius: 4 },
             }}
         >
-            <Table sx={{ minWidth: 1100 }}> 
+            <Table sx={{ minWidth: 1100 }}>
                 <TableHead sx={{ bgcolor: "#0B0F12" }}>
                     <TableRow>
-                        <TableCell sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: 'uppercase', borderBottom: "1px solid #404F57", py: 2 }}>Severity</TableCell>
-                        <TableCell sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: 'uppercase', borderBottom: "1px solid #404F57", py: 2 }}>Issue Detail</TableCell>
-                        <TableCell sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: 'uppercase', borderBottom: "1px solid #404F57", py: 2 }}>Asset</TableCell>
-                        <TableCell sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: 'uppercase', borderBottom: "1px solid #404F57", py: 2 }}>Status & Verify</TableCell>
-                        <TableCell sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: 'uppercase', borderBottom: "1px solid #404F57", py: 2 }}>Assigned To</TableCell>
-                        <TableCell sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: 'uppercase', borderBottom: "1px solid #404F57", py: 2 }}>Verified By</TableCell>
-                        <TableCell sx={{ color: "#9AA6A8", fontSize: "11px", fontWeight: 800, textTransform: 'uppercase', borderBottom: "1px solid #404F57", py: 2, minWidth: '120px' }}>First Seen</TableCell>
+                        <TableCell sx={{ color: "#404F57", borderBottom: '0px', fontSize: "12px", fontWeight: 'bold', textTransform: 'uppercase', py: 2, textAlign: 'center' }}>Severity</TableCell>
+                        <TableCell sx={{ color: "#404F57", borderBottom: '0px', fontSize: "12px", fontWeight: 'bold', textTransform: 'uppercase', py: 2 }}>Issue Detail</TableCell>
+                        <TableCell sx={{ color: "#404F57", borderBottom: '0px', fontSize: "12px", fontWeight: 'bold', textTransform: 'uppercase', py: 2 }}>Asset</TableCell>
+                        <TableCell sx={{ color: "#404F57", borderBottom: '0px', fontSize: "12px", fontWeight: 'bold', textTransform: 'uppercase', py: 2 }}>Status & Verify</TableCell>
+                        <TableCell sx={{ color: "#404F57", borderBottom: '0px', fontSize: "12px", fontWeight: 'bold', textTransform: 'uppercase', py: 2 }}>Assigned To</TableCell>
+                        <TableCell sx={{ color: "#404F57", borderBottom: '0px', fontSize: "12px", fontWeight: 'bold', textTransform: 'uppercase', py: 2 }}>Verified By</TableCell>
+                        <TableCell sx={{ color: "#404F57", borderBottom: '0px', fontSize: "12px", fontWeight: 'bold', textTransform: 'uppercase', py: 2, minWidth: '120px' }}>First Seen</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -96,34 +102,34 @@ export function VulnIssueTable({ issues, projectId, isLoading }: VulnIssueTableP
                             const verifyBadge = getVerifyBadge(issue.verify || 'tf');
 
                             return (
-                                <TableRow 
-                                    key={issue.id} 
+                                <TableRow
+                                    key={issue.id}
                                     onClick={() => handleRowClick(issue.id)}
-                                    sx={{ 
+                                    sx={{
                                         cursor: 'pointer',
                                         transition: "0.2s",
-                                        "&:hover": { 
+                                        "&:hover": {
                                             bgcolor: "rgba(143, 255, 156, 0.04)",
                                             "& .title-text": { color: "#8FFF9C" }
-                                        } 
+                                        }
                                     }}
                                 >
                                     <TableCell sx={{ borderBottom: "1px solid rgba(64, 79, 87, 0.2)", py: 2.5 }}>
-                                        <Box>
-                                            <Chip 
-                                                label={issue.severity} 
+                                        <div className="flex flex-col justify-center items-center gap-2">
+                                            <Chip
+                                                label={issue.severity}
                                                 size="small"
-                                                sx={{ 
-                                                    bgcolor: `${getSeverityColor(issue.severity)}15`, 
-                                                    color: getSeverityColor(issue.severity), 
-                                                    fontWeight: 900, borderRadius: "6px", fontSize: '10px', 
+                                                sx={{
+                                                    bgcolor: `${getSeverityColor(issue.severity)}15`,
+                                                    color: getSeverityColor(issue.severity),
+                                                    fontWeight: 900, borderRadius: "6px", fontSize: '10px',
                                                     textTransform: 'uppercase', border: `1px solid ${getSeverityColor(issue.severity)}30`, mb: 0.5
                                                 }}
                                             />
                                             <Typography sx={{ color: "#9AA6A8", fontSize: '11px', fontWeight: 600, ml: 0.5 }}>
                                                 CVSS {issue.cvss_details?.score ?? "N/A"}
                                             </Typography>
-                                        </Box>
+                                        </div>
                                     </TableCell>
 
                                     <TableCell sx={{ borderBottom: "1px solid rgba(64, 79, 87, 0.2)" }}>
@@ -135,21 +141,21 @@ export function VulnIssueTable({ issues, projectId, isLoading }: VulnIssueTableP
                                         </Typography>
                                     </TableCell>
 
-                                    <TableCell sx={{ borderBottom: "1px solid rgba(64, 79, 87, 0.2)" }}>
-                                        <Box 
-                                            onClick={(e) => handleSubLinkClick(e, `/projects/${projectId}/assets/${issue.asset_id}`)}
+                                    <TableCell sx={{ borderBottom: "1px solid rgba(64, 79, 87, 0.2)", minWidth: "120px" }}>
+                                        <Box
+                                            onClick={(e) => handleSubLinkClick(e, `/projects/${projectId}/asset/${issue.asset_id}`)}
                                             sx={{ color: "#8FFF9C", "&:hover": { textDecoration: 'underline' } }}
                                         >
-                                            <Typography sx={{ fontSize: '13px', fontWeight: 500, whiteSpace: 'nowrap' }}>
+                                            <Typography sx={{ fontSize: '13px', fontWeight: 500 }}>
                                                 {issue.asset_name}
                                             </Typography>
                                         </Box>
                                     </TableCell>
 
-                                    <TableCell sx={{ borderBottom: "1px solid rgba(64, 79, 87, 0.2)" }}>
-                                        <Stack direction="row" spacing={1} alignItems="center">
+                                    <TableCell sx={{ borderBottom: "1px solid rgba(64, 79, 87, 0.2)", minWidth: "150px"  }}>
+                                        <div className="flex flex-col justify-center items-center gap-2">
                                             {/* Status Chip */}
-                                            <Box sx={{ 
+                                            <Box sx={{
                                                 display: 'inline-flex', px: 1.2, py: 0.4, borderRadius: '6px', fontSize: '10px', fontWeight: 800, textTransform: 'uppercase',
                                                 bgcolor: statusStyles.bg,
                                                 color: statusStyles.color,
@@ -158,31 +164,31 @@ export function VulnIssueTable({ issues, projectId, isLoading }: VulnIssueTableP
                                             }}>
                                                 {issue.status.replace('_', ' ')}
                                             </Box>
-                                            
+
                                             {/* Verify Indicator Mini-Badge */}
                                             <Tooltip title={`Verification: ${verifyBadge.label === 'TP' ? 'True Positive' : verifyBadge.label === 'FP' ? 'False Positive' : 'Wait for Verify'}`}>
-                                                <Box sx={{ 
-                                                    display: 'flex', alignItems: 'center', gap: 0.5, px: 0.8, py: 0.4, borderRadius: '4px',
-                                                    border: `1px solid ${verifyBadge.color}40`, color: verifyBadge.color, fontSize: '10px', fontWeight: 900
+                                                <Box sx={{
+                                                    display: 'flex', alignItems: 'center', gap: 0.5, color: verifyBadge.color, fontSize: '10px', fontWeight: 400, letterSpacing: '0.1em'
                                                 }}>
                                                     {verifyBadge.icon}
-                                                    {verifyBadge.label}
+                                                    {verifyBadge.label === 'TP' ? 'True Positive' : verifyBadge.label === 'FP' ? 'False Positive' : 'Wait for Verify'}
                                                 </Box>
                                             </Tooltip>
-                                        </Stack>
+                                        </div>
                                     </TableCell>
 
-                                    <TableCell sx={{ borderBottom: "1px solid rgba(64, 79, 87, 0.2)" }}>
+                                    <TableCell sx={{ borderBottom: "1px solid rgba(64, 79, 87, 0.2)", maxWidth: '150px' }}>
                                         {issue.assigned_to ? (
-                                            <Box 
+                                            <Box
                                                 onClick={(e) => handleSubLinkClick(e, `/profile/${issue.assigned_to}`)}
                                                 sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                                             >
                                                 <Avatar sx={{ width: 24, height: 24, fontSize: '11px', bgcolor: 'rgba(143, 255, 156, 0.1)', color: '#8FFF9C', border: '1px solid rgba(143, 255, 156, 0.2)' }}>
-                                                    {issue.assigned_to.charAt(0).toUpperCase()}
+                                                    {issue.assigned_to.charAt(0).toUpperCase()} 
+                                                    {/* Change to real pic later */}
                                                 </Avatar>
-                                                <UsernameDisplay 
-                                                    userId={issue.assigned_to} 
+                                                <UsernameDisplay
+                                                    userId={issue.assigned_to}
                                                     onClick={(e) => handleSubLinkClick(e, `/profile/${issue.assigned_to}`)}
                                                 />
                                             </Box>
@@ -191,17 +197,17 @@ export function VulnIssueTable({ issues, projectId, isLoading }: VulnIssueTableP
                                         )}
                                     </TableCell>
 
-                                    <TableCell sx={{ borderBottom: "1px solid rgba(64, 79, 87, 0.2)" }}>
+                                    <TableCell sx={{ borderBottom: "1px solid rgba(64, 79, 87, 0.2)", maxWidth: '150px' }}>
                                         {issue.verified_by ? (
-                                            <Box 
+                                            <Box
                                                 onClick={(e) => handleSubLinkClick(e, `/profile/${issue.verified_by}`)}
                                                 sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
                                             >
                                                 <Avatar sx={{ width: 24, height: 24, fontSize: '11px', bgcolor: 'rgba(64, 79, 87, 0.3)', color: '#9AA6A8', border: '1px solid rgba(154, 166, 168, 0.2)' }}>
                                                     {issue.verified_by.charAt(0).toUpperCase()}
                                                 </Avatar>
-                                                <UsernameDisplay 
-                                                    userId={issue.verified_by} 
+                                                <UsernameDisplay
+                                                    userId={issue.verified_by}
                                                     color="#9AA6A8"
                                                     onClick={(e) => handleSubLinkClick(e, `/profile/${issue.verified_by}`)}
                                                 />
@@ -211,9 +217,9 @@ export function VulnIssueTable({ issues, projectId, isLoading }: VulnIssueTableP
                                         )}
                                     </TableCell>
 
-                                    <TableCell sx={{ 
-                                        borderBottom: "1px solid rgba(64, 79, 87, 0.2)", 
-                                        color: "#9AA6A8", 
+                                    <TableCell sx={{
+                                        borderBottom: "1px solid rgba(64, 79, 87, 0.2)",
+                                        color: "#9AA6A8",
                                         fontSize: '13px',
                                         whiteSpace: 'nowrap',
                                         minWidth: '120px'

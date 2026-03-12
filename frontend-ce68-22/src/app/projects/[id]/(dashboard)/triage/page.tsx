@@ -12,9 +12,9 @@ export default function TriageDefaultPage() {
         flexDirection: "column", 
         alignItems: "center", 
         justifyContent: "center",
-        bgcolor: "#161B1F",
+        bgcolor: "#0f1518",
         borderRadius: "20px",
-        border: "1px solid #404F57",
+        border: "2px solid #404F57",
         p: 4,
         textAlign: "center",
         minHeight: "600px"

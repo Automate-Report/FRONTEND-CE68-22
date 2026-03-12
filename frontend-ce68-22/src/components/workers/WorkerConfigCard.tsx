@@ -50,7 +50,7 @@ export function WorkerConfigCard({ worker, summaryInfoJob, handleRevokeKey, role
     ];
 
     return (
-        <Box sx={{ borderRadius: "20px", border: "1px solid #1E2A30", overflow: "hidden", mb: 3, fontFamily: "inherit" }}>
+        <Box sx={{ borderRadius: "20px", border: "2px solid #1E2A30", overflow: "hidden", mb: 3, fontFamily: "inherit" }}>
             {/* Header */}
             <Box sx={{ px: 3, py: 2, borderBottom: "1px solid #1E2A30", display: "flex", alignItems: "center", gap: 1.5, bgcolor: "#1A2025" }}>
                 <ConfigIcon sx={{ color: "#8FFF9C", fontSize: 20 }} />
