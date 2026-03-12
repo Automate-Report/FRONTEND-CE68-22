@@ -8,9 +8,9 @@ export function LandingPageNavbar() {
         <div className="bg-[#0D1014] text-[#E6F0E6] w-full">
             <div className=" flex justify-between items-center px-[48px] py-3 r">
                 <Link href="/"> {/* Redirect to landing page */}
-                    <div className="w-64 h-12 overflow-hidden rounded-lg">
+                    <div className="h-12 overflow-hidden rounded-lg">
                         <img
-                            src="https://i.imgur.com/SjjJVdY.png"
+                            src="pest10_logo.png"
                             alt="brand_logo"
                             className="w-full h-full object-cover"
                         />

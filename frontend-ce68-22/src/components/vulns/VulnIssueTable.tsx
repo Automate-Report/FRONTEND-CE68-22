@@ -39,7 +39,7 @@ export function VulnIssueTable({ issues, projectId, isLoading }: VulnIssueTableP
         if (s === 'fixed') return { color: "#8FFF9C", bg: "rgba(143, 255, 156, 0.1)" };
         if (s === 'in_progress') return { color: "#007AFF", bg: "rgba(0, 122, 255, 0.1)" };
         if (s === 'wont_fix') return { color: "#9AA6A8", bg: "rgba(154, 166, 168, 0.1)" };
-        return { color: "#FFCC00", bg: "rgba(255, 204, 0, 0.1)" }; // Default for Open
+        return { color: "#FE3B46", bg: "rgba(255, 0, 0, 0.1)" }; // Default for Open
     };
 
     // ฟังก์ชันช่วยจัดการสีและไอคอนตามการ Verify
