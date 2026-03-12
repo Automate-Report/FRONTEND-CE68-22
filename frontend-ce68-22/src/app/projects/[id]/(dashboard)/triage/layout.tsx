@@ -83,7 +83,7 @@ export default function TriageLayout({ children }: { children: React.ReactNode }
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[650px] mt-2">
                 {/* Sidebar Manager (4/12) */}
-                <Box className="lg:col-span-4 bg-[#1E2429] rounded-2xl border-[2px] border-[#404F57] overflow-hidden flex flex-col h-fit">
+                <Box className="lg:col-span-4 bg-[#1E2429] rounded-2xl border-[2px] border-[rgba(64,79,87,0.4)] overflow-hidden flex flex-col h-full">
 
                     {/* Sidebar Header with Filter Button on Top Right */}
                     <Box p={2} bgcolor="#0B0F12" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -149,7 +149,7 @@ export default function TriageLayout({ children }: { children: React.ReactNode }
                     </Box>
 
                     {/* List Area */}
-                    <List sx={{ p: 0, minHeight: '480px', bgcolor: "#0f1518" }}>
+                    <List sx={{ p: 0, bgcolor: "#0f1518", height: '100%' }}>
                         {isVulnLoading ? (
                             <Box sx={{ display: 'flex', justifyContent: 'center', p: 10 }}><CircularProgress size={24} sx={{ color: "#8FFF9C" }} /></Box>
                         ) : issues.length > 0 ? (

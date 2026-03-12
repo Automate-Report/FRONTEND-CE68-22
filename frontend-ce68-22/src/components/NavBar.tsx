@@ -73,8 +73,8 @@ export function NavBar() {
             <div className="bg-[#0D1014] text-[#E6F0E6] w-full sticky top-0 z-50">
                 <div className=" flex justify-between items-center px-[24px] py-3">
                     <Link href="/main">
-                        <div className="w-64 h-12 overflow-hidden rounded-lg">
-                            <img src="https://i.imgur.com/SjjJVdY.png" alt="brand_logo" className="w-full h-full object-cover" />
+                        <div className="h-12 overflow-hidden rounded-lg">
+                            <img src="pest10_logo.png" alt="brand_logo" className="w-full h-full object-cover" />
                         </div>
                     </Link>
                     <div className="flex items-center gap-6">

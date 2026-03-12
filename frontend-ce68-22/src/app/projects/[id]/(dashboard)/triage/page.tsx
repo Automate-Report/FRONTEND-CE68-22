@@ -14,7 +14,7 @@ export default function TriageDefaultPage() {
         justifyContent: "center",
         bgcolor: "#0f1518",
         borderRadius: "20px",
-        border: "2px solid #404F57",
+        border: "2px solid rgba(64,79,87,0.4)",
         p: 4,
         textAlign: "center",
         minHeight: "600px"
