@@ -72,7 +72,7 @@ export function VulnIssueTable({ issues, projectId, isLoading }: VulnIssueTableP
             sx={{
                 bgcolor: "#0f1518",
                 borderRadius: "20px",
-                border: "2px solid #404F57",
+                border: "2px solid rgba(64,79,87,0.4)",
                 borderBottom: "none",
                 overflowX: 'auto',
                 boxShadow: "none",
