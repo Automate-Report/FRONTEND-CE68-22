@@ -144,7 +144,7 @@ export default function ProjectsOverviewPage({ params }: PageProps) {
       {/* SECTION 3: RECENT VULNS & RISKY ASSETS */}
       <div className="flex flex-col lg:flex-row gap-4 items-stretch">
         {/* Recent Vulnerabilities */}
-        <div className="border border-[#2D2F39] rounded-2xl overflow-hidden flex-[2]">
+        <div className="border-[2px] border-[#2D2F39] rounded-2xl overflow-hidden flex-[2]">
           <div className="bg-[#1A2025] flex justify-between items-center gap-2 p-5 rounded-t-2xl">
             <div className="flex items-center gap-2">
               <svg className="w-5 h-5 text-[#8FFF9C]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -194,7 +194,7 @@ export default function ProjectsOverviewPage({ params }: PageProps) {
         </div>
 
         {/* Top Risky Assets */}
-        <div className="border border-[#2D2F39] rounded-2xl overflow-hidden flex-1">
+        <div className="border-[2px] border-[#2D2F39] rounded-2xl overflow-hidden flex-1">
           <div className="bg-[#1A2025] flex justify-between items-center gap-2 p-5 rounded-t-2xl">
             <h2 className="text-lg font-bold">Top Risky Assets</h2>
           </div>
