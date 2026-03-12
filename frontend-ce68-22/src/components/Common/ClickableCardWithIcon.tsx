@@ -19,7 +19,7 @@ interface CardWithIconProps {
     responsive?: string;
 }
 
-export default function CardWithIcon({
+export default function ClickableCardWithIcon({
     clickFunction,
     icon,
     title,
@@ -35,10 +35,10 @@ export default function CardWithIcon({
     const isDescriptionEmpty = description === '';
 
     return (
-        <div className={`${responsive} flex flex-row items-center rounded-xl border border-[rgba(64,79,87,0.4)] w-full h-full p-4 gap-6
+        <div className={`${responsive} flex flex-row items-center rounded-xl border-[2px] border-[rgba(64,79,87,0.4)] w-full h-full p-4 gap-6
             hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden animate-card-in opacity-0 duration-300`}
             onClick={clickFunction}
-            style={{ cursor: 'pointer' , border: hovered ? `1px solid ${iconColor}` : '1px solid rgba(64,79,87,0.4)' }}
+            style={{ cursor: 'pointer' , border: hovered ? `2px solid ${iconColor}` : '2px solid rgba(64,79,87,0.4)' }}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >

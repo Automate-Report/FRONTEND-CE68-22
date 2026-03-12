@@ -94,7 +94,7 @@ export default function ProjectsOverviewPage({ params }: PageProps) {
       {/* SECTION 2: CHARTS */}
       <div className="flex flex-col lg:flex-row gap-4 mb-6">
         {/* Trend Chart */}
-        <div className="flex flex-col justify-between border border-[#2D2F39] rounded-2xl h-[400px] flex-[2]">
+        <div className="flex flex-col justify-between border-[2px] border-[rgba(64,79,87,0.4)] rounded-2xl h-[400px] flex-[2]">
           <div className="bg-[#1A2025] flex items-center gap-2 p-5 rounded-t-2xl">
             <svg className="w-5 h-5 text-[#8FFF9C]" fill="currentColor" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-10" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" /></svg>
             <h2 className="text-lg font-bold">Vulnerability Pipeline (7 Days)</h2>
@@ -118,7 +118,7 @@ export default function ProjectsOverviewPage({ params }: PageProps) {
         </div>
 
         {/* Pie Chart */}
-        <div className="border border-[#2D2F39] rounded-2xl h-[400px] flex-1">
+        <div className="border-[2px] border-[rgba(64,79,87,0.4)] rounded-2xl h-[400px] flex-1">
           <div className="bg-[#1A2025] flex items-center gap-2 mb-6 p-5 rounded-t-2xl">
             <h2 className="text-lg font-bold">Risk Distribution</h2>
           </div>

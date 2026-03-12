@@ -66,7 +66,7 @@ export function WorkerAssignedJobs({ jobs, isLoading, projectId, onPageChange }:
                     </>
                 ) : (
                     <Box sx={{ 
-                        p: 8, borderRadius: "20px", border: "1px dashed #404F57", 
+                        p: 8, borderRadius: "20px", border: "2px dashed rgba(64,79,87,0.4)", 
                         textAlign: 'center', color: '#404F57' 
                     }}>
                         <PendingIcon sx={{ fontSize: 48, mb: 2, opacity: 0.5 }} />

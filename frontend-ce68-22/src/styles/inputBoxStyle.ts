@@ -1,4 +1,4 @@
-export const INPUT_BOX_WITH_ICON_STYLE_DIV = "relative w-[40%] flex items-center h-[42px] gap-3 max-w-md rounded-xl pl-3 shadow-sm border-[2px] border-[#404F57] focus-within:border-[#8FFF9C] transition"
+export const INPUT_BOX_WITH_ICON_STYLE_DIV = "relative w-[40%] flex items-center h-[42px] gap-3 max-w-md rounded-xl pl-3 shadow-sm border-[2px] border-[rgba(64,79,87,0.4)] focus-within:border-[#8FFF9C] transition"
 export const INPUT_BOX_WITH_ICON_STYLE_INPUT = "w-full h-full rounded-lg text-[#E6F0E6] placeholder-[#9AA6A8] focus:outline-none"
 
 //   <div className={INPUT_BOX_WITH_ICON_STYLE_DIV}>

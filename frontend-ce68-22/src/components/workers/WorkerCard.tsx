@@ -70,7 +70,7 @@ export function WorkerCard({
   };
 
   return (
-    <div className="group relative bg-[#0F1518] border border-[#1E2A30] rounded-2xl cursor-pointer transition-all 
+    <div className="group relative bg-[#0F1518] border-[2px] border-[rgba(64,79,87,0.4)] rounded-2xl cursor-pointer transition-all 
     duration-300 hover:border-[#8FFF9C] hover:-translate-y-1 hover:shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden
     animate-card-in opacity-0" style={{ animationDelay: `${index * 80}ms` }}>
 

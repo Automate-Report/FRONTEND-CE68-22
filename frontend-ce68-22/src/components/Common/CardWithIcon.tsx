@@ -30,7 +30,7 @@ export default function CardWithIcon({
     const isDescriptionEmpty = description === '';
 
     return (
-        <div className={`${responsive} flex flex-row items-center rounded-xl border border-[rgba(64,79,87,0.4)] w-full h-full p-4 gap-6`}>
+        <div className={`${responsive} flex flex-row items-center rounded-xl border-[2px] border-[rgba(64,79,87,0.4)] w-full h-full p-4 gap-6`}>
             <div
                 className="flex items-center justify-center w-14 h-full bg-[#272D31] rounded-xl"
                 style={{ color: iconColor }}

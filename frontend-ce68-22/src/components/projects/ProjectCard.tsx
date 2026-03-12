@@ -47,7 +47,7 @@ export function ProjectCard({ index, project, onDelete }: ProjectCardProps) {
         display: 'flex',
         flexDirection: { xs: 'column', md: 'row' },
         bgcolor: "#1A2025",
-        border: "1px solid #404F57",
+        border: "2px solid rgba(64,79,87,0.4)",
         borderRadius: "16px",
         overflow: "hidden",
         position: "relative",

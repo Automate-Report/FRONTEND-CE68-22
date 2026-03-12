@@ -26,7 +26,10 @@ export function proxy(request: NextRequest) {
     // user NOT logged in and trying to access protected page
     if (!isTokenValid && !publicRoutes.includes(pathname)) {
         const response = NextResponse.redirect(new URL("/login", request.url));
-        response.cookies.delete("access_token");
+        response.cookies.set("access_token", "", { 
+        expires: new Date(0),  // force expire
+        path: "/"
+    });
         return response;
     }
 
