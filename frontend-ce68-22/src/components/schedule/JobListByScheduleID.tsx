@@ -10,9 +10,10 @@ import { Box, Typography } from "@mui/material";
 //นิยาม Interface สำหรับ Props
 interface ScheduleListProps {
     schedule_id: number;
+    project_id: number;
 }
 
-export function JobListByScheduleID({ schedule_id }: ScheduleListProps) {
+export function JobListByScheduleID({ project_id, schedule_id }: ScheduleListProps) {
 
     const {
         page,
@@ -74,6 +75,8 @@ export function JobListByScheduleID({ schedule_id }: ScheduleListProps) {
     return (
         <div>
             <JobListByScheduleTable
+                project_id={project_id}
+
                 data={allJobs}           // ข้อมูล Array ของหน้านั้นๆ
                 totalCount={totalCnt}   // จำนวนข้อมูลทั้งหมดใน DB (เพื่อคำนวณจำนวนหน้า)
 

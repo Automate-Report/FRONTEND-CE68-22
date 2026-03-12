@@ -189,6 +189,7 @@ export default function ViewSchedulePage() {
                 <span className="font-semibold text-2xl">Job Status </span>
                 <JobListByScheduleID
                     schedule_id={scheduleId}
+                    project_id={projectId}
                 />
             </div>
 
