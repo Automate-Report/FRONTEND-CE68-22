@@ -90,12 +90,14 @@ export default function ProjectsPage() {
 
   // เลื่อนขึ้นบนสุดเมื่อเปลี่ยนหน้า
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [page]);
+    if (!loading) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [projects, loading]);
 
   const handleFilterChange = (value: string) => {
     setStatusFilter(value);
-    handlePageChange(0, rowsPerPage); // รีเซ็ตไปหน้าแรกเสมอเมื่อฟิลเตอร์เปลี่ยน
+    setPage(0);
   };
 
   const openDeleteConfirm = (id: number, name: string) => {

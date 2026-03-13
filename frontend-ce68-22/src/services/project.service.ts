@@ -24,11 +24,11 @@ export const projectService = {
       params: {
         user_id: getme["user"],
         page,
-        size,
+        size: size > 0 ? size : 6,
         sort_by: sortParam, // ชื่อต้องตรงกับ Backend (FastAPI)
         order: orderParam,
         search,
-        filter
+        filter: filter === "ALL" ? undefined : filter
       },
     });
 
