@@ -1,21 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { 
-  Box, Typography, Stack, Button, IconButton, 
-  Chip, Tooltip, TextField, MenuItem, Select, 
-  FormControl, InputLabel, Dialog, DialogTitle, 
-  DialogContent, DialogActions, CircularProgress 
-} from "@mui/material";
-import { 
-  Add as AddIcon, 
-  Edit as EditIcon, 
-  GetApp as DownloadIcon, 
-  Delete as DeleteIcon, 
-  CheckCircle as FinalizeIcon,
-  Description as ReportIcon
-} from "@mui/icons-material";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 
 // Hooks & Services
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
@@ -23,32 +9,80 @@ import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import { useProject } from "@/src/hooks/project/use-project";
 import { getMe } from "@/src/services/auth.service";
 
-// ข้อมูลตัวอย่างสำหรับแสดงผล
-const INITIAL_REPORTS = [
-  { id: 101, name: "Pentest_WebApp_Q1", status: "draft", asset: "All Assets", date: "2026-03-01", created_by: "pentester@ai.com", startDate: "2026-02-01", endDate: "2026-03-01" },
-  { id: 102, name: "API_Security_Audit", status: "final", asset: "Mobile API", date: "2026-02-15", created_by: "owner@ai.com", startDate: "2026-02-01", endDate: "2026-02-15" },
+// Icons (MUI)
+import { Description as ReportIcon, Close as CloseIcon } from "@mui/icons-material";
+import { FILTER_BUTTON_STYLE, GREEN_BUTTON_STYLE } from "@/src/styles/buttonStyle";
+
+// Components
+import ReportCard from "@/src/components/reports/ReportCard";
+import { Report } from "@/src/types/report";
+import { INPUT_BOX_WITH_ICON_STYLE_DIV, INPUT_BOX_WITH_ICON_STYLE_INPUT } from "@/src/styles/inputBoxStyle";
+import MagIcon from "@/src/components/icon/MagnifyingGlass";
+import FilterIcon from "@/src/components/icon/Filter";
+import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
+import CreateScheduleIcon from "@/src/components/icon/CreateSchedule";
+
+// ── Sample Data ──────────────────────────────────────────────────────────────
+const INITIAL_REPORTS: Report[] = [
+  {
+    id: 101,
+    name: "Pentest_WebApp_Q1",
+    asset: "All Assets",
+    date: "2026-03-01",
+    created_by: "pentester@ai.com",
+    startDate: "2026-02-01",
+    endDate: "2026-03-01",
+  },
+  {
+    id: 102,
+    name: "API_Security_Audit",
+    asset: "Mobile API",
+    date: "2026-02-15",
+    created_by: "owner@ai.com",
+    startDate: "2026-02-01",
+    endDate: "2026-02-15",
+  },
 ];
 
 const ASSET_OPTIONS = ["All Assets", "Internal Web", "Mobile API", "Cloud Infra"];
 
+// ── Tiny reusable atoms ───────────────────────────────────────────────────────
+function Spinner() {
+  return (
+    <div className="flex items-center justify-center p-16">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#8FFF9C] border-t-transparent" />
+    </div>
+  );
+}
+
+const inputCls =
+  "w-full rounded-lg border border-[#2D2F39] bg-[#0D1014] px-3 py-2.5 text-sm text-[#FBFBFB] placeholder:text-[#404F57] focus:border-[#8FFF9C] focus:outline-none transition-colors";
+
+const labelCls =
+  "mb-1.5 block text-xs font-semibold text-[#404F57] uppercase tracking-wider";
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
 export default function ReportCenterPage() {
-  const router = useRouter();
   const { id: projectIdStr } = useParams();
   const projectId = parseInt(projectIdStr as string);
 
-  // --- States ---
-  const [reports, setReports] = useState(INITIAL_REPORTS);
+  // Search
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("ALL");
+
+  // ── State ──
+  const [reports, setReports] = useState<Report[]>(INITIAL_REPORTS);
   const [openCreate, setOpenCreate] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [newReport, setNewReport] = useState({ 
-    name: "", 
+  const [newReport, setNewReport] = useState({
+    name: "",
     asset: "All Assets",
-    startDate: new Date().toISOString().split('T')[0],
-    endDate: new Date().toISOString().split('T')[0]
+    startDate: new Date().toISOString().split("T")[0],
+    endDate: new Date().toISOString().split("T")[0],
   });
 
-  // --- Data Fetching ---
+  // ── Data Fetching ──
   const { data: project, isLoading: isProjectLoading } = useProject(projectId);
 
   useEffect(() => {
@@ -56,224 +90,221 @@ export default function ReportCenterPage() {
       try {
         const res = await getMe();
         setCurrentUser(res.user);
-      } catch (error) { console.error(error); }
+      } catch (error) {
+        console.error(error);
+      }
     };
     fetchUser();
   }, []);
 
-  // --- Permissions & Filtering Logic ---
+  // ── Permissions & Filtering ──
   const isOwner = project?.role?.toLowerCase() === "owner";
-  
+
   const filteredReports = useMemo(() => {
     if (!currentUser) return [];
     if (isOwner) return reports;
-    // ถ้าไม่ใช่ Owner เห็นเฉพาะที่ตัวเองสร้าง 
-    return reports.filter(r => r.created_by === currentUser.email || r.created_by === currentUser.username);
+    return reports.filter(
+      (r) =>
+        r.created_by === currentUser.email ||
+        r.created_by === currentUser.username
+    );
   }, [reports, currentUser, isOwner]);
 
-  // --- Handlers ---
+  // ── Handlers ──
   const handleCreateReport = () => {
-    const reportData = {
+    const reportData: Report = {
       id: Date.now(),
       name: newReport.name,
-      status: "draft",
       asset: newReport.asset,
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString().split("T")[0],
       created_by: currentUser?.email || "me",
       startDate: newReport.startDate,
-      endDate: newReport.endDate
+      endDate: newReport.endDate,
     };
     setReports([reportData, ...reports]);
     setOpenCreate(false);
     setNewReport({ ...newReport, name: "" });
   };
 
-  const handleFinalize = (id: number) => {
-    setReports(reports.map(r => r.id === id ? { ...r, status: 'final' } : r));
+  const handleDelete = (report: Report) => setDeleteTarget(report);
+
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return;
+    setReports(reports.filter((r) => r.id !== deleteTarget.id));
+    setDeleteTarget(null);
   };
 
-  if (isProjectLoading) return <Box sx={{ p: 4 }}><CircularProgress sx={{ color: "#8FFF9C" }} /></Box>;
+  const showFilter = () => {
+    // Logic to show filter options (e.g., open a modal or dropdown)
+    alert("Show filter options");
+  }
+
+  if (isProjectLoading) return <Spinner />;
 
   return (
-    <Box sx={{ p: 4, pb: 10 }}>
-      {/* Breadcrumbs  */}
-      <GenericBreadcrums 
+    <div className="text-[#E6F0E6]">
+      {/* Breadcrumbs */}
+      <GenericBreadcrums
         items={[
           { label: "Home", href: "/main" },
           { label: project?.name || "Project", href: `/projects/${projectId}/overview` },
-          { label: "Report Center", href: undefined }
-        ]} 
+          { label: "Report Center", href: undefined },
+        ]}
       />
 
-      {/* Header Section */}
-      <Stack direction="row" justifyContent="space-between" alignItems="center" my={4}>
-        <Box>
-          <Typography variant="h4" fontWeight={900} color="#FBFBFB" sx={{ letterSpacing: '-0.02em' }}>
-            Report Center
-          </Typography>
-          <Typography variant="body2" sx={{ color: "#9AA6A8", mt: 0.5 }}>
-            Generate and manage your Penetration Testing Reports [cite: 1]
-          </Typography>
-        </Box>
-        <Button 
-          variant="contained" 
-          startIcon={<AddIcon />}
-          sx={{ bgcolor: "#8FFF9C", color: "#0D1014", fontWeight: 800, borderRadius: '8px', px: 3, "&:hover": { bgcolor: "#AFFFB9" } }}
-          onClick={() => setOpenCreate(true)}
-        >
-          Generate Report
-        </Button>
-      </Stack>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="w-full flex flex-col">
+          <h1 className="font-bold text-[36px]">Report Center</h1>
+          <p className="text-[#9AA6A8]">Generate and manage your Penetration Testing Reports.</p>
+        </div>
+      </div>
+
+      {/* Search bar and button */}
+      <div className="my-6 mb-8 flex justify-between">
+
+        {/* Search bar */}
+        <div className={INPUT_BOX_WITH_ICON_STYLE_DIV}>
+          <MagIcon />
+          <input
+            type="text"
+            placeholder="Search Projects"
+            className={INPUT_BOX_WITH_ICON_STYLE_INPUT}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
+        {/* Buttons */}
+        <div className="flex gap-8 items-center">
+          <button
+            onClick={showFilter}
+            className={FILTER_BUTTON_STYLE}
+          >
+            Filter <FilterIcon />
+          </button>
+
+          <button
+            onClick={() => setOpenCreate(true)}
+            className={`${GREEN_BUTTON_STYLE} whitespace-nowrap`}
+          >
+            Generate Report
+            <ReportIcon />
+          </button>
+        </div>
+      </div>
 
       {/* Reports List */}
-      <Stack spacing={2}>
-        {filteredReports.map((report) => (
-          <Box 
+      <div className="flex flex-col gap-4">
+        {filteredReports.map((report, index) => (
+          <ReportCard
+            index={index}
             key={report.id}
-            sx={{ 
-              bgcolor: "#1E2429", p: 3, borderRadius: "16px", border: "1px solid #2D2F39",
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              transition: '0.2s', "&:hover": { borderColor: "#8FFF9C" }
-            }}
-          >
-            <Stack direction="row" spacing={3} alignItems="center">
-              <Box sx={{ position: 'relative' }}>
-                <ReportIcon sx={{ fontSize: 40, color: report.status === 'final' ? '#8FFF9C' : '#FFCC00' }} />
-                <Chip 
-                  label={report.status.toUpperCase()} 
-                  size="small" 
-                  sx={{ 
-                    position: 'absolute', bottom: -8, left: '50%', transform: 'translateX(-50%)',
-                    height: 16, fontSize: '8px', fontWeight: 900, bgcolor: report.status === 'final' ? '#8FFF9C' : '#FFCC00', color: '#0D1014'
-                  }} 
-                />
-              </Box>
-              <Box>
-                <Typography variant="h6" color="#FBFBFB" fontWeight={700}>{report.name}</Typography>
-                <Stack direction="row" spacing={2} mt={0.5} alignItems="center">
-                   <Typography variant="caption" color="#9AA6A8">Asset: <b>{report.asset}</b></Typography>
-                   <Box sx={{ width: 4, height: 4, bgcolor: "#404F57", borderRadius: '50%' }} />
-                   <Typography variant="caption" color="#404F57">
-                     Period: {report.startDate} - {report.endDate} 
-                   </Typography>
-                </Stack>
-              </Box>
-            </Stack>
-
-            <Stack direction="row" spacing={1}>
-              {report.status === 'draft' ? (
-                <>
-                  <Tooltip title="Edit Content">
-                    <IconButton 
-                      onClick={() => router.push(`/projects/${projectId}/reports/${report.id}/edit`)} 
-                      sx={{ color: "#8FFF9C", bgcolor: "rgba(143, 255, 156, 0.05)" }}
-                    >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Finalize (Lock Data)">
-                    <IconButton 
-                      onClick={() => handleFinalize(report.id)} 
-                      sx={{ color: "#8FFF9C", bgcolor: "rgba(143, 255, 156, 0.05)" }}
-                    >
-                      <FinalizeIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </>
-              ) : (
-                <Tooltip title="Download Final PDF">
-                  <IconButton sx={{ color: "#FBFBFB", bgcolor: "rgba(251, 251, 251, 0.05)" }}><DownloadIcon fontSize="small" /></IconButton>
-                </Tooltip>
-              )}
-              <IconButton 
-                onClick={() => setDeleteTarget(report)} 
-                sx={{ color: "#FE3B46", opacity: 0.6, "&:hover": { opacity: 1 } }}
-              >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
-            </Stack>
-          </Box>
+            report={report}
+            onDelete={handleDelete}
+            onDownloadPdf={(r: Report) => console.log("Download PDF", r.id)}
+            onDownloadDocx={(r: Report) => console.log("Download DOCX", r.id)}
+          />
         ))}
 
         {filteredReports.length === 0 && (
-          <Box sx={{ py: 10, textAlign: 'center', border: '1px dashed #2D2F39', borderRadius: '16px' }}>
-            <Typography color="#404F57">No reports found.</Typography>
-          </Box>
+          <div className="rounded-2xl border border-dashed border-[#2D2F39] py-20 text-center">
+            <p className="text-[#404F57]">No reports found.</p>
+          </div>
         )}
-      </Stack>
+      </div>
 
-      {/* --- Dialog: Create Report --- */}
-      <Dialog 
-        open={openCreate} 
-        onClose={() => setOpenCreate(false)}
-        PaperProps={{ sx: { bgcolor: '#1E2429', color: '#FBFBFB', borderRadius: '16px', border: '1px solid #2D2F39', minWidth: '450px' } }}
-      >
-        <DialogTitle sx={{ fontWeight: 900 }}>Generate Pentest Report [cite: 1]</DialogTitle>
-        <DialogContent>
-          <Stack spacing={3} sx={{ mt: 1 }}>
-            <TextField 
-              fullWidth label="Report Name" 
-              value={newReport.name}
-              onChange={(e) => setNewReport({...newReport, name: e.target.value})}
-              placeholder="e.g. Internal_Security_Audit_Q1"
-              InputLabelProps={{ sx: { color: '#404F57' } }}
-              sx={{ "& .MuiOutlinedInput-root": { color: '#FBFBFB', "& fieldset": { borderColor: '#2D2F39' } } }}
-            />
-            <FormControl fullWidth>
-              <InputLabel sx={{ color: '#404F57' }}>Select Asset Scope [cite: 37]</InputLabel>
-              <Select
-                value={newReport.asset}
-                label="Select Asset Scope"
-                onChange={(e) => setNewReport({...newReport, asset: e.target.value})}
-                sx={{ bgcolor: '#0D1014', color: '#FBFBFB', borderRadius: '8px', ".MuiOutlinedInput-notchedOutline": { borderColor: "#2D2F39" } }}
+      {/* ── Dialog: Create Report ──────────────────────────────────────────── */}
+      {openCreate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-[#2D2F39] bg-[#1E2429] p-6 shadow-2xl">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-lg font-black text-[#FBFBFB]">Generate Pentest Report</h2>
+              <button
+                onClick={() => setOpenCreate(false)}
+                className="rounded-lg p-1.5 text-[#9AA6A8] transition-colors hover:text-[#FBFBFB]"
               >
-                {ASSET_OPTIONS.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
-              </Select>
-            </FormControl>
-            <Stack direction="row" spacing={2}>
-              <TextField 
-                type="date" label="Testing Start" fullWidth 
-                value={newReport.startDate}
-                onChange={(e) => setNewReport({...newReport, startDate: e.target.value})}
-                InputLabelProps={{ shrink: true, sx: { color: '#404F57' } }}
-                sx={{ "& .MuiOutlinedInput-root": { color: '#FBFBFB', "& fieldset": { borderColor: '#2D2F39' } } }}
-              />
-              <TextField 
-                type="date" label="Testing End" fullWidth 
-                value={newReport.endDate}
-                onChange={(e) => setNewReport({...newReport, endDate: e.target.value})}
-                InputLabelProps={{ shrink: true, sx: { color: '#404F57' } }}
-                sx={{ "& .MuiOutlinedInput-root": { color: '#FBFBFB', "& fieldset": { borderColor: '#2D2F39' } } }}
-              />
-            </Stack>
-          </Stack>
-        </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
-          <Button onClick={() => setOpenCreate(false)} sx={{ color: '#FBFBFB' }}>Cancel</Button>
-          <Button 
-            variant="contained" 
-            disabled={!newReport.name}
-            onClick={handleCreateReport}
-            sx={{ bgcolor: "#8FFF9C", color: "#0D1014", fontWeight: 800 }}
-          >
-            Generate
-          </Button>
-        </DialogActions>
-      </Dialog>
+                <CloseIcon fontSize="small" />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className={labelCls}>Report Name</label>
+                <input
+                  className={inputCls}
+                  value={newReport.name}
+                  onChange={(e) => setNewReport({ ...newReport, name: e.target.value })}
+                  placeholder="e.g. Internal_Security_Audit_Q1"
+                />
+              </div>
+
+              <div>
+                <label className={labelCls}>Select Asset Scope</label>
+                <select
+                  className={inputCls}
+                  value={newReport.asset}
+                  onChange={(e) => setNewReport({ ...newReport, asset: e.target.value })}
+                >
+                  {ASSET_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt} className="bg-[#0D1014]">
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={labelCls}>Testing Start</label>
+                  <input
+                    type="date"
+                    className={inputCls}
+                    value={newReport.startDate}
+                    onChange={(e) => setNewReport({ ...newReport, startDate: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>Testing End</label>
+                  <input
+                    type="date"
+                    className={inputCls}
+                    value={newReport.endDate}
+                    onChange={(e) => setNewReport({ ...newReport, endDate: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setOpenCreate(false)}
+                className="rounded-lg px-4 py-2 text-sm text-[#FBFBFB] transition-colors hover:bg-[#2D2F39]"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={!newReport.name}
+                onClick={handleCreateReport}
+                className="rounded-lg bg-[#8FFF9C] px-5 py-2 text-sm font-extrabold text-[#0D1014] transition-colors hover:bg-[#AFFFB9] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Generate
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation */}
       {deleteTarget && (
-        <GenericDeleteModal 
+        <GenericDeleteModal
           open={!!deleteTarget}
           entityName={deleteTarget.name}
           entityType="Report"
           onClose={() => setDeleteTarget(null)}
-          onConfirm={() => {
-            setReports(reports.filter(r => r.id !== deleteTarget.id));
-            setDeleteTarget(null);
-          }}
+          onConfirm={handleConfirmDelete}
         />
       )}
-    </Box>
+    </div>
   );
 }

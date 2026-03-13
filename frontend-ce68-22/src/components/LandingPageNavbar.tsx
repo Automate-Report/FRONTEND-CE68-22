@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 export function LandingPageNavbar() {
     return (
-        <div className="bg-[#0D1014] text-[#E6F0E6] w-full">
+        <div className="bg-[#0D1014] text-[#E6F0E6] w-full sticky top-0">
             <div className=" flex justify-between items-center px-[48px] py-3 r">
                 <Link href="/"> {/* Redirect to landing page */}
                     <div className="h-12 overflow-hidden rounded-lg">
