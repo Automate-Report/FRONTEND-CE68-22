@@ -2,10 +2,11 @@
 
 import { Divider } from "@mui/material";
 import Link from 'next/link';
+import { GREEN_BUTTON_STYLE } from "../styles/buttonStyle";
 
 export function LandingPageNavbar() {
     return (
-        <div className="bg-[#0D1014] text-[#E6F0E6] w-full sticky top-0">
+        <div className="bg-[#0D1014] text-[#E6F0E6] w-full fixed top-0 left-0 right-0 z-50 border-b border-[#272D31] px-40">
             <div className=" flex justify-between items-center px-[48px] py-3 r">
                 <Link href="/"> {/* Redirect to landing page */}
                     <div className="h-12 overflow-hidden rounded-lg">
@@ -17,17 +18,18 @@ export function LandingPageNavbar() {
                     </div>
                 </Link>
                 <div className="flex items-center gap-6">
-                    <div className="flex gap-10 text-xl font-semibold">
-                        <Link href="/login">
-                            <div className="flex items-center gap-3 hover:text-[#AFFFB9]">
-                                <span className="leading-none">Login</span>
-                            </div>
-                        </Link>
-
-                        <Link href="/register">
-                            <div className="flex items-center gap-3 hover:text-[#AFFFB9]">
-                                <span className="leading-none">Register</span>
-                            </div>
+                    <div className="flex items-center gap-6">
+                        <a href="#features" className="text-base font-semibold text-[#9AA6A8] transition-colors hover:text-[#8FFF9C]">
+                            FEATURES
+                        </a>
+                        <a href="#about" className="text-base font-semibold text-[#9AA6A8] transition-colors hover:text-[#8FFF9C]">
+                            ABOUT
+                        </a>
+                        <Link
+                            href="/login"
+                            className="flex items-center justify-center bg-[#8FFF9C] text-[#0B0F12] text-[14px] font-bold rounded-lg px-6 py-2 gap-3 cursor-pointer hover:shadow-[0_0_18px_rgba(34,197,94,0.9)]"
+                        >
+                            LOGIN
                         </Link>
                     </div>
                 </div>
