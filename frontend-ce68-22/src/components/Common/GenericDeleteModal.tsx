@@ -56,7 +56,7 @@ export function GenericDeleteModal({
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3 text-[#FE3B46]">
               <WarningAmberIcon sx={{ fontSize: 28 }} />
-              <h2 className="font-bold text-xl leading-tight tracking-wide text-[#FE3B46]">
+              <h2 className="font-bold text-xl leading-tight text-[#FE3B46]">
                 Delete {entityType}
               </h2>
             </div>

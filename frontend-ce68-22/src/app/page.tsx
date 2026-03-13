@@ -189,7 +189,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Stats bar ───────────────────────────────────────────────────── */}
-      <section className="relative z-10 border-y border-[#8FFF9C]/10 bg-[#0D1014]">
+      {/* <section className="relative z-10 border-y border-[#8FFF9C]/10 bg-[#0D1014]">
         <div className="mx-auto max-w-6xl px-6">
           <div className="grid grid-cols-2 md:grid-cols-4">
             {STATS.map((stat, i) => (
@@ -210,7 +210,7 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* ── Features ────────────────────────────────────────────────────── */}
       <section id="features" className="relative z-10 py-32 px-6">
