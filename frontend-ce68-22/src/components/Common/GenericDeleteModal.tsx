@@ -1,29 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
-  TextField,
-  Typography,
-  Box
-} from "@mui/material";
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import { WarningAmber as WarningAmberIcon, Close as CloseIcon } from "@mui/icons-material";
+import { FILTER_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 
+// ── Types ─────────────────────────────────────────────────────────────────────
 interface GenericDeleteModalProps {
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  entityName: string;      // ชื่อของสิ่งที่จะลบ (เช่น "CECompany", "admin@test.com")
-  entityType?: string;     // ประเภท (เช่น "Project", "User", "Asset") - default เป็น "Item"
+  entityName: string;
+  entityType?: string;
   loading?: boolean;
-  description?: React.ReactNode; // (Optional) เผื่ออยาก Custom ข้อความเตือนเอง
+  description?: React.ReactNode;
 }
 
+// ── Component ─────────────────────────────────────────────────────────────────
 export function GenericDeleteModal({
   open,
   onClose,
@@ -34,94 +26,89 @@ export function GenericDeleteModal({
   description,
 }: GenericDeleteModalProps) {
   const [inputValue, setInputValue] = useState("");
-
-  // เช็คว่าพิมพ์ตรงกับชื่อไหม
   const isMatch = inputValue === entityName;
 
-  // Reset ค่าเมื่อเปิด Modal ใหม่
   useEffect(() => {
-    if (open) {
-      setInputValue("");
-    }
+    if (open) setInputValue("");
   }, [open]);
 
+  if (!open) return null;
+
   return (
-    <Dialog 
-      open={open} 
-      onClose={!loading ? onClose : undefined} 
-      maxWidth="sm" 
-      fullWidth
-      PaperProps={{
-        sx: { borderRadius: 3 } // ปรับความโค้งของ Modal
-      }}
-    >
-      <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, color: '#d32f2f', fontWeight: 'bold' }}>
-        <WarningAmberIcon />
-        Delete {entityType}
-      </DialogTitle>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-2xl border-[2px] border-[#2D2F39] border-t-0 bg-[#1E2429] shadow-2xl overflow-hidden relative">
 
-      <DialogContent>
-        {/* ส่วนข้อความเตือน */}
-        <DialogContentText sx={{ mb: 2, color: 'text.secondary' }}>
+        {/* Top danger strip */}
+        <div className="h-0.5 w-full bg-[#FE3B46]" />
+
+        {/* X */}
+        {!loading && (
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1.5 text-[#9AA6A8] transition-colors hover:text-[#FBFBFB] absolute top-2 right-2"
+          >
+            <CloseIcon fontSize="small" />
+          </button>
+        )}
+
+        <div className="p-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3 text-[#FE3B46]">
+              <WarningAmberIcon sx={{ fontSize: 28 }} />
+              <h2 className="font-bold text-xl leading-tight tracking-wide text-[#FE3B46]">
+                Delete {entityType}
+              </h2>
+            </div>
+          </div>
+
+          {/* Warning description */}
+          <p className="text-sm text-[#9AA6A8] leading-relaxed mb-5">
             {description ? description : (
-                <span>
-                    This action <strong>cannot</strong> be undone. This will permanently delete the 
-                    {` ${entityType.toLowerCase()} `} 
-                    <strong style={{ color: '#000' }}>{entityName}</strong> and remove all associated data.
-                </span>
+              <>
+                This action <strong className="text-[#FBFBFB] font-semibold">cannot</strong> be undone. This will
+                permanently delete the {entityType.toLowerCase()}{" "}
+                <strong className="text-[#FE3B46]">{entityName}</strong> and remove all associated data.
+              </>
             )}
-        </DialogContentText>
+          </p>
 
-        {/* ส่วนบอกให้พิมพ์ชื่อ */}
-        <Typography variant="body2" sx={{ mb: 1.5 }}>
-          Please type <strong style={{ userSelect: "all" }}>{entityName}</strong> to confirm.
-        </Typography>
+          {/* Confirm label */}
+          <p className="text-xs text-[#9AA6A8] mb-2">
+            Please type{" "}
+            <strong className="select-all text-[#FBFBFB]">{entityName}</strong>{" "}
+            to confirm.
+          </p>
 
-        <TextField
-          fullWidth
-          variant="outlined"
-          size="small"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder={entityName}
-          disabled={loading}
-          autoComplete="off"
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              borderRadius: "8px",
-              "&.Mui-focused fieldset": {
-                borderColor: "#d32f2f", // สีแดงเมื่อ Focus
-              },
-            },
-          }}
-        />
-      </DialogContent>
+          {/* Input */}
+          <input
+            className="w-full rounded-lg border border-[#2D2F39] bg-[#0D1014] px-3 py-2.5 text-sm text-[#FBFBFB] placeholder:text-[#404F57] focus:border-[#FE3B46] focus:outline-none transition-colors disabled:opacity-50"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder={entityName}
+            disabled={loading}
+            autoComplete="off"
+          />
 
-      <DialogActions sx={{ px: 3, pb: 3, pt: 1 }}>
-        <Button 
-            onClick={onClose} 
-            disabled={loading} 
-            color="inherit"
-            variant="outlined"
-            sx={{ borderRadius: "8px", textTransform: "none" }}
-        >
-          Cancel
-        </Button>
-        <Button
-          variant="contained"
-          color="error"
-          onClick={onConfirm}
-          disabled={!isMatch || loading}
-          sx={{ 
-            borderRadius: "8px", 
-            textTransform: "none", 
-            fontWeight: "bold",
-            boxShadow: "none"
-          }}
-        >
-          {loading ? "Deleting..." : `Delete this ${entityType.toLowerCase()}`}
-        </Button>
-      </DialogActions>
-    </Dialog>
+          {/* Actions */}
+          <div className="mt-6 flex justify-end gap-3">
+            <button
+              onClick={onClose}
+              disabled={loading}
+              className={`${FILTER_BUTTON_STYLE} disabled:opacity-50`}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              disabled={!isMatch || loading}
+              className={`${RED_BUTTON_STYLE} disabled:cursor-not-allowed disabled:opacity-40`}
+            >
+              {loading ? "Deleting..." : `Delete this ${entityType.toLowerCase()}`}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
