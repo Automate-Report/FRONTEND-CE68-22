@@ -21,7 +21,7 @@ import { WorkerUnlinkModal } from "@/src/components/workers/WorkerUnLinkModal";
 import { WorkerCard } from "@/src/components/workers/WorkerCard";
 import CreateWorkerIcon from "@/src/components/icon/CreateWorker";
 
-import { Box, Typography, InputBase, Button, Stack, MenuItem, Menu, CircularProgress } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import {
   Engineering as TotalIcon,
   Dns as OnlineIcon,
