@@ -6,13 +6,16 @@ import { useProject } from "@/src/hooks/project/use-project";
 import { useSchedule } from "@/src/hooks/schedule/use-schedule";
 import { scheduleService } from "@/src/services/schedule.service";
 import { ScheduleDelete } from "@/src/types/schedule";
-import Link from "next/link";
+
 
 //components
 import { GenericPagination } from "@/src/components/Common/GenericPagination";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
+import { GenericFilterButton } from "@/src/components/Common/FilterButton";
+import SearchBox from "@/src/components/Common/GenericSearchBox";
+
 import { INPUT_BOX_WITH_ICON_STYLE_DIV, INPUT_BOX_WITH_ICON_STYLE_INPUT } from "@/src/styles/inputBoxStyle";
 import { FILTER_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 
@@ -33,7 +36,13 @@ export default function ProjectSchedulePage({ params }: PageProps) {
 
   // Search
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const filterOptions = [
+    { label: "All Status", value: "ALL" },
+    { label: "Not Repeat", value: "not_repeat" },
+    { label: "Active", value: "active" },
+    { label: "Expired", value: "expired" },
+  ];
 
   // --- Pagination States ---
   const [page, setPage] = useState(0);
@@ -53,7 +62,7 @@ export default function ProjectSchedulePage({ params }: PageProps) {
 
   // Fetch Data
   const { data: project, isLoading, isError } = useProject(projectId);
-  const { data: schedules, refetch } = useSchedule(projectId, page + 1, rowsPerPage, searchQuery, filterStatus);
+  const { data: schedules, refetch } = useSchedule(projectId, page + 1, rowsPerPage, searchQuery, statusFilter);
 
   // --- Delete Related ---
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -102,10 +111,10 @@ export default function ProjectSchedulePage({ params }: PageProps) {
     { label: project.name, href: undefined }
   ];
 
-  const showFilter = () => {
-    // Logic to show filter options (e.g., open a modal or dropdown)
-    alert("Show filter options");
-  }
+  const handleFilterChange = (value: string) => {
+    setStatusFilter(value);
+    setPage(0);
+  };
 
   return (
     <div className="flex flex-col w-full text-[#E6F0E6] max-w-7xl">
@@ -126,25 +135,20 @@ export default function ProjectSchedulePage({ params }: PageProps) {
       <div className="my-6 flex justify-between">
 
         {/* Search bar */}
-        <div className={INPUT_BOX_WITH_ICON_STYLE_DIV}>
-          <MagIcon />
-          <input
-            type="text"
-            placeholder="Search Projects"
-            className={INPUT_BOX_WITH_ICON_STYLE_INPUT}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+        <SearchBox 
+          value={searchQuery} 
+          onChange={setSearchQuery} 
+          placeholder="Search Schedules"
+          className="w-full max-w-md"
+        />
 
         {/* Buttons */}
         <div className="flex gap-8 items-center">
-          <button
-            onClick={showFilter}
-            className={FILTER_BUTTON_STYLE}
-          >
-            Filter <FilterIcon />
-          </button>
+          <GenericFilterButton 
+            options={filterOptions} 
+            currentValue={statusFilter} 
+            onSelect={handleFilterChange}
+          />
 
           <GenericGreenButton
             name="New Schedule"
