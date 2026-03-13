@@ -4,28 +4,26 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 import CreateProjectIcon from "@/src/components/icon/CreateProject";
-import MagIcon from "@/src/components/icon/MagnifyingGlass";
-import FilterIcon from "@/src/components/icon/Filter";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import { GenericPagination } from "@/src/components/Common/GenericPagination";
+import SearchBox from "@/src/components/Common/GenericSearchBox";
+import { GenericFilterButton } from "@/src/components/Common/FilterButton";
+
 import { useDebounce } from "@/src/hooks/use-debounce";
 import { getMe } from "@/src/services/auth.service";
 import { ProjectCard } from "@/src/components/projects/ProjectCard";
 import { projectService } from "@/src/services/project.service";
 import { ProjectSummary } from "@/src/types/project";
 import { Box, CircularProgress, Typography } from "@mui/material";
-import { INPUT_BOX_WITH_ICON_STYLE_DIV, INPUT_BOX_WITH_ICON_STYLE_INPUT } from "@/src/styles/inputBoxStyle";
-import { FILTER_BUTTON_STYLE } from "@/src/styles/buttonStyle";
+
 
 export default function ProjectsPage() {
   const router = useRouter();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState("ALL");
-  const [tempFilter, setTempFilter] = useState(filterStatus);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [displayName, setDisplayName] = useState<string>("");
 
   // --- Pagination States ---
@@ -33,7 +31,15 @@ export default function ProjectsPage() {
   const [rowsPerPage, setRowsPerPage] = useState(6);
   const [totalItems, setTotalItems] = useState(0);
 
-  const filterStatusOptions = ["ALL", "owner", "pentester", "developer"];
+
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const filterOptions = [
+    { label: "All Role", value: "ALL" },
+    { label: "Owner", value: "owner" },
+    { label: "Pentester", value: "pentester" },
+    { label: "Developer", value: "developer" },
+  ];
+
   const debouncedSearch = useDebounce(searchQuery, 500);
 
   const [deleteModal, setDeleteModal] = useState({ open: false, id: 0, name: "" });
@@ -49,7 +55,7 @@ export default function ProjectsPage() {
         "updated_at",
         "desc",
         debouncedSearch,
-        filterStatus
+        statusFilter
       );
       setProjects(data.items || []);
       setTotalItems(data.total || 0);
@@ -58,7 +64,7 @@ export default function ProjectsPage() {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, filterStatus, page, rowsPerPage]);
+  }, [debouncedSearch, statusFilter, page, rowsPerPage]);
 
   useEffect(() => {
     fetchProjects();
@@ -67,7 +73,7 @@ export default function ProjectsPage() {
   // รีเซ็ตหน้ากลับไปที่หน้าแรกเมื่อค้นหาหรือกรองข้อมูลใหม่
   useEffect(() => {
     setPage(0);
-  }, [debouncedSearch, filterStatus]);
+  }, [debouncedSearch, statusFilter]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -87,10 +93,9 @@ export default function ProjectsPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [page]);
 
-  const handleApply = () => {
-    setFilterStatus(tempFilter);
-    setPage(0); // กลับไปหน้าแรกหลัง Apply Filter
-    setIsModalOpen(false);
+  const handleFilterChange = (value: string) => {
+    setStatusFilter(value);
+    handlePageChange(0, 0); // รีเซ็ตไปหน้าแรกเสมอเมื่อฟิลเตอร์เปลี่ยน
   };
 
   const openDeleteConfirm = (id: number, name: string) => {
@@ -129,50 +134,18 @@ export default function ProjectsPage() {
         <div className="flex justify-between items-center pr-5 flex-1">
 
           {/* Search bar */}
-          <div className={INPUT_BOX_WITH_ICON_STYLE_DIV}>
-            <MagIcon />
-            <input
-              type="text"
-              placeholder="Search Projects"
-              className={INPUT_BOX_WITH_ICON_STYLE_INPUT}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+          <SearchBox 
+            value={searchQuery} 
+            onChange={setSearchQuery} 
+            placeholder="Search Projects"
+            className="w-full max-w-md"
+          />
 
-          <div className="relative">
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className={FILTER_BUTTON_STYLE}
-            >
-              Filter <FilterIcon />
-            </button>
-
-            {isModalOpen && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                <div className="bg-[#121212] border border-white/10 w-full max-w-md p-6 rounded-2xl">
-                  <div className="flex justify-between items-center mb-6 text-white">
-                    <h2 className="text-xl font-semibold">Filter by Role</h2>
-                    <button onClick={() => setIsModalOpen(false)}>X</button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {filterStatusOptions.map((option) => (
-                      <button
-                        key={option}
-                        onClick={() => setTempFilter(option)}
-                        className={`px-4 py-2 rounded-full text-sm transition ${tempFilter === option ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-white/5 text-gray-400'}`}
-                      >
-                        {option.toUpperCase()}
-                      </button>
-                    ))}
-                  </div>
-                  <button onClick={handleApply} className="w-full mt-8 py-3 bg-[#a1ff9a] text-black font-bold rounded-xl">
-                    Apply Filters
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          <GenericFilterButton 
+            options={filterOptions} 
+            currentValue={statusFilter} 
+            onSelect={handleFilterChange} 
+          />
         </div>
 
         <GenericGreenButton name="New Project" href="/projects/create" icon={<CreateProjectIcon />} />

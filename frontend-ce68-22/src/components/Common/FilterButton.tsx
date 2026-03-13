@@ -37,9 +37,10 @@ export function GenericFilterButton({ options, currentValue, onSelect }: FilterP
       {/*ปุ่มกด (Trigger) */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`${FILTER_BUTTON_STYLE} flex items-center justify-between gap-3 min-w-[150px] whitespace-nowrap transition-all`}
+        className={`${FILTER_BUTTON_STYLE} flex items-center justify-between gap-4 min-w-[100px] whitespace-nowrap transition-all duration-200
+          hover:brightness-110 active:scale-[0.98]`}
       >
-        <span className="flex items-center gap-2">
+        <span className="flex items-center opacity-70 gap-2">
           {selectedLabel}
           <FilterIcon />
         </span>
