@@ -70,7 +70,7 @@ export function NavBar() {
     return (
         <>
             {/* Navbar UI ... (คงเดิม) */}
-            <div className="bg-[#0D1014] text-[#E6F0E6] w-full sticky top-0 z-50">
+            <div className="bg-[#0D1014] text-[#E6F0E6] w-full sticky top-0 z-50 border-b border-[#272D31]">
                 <div className=" flex justify-between items-center px-[24px] py-3">
                     <Link href="/main">
                         <div className="h-12 overflow-hidden rounded-lg">
@@ -98,12 +98,6 @@ export function NavBar() {
                         </Link>
                     </div>
                 </div>
-                <Divider
-                    sx={{
-                        borderColor: "#272D31", // กำหนดสีของเส้น (ถ้าพื้นหลังดำ ควรใช้สีเทาเข้ม)
-                        padding: 0
-                    }}
-                />
             </div>
 
             {/* Notification Window */}

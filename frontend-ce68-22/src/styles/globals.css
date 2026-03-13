@@ -52,6 +52,10 @@ body {
   width: 0px;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 /* ::-webkit-scrollbar-track {
   background: #0F1518;
 }
