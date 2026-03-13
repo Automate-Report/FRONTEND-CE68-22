@@ -17,6 +17,8 @@ import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import { GenericPagination } from "@/src/components/Common/GenericPagination";
+import { GenericFilterButton } from "@/src/components/Common/FilterButton";
+
 import { WorkerUnlinkModal } from "@/src/components/workers/WorkerUnLinkModal";
 import { WorkerCard } from "@/src/components/workers/WorkerCard";
 import CreateWorkerIcon from "@/src/components/icon/CreateWorker";
@@ -27,14 +29,12 @@ import {
   Dns as OnlineIcon,
   Speed as BusyIcon,
   AssignmentTurnedIn as JobIcon,
-  Search as SearchIcon,
   LinkOff as UnlinkIcon
 } from "@mui/icons-material";
 import Link from "next/link";
 import CardWithIcon from "@/src/components/Common/CardWithIcon";
 import { INPUT_BOX_WITH_ICON_STYLE_DIV, INPUT_BOX_WITH_ICON_STYLE_INPUT } from "@/src/styles/inputBoxStyle";
-import { FILTER_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
-import FilterIcon from "@/src/components/icon/Filter";
+import { RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 import MagIcon from "@/src/components/icon/MagnifyingGlass";
 
 interface PageProps { params: Promise<{ id: string }>; }
@@ -49,8 +49,6 @@ export default function WorkersPage({ params }: PageProps) {
 
   // Filter by Status
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
   const filterOptions = [
     { label: "All Status", value: "ALL" },
     { label: "Online", value: "online" },
@@ -120,17 +118,12 @@ export default function WorkersPage({ params }: PageProps) {
     finally { setUnlinkModal(prev => ({ ...prev, loading: false })); }
   };
 
-  const handleFilterClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
+  const handleFilterChange = (value: string) => {
+    setStatusFilter(value);
+    handleChangePage(null, 0); // รีเซ็ตไปหน้าแรกเสมอเมื่อฟิลเตอร์เปลี่ยน
   };
 
-  const handleFilterClose = (value?: string) => {
-    if (value) {
-      setStatusFilter(value);
-      handleChangePage(null, 0); // รีเซ็ตไปหน้าแรกเมื่อเปลี่ยนฟิลเตอร์
-    }
-    setAnchorEl(null);
-  };
+
 
   const isOwner = project?.role === "owner";
   const isPentester = project?.role === "pentester";
@@ -181,40 +174,11 @@ export default function WorkersPage({ params }: PageProps) {
           </div>
 
           {/* Filter Button */}
-          <div className="relative">
-
-            {/* Trigger */}
-            <button
-              onClick={handleFilterClick}
-              className={`${FILTER_BUTTON_STYLE} whitespace-nowrap`}
-            >
-              {filterOptions.find(opt => opt.value === statusFilter)?.label || "Filter"}
-              <FilterIcon />
-            </button>
-
-            {/* Dropdown Menu */}
-            {Boolean(anchorEl) && (
-              <div className="absolute z-10 mt-1 w-full bg-[#0F1518] border-[2px] border-[#404F57]
-                        rounded-xl shadow max-h-48 overflow-auto">
-                {filterOptions.map(opt => (
-                  <div
-                    key={String(opt.value)}
-                    onClick={() => {
-                      handleFilterClose(opt.value)
-                    }}
-                    className={`relative flex items-center h-[42px] rounded-xl pl-3 shadow-sm transition text-[#E6F0E6] placeholder-[#9AA6A8] focus:outline-none
-                                hover:bg-[#1D2226] cursor-pointer
-                                ${statusFilter === opt.value
-                        ? "bg-[#2D353B] font-semibold hover:bg-[#2D353B]"
-                        : ""
-                      }`}
-                  >
-                    {opt.label}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <GenericFilterButton 
+            options={filterOptions} 
+            currentValue={statusFilter} 
+            onSelect={handleFilterChange} 
+          />
         </div>
 
         {/* Unlink All */}
