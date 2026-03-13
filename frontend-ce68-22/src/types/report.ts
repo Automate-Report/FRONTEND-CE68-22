@@ -10,4 +10,13 @@ export interface PenTestReport {
     created_at: string;
 }
 
+export interface Report {
+    id: number;
+    name: string;
+    asset: string;
+    date: string;
+    created_by: string;
+    startDate: string;
+    endDate: string;
+}
     
