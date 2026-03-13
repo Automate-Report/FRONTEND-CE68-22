@@ -95,7 +95,7 @@ export default function ProjectsPage() {
 
   const handleFilterChange = (value: string) => {
     setStatusFilter(value);
-    handlePageChange(0, 0); // รีเซ็ตไปหน้าแรกเสมอเมื่อฟิลเตอร์เปลี่ยน
+    handlePageChange(0, rowsPerPage); // รีเซ็ตไปหน้าแรกเสมอเมื่อฟิลเตอร์เปลี่ยน
   };
 
   const openDeleteConfirm = (id: number, name: string) => {
