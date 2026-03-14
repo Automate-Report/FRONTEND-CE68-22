@@ -56,8 +56,31 @@ export function PenTestLogTable({
       sortable: false,
       width: "1%",
       render: (row) => (
-        <div>
-            {row.pentest_result}
+        <div className="flex justify-center items-center">
+            {row.job_status === "failed" && 
+              <div className="flex justify-center items-center rounded-lg w-[70px] h-[24px] 
+                    text-[#FF4D4F] bg-[#3A1F1F] font-bold">
+                Failed
+              </div>
+            }
+            {row.job_status === "completed" && 
+              <div className="flex justify-center items-center rounded-lg w-[90px] h-[24px] 
+                    text-[#4CFF88] bg-[#1E3A2A] font-bold">
+                Finished
+              </div>
+            }
+            {row.job_status === "running" && 
+              <div className="flex justify-center items-center rounded-lg w-[90px] h-[24px] 
+                    text-[#FFD666] bg-[#3A3A1E] font-bold">
+                On Going
+              </div>
+            }
+            {row.job_status === "pending" && 
+              <div className="flex justify-center items-center rounded-lg w-[90px] h-[24px] 
+                    text-[#7C9CFF] bg-[#1E2A3A] font-bold">
+                Scheduled
+              </div>
+            }
         </div>
       )
     },
