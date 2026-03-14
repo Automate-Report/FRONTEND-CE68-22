@@ -4,7 +4,8 @@ import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useProject } from "@/src/hooks/project/use-project";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
-
+import { GenericFilterButton } from "@/src/components/Common/FilterButton";
+import SearchBox from "@/src/components/Common/GenericSearchBox";
 
 import { PenTestLogList } from "@/src/components/logs/LogList";
 
@@ -18,9 +19,13 @@ interface PageProps{
 export default function ProjectsLogsPage({ params }: PageProps) {
     // Search
     const [searchQuery, setSearchQuery] = useState("");
-    const [filterStatus, setFilterStatus] = useState("ALL");
-
-    const router = useRouter();
+    const [statusFilter, setStatusFilter] = useState<string>("ALL");
+    const filterOptions = [
+      { label: "All Status", value: "ALL" },
+      { label: "Not Founded Vulns", value: "owner" },
+      { label: "Founded Vulns", value: "pentester" },
+      { label: "Failed", value: "developer" },
+    ];
 
     const resolvePrams = use(params);
     const projectId = parseInt(resolvePrams.id);
@@ -35,7 +40,9 @@ export default function ProjectsLogsPage({ params }: PageProps) {
         { label: project.name , href: undefined}
     ];
 
-
+    const handleFilterChange = (value: string) => {
+      setStatusFilter(value);
+    };
 
     return (
         <div className="flex flex-col w-full text-[#E6F0E6] max-w-7xl">
@@ -45,37 +52,31 @@ export default function ProjectsLogsPage({ params }: PageProps) {
                 <GenericBreadcrums items={breadcrumbItems} />
             </div>
 
-
             <div className="font-bold text-[36px]">
               Log
             </div>
 
             <div className="my-6 flex justify-between">
               <div className="relative w-2/4">
-                {/*ตัว Icon: สั่ง absolute ให้ลอยอยู่ซ้าย และจัดกึ่งกลางแนวตั้ง */}
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <SearchIcon sx={{ color: "#E6F0E6" }} /> 
-                </div>
-
-                {/*ตัว Input: เพิ่ม pl-10 เพื่อเว้นที่ให้ Icon */}
-                <input
-                    type="text"
-                    placeholder="Search projects..."
-                    className="w-full bg-[#1A2023] border border-[#2A3033] rounded-lg pl-10 pr-4 py-2 text-[#E6F0E6]
-                              focus:outline-none 
-                            focus:border-[#8FFF9C]"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                <SearchBox 
+                  value={searchQuery} 
+                  onChange={setSearchQuery} 
+                  placeholder="Search Logs"
+                  className="w-full max-w-md"
                 />
               </div>
               <div className="flex gap-8 items-center">
-                <div>filter</div>
+                <GenericFilterButton 
+                  options={filterOptions} 
+                  currentValue={statusFilter} 
+                  onSelect={handleFilterChange}
+                />
               </div>
             </div>
 
             <PenTestLogList 
               searchQuery={searchQuery}
-              filterStatus={filterStatus}
+              filterStatus={statusFilter}
               project_id={projectId}
             />
         </div>
