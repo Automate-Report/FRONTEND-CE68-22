@@ -22,9 +22,8 @@ export default function ProjectsLogsPage({ params }: PageProps) {
     const [statusFilter, setStatusFilter] = useState<string>("ALL");
     const filterOptions = [
       { label: "All Status", value: "ALL" },
-      { label: "Not Founded Vulns", value: "owner" },
-      { label: "Founded Vulns", value: "pentester" },
-      { label: "Failed", value: "developer" },
+      { label: "Success", value: "success" },
+      { label: "Failed", value: "fail" },
     ];
 
     const resolvePrams = use(params);
