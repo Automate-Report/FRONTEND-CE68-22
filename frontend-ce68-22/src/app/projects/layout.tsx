@@ -6,7 +6,7 @@ interface ProjectLayoutProps {
 
 export default function ProjectLayout({ children }: ProjectLayoutProps){
     return (
-        <div className="flex h-fit">
+        <div className="flex min-h-screen">
             <main className="flex-1 relative">
                 {children}
             </main>
