@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query"; // ✅ Import keepPreviousData
 import { projectService } from "@/src/services/project.service";
 
 export function useMembers(
@@ -7,12 +7,14 @@ export function useMembers(
   size: number, 
   sortBy: string | null, 
   sortOrder: "asc" | "desc" | "none", 
-  search?: string, // เพิ่ม
+  search?: string,
   filter?: string
 ) {
   return useQuery({
     queryKey: ["projects", "user", projectId, page, size, sortBy, sortOrder, search, filter],
     queryFn: () => projectService.getMember(projectId, page, size, sortBy, sortOrder, search, filter),
     enabled: !!projectId,
+    placeholderData: keepPreviousData, // ✅ เพิ่มบรรทัดนี้เพื่อป้องกันการกระพริบหน้าขาว
+    staleTime: 1000, // (Optional) ช่วยให้ข้อมูลไม่ fetch บ่อยเกินไปในระยะเวลาสั้นๆ
   });
 }
