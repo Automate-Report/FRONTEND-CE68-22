@@ -54,6 +54,18 @@ export function PenTestLogTable({
       )
     },
     {
+      id: "status",
+      label: "Status",
+      align: "center",
+      sortable: true,
+      width: "1%",
+      render: (row) => (
+        <div>
+            {row.pentest_result}
+        </div>
+      )
+    },
+    {
       id: "job",
       label: "Job",
       align: "center",
