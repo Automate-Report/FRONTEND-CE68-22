@@ -42,15 +42,11 @@ export function PenTestLogTable({
       label: "Log Name",
       align: "left",
       sortable: true,
-      // ถ้าไม่ใส่ render มันจะโชว์ row.name ให้เอง
+      width: "3%",
       render: (row) => (
-        <Link
-          href={`/projects/report/`}
-        >
-          <div>
-            {row.file_name}
-          </div>
-        </Link>
+        <div>
+          {row.file_name}
+        </div>
       )
     },
     {
