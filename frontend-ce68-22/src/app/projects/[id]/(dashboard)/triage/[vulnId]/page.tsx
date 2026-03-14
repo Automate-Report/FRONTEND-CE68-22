@@ -190,59 +190,63 @@ export default function VulnDetailPage() {
             </Stack>
           </Box>
 
-          <FormControl>
-            <Tooltip title={!canChangeStatus ? "Only Owners or Developers can modify status" : ""}>
-              <span>
-                <Typography variant="caption" sx={{ color: "#667a85", fontWeight: 700, display: 'block', mb: 1 }}>Issue Status</Typography>
-                <Select
-                  value={vuln.status}
-                  disabled={!canChangeStatus || isUpdatingStatus}
-                  onChange={(e) => handleStatusChange(e.target.value)}
-                  MenuProps={{
-                    PaperProps: {
-                      sx: {
-                        bgcolor: '#0F1518',
-                        border: '1px solid #404F57',
-                        borderRadius: '12px',
-                        boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-                        maxHeight: 192,
-                        mt: 0.5,
-                        '& .MuiList-root': { padding: 0 },
+          <div className="mt-2">
+            <FormControl >
+              <Tooltip title={!canChangeStatus ? "Only Owners or Developers can modify status" : ""}>
+                <span>
+                  <Typography variant="caption" sx={{ color: "#667a85", fontWeight: 700, display: 'block', mb: 1 }}>Issue Status</Typography>
+                  <Select
+                    value={vuln.status}
+                    disabled={!canChangeStatus || isUpdatingStatus}
+                    onChange={(e) => handleStatusChange(e.target.value)}
+                    MenuProps={{
+                      PaperProps: {
+                        sx: {
+                          bgcolor: '#0F1518',
+                          border: '1px solid #404F57',
+                          borderRadius: '12px',
+                          boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+                          maxHeight: 192,
+                          mt: 0.5,
+                          '& .MuiList-root': { padding: 0 },
+                        },
                       },
-                    },
-                  }}
-                  sx={{
-                    minWidth: 160, bgcolor: statusStyle.bg, color: statusStyle.text, fontWeight: 700, borderRadius: '8px',
-                    ".MuiOutlinedInput-notchedOutline": { border: "none" }, height: 40, fontSize: '13px', opacity: canChangeStatus ? 1 : 0.6
-                  }}>
-                  <MenuItem value="open" sx={{
-                    fontSize: '13px', fontWeight: 600,
-                    color: '#E6F0E6', borderRadius: '12px', height: 42, pl: 1.5,
-                    '&:hover': { bgcolor: '#1D2226' },
-                    '&.Mui-selected': { bgcolor: '#2D353B', '&:hover': { bgcolor: '#2D353B' } },
-                  }}>OPEN</MenuItem>
-                  <MenuItem value="in_progress" sx={{
-                    fontSize: '13px', fontWeight: 600,
-                    color: '#E6F0E6', borderRadius: '12px', height: 42, pl: 1.5,
-                    '&:hover': { bgcolor: '#1D2226' },
-                    '&.Mui-selected': { bgcolor: '#2D353B', '&:hover': { bgcolor: '#2D353B' } },
-                  }}>IN PROGRESS</MenuItem>
-                  <MenuItem value="fixed" sx={{
-                    fontSize: '13px', fontWeight: 600,
-                    color: '#E6F0E6', borderRadius: '12px', height: 42, pl: 1.5,
-                    '&:hover': { bgcolor: '#1D2226' },
-                    '&.Mui-selected': { bgcolor: '#2D353B', '&:hover': { bgcolor: '#2D353B' } },
-                  }}>FIXED</MenuItem>
-                  <MenuItem value="wont_fix" sx={{
-                    fontSize: '13px', fontWeight: 600,
-                    color: '#E6F0E6', borderRadius: '12px', height: 42, pl: 1.5,
-                    '&:hover': { bgcolor: '#1D2226' },
-                    '&.Mui-selected': { bgcolor: '#2D353B', '&:hover': { bgcolor: '#2D353B' } },
-                  }}>WON'T FIX</MenuItem>
-                </Select>
-              </span>
-            </Tooltip>
-          </FormControl>
+                    }}
+                    sx={{
+                      minWidth: 160, bgcolor: statusStyle.bg, color: statusStyle.text, fontWeight: 700, borderRadius: '8px',
+                      ".MuiOutlinedInput-notchedOutline": { border: "none" }, height: 40, fontSize: '13px', opacity: canChangeStatus ? 1 : 0.6
+                    }}>
+                    <MenuItem value="open" sx={{
+                      fontSize: '13px', fontWeight: 600,
+                      color: '#E6F0E6', borderRadius: '12px', height: 42, pl: 1.5,
+                      '&:hover': { bgcolor: '#1D2226' },
+                      '&.Mui-selected': { bgcolor: '#2D353B', '&:hover': { bgcolor: '#2D353B' } },
+                    }}>OPEN</MenuItem>
+                    <MenuItem value="in_progress" sx={{
+                      fontSize: '13px', fontWeight: 600,
+                      color: '#E6F0E6', borderRadius: '12px', height: 42, pl: 1.5,
+                      '&:hover': { bgcolor: '#1D2226' },
+                      '&.Mui-selected': { bgcolor: '#2D353B', '&:hover': { bgcolor: '#2D353B' } },
+                    }}>IN PROGRESS</MenuItem>
+                    <MenuItem value="fixed" sx={{
+                      fontSize: '13px', fontWeight: 600,
+                      color: '#E6F0E6', borderRadius: '12px', height: 42, pl: 1.5,
+                      '&:hover': { bgcolor: '#1D2226' },
+                      '&.Mui-selected': { bgcolor: '#2D353B', '&:hover': { bgcolor: '#2D353B' } },
+                    }}>FIXED</MenuItem>
+                    <MenuItem value="wont_fix" sx={{
+                      fontSize: '13px', fontWeight: 600,
+                      color: '#E6F0E6', borderRadius: '12px', height: 42, pl: 1.5,
+                      '&:hover': { bgcolor: '#1D2226' },
+                      '&.Mui-selected': { bgcolor: '#2D353B', '&:hover': { bgcolor: '#2D353B' } },
+                    }}>WON'T FIX</MenuItem>
+                  </Select>
+                </span>
+              </Tooltip>
+            </FormControl>
+          </div>
+
+          
         </Stack>
 
         <Divider sx={{ borderColor: "#2D2F39", my: 2, opacity: 0.7 }} />
