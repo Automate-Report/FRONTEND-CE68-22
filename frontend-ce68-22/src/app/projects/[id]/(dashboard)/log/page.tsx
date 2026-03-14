@@ -23,7 +23,7 @@ export default function ProjectsLogsPage({ params }: PageProps) {
     const filterOptions = [
       { label: "All Status", value: "ALL" },
       { label: "Success", value: "success" },
-      { label: "Failed", value: "fail" },
+      { label: "Failed", value: "failed" },
     ];
 
     const resolvePrams = use(params);
@@ -60,7 +60,7 @@ export default function ProjectsLogsPage({ params }: PageProps) {
                 <SearchBox 
                   value={searchQuery} 
                   onChange={setSearchQuery} 
-                  placeholder="Search Logs"
+                  placeholder="Search Schedules"
                   className="w-full max-w-md"
                 />
               </div>
