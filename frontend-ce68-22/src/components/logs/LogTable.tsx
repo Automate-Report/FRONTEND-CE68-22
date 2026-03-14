@@ -66,7 +66,7 @@ export function PenTestLogTable({
             {row.job_status === "completed" && 
               <div className="flex justify-center items-center rounded-lg w-[90px] h-[24px] 
                     text-[#4CFF88] bg-[#1E3A2A] font-bold">
-                Finished
+                Success
               </div>
             }
             {row.job_status === "running" && 
