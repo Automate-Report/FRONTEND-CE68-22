@@ -57,7 +57,7 @@ export function PenTestLogTable({
       id: "status",
       label: "Status",
       align: "center",
-      sortable: true,
+      sortable: false,
       width: "1%",
       render: (row) => (
         <div>
@@ -69,7 +69,7 @@ export function PenTestLogTable({
       id: "job",
       label: "Job",
       align: "center",
-      sortable: true,
+      sortable: false,
       width: "1%",
       render: (row) => (
         <Link
@@ -102,6 +102,7 @@ export function PenTestLogTable({
         id: "file_size",
         label: "File Size",
         align: "center",
+        sortable: true,
         width: "1%",
         render: (row) => (
         <div>
