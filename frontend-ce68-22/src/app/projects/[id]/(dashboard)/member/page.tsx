@@ -21,9 +21,12 @@ import { useProject } from "@/src/hooks/project/use-project";
 import { useChangeRole } from "@/src/hooks/project/use-changeRole";
 import { useMe } from "@/src/hooks/user/use-me";
 import { projectService } from "@/src/services/project.service";
+
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericPagination } from "@/src/components/Common/GenericPagination";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
+import { GenericFilterButton } from "@/src/components/Common/FilterButton";
+import SearchBox from "@/src/components/Common/GenericSearchBox";
 
 export default function MemberPage() {
   const params = useParams();
@@ -41,6 +44,12 @@ export default function MemberPage() {
   const [size, setSize] = useState(10);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("ALL");
+  const filterOptions = [
+    { label: "All Role", value: "ALL" },
+    { label: "Owner", value: "owner" },
+    { label: "Pentester", value: "pentester" },
+    { label: "Developer", value: "developer" },
+  ];
 
   const [editingEmail, setEditingEmail] = useState<string | null>(null);
   const [pendingRole, setPendingRole] = useState<string>("");
@@ -61,6 +70,12 @@ export default function MemberPage() {
       onSuccess: () => setEditingEmail(null)
     });
   };
+
+  const handleFilterChange = (value: string) => {
+    setRoleFilter(value);
+    setPage(0);
+  };
+
   // --- Delete Handler ---
   const handleConfirmDelete = async () => {
     if (!memberToDelete) return;
@@ -117,31 +132,19 @@ export default function MemberPage() {
       </div>
 
       {/* Toolbar */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="relative flex-grow group">
-          <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-[#404F57] group-focus-within:text-[#8FFF9C] transition-colors" sx={{ fontSize: 20 }} />
-          <input 
-            type="text"
-            placeholder="Filter by name or email identity..."
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-            className="w-full bg-[#1E2429] border-2 border-[#2D2F39] rounded-xl py-2.5 pl-12 pr-4 text-sm outline-none focus:border-[#8FFF9C] transition-all placeholder-[#404F57]"
-          />
-        </div>
+      <div className="flex justify-between gap-4 mb-6">
+        <SearchBox 
+          value={search} 
+          onChange={setSearch} 
+          placeholder="Search Members"
+          className="w-full max-w-md"
+        />
         
-        <div className="relative min-w-[200px]">
-          <select 
-            value={roleFilter}
-            onChange={(e) => { setRoleFilter(e.target.value); setPage(0); }}
-            className="w-full appearance-none bg-[#1E2429] border-2 border-[#2D2F39] rounded-xl py-2.5 px-4 text-sm font-bold outline-none cursor-pointer focus:border-[#8FFF9C] transition-all"
-          >
-            <option value="ALL">All Authorities</option>
-            <option value="owner">Owner</option>
-            <option value="pentester">Pentester</option>
-            <option value="developer">Developer</option>
-          </select>
-          <ExpandMoreIcon className="absolute right-3 top-1/2 -translate-y-1/2 text-[#404F57] pointer-events-none" />
-        </div>
+        <GenericFilterButton 
+          options={filterOptions} 
+          currentValue={roleFilter} 
+          onSelect={handleFilterChange} 
+        />
       </div>
 
       {/* Table Container */}
