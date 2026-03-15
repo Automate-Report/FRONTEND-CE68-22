@@ -39,7 +39,7 @@ export default function CreateSchedulePage() {
     const [runNow, setRunNow] = useState(false);
     const [form, setForm] = useState({
         scheduleName: "",
-        attackType: "",
+        attackType: [] as string[],
         assetId: 0,
         startDate: getDisplayDate(new Date(), "input"),
         startTime: getDisplayTime(new Date(Date.now() + 3600 * 1000)),
@@ -66,7 +66,7 @@ export default function CreateSchedulePage() {
             return !hasError;
         }
         if (step === 2) {
-            const attackError = form.attackType === "";
+            const attackError = form.attackType.length === 0;
             const assetError = !form.assetId || form.assetId === 0;
             setErrors(prev => ({ ...prev, attackType: attackError, asset: assetError }));
             return !attackError && !assetError;
@@ -197,8 +197,8 @@ export default function CreateSchedulePage() {
     ];
 
     const attackType = [
-        { display: "SQL Injection", label: "sqli", desc: "Manipulate database queries through input."},
-        { display: "Cross-site Scripting", label: "xss", desc: " Inject malicious scripts into web pages." }
+        { display: "SQL Injection", value: "sqli", desc: "Manipulate database queries through input."},
+        { display: "Cross-site Scripting", value: "xss", desc: " Inject malicious scripts into web pages." }
     ];
 
 
@@ -206,13 +206,13 @@ export default function CreateSchedulePage() {
         <div className="flex flex-col w-full text-[#E6F0E6] max-w-7xl mx-auto p-4">
             <GenericBreadcrums items={breadcrumbItems} />
 
-            <div className="mt-10 mb-12">
+            <div className="mt-10 mb-8">
                 <h1 className="text-center text-[42px] font-bold mb-2">Schedule a scan</h1>
                 <p className="text-center text-[#9AA6A8] text-sm">Set up automated scans to run at your preferred time. Keep your system monitored and detect issues without manual checks.</p>
             </div>
 
             {/* --- Section 2: Stepper UI --- */}
-            <div className="flex justify-center items-center mb-16 px-10">
+            <div className="flex justify-center items-center">
                 {stepItems.map((item, index) => (
                     <div key={item.step} className="flex items-center">
                         <div className="flex flex-col items-center relative">
@@ -234,7 +234,7 @@ export default function CreateSchedulePage() {
             </div>
 
             {/* --- Section 3: Step Content Area --- */}
-            <div>
+            <div className="mt-12">
                 {currentStep === 1 && (
                     <div className="flex flex-col gap-8">
                         <div className="bg-[#151B1D] p-10 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-6">
@@ -255,34 +255,64 @@ export default function CreateSchedulePage() {
                             <label className="font-semibold text-[#E6F0E6] text-[20px]"> Select Attack Type</label>
                             <div className="flex justify-around">
                                 {attackType.map((item, index) => {
-                                    const isSelected = form.attackType === item.label;
+                                    const selectedList = Array.isArray(form.attackType) ? form.attackType : [];
+                                    const isSelected = selectedList.includes(item.value);
+
+                                    const handleToggle = () => {
+                                        let newList;
+                                        if (isSelected) {
+                                            // ถ้าเลือกอยู่แล้ว => เอาออก
+                                            newList = selectedList.filter(v => v !== item.value);
+                                        } else {
+                                            // ถ้ายังไม่เลือก => เพิ่มเข้า
+                                            newList = [...selectedList, item.value];
+                                        }
+                                        
+                                        setForm({ ...form, attackType: newList });
+                                    };
 
                                     return (
-                                        <div 
-                                            key={index}
-                                            onClick={() => setForm({ ...form, attackType: item.label })}
-                                            className={`flex gap-6 p-6 min-w-[466px]  cursor-pointer border-2 rounded-2xl transition-all duration-300 active:scale-[0.98]
-                                                ${isSelected 
-                                                    ? "bg-[#1E2429] border-[#8FFF9C] shadow-[0_0_20px_rgba(143,255,156,0.15)]" 
-                                                    : "bg-[#0F1518] border-[#404F57] hover:border-[#667a85]"
-                                                }`}
-                                        >
-                                            {/* Icon Box */}
-                                            <div className={`p-4 rounded-xl transition-colors duration-300 
-                                                ${isSelected ? "bg-[#8FFF9C] text-[#0D1014]" : "bg-[#404F57] text-[#E6F0E6]"}`}>
-                                                <RobotIcon className="w-8 h-8" />
+                                        <>
+                                            <div 
+                                                key={index}
+                                                onClick={handleToggle}
+                                                className={`flex gap-6 p-6 min-w-[466px]  cursor-pointer border-2 rounded-2xl transition-all duration-300 active:scale-[0.98]
+                                                    ${isSelected 
+                                                        ? "bg-[#1E2429] border-[#8FFF9C] shadow-[0_0_20px_rgba(143,255,156,0.15)]" 
+                                                        : "bg-[#0F1518] border-[#404F57] hover:border-[#667a85]"
+                                                    }`}
+                                            >
+                                                {/* Icon Box */}
+                                                <div className={`p-4 rounded-xl transition-colors duration-300 
+                                                    ${isSelected 
+                                                        ? "bg-[#8FFF9C] text-[#0D1014] border-[#8FFF9C]" 
+                                                        : "bg-[#404F57] text-[#E6F0E6] border-transparent"
+                                                    }`}>
+                                                    
+                                                    {/* ถ้าเลือกอยู่ ให้โชว์ Checkmark ถ้าไม่เลือกให้โชว์ RobotIcon */}
+                                                    {isSelected ? (
+                                                        <div className="w-8 h-8 flex items-center justify-center animate-in zoom-in duration-300">
+                                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                                                                <polyline points="20 6 9 17 4 12"></polyline>
+                                                            </svg>
+                                                        </div>
+                                                    ) : (
+                                                        <RobotIcon className="w-8 h-8" />
+                                                    )}
+                                                </div>
+                                                
+                                                <div className="flex flex-col gap-1 justify-center">
+                                                    <p className={`text-[20px] font-bold transition-colors 
+                                                        ${isSelected ? "text-[#8FFF9C]" : "text-[#FBFBFB]"}`}>
+                                                        {item.display}
+                                                    </p>
+                                                    <p className="text-[13px] font-light text-[#E6F0E6]">
+                                                        {item.desc}
+                                                    </p>
+                                                </div>
+                                                
                                             </div>
-                                            
-                                            <div className="flex flex-col gap-1 justify-center">
-                                                <p className={`text-[18px] font-black uppercase tracking-tight transition-colors 
-                                                    ${isSelected ? "text-[#8FFF9C]" : "text-[#FBFBFB]"}`}>
-                                                    {item.display}
-                                                </p>
-                                                <p className="text-[13px] font-medium text-[#9AA6A8] leading-relaxed">
-                                                    {item.desc}
-                                                </p>
-                                            </div>
-                                        </div>
+                                        </>                         
                                     );
                                 })}
                             </div>
@@ -492,9 +522,12 @@ export default function CreateSchedulePage() {
             </div>
 
             {/* --- Section 4: Dynamic Navigation Buttons --- */}
-            <div className="flex justify-between items-center mt-4">
+            <div className="flex gap-6 items-center mt-[42px] justify-end">
                 {currentStep === 1 ? (
-                    <button onClick={() => router.back()} className="text-[#9AA6A8] hover:text-[#FBFBFB] font-bold px-6 py-2 transition-all">
+                    <button 
+                        onClick={() => router.back()} 
+                        className={`${RED_BUTTON_STYLE}`}
+                    >
                         Cancel
                     </button>
                 ) : (
@@ -506,14 +539,14 @@ export default function CreateSchedulePage() {
                 {currentStep < 3 ? (
                     <button 
                         onClick={handleNext} 
-                        className={`${GREEN_BUTTON_STYLE} px-10 py-3 rounded-xl font-black uppercase text-sm tracking-widest`}
+                        className={`${GREEN_BUTTON_STYLE}`}
                     >
                         Next Step
                     </button>
                 ) : (
                     <button 
                         onClick={handleSubmit} 
-                        className={`${GREEN_BUTTON_STYLE} px-10 py-3 rounded-xl font-black uppercase text-sm tracking-widest shadow-[0_0_20px_rgba(143,255,156,0.3)] transition-all active:scale-95`}
+                        className={`${GREEN_BUTTON_STYLE}`}
                     >
                         {/* ✅ เช็คเงื่อนไข runNow เพื่อเปลี่ยนข้อความ */}
                         {runNow ? "Run Now !!" : "Create Schedule"}
