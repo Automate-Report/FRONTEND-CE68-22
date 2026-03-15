@@ -1,20 +1,23 @@
+"use client";
+
 import { useState } from "react";
 import { penTestReportService } from "@/src/services/penTestReport.service";
 
 export const useReportDownload = () => {
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    const downloadReport = async (reportId: number, fallbackName: string) => {
+  const downloadReport = async (reportId: number, reportType: "pdf" | "docx", fallbackName: string) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      // 1. เรียก Service (ตรวจสอบให้แน่ใจว่าใน axios service มี { responseType: 'blob' })
-      const response = await penTestReportService.download(reportId);
+      // 1. เรียก Service โดยส่ง reportType ไปด้วย 
+      // (ตรวจสอบให้แน่ใจว่า service รับ parameter นี้และ axios มี responseType: 'blob')
+      const response = await penTestReportService.download(reportId, reportType);
 
-      // 2. ตั้งชื่อไฟล์เริ่มต้น (กรณีหา Header ไม่เจอ)
-      let filename = `${fallbackName}.txt`; 
+      // 2. จัดการชื่อไฟล์
+      let filename = `${fallbackName}.${reportType}`; // default name
       
       const disposition = response.headers["content-disposition"];
       if (disposition && disposition.indexOf("attachment") !== -1) {
@@ -25,11 +28,16 @@ export const useReportDownload = () => {
         }
       }
 
-      // 3. สร้าง Blob URL (ปรับ type ให้ตรงกับ Backend)
-      // ถ้าเป็น CSV ใช้ "text/csv" ถ้าเป็น Text ทั่วไปใช้ "text/plain"
-      const blob = new Blob([response.data], { type: "text/plain" });
+      // 3. กำหนด MIME Type ให้ถูกต้องตามไฟล์
+      const mimeTypes = {
+        pdf: "application/pdf",
+        docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      };
+
+      const blob = new Blob([response.data], { type: mimeTypes[reportType] });
       const url = window.URL.createObjectURL(blob);
       
+      // 4. สร้าง link ล่องหนเพื่อสั่งดาวน์โหลด
       const link = document.createElement("a");
       link.href = url;
       link.setAttribute("download", filename);
@@ -37,17 +45,17 @@ export const useReportDownload = () => {
       document.body.appendChild(link);
       link.click();
 
-      // 4. Cleanup
+      // 5. Cleanup
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
 
     } catch (err: any) {
       console.error("Download failed:", err);
-      setError("ไม่สามารถดาวน์โหลดไฟล์ได้");
+      setError("Failed to download the report. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return { downloadReport, isLoading, error };
-}
+};

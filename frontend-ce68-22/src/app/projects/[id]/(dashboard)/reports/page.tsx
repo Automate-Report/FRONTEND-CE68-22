@@ -8,6 +8,7 @@ import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import { useProject } from "@/src/hooks/project/use-project";
 import { getMe } from "@/src/services/auth.service";
+import { useReportDownload } from "@/src/hooks/report/use-ReportDownload";
 
 // Icons (MUI)
 import { Description as ReportIcon, Close as CloseIcon } from "@mui/icons-material";
@@ -66,9 +67,12 @@ export default function ReportCenterPage() {
   const { id: projectIdStr } = useParams();
   const projectId = parseInt(projectIdStr as string);
 
+  const { downloadReport, isLoading } = useReportDownload();
+
   // Search
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("ALL");
+
 
   // ── State ──
   const [reports, setReports] = useState<Report[]>(INITIAL_REPORTS);
@@ -202,8 +206,8 @@ export default function ReportCenterPage() {
             key={report.id}
             report={report}
             onDelete={handleDelete}
-            onDownloadPdf={(r: Report) => console.log("Download PDF", r.id)}
-            onDownloadDocx={(r: Report) => console.log("Download DOCX", r.id)}
+            onDownloadPdf={() => downloadReport(report.id, "pdf", `Report_${report.id}`)}
+            onDownloadDocx={() => downloadReport(report.id, "docx", `Report_${report.id}`)}
           />
         ))}
 
