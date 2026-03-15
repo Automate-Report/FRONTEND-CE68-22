@@ -269,10 +269,10 @@ export default function CreateSchedulePage() {
     ];
 
     return (
-        <div className="flex flex-col w-full text-[#E6F0E6] max-w-7xl mx-auto p-4">
+        <div className="flex flex-col w-full text-[#E6F0E6] max-w-7xl mx-auto">
             <GenericBreadcrums items={breadcrumbItems} />
 
-            <div className="mt-10 mb-8">
+            <div className="mb-8">
                 <h1 className="text-center text-[42px] font-bold mb-2">Schedule a scan</h1>
                 <p className="text-center text-[#9AA6A8] text-sm">Set up automated scans to run at your preferred time. Keep your system monitored and detect issues without manual checks.</p>
             </div>
@@ -302,9 +302,9 @@ export default function CreateSchedulePage() {
             {/* --- Section 3: Step Content Area --- */}
             <div className="mt-12">
                 {currentStep === 1 && (
-                    <div className="flex flex-col gap-8">
-                        <div className="bg-[#151B1D] p-10 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-6">
-                            <label className="font-semibold text-[#E6F0E6] text-[20px]">
+                    <div className="flex flex-col gap-6">
+                        <div className="bg-[#151B1D] px-6 py-5 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-3">
+                            <label className="font-semibold text-[#E6F0E6] text-[20px] ">
                                 Select your schedule’s name
                             </label>
                             <input 
@@ -317,7 +317,7 @@ export default function CreateSchedulePage() {
                             {errors.name && <p className="text-[#FE3B46] text-xs mt-2 font-bold italic">Schedule name is required</p>}
 
                         </div>
-                        <div className="bg-[#151B1D] p-10 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-6">
+                        <div className="bg-[#151B1D] px-6 py-5 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-3">
                             <label className="font-semibold text-[#E6F0E6] text-[20px]"> Select Attack Type</label>
                             <div className="flex justify-around">
                                 {attackType.map((item, index) => {
@@ -342,7 +342,7 @@ export default function CreateSchedulePage() {
                                             <div 
                                                 key={index}
                                                 onClick={handleToggle}
-                                                className={`flex gap-6 p-6 min-w-[466px]  cursor-pointer border-2 rounded-lg transition-all duration-300 active:scale-[0.98]
+                                                className={`flex gap-4 p-4 min-w-[466px]  cursor-pointer border-2 rounded-lg transition-all duration-300 active:scale-[0.98]
                                                     ${isSelected 
                                                         ? "bg-[#1E2429] border-[#8FFF9C] shadow-[0_0_20px_rgba(143,255,156,0.15)]" 
                                                         : "bg-[#0F1518] border-[#404F57] hover:border-[#667a85]"
@@ -388,8 +388,8 @@ export default function CreateSchedulePage() {
                 )}
 
                 {currentStep === 2 && (
-                    <div className="flex flex-col gap-8 animate-in fade-in duration-500">
-                        <div className="bg-[#151B1D] p-10 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-6">
+                    <div className="flex flex-col gap-6 animate-in fade-in duration-500">
+                        <div className="bg-[#151B1D] px-6 py-5 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-6">
                             <div className="flex justify-between">
                                 <div className="flex flex-col gap-1">
                                     <label className="font-semibold text-[#E6F0E6] text-[20px]">Select Target Asset</label>
@@ -406,14 +406,14 @@ export default function CreateSchedulePage() {
                             
 
                             {/* Grid แสดง Asset (ใช้ paginatedAssets แทน) */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[300px]">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
                                 {paginatedAssets.map((asset) => {
                                     const isSelected = form.assetId === asset.id;
                                     return (
                                         <div
                                             key={asset.id}
                                             onClick={() => setForm({ ...form, assetId: asset.id })}
-                                            className={`flex gap-6 p-6 cursor-pointer border-2 rounded-2xl transition-all duration-300 active:scale-[0.98]
+                                            className={`flex gap-3 p-4 cursor-pointer border-2 rounded-2xl transition-all duration-300 active:scale-[0.98]
                                                 ${isSelected
                                                     ? "bg-[#1E2429] border-[#8FFF9C] shadow-[0_0_20px_rgba(143,255,156,0.15)]"
                                                     : "bg-[#0F1518] border-[#404F57] hover:border-[#667a85]"
@@ -449,7 +449,7 @@ export default function CreateSchedulePage() {
                             </div>
 
                             {/* ✅ ใส่ GenericPagination ตรงนี้ */}
-                            <div className="mt-4 p-2 bg-[#0D1014]/50 rounded-xl border border-[#2D2F39]">
+                            <div className="mt-2 bg-[#0D1014]/50 rounded-xl border border-[#2D2F39]">
                                 <GenericPagination 
                                     count={allAssetName?.length || 0} 
                                     page={assetPage} 
@@ -476,7 +476,7 @@ export default function CreateSchedulePage() {
 
                 {currentStep === 3 && (
                     <div className="animate-in fade-in duration-500 space-y-8">
-                        <div className="bg-[#151B1D] p-10 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-6">
+                        <div className="bg-[#151B1D] px-6 py-5 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-6">
 
                             <div className="flex items-center justify-between">
                                 <h3 className="font-semibold text-[#E6F0E6] text-[20px]">Select Schedule’s Frequency</h3>
@@ -498,7 +498,7 @@ export default function CreateSchedulePage() {
                             )}
 
                             {/* --- Schedule Time Settings (เดิมของคุณ แต่เพิ่ม logic หรี่ไฟเมื่อ runNow=true) --- */}
-                            <div className={`flex flex-col gap-4 transition-all duration-500 ${runNow ? 'opacity-20 pointer-events-none grayscale scale-[0.98]' : 'opacity-100'}`}>
+                            <div className={`flex flex-col gap-2 transition-all duration-500 ${runNow ? 'opacity-20 pointer-events-none grayscale scale-[0.98]' : 'opacity-100'}`}>
                                 <span className="font-semibold text-lg">Manual Schedule Configuration</span>
                                 
                                 <div className="flex flex-col gap-6">
@@ -662,7 +662,7 @@ export default function CreateSchedulePage() {
             </div>
 
             {/* --- Section 4: Dynamic Navigation Buttons --- */}
-            <div className="flex gap-6 items-center mt-[42px] justify-end">
+            <div className="flex gap-6 items-center mt-[30px] justify-end">
                 {currentStep === 1 ? (
                     <button 
                         onClick={() => router.back()} 
