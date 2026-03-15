@@ -12,6 +12,7 @@ export interface Asset {
 export interface AssetNameAndId {
   name: string;
   id: number;
+  target: string;
 }
 
 export interface CreateAssetPayload {

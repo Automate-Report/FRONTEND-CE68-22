@@ -10,18 +10,25 @@ import { useGetAllAssetNames } from "@/src/hooks/asset/use-getAllNames";
 
 //components
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
+import { GenericPagination } from "@/src/components/Common/GenericPagination";
 import ToggleSwitch from "@/src/components/Common/ToggleSwitch";
-import GenericDropdown from "@/src/components/Common/GenericDropdown";
+
 
 import ScheduleToggleSwitch from "@/src/components/schedule/ToggleSwitch";
 
 //icons
 import AddTime from "@/src/components/icon/AddTime";
 import DeleteProjectIcon from "@/src/components/icon/Delete";
-import { Tooltip, Box, Typography, Divider } from "@mui/material";
-import { GREEN_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
-import { INPUT_BOX_NO_ICON_STYLE } from "@/src/styles/inputBoxStyle";
 import RobotIcon from "@/src/components/icon/RobotIcon";
+import AssetIcon from "@/src/components/icon/AssetIcon";
+
+
+import { INPUT_BOX_NO_ICON_STYLE } from "@/src/styles/inputBoxStyle";
+import { GREEN_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
+
+
+import { Divider } from "@mui/material";
+
 
 export default function CreateSchedulePage() {
     const router = useRouter();
@@ -48,15 +55,23 @@ export default function CreateSchedulePage() {
     const [repeatTrue, setRepeatTrue] = useState(false);
     const [cronTimes, setCronTimes] = useState([{ min: "0", hr: "0", day: "*", month: "*", week: "*" }]);
     const [days, setDays] = useState([
-        { name: "Sun", active: false }, { name: "Mon", active: false }, { name: "Tue", active: false },
-        { name: "Wed", active: false }, { name: "Thu", active: false }, { name: "Fri", active: false }, { name: "Sat", active: false }
+        { name: "Sun", active: false }, 
+        { name: "Mon", active: false }, 
+        { name: "Tue", active: false },
+        { name: "Wed", active: false }, 
+        { name: "Thu", active: false }, 
+        { name: "Fri", active: false }, 
+        { name: "Sat", active: false }
     ]);
     const [dayOfMonth, setDayOfMonth] = useState(Array.from({ length: 31 }, (_, i) => ({ name: String(i + 1), active: false })));
     
 
     // Error states
+    const [nameError, setNameError] = useState<boolean>(false);
     const [errors, setErrors] = useState({ name: false, attackType: false, asset: false });
     const [repeatedTimeError, setRepeatedTimeError] = useState<boolean>(false);
+    const [attackTypeError, setAttackTypeError] = useState<boolean>(false);
+    const [assetError, setAssetError] = useState<boolean>(false);
 
     // Validation Logic
     const validateStep = (step: number) => {
@@ -174,12 +189,55 @@ export default function CreateSchedulePage() {
         return cronString;
     }
 
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
 
-    const handleSubmit = async () => {
-        // ... (Logic เดิมของคุณ changeUserInputToCronString และการยิง API)
-        // หลังยิง API สำเร็จ
-        // router.push(`/projects/${projectId}/schedule`);
-    };
+        //clear errors
+        setNameError(false);
+        setAttackTypeError(false);
+        setAssetError(false);
+
+        const cronString = changeUserInputToCronString();
+        if (!cronString) return;
+
+        //error check
+        let flagError = false;
+        if (form.scheduleName === "") { setNameError(true); flagError = true; }
+        if (form.attackType.length === 0) { setAttackTypeError(true); flagError = true; }
+        if (!form.assetId || form.assetId === 0) { setAssetError(true); flagError = true; }
+        if (flagError) { setRunNow(false); return; }
+
+        const finalAtkType = form.attackType.length === 2 ? "all" : form.attackType[0];
+
+        if (runNow) {
+            const payload: ScheduleCreatePayload = {
+                project_id: projectId,
+                name: form.scheduleName,
+                atk_type: finalAtkType,
+                asset: form.assetId,
+                cron_expression: "Not Repeat",
+                start_date: new Date(Date.now() + 60 * 1000), // run after 1 minute
+                end_date: new Date(Date.now() + 60 * 1000),
+            };
+
+            const data = await scheduleService.create(payload);
+            router.push(`/projects/${projectId}/schedule`);
+            setRunNow(false);
+            return
+        }
+
+        const payload: ScheduleCreatePayload = {
+            project_id: projectId,
+            name: form.scheduleName,
+            atk_type: finalAtkType,
+            asset: form.assetId,
+            cron_expression: cronString,
+            start_date: new Date(`${form.startDate}T${form.startTime}:00`),
+            end_date: (!repeatTrue || form.endDate) ? new Date(form.startDate) : new Date(form.endDate),
+        };
+        const data = await scheduleService.create(payload);
+        router.push(`/projects/${projectId}/schedule`);
+    }
 
     if (isLoading) return <div className="p-8">Loading...</div>;
 
@@ -200,7 +258,6 @@ export default function CreateSchedulePage() {
         { display: "SQL Injection", value: "sqli", desc: "Manipulate database queries through input."},
         { display: "Cross-site Scripting", value: "xss", desc: " Inject malicious scripts into web pages." }
     ];
-
 
     return (
         <div className="flex flex-col w-full text-[#E6F0E6] max-w-7xl mx-auto p-4">
@@ -276,7 +333,7 @@ export default function CreateSchedulePage() {
                                             <div 
                                                 key={index}
                                                 onClick={handleToggle}
-                                                className={`flex gap-6 p-6 min-w-[466px]  cursor-pointer border-2 rounded-2xl transition-all duration-300 active:scale-[0.98]
+                                                className={`flex gap-6 p-6 min-w-[466px]  cursor-pointer border-2 rounded-lg transition-all duration-300 active:scale-[0.98]
                                                     ${isSelected 
                                                         ? "bg-[#1E2429] border-[#8FFF9C] shadow-[0_0_20px_rgba(143,255,156,0.15)]" 
                                                         : "bg-[#0F1518] border-[#404F57] hover:border-[#667a85]"
@@ -322,201 +379,262 @@ export default function CreateSchedulePage() {
                 )}
 
                 {currentStep === 2 && (
-                    <div className="animate-in fade-in duration-500 max-w-2xl mx-auto space-y-8">
-                         <div>
-                            <label className="block text-xs font-black uppercase text-[#667a85] mb-2 tracking-widest">Target Asset</label>
-                            <GenericDropdown 
-                                options={allAssetName?.map(a => ({ label: a.name, value: a.id })) || []}
-                                value={form.assetId}
-                                onChange={(val) => setForm({...form, assetId: Number(val)})}
+                    <div className="flex flex-col gap-8 animate-in fade-in duration-500">
+                        <div className="bg-[#151B1D] p-10 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-6">
+                            <div className="flex flex-col gap-1">
+                                <label className="font-semibold text-[#E6F0E6] text-[20px]">Select Target Asset</label>
+                                <p className="text-sm text-[#9AA6A8]">Choose the specific asset you want to perform the security scan on.</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {allAssetName?.map((asset) => {
+                                // ✅ เช็คว่า Asset นี้ถูกเลือกอยู่หรือไม่ (เลือกได้แค่ 1)
+                                const isSelected = form.assetId === asset.id;
+
+                                return (
+                                    <div
+                                    key={asset.id}
+                                    // ✅ คลิกเพื่อเลือก Asset ตัวเดียว
+                                    onClick={() => setForm({ ...form, assetId: asset.id })}
+                                    className={`flex gap-6 p-6 cursor-pointer border-2 rounded-lg transition-all duration-300 active:scale-[0.98]
+                                        ${isSelected
+                                        ? "bg-[#1E2429] border-[#8FFF9C] shadow-[0_0_20px_rgba(143,255,156,0.15)]"
+                                        : "bg-[#0F1518] border-[#404F57] hover:border-[#667a85]"
+                                        }`}
+                                    >
+                                    {/* Icon Box / Checkmark */}
+                                    <div className={`w-16 h-16 flex-shrink-0 rounded-xl flex items-center justify-center transition-all duration-300 border-2
+                                        ${isSelected
+                                        ? "bg-[#8FFF9C] text-[#0D1014] border-[#8FFF9C]"
+                                        : "bg-[#404F57] text-[#E6F0E6] border-transparent"
+                                        }`}>
+                                        
+                                        {isSelected ? (
+                                        <div className="animate-in zoom-in duration-300">
+                                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                            </svg>
+                                        </div>
+                                        ) : (
+                                        <AssetIcon />
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1 justify-center">
+                                        <p className={`text-[20px] font-bold transition-colors
+                                        ${isSelected ? "text-[#8FFF9C]" : "text-[#FBFBFB]"}`}>
+                                        {asset.name}
+                                        </p>
+                                        <p className="text-[13px] font-normal text-[#8FFF9C]">
+                                        { `${asset.target}`}
+                                        </p>
+                                    </div>
+                                    </div>
+                                );
+                                })}
+                            </div>
+
+                            {/* Error Message */}
+                            {errors.asset && (
+                                <p className="text-[#FE3B46] text-xs font-bold italic text-center animate-pulse">
+                                Please select a target asset before continuing.
+                                </p>
+                            )}
+                            <Divider 
+                                sx={{ 
+                                    mt: 1,           // margin-top: เว้นระยะห่างจากตัวหนังสือลงมาหน่อย (2 = 16px)
+                                    borderColor: "#212A2F", // กำหนดสีของเส้น (ถ้าพื้นหลังดำ ควรใช้สีเทาเข้ม)
+                                    borderBottomWidth: 4
+                                }} 
                             />
-                         </div>
-                    </div>
+                            <p>Create Asset</p>
+                        </div>
+                    </div> 
                 )}
 
                 {currentStep === 3 && (
                     <div className="animate-in fade-in duration-500 space-y-8">
-                        {/* --- Header & Run Now Toggle Section --- */}
-                        <div className="bg-[#1E2429] p-6 rounded-2xl border-2 border-[#2D2F39] flex justify-between items-center shadow-inner">
-                            <div className="flex flex-col gap-1">
-                                <h3 className="text-xl font-black text-[#FBFBFB] uppercase tracking-tight">Execution Method</h3>
-                                <p className="text-xs text-[#9AA6A8] font-medium">Choose between immediate execution or a planned schedule.</p>
-                            </div>
-                            <div className="flex items-center gap-4 bg-[#0D1014] px-5 py-2.5 rounded-xl border border-[#2D2F39]">
-                                <span className={`text-sm font-black uppercase tracking-widest transition-colors ${runNow ? 'text-[#8FFF9C]' : 'text-[#404F57]'}`}>
-                                    Run Immediately
-                                </span>
-                                <ScheduleToggleSwitch checked={runNow} onChange={() => setRunNow(!runNow)} />
-                            </div>
-                        </div>
+                        <div className="bg-[#151B1D] p-10 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-6">
 
-                        {/* --- Information Message when Run Now is active --- */}
-                        {runNow && (
-                            <div className="bg-[#8FFF9C]/5 border border-[#8FFF9C]/20 p-4 rounded-xl animate-in zoom-in-95 duration-300">
-                                <p className="text-[#8FFF9C] text-xs font-bold text-center italic flex items-center justify-center gap-2">
-                                    ⚡ Task will be initialized and queued for execution immediately after creation.
-                                </p>
+                            <div className="flex items-center justify-between">
+                                <h3 className="font-semibold text-[#E6F0E6] text-[20px]">Select Schedule’s Frequency</h3>
+                                <div className="flex items-center gap-4 bg-[#0D1014] px-5 py-2.5 rounded-xl border border-[#2D2F39]">
+                                    <span className={`text-sm font-black uppercase tracking-widest transition-colors ${runNow ? 'text-[#8FFF9C]' : 'text-[#404F57]'}`}>
+                                        Run Immediately
+                                    </span>
+                                    <ScheduleToggleSwitch checked={runNow} onChange={() => setRunNow(!runNow)} />
+                                </div>
                             </div>
-                        )}
-
-                        {/* --- Schedule Time Settings (เดิมของคุณ แต่เพิ่ม logic หรี่ไฟเมื่อ runNow=true) --- */}
-                        <div className={`flex flex-col gap-4 transition-all duration-500 ${runNow ? 'opacity-20 pointer-events-none grayscale scale-[0.98]' : 'opacity-100'}`}>
-                            <span className="font-black text-[10px] uppercase text-[#667a85] tracking-[0.2em]">Manual Schedule Configuration</span>
                             
-                            <div className="flex flex-col gap-6">
-                                {/* Start At */}
-                                <div className="flex flex-row w-full gap-6 items-end">
-                                    <div className="flex-1">
-                                        <label className="block text-[10px] font-black uppercase text-[#404F57] mb-2">Start Date</label>
-                                        <input type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                                            className={`${INPUT_BOX_NO_ICON_STYLE} w-full`} />
-                                    </div>
-                                    <div className="flex flex-col items-center justify-center pb-2 text-[#404F57] font-black italic">AT</div>
-                                    <div className="flex-1">
-                                        <label className="block text-[10px] font-black uppercase text-[#404F57] mb-2">Start Time</label>
-                                        <input type="time" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })}
-                                            className={`${INPUT_BOX_NO_ICON_STYLE} w-full`} />
-                                    </div>
+                            {/* --- Information Message when Run Now is active --- */}
+                            {runNow && (
+                                <div className="bg-[#8FFF9C]/5 border border-[#8FFF9C]/20 p-4 rounded-xl animate-in zoom-in-95 duration-300">
+                                    <p className="text-[#8FFF9C] text-xs font-bold text-center italic flex items-center justify-center gap-2">
+                                        ⚡ Task will be initialized and queued for execution immediately after creation.
+                                    </p>
                                 </div>
+                            )}
 
-                                {/* Repeat Button */}
-                                <div className="flex items-center">
-                                    <ToggleSwitch
-                                        initial={repeatTrue}
-                                        onChange={(value) => {
-                                            setRepeatTrue(value);
-                                        }}
-                                    />
-                                    <span className="ml-4 font-medium">Repeat</span>
-                                </div>
-
-                                {/* Repeat Settings (Logic เดิมของคุณ) */}
-                                {repeatTrue && (
-                                    <div className="flex flex-row gap-4 pl-6">
-                                        <div className="w-[2px] self-stretch bg-gray-300" />
-                                        <div className="flex flex-col gap-6">
-    
-                                            {/* Run At */}
-                                            <div className="flex flex-row gap-3">
-                                                <span className="font-medium mt-2 w-[100px]">Run At:</span>
-    
-                                                {/* Times */}
-                                                <div className="flex flex-col gap-3">
-                                                    {cronTimes.map((time, index) => (
-                                                        <div key={index} className="flex flex-row gap-3 items-center">
-                                                            <input
-                                                                type="time"
-                                                                value={`${String(time.hr).padStart(2, "0")}:${String(time.min).padStart(2, "0")}`}
-                                                                onChange={(e) => {
-                                                                    const [hr, min] = e.target.value.split(":");
-                                                                    setCronTimes(prev =>
-                                                                        prev.map((t, i) =>
-                                                                            i === index ? { ...t, hr, min } : t
-                                                                        )
-                                                                    );
-                                                                }}
-                                                                className={`${INPUT_BOX_NO_ICON_STYLE} pr-3`}
-                                                            />
-    
-                                                            {cronTimes.length > 1 && (
-                                                                <button type="button" onClick={() => handleDeleteTime(index)}>
-                                                                    <DeleteProjectIcon />
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                    ))}
-                                                    <button className={`${GREEN_BUTTON_STYLE}`}
-                                                        type="button"
-                                                        onClick={handleAddTime}>
-                                                        Add Time <AddTime />
-                                                    </button>
-                                                    {repeatedTimeError && (
-                                                        <span className="text-red-500">You cannot specify the same time more than once.</span>
-                                                    )}
-                                                </div>
-                                            </div>
-    
-                                            {/* Weekly */}
-                                            <div className="flex flex-row gap-3 items-start">
-                                                <span className="font-medium w-[100px] mt-2">Weekly:</span>
-                                                <div className="flex flex-col gap-3">
-                                                    <div className="flex flex-row gap-2">
-                                                        {days.map((day, i) => (
-                                                            <button
-                                                                type="button"
-                                                                key={day.name}
-                                                                onClick={() => toggleDay(i)}
-                                                                className={`cursor-pointer rounded-lg py-2 font-bold w-[60px]
-                                                            flex items-center justify-center transition-colors
-                                                            ${day.active
-                                                                        ? "border-[2px] border-[#8FFF9C]/0 bg-[#8FFF9C] text-[#0B0F12] hover:shadow-[0_0_18px_rgba(34,197,94,0.9)]"
-                                                                        : "border-[2px] border-[#404F57] text-[#404F57] hover:bg-[#404F57] hover:text-[#E6F0E6]"
-                                                                    }`}
-                                                            >
-                                                                {day.name}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                    <div className="flex flex-row gap-3">
-                                                        <button className={GREEN_BUTTON_STYLE}
-                                                            type="button"
-                                                            onClick={handleAddAllWeek}>
-                                                            <span>Set Everyday</span>
-                                                        </button>
-                                                        <button className={RED_BUTTON_STYLE}
-                                                            type="button" onClick={handleClearAllWeek}>
-                                                            <span>Clear All Week</span>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-    
-                                            {/* Monthly */}
-                                            <div className="flex flex-row gap-3 items-start">
-                                                <span className="font-medium mt-2 w-[100px]">Monthly:</span>
-                                                <div className="flex flex-col gap-3">
-                                                    <div className="grid grid-cols-7 gap-3 items-center">
-                                                        {dayOfMonth.map((day, i) => (
-                                                            <button
-                                                                type="button"
-                                                                key={day.name}
-                                                                onClick={() => toggleDayOfMonth(i)}
-                                                                className={`cursor-pointer rounded-lg py-2 font-bold w-[60px]
-                                                                flex items-center justify-center transition-colors
-                                                                ${day.active
-                                                                        ? "border-[2px] border-[#8FFF9C]/0 bg-[#8FFF9C] text-[#0B0F12] hover:shadow-[0_0_18px_rgba(34,197,94,0.9)]"
-                                                                        : "border-[2px] border-[#404F57] text-[#404F57] hover:bg-[#404F57] hover:text-[#E6F0E6]"
-                                                                    }`}
-                                                            >
-                                                                {day.name}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                    <div className="flex flex-row gap-3">
-                                                        <button className={GREEN_BUTTON_STYLE}
-                                                            type="button"
-                                                            onClick={handleAddAllDate}>
-                                                            <span>Set Everyday</span>
-                                                        </button>
-                                                        <button className={RED_BUTTON_STYLE}
-                                                            type="button" onClick={handleClearAllDate}>
-                                                            <span>Clear All Date</span>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-    
-                                            {/* Repeat Until */}
-                                            <div className="flex flex-row gap-3 items-center">
-                                                <span className="font-medium w-[100px]">Repeat Until:</span>
-                                                <input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                                                    className={`${INPUT_BOX_NO_ICON_STYLE} pr-3`} />
-                                            </div>
+                            {/* --- Schedule Time Settings (เดิมของคุณ แต่เพิ่ม logic หรี่ไฟเมื่อ runNow=true) --- */}
+                            <div className={`flex flex-col gap-4 transition-all duration-500 ${runNow ? 'opacity-20 pointer-events-none grayscale scale-[0.98]' : 'opacity-100'}`}>
+                                <span className="font-semibold text-lg">Manual Schedule Configuration</span>
+                                
+                                <div className="flex flex-col gap-6">
+                                    {/* Start At */}
+                                    <div className="flex flex-row w-full gap-6 items-end">
+                                        <div className="flex-1">
+                                            <label className="block text-[16px] mb-2">Start Date</label>
+                                            <input type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+                                                className={`${INPUT_BOX_NO_ICON_STYLE} w-full`} />
+                                        </div>
+                                        <div className="flex flex-col items-center justify-center pb-2 text-[#404F57] font-black italic">AT</div>
+                                        <div className="flex-1">
+                                            <label className="block text-[16px] mb-2">Start Time</label>
+                                            <input type="time" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })}
+                                                className={`${INPUT_BOX_NO_ICON_STYLE} w-full`} />
                                         </div>
                                     </div>
-                                )}
+
+                                    {/* Repeat Button */}
+                                    <div className="flex items-center">
+                                        <ToggleSwitch
+                                            initial={repeatTrue}
+                                            onChange={(value) => {
+                                                setRepeatTrue(value);
+                                            }}
+                                        />
+                                        <span className="ml-4 font-medium">Repeat</span>
+                                    </div>
+
+                                    {/* Repeat Settings */}
+                                    {repeatTrue && (
+                                        <div className="flex flex-row gap-4 pl-6">
+                                            <div className="w-[2px] self-stretch bg-gray-300" />
+                                            <div className="flex flex-col gap-6">
+        
+                                                {/* Run At */}
+                                                <div className="flex flex-row gap-3">
+                                                    <span className="font-medium mt-2 w-[100px]">Run At:</span>
+        
+                                                    {/* Times */}
+                                                    <div className="flex flex-col gap-3">
+                                                        {cronTimes.map((time, index) => (
+                                                            <div key={index} className="flex flex-row gap-3 items-center">
+                                                                <input
+                                                                    type="time"
+                                                                    value={`${String(time.hr).padStart(2, "0")}:${String(time.min).padStart(2, "0")}`}
+                                                                    onChange={(e) => {
+                                                                        const [hr, min] = e.target.value.split(":");
+                                                                        setCronTimes(prev =>
+                                                                            prev.map((t, i) =>
+                                                                                i === index ? { ...t, hr, min } : t
+                                                                            )
+                                                                        );
+                                                                    }}
+                                                                    className={`${INPUT_BOX_NO_ICON_STYLE} pr-3`}
+                                                                />
+        
+                                                                {cronTimes.length > 1 && (
+                                                                    <button type="button" onClick={() => handleDeleteTime(index)}>
+                                                                        <DeleteProjectIcon />
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        ))}
+                                                        <button className={`${GREEN_BUTTON_STYLE}`}
+                                                            type="button"
+                                                            onClick={handleAddTime}>
+                                                            Add Time <AddTime />
+                                                        </button>
+                                                        {repeatedTimeError && (
+                                                            <span className="text-red-500">You cannot specify the same time more than once.</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+        
+                                                {/* Weekly */}
+                                                <div className="flex flex-row gap-3 items-start">
+                                                    <span className="font-medium w-[100px] mt-2">Weekly:</span>
+                                                    <div className="flex flex-col gap-3">
+                                                        <div className="flex flex-row gap-2">
+                                                            {days.map((day, i) => (
+                                                                <button
+                                                                    type="button"
+                                                                    key={day.name}
+                                                                    onClick={() => toggleDay(i)}
+                                                                    className={`cursor-pointer rounded-lg py-2 font-bold w-[60px]
+                                                                flex items-center justify-center transition-colors
+                                                                ${day.active
+                                                                            ? "border-[2px] border-[#8FFF9C]/0 bg-[#8FFF9C] text-[#0B0F12] hover:shadow-[0_0_18px_rgba(34,197,94,0.9)]"
+                                                                            : "border-[2px] border-[#404F57] text-[#404F57] hover:bg-[#404F57] hover:text-[#E6F0E6]"
+                                                                        }`}
+                                                                >
+                                                                    {day.name}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                        <div className="flex flex-row gap-3">
+                                                            <button className={GREEN_BUTTON_STYLE}
+                                                                type="button"
+                                                                onClick={handleAddAllWeek}>
+                                                                <span>Set Everyday</span>
+                                                            </button>
+                                                            <button className={RED_BUTTON_STYLE}
+                                                                type="button" onClick={handleClearAllWeek}>
+                                                                <span>Clear All Week</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+        
+                                                {/* Monthly */}
+                                                <div className="flex flex-row gap-3 items-start">
+                                                    <span className="font-medium mt-2 w-[100px]">Monthly:</span>
+                                                    <div className="flex flex-col gap-3">
+                                                        <div className="grid grid-cols-7 gap-3 items-center">
+                                                            {dayOfMonth.map((day, i) => (
+                                                                <button
+                                                                    type="button"
+                                                                    key={day.name}
+                                                                    onClick={() => toggleDayOfMonth(i)}
+                                                                    className={`cursor-pointer rounded-lg py-2 font-bold w-[60px]
+                                                                    flex items-center justify-center transition-colors
+                                                                    ${day.active
+                                                                            ? "border-[2px] border-[#8FFF9C]/0 bg-[#8FFF9C] text-[#0B0F12] hover:shadow-[0_0_18px_rgba(34,197,94,0.9)]"
+                                                                            : "border-[2px] border-[#404F57] text-[#404F57] hover:bg-[#404F57] hover:text-[#E6F0E6]"
+                                                                        }`}
+                                                                >
+                                                                    {day.name}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                        <div className="flex flex-row gap-3">
+                                                            <button className={GREEN_BUTTON_STYLE}
+                                                                type="button"
+                                                                onClick={handleAddAllDate}>
+                                                                <span>Set Everyday</span>
+                                                            </button>
+                                                            <button className={RED_BUTTON_STYLE}
+                                                                type="button" onClick={handleClearAllDate}>
+                                                                <span>Clear All Date</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+        
+                                                {/* Repeat Until */}
+                                                <div className="flex flex-row gap-3 items-center">
+                                                    <span className="font-medium w-[100px]">Repeat Until:</span>
+                                                    <input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+                                                        className={`${INPUT_BOX_NO_ICON_STYLE} pr-3`} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
+                        
                     </div>
                 )}
             </div>
