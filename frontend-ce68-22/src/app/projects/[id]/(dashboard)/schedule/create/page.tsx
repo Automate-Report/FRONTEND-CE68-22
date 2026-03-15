@@ -69,6 +69,12 @@ export default function CreateSchedulePage() {
     // Create Asset Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
 
+    // Pagination Asset
+    const [assetPage, setAssetPage] = useState(0);
+    const [assetRowsPerPage, setAssetRowsPerPage] = useState(4);
+    const startIndex = assetPage * assetRowsPerPage;
+    const paginatedAssets = allAssetName?.slice(startIndex, startIndex + assetRowsPerPage) || [];
+
     // Error states
     const [nameError, setNameError] = useState<boolean>(false);
     const [errors, setErrors] = useState({ name: false, attackType: false, asset: false });
@@ -384,73 +390,79 @@ export default function CreateSchedulePage() {
                 {currentStep === 2 && (
                     <div className="flex flex-col gap-8 animate-in fade-in duration-500">
                         <div className="bg-[#151B1D] p-10 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-6">
-                            <div className="flex flex-col gap-1">
-                                <label className="font-semibold text-[#E6F0E6] text-[20px]">Select Target Asset</label>
-                                <p className="text-sm text-[#9AA6A8]">Choose the specific asset you want to perform the security scan on.</p>
+                            <div className="flex justify-between">
+                                <div className="flex flex-col gap-1">
+                                    <label className="font-semibold text-[#E6F0E6] text-[20px]">Select Target Asset</label>
+                                    <p className="text-sm text-[#9AA6A8]">Choose the specific asset you want to perform the security scan on.</p>
+                                </div>
+                                <button 
+                                    type="button"
+                                    onClick={() => setIsModalOpen(true)}
+                                    className="flex items-center justify-center text-center font-semibold h-[42px] gap-2 px-6 py-2 text-[#E6F0E6] bg-[#0F1518] border-[2px] border-[rgba(64,79,87,0.4)] rounded-xl hover:bg-[rgba(64,79,87,0.4)] hover:text-white cursor-pointer transition"
+                                >
+                                    Create New Asset
+                                </button>
                             </div>
+                            
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {allAssetName?.map((asset) => {
-                                // ✅ เช็คว่า Asset นี้ถูกเลือกอยู่หรือไม่ (เลือกได้แค่ 1)
-                                const isSelected = form.assetId === asset.id;
+                            {/* Grid แสดง Asset (ใช้ paginatedAssets แทน) */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[300px]">
+                                {paginatedAssets.map((asset) => {
+                                    const isSelected = form.assetId === asset.id;
+                                    return (
+                                        <div
+                                            key={asset.id}
+                                            onClick={() => setForm({ ...form, assetId: asset.id })}
+                                            className={`flex gap-6 p-6 cursor-pointer border-2 rounded-2xl transition-all duration-300 active:scale-[0.98]
+                                                ${isSelected
+                                                    ? "bg-[#1E2429] border-[#8FFF9C] shadow-[0_0_20px_rgba(143,255,156,0.15)]"
+                                                    : "bg-[#0F1518] border-[#404F57] hover:border-[#667a85]"
+                                                }`}
+                                        >
+                                            <div className={`w-16 h-16 flex-shrink-0 rounded-xl flex items-center justify-center transition-all duration-300 border-2
+                                                ${isSelected
+                                                    ? "bg-[#8FFF9C] text-[#0D1014] border-[#8FFF9C]"
+                                                    : "bg-[#404F57] text-[#E6F0E6] border-transparent"
+                                                }`}>
+                                                {isSelected ? (
+                                                    <div className="animate-in zoom-in duration-300">
+                                                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                                        </svg>
+                                                    </div>
+                                                ) : (
+                                                    <AssetIcon />
+                                                )}
+                                            </div>
 
-                                return (
-                                    <div
-                                    key={asset.id}
-                                    // ✅ คลิกเพื่อเลือก Asset ตัวเดียว
-                                    onClick={() => setForm({ ...form, assetId: asset.id })}
-                                    className={`flex gap-6 p-6 cursor-pointer border-2 rounded-lg transition-all duration-300 active:scale-[0.98]
-                                        ${isSelected
-                                        ? "bg-[#1E2429] border-[#8FFF9C] shadow-[0_0_20px_rgba(143,255,156,0.15)]"
-                                        : "bg-[#0F1518] border-[#404F57] hover:border-[#667a85]"
-                                        }`}
-                                    >
-                                    {/* Icon Box / Checkmark */}
-                                    <div className={`w-16 h-16 flex-shrink-0 rounded-xl flex items-center justify-center transition-all duration-300 border-2
-                                        ${isSelected
-                                        ? "bg-[#8FFF9C] text-[#0D1014] border-[#8FFF9C]"
-                                        : "bg-[#404F57] text-[#E6F0E6] border-transparent"
-                                        }`}>
-                                        
-                                        {isSelected ? (
-                                        <div className="animate-in zoom-in duration-300">
-                                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                                            <polyline points="20 6 9 17 4 12"></polyline>
-                                            </svg>
+                                            <div className="flex flex-col gap-1 justify-center">
+                                                <p className={`text-[18px] font-bold transition-colors ${isSelected ? "text-[#8FFF9C]" : "text-[#FBFBFB]"}`}>
+                                                    {asset.name}
+                                                </p>
+                                                <p className="text-[13px] font-normal text-[#8FFF9C] opacity-70">
+                                                    {asset.target}
+                                                </p>
+                                            </div>
                                         </div>
-                                        ) : (
-                                        <AssetIcon />
-                                        )}
-                                    </div>
-
-                                    <div className="flex flex-col gap-1 justify-center">
-                                        <p className={`text-[20px] font-bold transition-colors
-                                        ${isSelected ? "text-[#8FFF9C]" : "text-[#FBFBFB]"}`}>
-                                        {asset.name}
-                                        </p>
-                                        <p className="text-[13px] font-normal text-[#8FFF9C]">
-                                        { `${asset.target}`}
-                                        </p>
-                                    </div>
-                                    </div>
-                                );
+                                    );
                                 })}
                             </div>
 
-                            {/* Error Message */}
-                            {errors.asset && (
-                                <p className="text-[#FE3B46] text-xs font-bold italic text-center animate-pulse">
-                                Please select a target asset before continuing.
-                                </p>
-                            )}
-                            <Divider 
-                                sx={{ 
-                                    mt: 1,           // margin-top: เว้นระยะห่างจากตัวหนังสือลงมาหน่อย (2 = 16px)
-                                    borderColor: "#212A2F", // กำหนดสีของเส้น (ถ้าพื้นหลังดำ ควรใช้สีเทาเข้ม)
-                                    borderBottomWidth: 4
-                                }} 
-                            />
-                            <button onClick={() => setIsModalOpen(true)}>Add Asset</button>
+                            {/* ✅ ใส่ GenericPagination ตรงนี้ */}
+                            <div className="mt-4 p-2 bg-[#0D1014]/50 rounded-xl border border-[#2D2F39]">
+                                <GenericPagination 
+                                    count={allAssetName?.length || 0} 
+                                    page={assetPage} 
+                                    rowsPerPage={assetRowsPerPage} 
+                                    onPageChange={(newPage) => setAssetPage(newPage)} 
+                                    rowsPerPageOptions={[4, 8, 16]}
+                                    onRowsPerPageChange={(newRows) => {
+                                        setAssetRowsPerPage(newRows);
+                                        setAssetPage(0); // reset ไปหน้าแรกเมื่อเปลี่ยนจำนวนแสดงผล
+                                    }} 
+                                    labelRowsPerPage = "Assets per page:"
+                                />
+                            </div>
 
                             <CreateAssetModal 
                                 projectName={project?.name || "Project"}
