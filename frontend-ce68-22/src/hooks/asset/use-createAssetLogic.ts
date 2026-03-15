@@ -1,6 +1,8 @@
+"use client";
+
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useQueryClient } from "@tanstack/react-query";
 import { assetService } from "@/src/services/asset.service";
 import { assetCredentialService } from "@/src/services/assetCredential.service";
 
@@ -13,8 +15,9 @@ export type AssetFormInputs = {
   password?: string;
 };
 
-export const useCreateAssetLogic = (projectId: number) => {
-  const router = useRouter();
+// ✅ เพิ่ม onSuccess callback เพื่อให้ Modal ปิดตัวเองได้
+export const useCreateAssetLogic = (projectId: number, onSuccess?: () => void) => {
+  const queryClient = useQueryClient();
   
   // States
   const [showCredential, setShowCredential] = useState(false);
@@ -31,7 +34,7 @@ export const useCreateAssetLogic = (projectId: number) => {
     },
   });
 
-  const { watch, handleSubmit } = formMethods;
+  const { watch, handleSubmit, reset } = formMethods;
   const currentAssetType = watch("type");
 
   // Submit Logic
@@ -39,7 +42,7 @@ export const useCreateAssetLogic = (projectId: number) => {
     let createdAssetId: number | null = null;
 
     try {
-      // Create Asset
+      // 1. Create Asset
       const assetPayload = {
         name: data.name,
         target: data.target,
@@ -51,7 +54,7 @@ export const useCreateAssetLogic = (projectId: number) => {
       const newAsset = await assetService.create(assetPayload);
       createdAssetId = parseInt(newAsset.id);
 
-      // if Create Credential 
+      // 2. if Create Credential 
       if (showCredential) {
         await assetCredentialService.create({
             asset_id: createdAssetId,
@@ -60,33 +63,40 @@ export const useCreateAssetLogic = (projectId: number) => {
         });
       }
 
-      //Success
-      router.push(`/projects/${projectId}/asset/${newAsset.id}`); // แก้ path ตามต้องการ
+      // ✅ 3. Success Handling for Modal
+      // สั่งให้ React Query ดึงข้อมูล Asset list ใหม่เพื่อให้ตารางหลัง Modal อัปเดต
+      queryClient.invalidateQueries({ queryKey: ["assets", projectId] });
+      
+      // ล้างข้อมูลในฟอร์ม
+      reset();
+      setShowCredential(false);
+
+      // เรียก callback เพื่อปิด Modal
+      if (onSuccess) onSuccess();
 
     } catch (error) {
       console.error("Critical Error:", error);
       
-      // Rollback Logic
+      // Rollback Logic (คงเดิม)
       if (createdAssetId) {
           try {
-              console.warn(`Rolling back Asset ID ${createdAssetId}...`);
               await assetService.delete(createdAssetId); 
               console.log("Rollback successful.");
           } catch (deleteError) {
               console.error("FATAL: Rollback failed.", deleteError);
           }
       }
-      alert("เกิดข้อผิดพลาดในการสร้าง Asset กรุณาลองใหม่อีกครั้ง");
+      alert("Failed to create asset. Please try again.");
     }
   };
 
   return {
-    formMethods, // ส่งออก register, errors, setValue ฯลฯ ผ่านตัวนี้
+    formMethods,
     currentAssetType,
     showCredential,
     setShowCredential,
     showPassword,
     setShowPassword,
-    handleFormSubmit: handleSubmit(onSubmit), // ส่ง function submit ออกไป
+    handleFormSubmit: handleSubmit(onSubmit),
   };
 };

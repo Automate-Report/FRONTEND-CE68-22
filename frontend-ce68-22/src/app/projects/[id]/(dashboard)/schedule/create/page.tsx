@@ -15,6 +15,7 @@ import ToggleSwitch from "@/src/components/Common/ToggleSwitch";
 
 
 import ScheduleToggleSwitch from "@/src/components/schedule/ToggleSwitch";
+import CreateAssetModal from "@/src/components/assets/CreateAsset";
 
 //icons
 import AddTime from "@/src/components/icon/AddTime";
@@ -65,6 +66,8 @@ export default function CreateSchedulePage() {
     ]);
     const [dayOfMonth, setDayOfMonth] = useState(Array.from({ length: 31 }, (_, i) => ({ name: String(i + 1), active: false })));
     
+    // Create Asset Modal State
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Error states
     const [nameError, setNameError] = useState<boolean>(false);
@@ -447,7 +450,14 @@ export default function CreateSchedulePage() {
                                     borderBottomWidth: 4
                                 }} 
                             />
-                            <p>Create Asset</p>
+                            <button onClick={() => setIsModalOpen(true)}>Add Asset</button>
+
+                            <CreateAssetModal 
+                                projectName={project?.name || "Project"}
+                                open={isModalOpen} 
+                                onClose={() => setIsModalOpen(false)} 
+                                projectId={projectId} 
+                            />
                         </div>
                     </div> 
                 )}
