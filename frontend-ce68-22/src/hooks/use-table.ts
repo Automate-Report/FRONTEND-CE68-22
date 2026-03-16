@@ -43,6 +43,11 @@ export function useTable<T>(defaultRowsPerPage = 6) {
     );
   };
 
+  const setRowsPerPageDirectly = (size: number) => {
+    setRowsPerPage(size);
+    setPage(0);
+};
+
   return {
     page,
     rowsPerPage,
@@ -51,5 +56,6 @@ export function useTable<T>(defaultRowsPerPage = 6) {
     handleChangePage,
     handleChangeRowsPerPage,
     handleSort, // เปลี่ยนชื่อจาก cycleSort เป็น handleSort ให้สื่อความหมายกลางๆ
+    setRowsPerPageDirectly
   };
 }

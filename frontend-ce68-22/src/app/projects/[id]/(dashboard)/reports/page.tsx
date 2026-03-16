@@ -6,15 +6,19 @@ import { useParams } from "next/navigation";
 // Hooks & Services
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
-import { useProject } from "@/src/hooks/project/use-project";
+import { GenericPagination } from "@/src/components/Common/GenericPagination";
+
 import { getMe } from "@/src/services/auth.service";
-import { useReportDownload } from "@/src/hooks/report/use-ReportDownload";
 import { penTestReportService } from "@/src/services/penTestReport.service";
-import { useGetAllAssetNames } from "@/src/hooks/asset/use-getAllNames"; 
-import { usePenTestReports } from "@/src/hooks/report/use-penTestReports";
+ 
 import { CreateReportPayload } from "@/src/types/report";
+
 import { useTable } from "@/src/hooks/use-table";
 import { useDebounce } from "@/src/hooks/use-debounce";
+import { useProject } from "@/src/hooks/project/use-project";
+import { useGetAllAssetNames } from "@/src/hooks/asset/use-getAllNames";
+import { useReportDownload } from "@/src/hooks/report/use-ReportDownload";
+import { usePenTestReports } from "@/src/hooks/report/use-penTestReports";
 
 // Icons (MUI)
 import { Description as ReportIcon, Close as CloseIcon } from "@mui/icons-material";
@@ -47,17 +51,35 @@ export default function ReportCenterPage() {
   const { id: projectIdStr } = useParams();
   const projectId = parseInt(projectIdStr as string);
 
-  const { downloadReport, isLoading: isDownloading } = useReportDownload();
+  const { downloadReport } = useReportDownload();
   const { data: allAssets } = useGetAllAssetNames(projectId);
 
-  // All Report
+  // Table & Fetching Logic
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearch = useDebounce(searchQuery, 500);
-  const [statusFilter, setStatusFilter] = useState<string>("ALL");
-  const { page, rowsPerPage, sortBy, sortOrder, handleChangePage, handleChangeRowsPerPage } = useTable();
-  const { data: response, isLoading, refetch } = usePenTestReports(projectId, page + 1, rowsPerPage, sortBy, sortOrder, debouncedSearch, statusFilter);
+  const [statusFilter] = useState<string>("ALL");
+  
+  const { 
+    page, 
+    rowsPerPage, 
+    sortBy, 
+    sortOrder, 
+    handleChangePage, 
+    handleChangeRowsPerPage,
+    setRowsPerPageDirectly
+  } = useTable();
 
-  // ── State ──
+  const { data: response, isLoading, refetch } = usePenTestReports(
+    projectId, 
+    page + 1, 
+    rowsPerPage, 
+    sortBy, 
+    sortOrder, 
+    debouncedSearch, 
+    statusFilter
+  );
+
+  // States
   const [openCreate, setOpenCreate] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
@@ -76,56 +98,55 @@ export default function ReportCenterPage() {
       try {
         const res = await getMe();
         setCurrentUser(res.user);
-      } catch (error) {
-        console.error(error);
-      }
+      } catch (error) { console.error(error); }
     };
     fetchUser();
   }, []);
 
-  // ── Logic ──
-  const isOwner = project?.role?.toLowerCase() === "owner";
-
-  // ── Handlers ──
+  // Handlers
   const handleCreateReport = async () => {
-    if (!newReport.name || !newReport.assets || isNaN(projectId)) return;
+    if (!newReport.name || isNaN(projectId)) return;
 
-    setIsGenerating(true);
+    // ✅ Close modal immediately for better UX
+    setOpenCreate(false); 
+    setIsGenerating(true); 
+
     try {
       const payload: CreateReportPayload = {
         reportName: newReport.name,
-        assetIds: newReport.assets.length === 0 ? [] : newReport.assets, 
+        assetIds: newReport.assets, 
         startDate: newReport.startDate,
         endDate: newReport.endDate,
       };
 
-      const response = await penTestReportService.create(projectId, payload);
-
+      await penTestReportService.create(projectId, payload);
       await refetch();
-      setOpenCreate(false);
-      setNewReport({ ...newReport, name: "", assets: [] });
+      
+      // Reset form
+      setNewReport({ 
+        name: "", 
+        assets: [], 
+        startDate: new Date().toISOString().split("T")[0],
+        endDate: new Date().toISOString().split("T")[0],
+      });
     } catch (error) {
       console.error("Failed to create report:", error);
- 
+      alert("ไม่สามารถสร้าง Report ได้ กรุณาตรวจสอบข้อมูลอีกครั้ง");
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const handleDelete = (report: Report) => setDeleteTarget(report);
-
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
-    setDeleteTarget(null);
-  };
-
-  const toggleAsset = (id: number) => {
-    setNewReport(prev => ({
-      ...prev,
-      assets: prev.assets.includes(id)
-        ? prev.assets.filter(a => a !== id) // เอาออกถ้ามีแล้ว
-        : [...prev.assets, id]             // เพิ่มเข้าถ้ายังไม่มี
-    }));
+    try {
+      await penTestReportService.delete(projectId, deleteTarget.id);
+      setDeleteTarget(null);
+      await refetch();
+    } catch (error) {
+      console.error("Failed to delete report:", error);
+      alert("ไม่สามารถลบ Report ได้");
+    }
   };
 
   const onDownloadPdf = (report: Report) => {
@@ -151,6 +172,7 @@ export default function ReportCenterPage() {
         ]}
       />
 
+      {/* Header & Search (คงเดิม) */}
       <div className="flex items-center justify-between mb-8">
         <div className="w-full flex flex-col">
           <h1 className="font-bold text-[36px]">Report Center</h1>
@@ -171,27 +193,46 @@ export default function ReportCenterPage() {
         </div>
 
         <div className="flex gap-8 items-center">
-          <button onClick={() => alert("Filter logic here")} className={FILTER_BUTTON_STYLE}>
-            Filter <FilterIcon />
-          </button>
+          <button className={FILTER_BUTTON_STYLE}>Filter <FilterIcon /></button>
           <button onClick={() => setOpenCreate(true)} className={`${GREEN_BUTTON_STYLE} whitespace-nowrap`}>
             Generate Report <ReportIcon className="ml-2" />
           </button>
         </div>
       </div>
 
+      {/* Reports List */}
       <div className="flex flex-col gap-4 min-h-[400px]">
-        {/* เช็ค isLoading ของการดึง Report ด้วย */}
-        {reports.map((report, idx) => (
-          <ReportCard
-            index={idx}
-            key={report.id} 
-            report={report}
-            onDelete={handleDelete}
-            onDownloadPdf={onDownloadPdf}  
-            onDownloadDocx={onDownloadDocx} 
-          />
-        ))}
+        {isLoading ? (
+          <Spinner />
+        ) : reports.length > 0 ? (
+          <>
+            {reports.map((report, idx) => (
+              <ReportCard
+                index={idx}
+                key={report.id} 
+                report={report}
+                onDelete={() => setDeleteTarget(report)}
+                onDownloadPdf={onDownloadPdf}  
+                onDownloadDocx={onDownloadDocx} 
+              />
+            ))}
+            
+            <div className="mt-8">
+              <GenericPagination
+                count={totalCnt}
+                page={page}
+                rowsPerPage={rowsPerPage}
+                onPageChange={(newPage) => handleChangePage(null, newPage)}
+                onRowsPerPageChange={(newSize) => setRowsPerPageDirectly(newSize)}
+                labelRowsPerPage="Reports per page:"
+              />
+            </div>
+          </>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-[#2D2F39] py-20 text-center">
+            <p className="text-[#404F57]">No reports found.</p>
+          </div>
+        )}
       </div>
 
       {/* ── Dialog: Create Report ──────────────────────────────────────────── */}
