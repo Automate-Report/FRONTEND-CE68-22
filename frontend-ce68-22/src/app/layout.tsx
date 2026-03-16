@@ -29,7 +29,7 @@ export default async function RootLayout({
   
   return (
     <html lang="en" className="h-full">
-      <body className={`${ibmPlexSansThai.variable} font-sans antialiased min-h-full bg-[#0F1518] flex flex-col`} suppressHydrationWarning={true}>
+      <body className={`${ibmPlexSansThai.variable} font-sans antialiased h-screen bg-[#0F1518] flex flex-col overflow-hidden`} suppressHydrationWarning={true}>
         <QueryProvider>
           {showNavbar && <NavBar />}
           {/* เอา overflow-hidden ออกจากตรงนี้เพื่อให้ Layout ลูกจัดการการ scroll เอง */}
