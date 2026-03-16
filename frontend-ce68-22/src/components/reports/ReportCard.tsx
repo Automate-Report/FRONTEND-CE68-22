@@ -57,7 +57,7 @@ export default function ReportCard({
                         <ReportIcon sx={{ fontSize: 28 }} className="shrink-0 text-[#8FFF9C]" />
                         <div className="min-w-0">
                             <p className="truncate font-bold text-[#FBFBFB]">{report.name}</p>
-                            <p className="text-xs text-[#9AA6A8] mt-0.5">Created by {report.created_by}</p>
+                            <p className="text-xs text-[#9AA6A8] mt-0.5">Created by {report.createdBy}</p>
                         </div>
                     </div>
 
@@ -123,7 +123,7 @@ export default function ReportCard({
                         <p className="text-[10px] font-semibold uppercase tracking-wider text-[#404F57]">
                             Generated
                         </p>
-                        <p className="mt-0.5 text-sm font-semibold text-[#FBFBFB]">{report.date}</p>
+                        <p className="mt-0.5 text-sm font-semibold text-[#FBFBFB]">{report.createdDate}</p>
                     </div>
                 </div>
             </div>

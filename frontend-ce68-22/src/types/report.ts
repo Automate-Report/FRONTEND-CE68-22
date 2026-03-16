@@ -1,20 +1,14 @@
-export interface PenTestReport {
-    id: number;
-    projectId: number;
-    fileName: string;
-    fileSize: number;
-    createdBy: string;
-    createdAt: string;
-}
-
 export interface Report {
     id: number;
     name: string;
     asset: string;
-    date: string;
-    created_by: string;
+    createdDate: string;
+    createdBy: string;
+    username: string;
     startDate: string;
     endDate: string;
+    filePathPDF: string;
+    filePathWord: string;
 }
 
 export interface CreateReportPayload {

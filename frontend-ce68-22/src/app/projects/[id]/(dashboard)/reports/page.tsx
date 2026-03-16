@@ -99,32 +99,21 @@ export default function ReportCenterPage() {
         endDate: newReport.endDate,
       };
 
-      // ✅ ตรวจสอบ URL ใน service ว่าเป็น `/pentest_reports/${projectId}`
       const response = await penTestReportService.create(projectId, payload);
-
-      const reportData: Report = {
-        id: response.id || Date.now(),
-        name: newReport.name,
-        // หาชื่อ Asset จาก ID เพื่อแสดงผลในตาราง
-        asset: allAssets?.find(a => a.id === Number(newReport.asset))?.name || "Unknown Asset",
-        date: new Date().toISOString().split("T")[0],
-        created_by: currentUser?.email || "me",
-        startDate: newReport.startDate,
-        endDate: newReport.endDate,
-      };
 
       setOpenCreate(false);
       setNewReport({ ...newReport, name: "", asset: "" });
 
     } catch (error) {
       console.error("Failed to create report:", error);
-      alert("Error 404: Endpoint not found or Project ID invalid. Please check API Path.");
+ 
     } finally {
       setIsGenerating(false);
     }
   };
 
   const handleDelete = (report: Report) => setDeleteTarget(report);
+
   const handleConfirmDelete = () => {
     if (!deleteTarget) return;
     setDeleteTarget(null);
@@ -181,8 +170,8 @@ export default function ReportCenterPage() {
             key={report.id}
             report={report}
             onDelete={handleDelete}
-            onDownloadPdf={() => downloadReport(report.id, "pdf", report.fileName)}
-            onDownloadDocx={() => downloadReport(report.id, "docx", report.fileName)}
+            onDownloadPdf={() => downloadReport(report.id, "pdf", report.filePathPDF)}
+            onDownloadDocx={() => downloadReport(report.id, "docx", report.filePathWord)}
           />
         ))}
 
