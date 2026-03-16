@@ -10,7 +10,7 @@ import { useProject } from "@/src/hooks/project/use-project";
 import { getMe } from "@/src/services/auth.service";
 import { useReportDownload } from "@/src/hooks/report/use-ReportDownload";
 import { penTestReportService } from "@/src/services/penTestReport.service";
-import { useGetAllAssetNames } from "@/src/hooks/asset/use-getAllNames"; // 🆕 Import hook สำหรับดึง Asset จริง
+import { useGetAllAssetNames } from "@/src/hooks/asset/use-getAllNames"; 
 import { usePenTestReports } from "@/src/hooks/report/use-penTestReports";
 import { CreateReportPayload } from "@/src/types/report";
 import { useTable } from "@/src/hooks/use-table";
@@ -59,12 +59,12 @@ export default function ReportCenterPage() {
 
   // ── State ──
   const [openCreate, setOpenCreate] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false); // 🆕 สำหรับ Loading ตอนสร้าง
+  const [isGenerating, setIsGenerating] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [newReport, setNewReport] = useState({
     name: "",
-    asset: "", // 🆕 จะเก็บเป็น Asset ID (string จาก select value)
+    assets: [] as number[],
     startDate: new Date().toISOString().split("T")[0],
     endDate: new Date().toISOString().split("T")[0],
   });
@@ -88,22 +88,22 @@ export default function ReportCenterPage() {
 
   // ── Handlers ──
   const handleCreateReport = async () => {
-    if (!newReport.name || !newReport.asset || isNaN(projectId)) return;
+    if (!newReport.name || !newReport.assets || isNaN(projectId)) return;
 
     setIsGenerating(true);
     try {
       const payload: CreateReportPayload = {
         reportName: newReport.name,
-        assetIds: [Number(newReport.asset)], 
+        assetIds: newReport.assets.length === 0 ? [] : newReport.assets, 
         startDate: newReport.startDate,
         endDate: newReport.endDate,
       };
 
       const response = await penTestReportService.create(projectId, payload);
 
+      await refetch();
       setOpenCreate(false);
-      setNewReport({ ...newReport, name: "", asset: "" });
-
+      setNewReport({ ...newReport, name: "", assets: [] });
     } catch (error) {
       console.error("Failed to create report:", error);
  
@@ -117,6 +117,15 @@ export default function ReportCenterPage() {
   const handleConfirmDelete = () => {
     if (!deleteTarget) return;
     setDeleteTarget(null);
+  };
+
+  const toggleAsset = (id: number) => {
+    setNewReport(prev => ({
+      ...prev,
+      assets: prev.assets.includes(id)
+        ? prev.assets.filter(a => a !== id) // เอาออกถ้ามีแล้ว
+        : [...prev.assets, id]             // เพิ่มเข้าถ้ายังไม่มี
+    }));
   };
 
   if (isProjectLoading) return <Spinner />;
@@ -163,19 +172,22 @@ export default function ReportCenterPage() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-4">
-        {reports.map((report, index) => (
-          <ReportCard
-            index={index}
-            key={report.id}
-            report={report}
-            onDelete={handleDelete}
-            onDownloadPdf={() => downloadReport(report.id, "pdf", report.file_path_pdf)}
-            onDownloadDocx={() => downloadReport(report.id, "docx", report.file_path_word)}
-          />
-        ))}
-
-        {reports.length === 0 && (
+      <div className="flex flex-col gap-4 min-h-[400px]">
+        {/* เช็ค isLoading ของการดึง Report ด้วย */}
+        {isLoading ? (
+          <Spinner /> 
+        ) : reports && reports.length > 0 ? (
+          reports.map((report, idx) => (
+            <ReportCard
+              index={idx}
+              key={`report-${report.id}-${idx}`}
+              report={report}
+              onDelete={handleDelete}
+              onDownloadPdf={() => downloadReport(report.id, "pdf", report.file_path_pdf || report.name)}
+              onDownloadDocx={() => downloadReport(report.id, "docx", report.file_path_word || report.name)}
+            />
+          ))
+        ) : (
           <div className="rounded-2xl border border-dashed border-[#2D2F39] py-20 text-center">
             <p className="text-[#404F57]">No reports found.</p>
           </div>
@@ -184,54 +196,117 @@ export default function ReportCenterPage() {
 
       {/* ── Dialog: Create Report ──────────────────────────────────────────── */}
       {openCreate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="w-full max-w-md rounded-2xl border border-[#2D2F39] bg-[#1E2429] p-6 shadow-2xl relative">
-            {isGenerating && (
-                <div className="absolute inset-0 bg-[#1E2429]/80 z-10 flex items-center justify-center rounded-2xl">
-                    <Spinner />
-                </div>
-            )}
             
+            {/* Loading Overlay */}
+            {isGenerating && (
+              <div className="absolute inset-0 bg-[#1E2429]/80 z-10 flex flex-col items-center justify-center rounded-2xl">
+                <Spinner />
+                <p className="mt-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#8FFF9C] animate-pulse">
+                  Generating Report
+                </p>
+              </div>
+            )}
+
+            {/* Header */}
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-lg font-black text-[#FBFBFB]">Generate Pentest Report</h2>
-              <button onClick={() => setOpenCreate(false)} className="text-[#9AA6A8] hover:text-[#FBFBFB]">
+              <h2 className="text-lg font-black uppercase tracking-tight text-[#FBFBFB]">
+                Generate Pentest Report
+              </h2>
+              <button 
+                onClick={() => setOpenCreate(false)} 
+                className="rounded-lg p-1 text-[#9AA6A8] transition-colors hover:bg-[#FE3B46]/10 hover:text-[#FE3B46]"
+              >
                 <CloseIcon fontSize="small" />
               </button>
             </div>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-5">
+              {/* Report Name */}
               <div>
                 <label className={labelCls}>Report Name</label>
                 <input
                   className={inputCls}
                   value={newReport.name}
                   onChange={(e) => setNewReport({ ...newReport, name: e.target.value })}
-                  placeholder="e.g. Security_Audit_Q1"
+                  placeholder="e.g. Q1_Security_Vulnerability_Scan"
                 />
               </div>
 
+              {/* Multi-select Asset Scope */}
               <div>
-                <label className={labelCls}>Select Asset Scope</label>
-                <select
-                  className={inputCls}
-                  value={newReport.asset}
-                  onChange={(e) => setNewReport({ ...newReport, asset: e.target.value })}
-                >
-                  <option value="" disabled className="text-[#404F57]">Select an asset...</option>
-                  {allAssets?.map((asset) => (
-                    <option key={asset.id} value={asset.id} className="bg-[#0D1014]">
-                      {asset.name}
-                    </option>
-                  ))}
-                </select>
+                <label className={labelCls}>
+                  Asset Scope {newReport.assets.length > 0 ? `(${newReport.assets.length} Selected)` : "(All Assets)"}
+                </label>
+                
+                <div className="mt-2 flex flex-col gap-1 max-h-[180px] overflow-y-auto pr-2 custom-scrollbar border border-[#2D2F39] rounded-xl p-2 bg-[#0D1014]">
+                  
+                  {/* Option: All Assets (Default) */}
+                  <div 
+                    onClick={() => setNewReport({ ...newReport, assets: [] })}
+                    className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all border ${
+                      newReport.assets.length === 0 
+                        ? "bg-[#8FFF9C]/10 border-[#8FFF9C]/40" 
+                        : "border-transparent hover:bg-[#1E2429]"
+                    }`}
+                  >
+                    <div className={`w-5 h-5 rounded flex items-center justify-center border-2 transition-all ${
+                      newReport.assets.length === 0 ? "bg-[#8FFF9C] border-[#8FFF9C]" : "border-[#404F57]"
+                    }`}>
+                      {newReport.assets.length === 0 && <CloseIcon sx={{ fontSize: 14, color: "#0D1014" }} />}
+                    </div>
+                    <span className={`text-sm font-bold uppercase tracking-wider ${
+                      newReport.assets.length === 0 ? "text-[#8FFF9C]" : "text-[#9AA6A8]"
+                    }`}>
+                      All Assets (Default)
+                    </span>
+                  </div>
+
+                  <div className="h-[1px] bg-[#2D2F39] my-1 mx-2" />
+
+                  {/* Render Asset List from API */}
+                  {allAssets?.map((asset) => {
+                    const isSelected = newReport.assets.includes(asset.id);
+                    return (
+                      <div 
+                        key={asset.id}
+                        onClick={() => {
+                          const nextAssets = isSelected
+                            ? newReport.assets.filter(id => id !== asset.id)
+                            : [...newReport.assets, asset.id];
+                          setNewReport({ ...newReport, assets: nextAssets });
+                        }}
+                        className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all border ${
+                          isSelected 
+                            ? "bg-[#8FFF9C]/10 border-[#8FFF9C]/40" 
+                            : "border-transparent hover:bg-[#1E2429]"
+                        }`}
+                      >
+                        <div className={`w-5 h-5 rounded flex items-center justify-center border-2 transition-all ${
+                          isSelected ? "bg-[#8FFF9C] border-[#8FFF9C]" : "border-[#404F57]"
+                        }`}>
+                          {isSelected && <div className="w-2.5 h-2.5 bg-[#0D1014] rounded-sm" />}
+                        </div>
+                        <span className={`text-sm font-medium ${isSelected ? "text-[#FBFBFB]" : "text-[#9AA6A8]"}`}>
+                          {asset.name}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="mt-2 text-[10px] text-[#404F57] italic">
+                  * Leave "All Assets" selected if you want to include every asset in the report.
+                </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {/* Date Range Selection */}
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className={labelCls}>Testing Start</label>
                   <input
                     type="date"
-                    className={inputCls}
+                    className={`${inputCls} `}
                     value={newReport.startDate}
                     onChange={(e) => setNewReport({ ...newReport, startDate: e.target.value })}
                   />
@@ -240,7 +315,7 @@ export default function ReportCenterPage() {
                   <label className={labelCls}>Testing End</label>
                   <input
                     type="date"
-                    className={inputCls}
+                    className={`${inputCls} `}
                     value={newReport.endDate}
                     onChange={(e) => setNewReport({ ...newReport, endDate: e.target.value })}
                   />
@@ -248,16 +323,20 @@ export default function ReportCenterPage() {
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end gap-3">
-              <button onClick={() => setOpenCreate(false)} className="px-4 py-2 text-sm text-[#FBFBFB] hover:bg-[#2D2F39] rounded-lg">
+            {/* Footer Actions */}
+            <div className="mt-8 flex justify-end gap-3">
+              <button 
+                onClick={() => setOpenCreate(false)} 
+                className="px-5 py-2 text-xs font-black uppercase tracking-widest text-[#9AA6A8] hover:text-[#FBFBFB] transition-colors"
+              >
                 Cancel
               </button>
               <button
-                disabled={!newReport.name || !newReport.asset || isGenerating}
-                onClick={handleCreateReport}
-                className="rounded-lg bg-[#8FFF9C] px-5 py-2 text-sm font-extrabold text-[#0D1014] disabled:opacity-40"
+                disabled={!newReport.name || isGenerating}
+                onClick={() => handleCreateReport()}
+                className="rounded-xl bg-[#8FFF9C] px-8 py-2.5 text-xs font-black uppercase tracking-widest text-[#0D1014] shadow-[0_0_20px_rgba(143,255,156,0.3)] transition-all hover:bg-[#AFFFB9] disabled:opacity-30 active:scale-95"
               >
-                {isGenerating ? "Generating..." : "Generate"}
+                {isGenerating ? "Processing..." : "Generate"}
               </button>
             </div>
           </div>
