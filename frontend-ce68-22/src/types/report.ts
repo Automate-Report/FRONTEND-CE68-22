@@ -1,13 +1,10 @@
 export interface PenTestReport {
     id: number;
-    job_id: number;
-    job_name: string;
-    schedule_id: number;
-    schedule_name: string;
-    file_name: string;
-    file_path: string;
-    file_size: string;
-    created_at: string;
+    projectId: number;
+    fileName: string;
+    fileSize: number;
+    createdBy: string;
+    createdAt: string;
 }
 
 export interface Report {
@@ -16,6 +13,13 @@ export interface Report {
     asset: string;
     date: string;
     created_by: string;
+    startDate: string;
+    endDate: string;
+}
+
+export interface CreateReportPayload {
+    reportName: string;
+    assetIds?: number[];
     startDate: string;
     endDate: string;
 }
