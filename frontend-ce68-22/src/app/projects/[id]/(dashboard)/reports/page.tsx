@@ -24,14 +24,11 @@ import { usePenTestReports } from "@/src/hooks/report/use-penTestReports";
 
 // Icons (MUI)
 import { Description as ReportIcon, Close as CloseIcon } from "@mui/icons-material";
-import { FILTER_BUTTON_STYLE, GREEN_BUTTON_STYLE } from "@/src/styles/buttonStyle";
+import { GREEN_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 
 // Components
 import ReportCard from "@/src/components/reports/ReportCard";
 import { Report } from "@/src/types/report";
-import { INPUT_BOX_WITH_ICON_STYLE_DIV, INPUT_BOX_WITH_ICON_STYLE_INPUT } from "@/src/styles/inputBoxStyle";
-import MagIcon from "@/src/components/icon/MagnifyingGlass";
-import FilterIcon from "@/src/components/icon/Filter";
 
 // ── Tiny reusable atoms ───────────────────────────────────────────────────────
 function Spinner() {
