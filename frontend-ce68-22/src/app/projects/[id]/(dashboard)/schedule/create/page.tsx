@@ -56,16 +56,16 @@ export default function CreateSchedulePage() {
     const [repeatTrue, setRepeatTrue] = useState(false);
     const [cronTimes, setCronTimes] = useState([{ min: "0", hr: "0", day: "*", month: "*", week: "*" }]);
     const [days, setDays] = useState([
-        { name: "Sun", active: false }, 
-        { name: "Mon", active: false }, 
+        { name: "Sun", active: false },
+        { name: "Mon", active: false },
         { name: "Tue", active: false },
-        { name: "Wed", active: false }, 
-        { name: "Thu", active: false }, 
-        { name: "Fri", active: false }, 
+        { name: "Wed", active: false },
+        { name: "Thu", active: false },
+        { name: "Fri", active: false },
         { name: "Sat", active: false }
     ]);
     const [dayOfMonth, setDayOfMonth] = useState(Array.from({ length: 31 }, (_, i) => ({ name: String(i + 1), active: false })));
-    
+
     // Create Asset Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -76,24 +76,21 @@ export default function CreateSchedulePage() {
     const paginatedAssets = allAssetName?.slice(startIndex, startIndex + assetRowsPerPage) || [];
 
     // Error states
-    const [nameError, setNameError] = useState<boolean>(false);
     const [errors, setErrors] = useState({ name: false, attackType: false, asset: false });
     const [repeatedTimeError, setRepeatedTimeError] = useState<boolean>(false);
-    const [attackTypeError, setAttackTypeError] = useState<boolean>(false);
-    const [assetError, setAssetError] = useState<boolean>(false);
 
     // Validation Logic
     const validateStep = (step: number) => {
         if (step === 1) {
             const hasError = form.scheduleName === "";
-            setErrors(prev => ({ ...prev, name: hasError }));
-            return !hasError;
+            const attackError = form.attackType.length === 0;
+            setErrors(prev => ({ ...prev, attackType: attackError , name: hasError }));
+            return !attackError && !hasError;
         }
         if (step === 2) {
-            const attackError = form.attackType.length === 0;
             const assetError = !form.assetId || form.assetId === 0;
-            setErrors(prev => ({ ...prev, attackType: attackError, asset: assetError }));
-            return !attackError && !assetError;
+            setErrors(prev => ({ ...prev, asset: assetError }));
+            return !assetError;
         }
         return true;
     };
@@ -201,20 +198,8 @@ export default function CreateSchedulePage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        //clear errors
-        setNameError(false);
-        setAttackTypeError(false);
-        setAssetError(false);
-
         const cronString = changeUserInputToCronString();
         if (!cronString) return;
-
-        //error check
-        let flagError = false;
-        if (form.scheduleName === "") { setNameError(true); flagError = true; }
-        if (form.attackType.length === 0) { setAttackTypeError(true); flagError = true; }
-        if (!form.assetId || form.assetId === 0) { setAssetError(true); flagError = true; }
-        if (flagError) { setRunNow(false); return; }
 
         const finalAtkType = form.attackType.length === 2 ? "all" : form.attackType[0];
 
@@ -264,7 +249,7 @@ export default function CreateSchedulePage() {
     ];
 
     const attackType = [
-        { display: "SQL Injection", value: "sqli", desc: "Manipulate database queries through input."},
+        { display: "SQL Injection", value: "sqli", desc: "Manipulate database queries through input." },
         { display: "Cross-site Scripting", value: "xss", desc: " Inject malicious scripts into web pages." }
     ];
 
@@ -272,13 +257,13 @@ export default function CreateSchedulePage() {
         <div className="flex flex-col w-full text-[#E6F0E6] max-w-7xl mx-auto">
             <GenericBreadcrums items={breadcrumbItems} />
 
-            <div className="mb-8">
-                <h1 className="text-center text-[42px] font-bold mb-2">Schedule a scan</h1>
-                <p className="text-center text-[#9AA6A8] text-sm">Set up automated scans to run at your preferred time. Keep your system monitored and detect issues without manual checks.</p>
+            <div className="mt-6 mb-12 flex flex-col justify-center items-center">
+                <h1 className="text-center text-4xl font-bold mb-6">Schedule a scan</h1>
+                <p className="text-center text-[#9AA6A8] text-sm w-[50%]">Set up automated scans to run at your preferred time. Keep your system monitored and detect issues without manual checks.</p>
             </div>
 
             {/* --- Section 2: Stepper UI --- */}
-            <div className="flex justify-center items-center">
+            <div className="flex justify-center items-center mb-6">
                 {stepItems.map((item, index) => (
                     <div key={item.step} className="flex items-center">
                         <div className="flex flex-col items-center relative">
@@ -303,107 +288,99 @@ export default function CreateSchedulePage() {
             <div className="mt-12">
                 {currentStep === 1 && (
                     <div className="flex flex-col gap-6">
-                        <div className="bg-[#151B1D] px-6 py-5 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-3">
-                            <label className="font-semibold text-[#E6F0E6] text-[20px] ">
+                        <div className="bg-[#151B1D] px-10 py-8 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-6">
+                            <label className="font-semibold text-[#E6F0E6] text-xl ">
                                 Select your schedule’s name
                             </label>
-                            <input 
-                                type="text" 
-                                className={`bg-[#0F1518] px-3 py-1 border-2 rounded-lg border-[#404F57] w-full ${errors.name ? 'border-[#FE3B46]' : ''}`}
+                            <input
+                                type="text"
+                                className={INPUT_BOX_NO_ICON_STYLE}
                                 placeholder="e.g., Weekly Security Audit"
                                 value={form.scheduleName}
-                                onChange={(e) => setForm({...form, scheduleName: e.target.value})}
+                                onChange={(e) => setForm({ ...form, scheduleName: e.target.value })}
                             />
-                            {errors.name && <p className="text-[#FE3B46] text-xs mt-2 font-bold italic">Schedule name is required</p>}
+                            {errors.name && <p className="text-[#FE3B46] text-sm font-md italic">Schedule name is required</p>}
 
                         </div>
-                        <div className="bg-[#151B1D] px-6 py-5 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-3">
-                            <label className="font-semibold text-[#E6F0E6] text-[20px]"> Select Attack Type</label>
-                            <div className="flex justify-around">
+                        <div className="bg-[#151B1D] px-10 py-8 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-6">
+                            <label className="font-semibold text-[#E6F0E6] text-xl"> Select Attack Type</label>
+                            <div className="flex justify-between w-full gap-[32px]">
                                 {attackType.map((item, index) => {
                                     const selectedList = Array.isArray(form.attackType) ? form.attackType : [];
                                     const isSelected = selectedList.includes(item.value);
 
                                     const handleToggle = () => {
-                                        let newList;
-                                        if (isSelected) {
-                                            // ถ้าเลือกอยู่แล้ว => เอาออก
-                                            newList = selectedList.filter(v => v !== item.value);
-                                        } else {
-                                            // ถ้ายังไม่เลือก => เพิ่มเข้า
-                                            newList = [...selectedList, item.value];
-                                        }
-                                        
+                                        // If already selected = Clear choices then select that1; otherwise select only this one
+                                        const newList = isSelected ? [] : [item.value];
                                         setForm({ ...form, attackType: newList });
                                     };
 
                                     return (
-                                        <>
-                                            <div 
-                                                key={index}
-                                                onClick={handleToggle}
-                                                className={`flex gap-4 p-4 min-w-[466px]  cursor-pointer border-2 rounded-lg transition-all duration-300 active:scale-[0.98]
-                                                    ${isSelected 
-                                                        ? "bg-[#1E2429] border-[#8FFF9C] shadow-[0_0_20px_rgba(143,255,156,0.15)]" 
-                                                        : "bg-[#0F1518] border-[#404F57] hover:border-[#667a85]"
-                                                    }`}
-                                            >
-                                                {/* Icon Box */}
-                                                <div className={`p-4 rounded-xl transition-colors duration-300 
-                                                    ${isSelected 
-                                                        ? "bg-[#8FFF9C] text-[#0D1014] border-[#8FFF9C]" 
-                                                        : "bg-[#404F57] text-[#E6F0E6] border-transparent"
-                                                    }`}>
-                                                    
-                                                    {/* ถ้าเลือกอยู่ ให้โชว์ Checkmark ถ้าไม่เลือกให้โชว์ RobotIcon */}
-                                                    {isSelected ? (
-                                                        <div className="w-8 h-8 flex items-center justify-center animate-in zoom-in duration-300">
-                                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-                                                                <polyline points="20 6 9 17 4 12"></polyline>
-                                                            </svg>
-                                                        </div>
-                                                    ) : (
-                                                        <RobotIcon className="w-8 h-8" />
-                                                    )}
-                                                </div>
-                                                
-                                                <div className="flex flex-col gap-1 justify-center">
-                                                    <p className={`text-[20px] font-bold transition-colors 
-                                                        ${isSelected ? "text-[#8FFF9C]" : "text-[#FBFBFB]"}`}>
-                                                        {item.display}
-                                                    </p>
-                                                    <p className="text-[13px] font-light text-[#E6F0E6]">
-                                                        {item.desc}
-                                                    </p>
-                                                </div>
-                                                
+                                        <div
+                                            key={index}
+                                            onClick={handleToggle}
+                                            className={`flex gap-4 p-4 w-full cursor-pointer border-2 rounded-lg transition-all duration-300 active:scale-[0.98]
+                                                    ${isSelected
+                                                    ? "bg-[#1E2429] border-[#8FFF9C] shadow-[0_0_20px_rgba(143,255,156,0.15)]"
+                                                    : "bg-[#0F1518] border-[#404F57] hover:border-[#667a85]"
+                                                }`}
+                                        >
+                                            {/* Icon Box */}
+                                            <div className={`p-4 rounded-xl transition-colors duration-300 
+                                                    ${isSelected
+                                                    ? "bg-[#8FFF9C] text-[#0D1014] border-[#8FFF9C]"
+                                                    : "bg-[#404F57] text-[#E6F0E6] border-transparent"
+                                                }`}>
+
+                                                {/* ถ้าเลือกอยู่ ให้โชว์ Checkmark ถ้าไม่เลือกให้โชว์ RobotIcon */}
+                                                {isSelected ? (
+                                                    <div className="w-8 h-8 flex items-center justify-center animate-in zoom-in duration-300">
+                                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                                        </svg>
+                                                    </div>
+                                                ) : (
+                                                    <RobotIcon className="w-8 h-8" />
+                                                )}
                                             </div>
-                                        </>                         
+
+                                            <div className="flex flex-col gap-1 justify-center">
+                                                <p className={`text-xl font-bold transition-colors 
+                                                        ${isSelected ? "text-[#8FFF9C]" : "text-[#FBFBFB]"}`}>
+                                                    {item.display}
+                                                </p>
+                                                <p className="text-[13px] font-light text-[#E6F0E6]">
+                                                    {item.desc}
+                                                </p>
+                                            </div>
+
+                                        </div>
                                     );
                                 })}
                             </div>
-                            {errors.attackType && <p className="text-[#FE3B46] text-xs font-bold italic text-center">Please select an attack type</p>}
+                            {errors.attackType && <p className="text-[#FE3B46] text-sm font-md italic text-center">Please select an attack type</p>}
                         </div>
                     </div>
                 )}
 
                 {currentStep === 2 && (
                     <div className="flex flex-col gap-6 animate-in fade-in duration-500">
-                        <div className="bg-[#151B1D] px-6 py-5 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-6">
-                            <div className="flex justify-between">
+                        <div className="bg-[#151B1D] px-10 py-8 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-6">
+                            <div className="flex justify-between items-center">
                                 <div className="flex flex-col gap-1">
-                                    <label className="font-semibold text-[#E6F0E6] text-[20px]">Select Target Asset</label>
+                                    <label className="font-semibold text-[#E6F0E6] text-xl">Select Target Asset</label>
                                     <p className="text-sm text-[#9AA6A8]">Choose the specific asset you want to perform the security scan on.</p>
                                 </div>
-                                <button 
+                                <button
                                     type="button"
                                     onClick={() => setIsModalOpen(true)}
                                     className="flex items-center justify-center text-center font-semibold h-[42px] gap-2 px-6 py-2 text-[#E6F0E6] bg-[#0F1518] border-[2px] border-[rgba(64,79,87,0.4)] rounded-xl hover:bg-[rgba(64,79,87,0.4)] hover:text-white cursor-pointer transition"
                                 >
                                     Create New Asset
+                                    <AssetIcon />
                                 </button>
                             </div>
-                            
+
 
                             {/* Grid แสดง Asset (ใช้ paginatedAssets แทน) */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
@@ -450,28 +427,30 @@ export default function CreateSchedulePage() {
 
                             {/* ✅ ใส่ GenericPagination ตรงนี้ */}
                             <div className="mt-2 bg-[#0D1014]/50 rounded-xl border border-[#2D2F39]">
-                                <GenericPagination 
-                                    count={allAssetName?.length || 0} 
-                                    page={assetPage} 
-                                    rowsPerPage={assetRowsPerPage} 
-                                    onPageChange={(newPage) => setAssetPage(newPage)} 
+                                <GenericPagination
+                                    count={allAssetName?.length || 0}
+                                    page={assetPage}
+                                    rowsPerPage={assetRowsPerPage}
+                                    onPageChange={(newPage) => setAssetPage(newPage)}
                                     rowsPerPageOptions={[4, 8, 16]}
                                     onRowsPerPageChange={(newRows) => {
                                         setAssetRowsPerPage(newRows);
                                         setAssetPage(0); // reset ไปหน้าแรกเมื่อเปลี่ยนจำนวนแสดงผล
-                                    }} 
-                                    labelRowsPerPage = "Assets per page:"
+                                    }}
+                                    labelRowsPerPage="Assets per page:"
                                 />
                             </div>
 
-                            <CreateAssetModal 
+                            {errors.asset && <p className="text-[#FE3B46] text-sm font-md italic text-center">Please select an asset</p>}
+
+                            <CreateAssetModal
                                 projectName={project?.name || "Project"}
-                                open={isModalOpen} 
-                                onClose={() => setIsModalOpen(false)} 
-                                projectId={projectId} 
+                                open={isModalOpen}
+                                onClose={() => setIsModalOpen(false)}
+                                projectId={projectId}
                             />
                         </div>
-                    </div> 
+                    </div>
                 )}
 
                 {currentStep === 3 && (
@@ -479,15 +458,16 @@ export default function CreateSchedulePage() {
                         <div className="bg-[#151B1D] px-6 py-5 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-6">
 
                             <div className="flex items-center justify-between">
-                                <h3 className="font-semibold text-[#E6F0E6] text-[20px]">Select Schedule’s Frequency</h3>
-                                <div className="flex items-center gap-4 bg-[#0D1014] px-5 py-2.5 rounded-xl border border-[#2D2F39]">
-                                    <span className={`text-sm font-black uppercase tracking-widest transition-colors ${runNow ? 'text-[#8FFF9C]' : 'text-[#404F57]'}`}>
+                                <h3 className="font-semibold text-[#E6F0E6] text-xl">Select Schedule’s Frequency</h3>
+                                <div className="flex items-center gap-4 bg-[#0D1014] px-5 py-2.5 rounded-xl border border-[#2D2F39]  animate-[shadowPulse_2s_ease-in-out_infinite]">
+                                    <span className={`text-base uppercase font-bold transition-colors 
+                                        ${runNow ? 'text-[#8FFF9C]' : 'text-[#E6F0E6]'}`}>
                                         Run Immediately
                                     </span>
                                     <ScheduleToggleSwitch checked={runNow} onChange={() => setRunNow(!runNow)} />
                                 </div>
                             </div>
-                            
+
                             {/* --- Information Message when Run Now is active --- */}
                             {runNow && (
                                 <div className="bg-[#8FFF9C]/5 border border-[#8FFF9C]/20 p-4 rounded-xl animate-in zoom-in-95 duration-300">
@@ -499,8 +479,6 @@ export default function CreateSchedulePage() {
 
                             {/* --- Schedule Time Settings (เดิมของคุณ แต่เพิ่ม logic หรี่ไฟเมื่อ runNow=true) --- */}
                             <div className={`flex flex-col gap-2 transition-all duration-500 ${runNow ? 'opacity-20 pointer-events-none grayscale scale-[0.98]' : 'opacity-100'}`}>
-                                <span className="font-semibold text-lg">Manual Schedule Configuration</span>
-                                
                                 <div className="flex flex-col gap-6">
                                     {/* Start At */}
                                     <div className="flex flex-row w-full gap-6 items-end">
@@ -533,11 +511,11 @@ export default function CreateSchedulePage() {
                                         <div className="flex flex-row gap-4 pl-6">
                                             <div className="w-[2px] self-stretch bg-gray-300" />
                                             <div className="flex flex-col gap-6">
-        
+
                                                 {/* Run At */}
                                                 <div className="flex flex-row gap-3">
                                                     <span className="font-medium mt-2 w-[100px]">Run At:</span>
-        
+
                                                     {/* Times */}
                                                     <div className="flex flex-col gap-3">
                                                         {cronTimes.map((time, index) => (
@@ -555,7 +533,7 @@ export default function CreateSchedulePage() {
                                                                     }}
                                                                     className={`${INPUT_BOX_NO_ICON_STYLE} pr-3`}
                                                                 />
-        
+
                                                                 {cronTimes.length > 1 && (
                                                                     <button type="button" onClick={() => handleDeleteTime(index)}>
                                                                         <DeleteProjectIcon />
@@ -573,7 +551,7 @@ export default function CreateSchedulePage() {
                                                         )}
                                                     </div>
                                                 </div>
-        
+
                                                 {/* Weekly */}
                                                 <div className="flex flex-row gap-3 items-start">
                                                     <span className="font-medium w-[100px] mt-2">Weekly:</span>
@@ -608,7 +586,7 @@ export default function CreateSchedulePage() {
                                                         </div>
                                                     </div>
                                                 </div>
-        
+
                                                 {/* Monthly */}
                                                 <div className="flex flex-row gap-3 items-start">
                                                     <span className="font-medium mt-2 w-[100px]">Monthly:</span>
@@ -643,7 +621,7 @@ export default function CreateSchedulePage() {
                                                         </div>
                                                     </div>
                                                 </div>
-        
+
                                                 {/* Repeat Until */}
                                                 <div className="flex flex-row gap-3 items-center">
                                                     <span className="font-medium w-[100px]">Repeat Until:</span>
@@ -656,37 +634,37 @@ export default function CreateSchedulePage() {
                                 </div>
                             </div>
                         </div>
-                        
+
                     </div>
                 )}
             </div>
 
             {/* --- Section 4: Dynamic Navigation Buttons --- */}
-            <div className="flex gap-6 items-center mt-[30px] justify-end">
+            <div className="flex gap-6 items-center mt-[30px] justify-between">
                 {currentStep === 1 ? (
-                    <button 
-                        onClick={() => router.back()} 
-                        className={`${RED_BUTTON_STYLE}`}
+                    <button
+                        onClick={() => router.back()}
+                        className={`${RED_BUTTON_STYLE} w-full justify-center`}
                     >
                         Cancel
                     </button>
                 ) : (
-                    <button onClick={handleBack} className="flex items-center gap-2 text-[#FBFBFB] font-bold px-6 py-2 bg-[#1E2429] border border-[#2D2F39] rounded-xl hover:bg-[#272D31] transition-all">
+                    <button onClick={handleBack} className="w-full flex justify-center items-center gap-2 text-[#FBFBFB] font-bold px-6 py-2 bg-[#1E2429] border border-[#2D2F39] rounded-xl hover:bg-[#272D31] transition-all">
                         Go Back
                     </button>
                 )}
 
                 {currentStep < 3 ? (
-                    <button 
-                        onClick={handleNext} 
-                        className={`${GREEN_BUTTON_STYLE}`}
+                    <button
+                        onClick={handleNext}
+                        className={`${GREEN_BUTTON_STYLE} w-full`}
                     >
                         Next Step
                     </button>
                 ) : (
-                    <button 
-                        onClick={handleSubmit} 
-                        className={`${GREEN_BUTTON_STYLE}`}
+                    <button
+                        onClick={handleSubmit}
+                        className={`${GREEN_BUTTON_STYLE} w-full`}
                     >
                         {/* ✅ เช็คเงื่อนไข runNow เพื่อเปลี่ยนข้อความ */}
                         {runNow ? "Run Now !!" : "Create Schedule"}
