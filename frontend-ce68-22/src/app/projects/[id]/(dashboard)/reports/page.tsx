@@ -170,8 +170,8 @@ export default function ReportCenterPage() {
             key={report.id}
             report={report}
             onDelete={handleDelete}
-            onDownloadPdf={() => downloadReport(report.id, "pdf", report.filePathPDF)}
-            onDownloadDocx={() => downloadReport(report.id, "docx", report.filePathWord)}
+            onDownloadPdf={() => downloadReport(report.id, "pdf", report.file_path_pdf)}
+            onDownloadDocx={() => downloadReport(report.id, "docx", report.file_path_word)}
           />
         ))}
 

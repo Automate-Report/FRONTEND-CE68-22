@@ -2,13 +2,13 @@ export interface Report {
     id: number;
     name: string;
     asset: string;
-    createdDate: string;
-    createdBy: string;
+    created_date: string;
+    created_by: string;
     username: string;
-    startDate: string;
-    endDate: string;
-    filePathPDF: string;
-    filePathWord: string;
+    start_date: string;
+    end_date: string;
+    file_path_pdf: string;
+    file_path_word: string;
 }
 
 export interface CreateReportPayload {
