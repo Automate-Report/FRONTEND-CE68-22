@@ -7,6 +7,8 @@ import { useParams } from "next/navigation";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import { GenericPagination } from "@/src/components/Common/GenericPagination";
+import { GenericFilterButton } from "@/src/components/Common/FilterButton";
+import SearchBox from "@/src/components/Common/GenericSearchBox";
 
 import { getMe } from "@/src/services/auth.service";
 import { penTestReportService } from "@/src/services/penTestReport.service";
@@ -57,7 +59,13 @@ export default function ReportCenterPage() {
   // Table & Fetching Logic
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearch = useDebounce(searchQuery, 500);
-  const [statusFilter] = useState<string>("ALL");
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const filterOptions = [
+    { label: "All Status", value: "ALL"},
+    { label: "Processing", value: "processing"},
+    { label: "Success", value: "success"},
+    { label: "Failed", value: "failed"}
+  ];
   
   const { 
     page, 
@@ -149,6 +157,10 @@ export default function ReportCenterPage() {
     }
   };
 
+  const handleFilterChange = (value: string) => {
+    setStatusFilter(value);
+  };
+
   const onDownloadPdf = (report: Report) => {
     downloadReport(report.id, "pdf", report.file_path_pdf || report.name);
   };
@@ -181,19 +193,20 @@ export default function ReportCenterPage() {
       </div>
 
       <div className="my-6 mb-8 flex justify-between">
-        <div className={INPUT_BOX_WITH_ICON_STYLE_DIV}>
-          <MagIcon />
-          <input
-            type="text"
-            placeholder="Search Reports..."
-            className={INPUT_BOX_WITH_ICON_STYLE_INPUT}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+        {/* Search bar */}
+        <SearchBox 
+          value={searchQuery} 
+          onChange={setSearchQuery} 
+          placeholder="Search Reports"
+          className="w-full max-w-md"
+        />
 
         <div className="flex gap-8 items-center">
-          <button className={FILTER_BUTTON_STYLE}>Filter <FilterIcon /></button>
+          <GenericFilterButton 
+            options={filterOptions} 
+            currentValue={statusFilter} 
+            onSelect={handleFilterChange} 
+          />
           <button onClick={() => setOpenCreate(true)} className={`${GREEN_BUTTON_STYLE} whitespace-nowrap`}>
             Generate Report <ReportIcon className="ml-2" />
           </button>
