@@ -128,6 +128,14 @@ export default function ReportCenterPage() {
     }));
   };
 
+  const onDownloadPdf = (report: Report) => {
+    downloadReport(report.id, "pdf", report.file_path_pdf || report.name);
+  };
+
+  const onDownloadDocx = (report: Report) => {
+    downloadReport(report.id, "docx", report.file_path_word || report.name);
+  };
+
   if (isProjectLoading) return <Spinner />;
 
   const reports = response?.items || [];
@@ -174,24 +182,16 @@ export default function ReportCenterPage() {
 
       <div className="flex flex-col gap-4 min-h-[400px]">
         {/* เช็ค isLoading ของการดึง Report ด้วย */}
-        {isLoading ? (
-          <Spinner /> 
-        ) : reports && reports.length > 0 ? (
-          reports.map((report, idx) => (
-            <ReportCard
-              index={idx}
-              key={`report-${report.id}-${idx}`}
-              report={report}
-              onDelete={handleDelete}
-              onDownloadPdf={() => downloadReport(report.id, "pdf", report.file_path_pdf || report.name)}
-              onDownloadDocx={() => downloadReport(report.id, "docx", report.file_path_word || report.name)}
-            />
-          ))
-        ) : (
-          <div className="rounded-2xl border border-dashed border-[#2D2F39] py-20 text-center">
-            <p className="text-[#404F57]">No reports found.</p>
-          </div>
-        )}
+        {reports.map((report, idx) => (
+          <ReportCard
+            index={idx}
+            key={report.id} 
+            report={report}
+            onDelete={handleDelete}
+            onDownloadPdf={onDownloadPdf}  
+            onDownloadDocx={onDownloadDocx} 
+          />
+        ))}
       </div>
 
       {/* ── Dialog: Create Report ──────────────────────────────────────────── */}

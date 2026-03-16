@@ -157,16 +157,6 @@ export default function ReportCard({
                     </div>
                 </div>
             </div>
-            
-            <style jsx>{`
-                .animate-spin-slow {
-                    animation: spin 3s linear infinite;
-                }
-                @keyframes spin {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                }
-            `}</style>
         </div>
     );
 }
