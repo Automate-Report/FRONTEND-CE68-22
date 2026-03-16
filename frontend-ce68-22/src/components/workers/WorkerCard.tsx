@@ -48,7 +48,7 @@ export function WorkerCard({
   const currentDownloadingId = useDownloadStore((state) => state.currentWorkerId);
 
   const isThisWorkerDownloading = globalIsLoading && currentDownloadingId === worker.id;
-  const statusConfig = WORKER_STATUS_MAP[worker.status] || WORKER_STATUS_MAP.unknown;
+  const statusConfig = WORKER_STATUS_MAP[worker.status] || WORKER_STATUS_MAP.UNKNOWN;
   const currentLoad = worker.current_load ?? 0;
   const maxThread = worker.thread_number ?? 1;
   const loadPercentage = (currentLoad / maxThread) * 100;
