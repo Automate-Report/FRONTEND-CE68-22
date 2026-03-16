@@ -455,7 +455,7 @@ export default function CreateSchedulePage() {
 
                 {currentStep === 3 && (
                     <div className="animate-in fade-in duration-500 space-y-8">
-                        <div className="bg-[#151B1D] px-6 py-5 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-6">
+                        <div className="bg-[#151B1D] px-10 py-8 border-2 rounded-4xl border-[#1E2A30] flex flex-col gap-6">
 
                             <div className="flex items-center justify-between">
                                 <h3 className="font-semibold text-[#E6F0E6] text-xl">Select Schedule’s Frequency</h3>
