@@ -117,16 +117,18 @@ export default function MemberPage() {
   
 
   return (
-    <div className="max-w-7xl mx-auto p-4 pb-10 text-[#FBFBFB]">
+    <div className="flex flex-col w-full text-[#E6F0E6]">
       <GenericBreadcrums items={[
         { label: "Home", href: "/main" },
         { label: project?.name || "Project", href: `/projects/${projectId}/overview` },
         { label: "Member", href: undefined }
       ]} />
 
-      <div className="mb-10 mt-8">
-        <h1 className="text-4xl font-black tracking-tight mb-2">Access Management</h1>
-        <p className="text-sm font-bold text-[#404F57]">
+      <div className="w-full flex flex-col mb-6">
+        <h1 className="font-bold text-[36px]">
+          Access Management
+        </h1>
+        <p className="text-[#9AA6A8]">
           Authenticated as: <span className="text-[#8FFF9C]">{meData?.name}</span> ({myRole})
         </p>
       </div>
@@ -148,15 +150,15 @@ export default function MemberPage() {
       </div>
 
       {/* Table Container */}
-      <div className="bg-[#161B1F] border-2 border-[#2D2F39] rounded-2xl overflow-hidden shadow-2xl">
+      <div className="bg-[#0B0F12] border-[2px] border-[#2D2F39] rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-[#1E2429] border-b border-[#2D2F39]">
-                <th className="px-6 py-5 text-[11px] font-black text-[#667a85] uppercase tracking-widest">Member Identity</th>
-                <th className="px-6 py-5 text-[11px] font-black text-[#667a85] uppercase tracking-widest">Authority Level</th>
-                <th className="px-6 py-5 text-[11px] font-black text-[#667a85] uppercase tracking-widest">Access Granted</th>
-                <th className="px-6 py-5 text-[11px] font-black text-[#667a85] uppercase tracking-widest text-right">Control</th>
+              <tr className="bg-[#0B0F12] border-b border-[#2D2F39]">
+                <th className="px-8 py-5 text-[12px] font-bold text-[#404F57] uppercase tracking-wider">Member Identity</th>
+                <th className="px-8 py-5 text-[12px] font-bold text-[#404F57] uppercase tracking-wider text-center">Authority Level</th>
+                <th className="px-8 py-5 text-[12px] font-bold text-[#404F57] uppercase tracking-wider text-center">Access Granted</th>
+                <th className="px-8 py-5 text-[12px] font-bold text-[#404F57] uppercase tracking-wider text-right">Control</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#2D2F39]/50 bg-[#111518]">
@@ -176,8 +178,8 @@ export default function MemberPage() {
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-bold text-sm">{member.firstname} {member.lastname}</span>
-                            {isMe && <span className="px-1.5 py-0.5 rounded bg-[#8FFF9C] text-[#0D1014] text-[9px] font-black">YOU</span>}
+                            <span className="font-bold text-base">{member.firstname} {member.lastname}</span>
+                            {isMe && <span className="px-1.5 py-0.5 rounded bg-[#8FFF9C] text-[#0D1014] text-[10px] font-black">YOU</span>}
                             {isTargetOwner && !isMe && <ShieldIcon className="text-[#8FFF9C] opacity-40 scale-75" />}
                           </div>
                           <div className="flex items-center gap-1.5 text-xs text-[#404F57] font-medium">
@@ -187,7 +189,7 @@ export default function MemberPage() {
                       </div>
                     </td>
 
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-center">
                       {isEditing ? (
                         <div className="relative min-w-[140px]">
                           <select 
@@ -202,14 +204,14 @@ export default function MemberPage() {
                           <ExpandMoreIcon className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8FFF9C] text-sm pointer-events-none" />
                         </div>
                       ) : (
-                        <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase border transition-all ${getRoleStyle(member.role)}`}>
+                        <span className={`px-3 py-1 rounded-lg text-[12px] font-bold tracking-widest uppercase border transition-all ${getRoleStyle(member.role)}`}>
                           {member.role}
                         </span>
                       )}
                     </td>
 
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-xs text-[#9AA6A8] font-bold">
+                      <div className="flex justify-center items-center gap-2 text-sm text-[#9AA6A8] font-bold">
                         <JoinIcon sx={{ fontSize: 14 }} className="text-[#404F57]" />
                         {new Date(member.joinned_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                       </div>
@@ -219,10 +221,10 @@ export default function MemberPage() {
                       <div className="flex justify-end gap-2">
                         {isEditing ? (
                           <>
-                            <button onClick={() => handleSaveRole(member.email)} className="p-2 rounded-lg bg-[#8FFF9C]/10 text-[#8FFF9C] hover:bg-[#8FFF9C]/20 transition-all">
+                            <button onClick={() => handleSaveRole(member.email)} className="flex justify-center items-center p-2 rounded-lg bg-[#8FFF9C]/10 text-[#8FFF9C] hover:bg-[#8FFF9C]/20 transition-all">
                               <SaveIcon fontSize="small" />
                             </button>
-                            <button onClick={() => setEditingEmail(null)} className="p-2 rounded-lg bg-[#FE3B46]/10 text-[#FE3B46] hover:bg-[#FE3B46]/20 transition-all">
+                            <button onClick={() => setEditingEmail(null)} className="flex justify-center items-center p-2 rounded-lg bg-[#FE3B46]/10 text-[#FE3B46] hover:bg-[#FE3B46]/20 transition-all">
                               <CancelIcon fontSize="small" />
                             </button>
                           </>
@@ -231,14 +233,14 @@ export default function MemberPage() {
                             <button 
                               disabled={isDisabled}
                               onClick={() => { setEditingEmail(member.email); setPendingRole(member.role.toLowerCase()); }}
-                              className="p-2 rounded-lg text-[#404F57] hover:text-[#8FFF9C] hover:bg-[#8FFF9C]/5 disabled:opacity-20 transition-all"
+                              className="flex justify-center items-center p-2 rounded-lg text-[#404F57] hover:text-[#8FFF9C] hover:bg-[#8FFF9C]/5 disabled:opacity-20 transition-all"
                             >
                               <EditIcon fontSize="small" />
                             </button>
                             <button 
                               disabled={isDisabled}
                               onClick={() => { setMemberToDelete({ email: member.email, name: `${member.firstname} ${member.lastname}` }); setDeleteModalOpen(true); }}
-                              className="p-2 rounded-lg text-[#404F57] hover:text-[#FE3B46] hover:bg-[#FE3B46]/5 disabled:opacity-20 transition-all"
+                              className="flex justify-center items-center p-2 rounded-lg text-[#404F57] hover:text-[#FE3B46] hover:bg-[#FE3B46]/5 disabled:opacity-20 transition-all"
                             >
                               <DeleteIcon fontSize="small" />
                             </button>
@@ -260,7 +262,7 @@ export default function MemberPage() {
         </div>
 
         {/* Pagination Section */}
-        <div className="p-4 bg-[#161B1F] border-t border-[#2D2F39]">
+        <div className="p-4 bg-[#0B0F12] border-t border-[#2D2F39]">
           <GenericPagination 
             count={totalCount} page={page} rowsPerPage={size} 
             onPageChange={setPage} 
