@@ -33,7 +33,7 @@ export default async function RootLayout({
         <QueryProvider>
           {showNavbar && <NavBar />}
           {/* เอา overflow-hidden ออกจากตรงนี้เพื่อให้ Layout ลูกจัดการการ scroll เอง */}
-          <div className="flex-1">
+          <div className="flex-1 overflow-y-auto h-0">
             {children}
           </div>
         </QueryProvider>

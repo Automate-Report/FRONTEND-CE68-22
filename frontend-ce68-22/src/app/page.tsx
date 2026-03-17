@@ -123,7 +123,7 @@ export default function LandingPage() {
   useEffect(() => setMounted(true), []);
 
   return (
-    <div className="min-h-screen bg-[#0D1014] text-[#FBFBFB] overflow-x-hidden">
+    <div className="h-screen bg-[#0D1014] text-[#FBFBFB] overflow-y-auto">
       <GridBackground />
       <ScanLine />
       <LandingPageNavbar />

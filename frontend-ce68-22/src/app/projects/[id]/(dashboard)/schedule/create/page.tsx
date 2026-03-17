@@ -310,8 +310,13 @@ export default function CreateSchedulePage() {
                                     const isSelected = selectedList.includes(item.value);
 
                                     const handleToggle = () => {
-                                        // If already selected = Clear choices then select that1; otherwise select only this one
-                                        const newList = isSelected ? [] : [item.value];
+                                        // Can multi select
+                                        let newList: string[] = [];
+                                        if (isSelected) {
+                                            newList = selectedList.filter(value => value !== item.value);
+                                        } else {                                            
+                                            newList = [...selectedList, item.value];
+                                        }
                                         setForm({ ...form, attackType: newList });
                                     };
 

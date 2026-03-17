@@ -74,7 +74,7 @@ html, body {
 } */
 
 /* Firefox */
-/* * {
+* {
   scrollbar-width: thin;
   scrollbar-color: #e6f0e6 #0F1518;
-} */
+}

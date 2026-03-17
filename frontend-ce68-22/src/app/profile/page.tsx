@@ -1,51 +1,68 @@
 "use client";
-import React from 'react'
-import { logout, getMe } from '@/src/services/auth.service';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { Box, Tab, Tabs } from "@mui/material";
+import EditIcon from '@/src/components/icon/Edit';
+import { GenericGreenButton } from '@/src/components/Common/GenericGreenButton';
+import { Assignment, Bookmark } from "@mui/icons-material";
 
 const Profile = () => {
-
-    /////////////// TEMPORARY DELETE LATERRRRRR ///////////////
-    const router = useRouter();
-
-    async function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
-        const message = await logout();
-        router.push("/login");
-        router.refresh();
-        console.log("Logout message:", message["message"]);
-    }
-
-    async function fetchCurrentUser() {
-        try {
-            const res = await getMe();
-            console.log("authen?", res["message"]);
-            console.log("Current user from getMe():", res["user"]);
-            alert("Current user: " + JSON.stringify(res["user"]));
-        } catch (error) {
-            console.error("Error fetching current user:", error);
-        }
-    }
-
-    /////////////// END OF TEMPORARY DELETE LATER ///////////////
+    const [activeTab, setActiveTab] = useState(0);
 
     return (
-        <div className='text-white text-4xl mt-6 ml-6'>
-            ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⣤⣶⣶⣶⣶⣦⣤⡀⠀⠀⠀⠀⠀⠀<br></br>
-            ⠀⠀⠀⠀⠀⠀⠀⢀⣀⣤⣤⣄⣶⣿⠟⠛⠉⠀⠀⠀⢀⣹⣿⡇⠀⠀⠀⠀⠀⠀<br></br>
-            ⠀⠀⠀⠀⢀⣤⣾⣿⡟⠛⠛⠛⠉⠀⠀⠀⠀⠒⠒⠛⠿⠿⠿⠶⣿⣷⣢⣄⡀⠀<br></br>
-            ⠀⠀⠀⢠⣿⡟⠉⠈⣻⣦⠀⠀⣠⡴⠶⢶⣄⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠻⣮⣦<br></br>
-            ⠀⠀⢰⣿⠿⣿⡶⠾⢻⡿⠀⠠⣿⣄⣠⣼⣿⡇⠀⠈⠒⢶⣤⣤⣤⣤⣤⣴⣾⡿<br></br>
-            ⠀⠀⣾⣿⠀⠉⠛⠒⠋⠀⠀⠀⠻⢿⣉⣠⠟⠀⠀⠀⠀⠀⠉⠻⣿⣋⠙⠉⠁⠀<br></br>
-            ⠀⠀⣿⡿⠷⠲⢶⣄⠀⠀⠀⠀⠀⣀⣤⣤⣀⠀⠀⠀⠀⠀⠀⠀⠙⣷⣦⠀⠀⠀<br></br>
-            ⠛⠛⢿⣅⣀⣀⣀⣿⠶⠶⠶⢤⣾⠋⠀⠀⠙⣷⣄⣀⣀⣀⣀⡀⠀⠘⣿⣆⠀⠀<br></br>
-            ⠀⠀⠀⠈⠉⠉⠉⠁⠀⠀⠀⠀⠈⠛⠛⠶⠾⠋⠉⠉⠉⠉⠉⠉⠉⠉⠛⠛⠛⠛<br></br>
+        <div className="bg-[#0F1518] h-screen flex flex-col">
+            {/* Personal info section */}
+            <div className='flex flex-row px-30 py-10 h-fit bg-[#1A2025]'>
 
-            {/* tempbutton pls delete after log out is done*/}
-            <button onClick={handleSubmit} className='m-10 rounded-md bg-blue-600 px-10 py-5 text-white hover:bg-blue-700'>Log out</button>
-            <button onClick={fetchCurrentUser} className='rounded-md bg-blue-600 px-10 py-5 text-white hover:bg-blue-700'>getMe</button>
+                {/* Image */}
+                <img className="w-[150px] h-[150px] object-cover rounded-xl" src="https://wallpaper-a-day.com/wp-content/uploads/2025/09/wallpaper2151.png?w=1440" alt="Profile Picture" />
+                {/* Personal info */}\
+                <div className='ml-10 flex flex-col justify-between h-[150px]'>
+                    {/* Nmae + Bio */}
+                    <div>
+                        <h1 className='text-3xl text-[#E6F0E6] font-bold mb-4'>Shirakami Fubuki</h1>
+                        <p className='text-[#9AA6A8] text-sm'>
+                            Very cute Japanese Vtuber also is Hinoshii's Best best friend (User's Bio)
+                        </p>
+                    </div>
+                    {/* Email */}
+                    <p className='text-[#8FFF9C] text-base font-bold'>
+                        ShirakamiSoCute@gmail.com
+                    </p>
+                </div>
 
+                {/* Logout and Edit button */}
+                <div className='ml-auto'>
+                    <GenericGreenButton name="Edit Profile" href="/profile/edit" icon={<EditIcon />} />
+                </div>
+            </div>
+
+            {/* Tabs Navigation */}
+            <Box sx={{ borderBottom: 1, borderColor: '#2D2F39', bgcolor: '#161B1F', px: 15 }}>
+                <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)}
+                    sx={{
+                        minHeight: 52,
+                        height: 52,
+                        '& .MuiTab-root': { color: '#404F57', fontWeight: 500, minHeight: 52, height: 52, py: 2, px: 4 },
+                        '& .Mui-selected': { color: '#8FFF9C !important' },
+                        '& .MuiTabs-indicator': { bgcolor: '#8FFF9C' }
+                    }}>
+                    <Tab icon={<Bookmark sx={{ fontSize: 18 }} />} iconPosition="start" label="Bookmarked Projects" sx={{ fontSize: 14, textTransform: 'none' }} />
+                    <Tab icon={<Assignment sx={{ fontSize: 18 }} />} iconPosition="start" label="Assigned to me" sx={{ fontSize: 14, textTransform: 'none' }} />                </Tabs>
+            </Box>
+
+            {/* Tabs Displays */}
+            {activeTab === 0 && (
+                <div className="p-8 text-[#E6F0E6]">
+                    show project u bookmarked
+                </div>
+            )}
+            {activeTab === 1 && (
+                <div className="p-8 text-[#E6F0E6]">
+                    show project assigned to me
+                </div>
+            )}
         </div>
+
     )
 }
 
