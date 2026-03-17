@@ -36,6 +36,7 @@ export const scheduleService = {
     },
 
     getJobByScheduleID: async (
+        projectId: number,
         schedule_id: number,
         page: number, 
         size: number, 
@@ -46,7 +47,7 @@ export const scheduleService = {
         const orderParam = sortOrder === "none" ? undefined : sortOrder;
         const sortParam = sortBy || undefined;
 
-        const { data } = await api.get<PaginatedResult<JobDisplay>>(`jobs/schedule/${schedule_id}`, {
+        const { data } = await api.get<PaginatedResult<JobDisplay>>(`jobs/schedule/${schedule_id}?project_id=${projectId}`, {
             params: {
                 schedule_id,
                 page,

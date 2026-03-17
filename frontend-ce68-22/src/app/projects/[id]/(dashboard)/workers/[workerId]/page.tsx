@@ -45,7 +45,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
     // --- Data Fetching ---
     const { data: project } = useProject(projectId);
     const { data: worker, refetch } = useWorker(workerId, projectId);
-    const { data: summaryInfoJob } = useSummaryInfoByWorker(workerId);
+    const { data: summaryInfoJob } = useSummaryInfoByWorker(workerId, projectId);
 
     // --- Current User ---
     const [currentUserName, setCurrentUserName] = useState<string | undefined>(undefined);
@@ -79,7 +79,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
     const [isActionLoading, setIsActionLoading] = useState(false);
 
     const { data: jobs, isLoading: isJobsLoading } = useGetJobByWorker(
-        workerId, jobQuery.page + 1, jobQuery.size, "created_at", "desc", jobQuery.search, jobQuery.filter
+        projectId, workerId, jobQuery.page + 1, jobQuery.size, "created_at", "desc", jobQuery.search, jobQuery.filter
     );
 
     // --- Loading state ---

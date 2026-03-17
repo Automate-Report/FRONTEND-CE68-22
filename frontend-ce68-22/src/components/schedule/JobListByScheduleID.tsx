@@ -34,6 +34,7 @@ export function JobListByScheduleID({ project_id, schedule_id }: ScheduleListPro
     }, [schedule_id]);
 
     const { data: response, isLoading, isError } = useGetJobByScheduleID(
+        project_id,
         schedule_id,
         page + 1,
         rowsPerPage,

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { scheduleService } from "@/src/services/schedule.service";
 
 export function useGetJobByScheduleID(
+    projectId: number,
     schedule_id: number,
     page: number,
     size: number,
@@ -9,9 +10,9 @@ export function useGetJobByScheduleID(
     sortOrder: "asc" | "desc" | "none"
 ) {
     return useQuery({
-        queryKey: ['jobs', schedule_id, page, size, sortBy, sortOrder],
+        queryKey: ['jobs', projectId, schedule_id, page, size, sortBy, sortOrder],
 
-        queryFn: () => scheduleService.getJobByScheduleID(schedule_id, page, size, sortBy, sortOrder),
+        queryFn: () => scheduleService.getJobByScheduleID(projectId, schedule_id, page, size, sortBy, sortOrder),
 
         placeholderData: (previousData) => previousData,
     });
