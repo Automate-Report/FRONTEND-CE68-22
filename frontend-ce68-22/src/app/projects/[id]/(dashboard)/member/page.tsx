@@ -14,6 +14,7 @@ import {
   DeleteOutline as DeleteIcon,
   ExpandMore as ExpandMoreIcon
 } from "@mui/icons-material";
+import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
 
 // Hooks & Services
 import { useMembers } from "@/src/hooks/project/use-members";
@@ -27,6 +28,7 @@ import { GenericPagination } from "@/src/components/Common/GenericPagination";
 import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import { GenericFilterButton } from "@/src/components/Common/FilterButton";
 import SearchBox from "@/src/components/Common/GenericSearchBox";
+import { GREEN_BUTTON_STYLE } from "@/src/styles/greenButton";
 
 export default function MemberPage() {
   const params = useParams();
@@ -135,13 +137,19 @@ export default function MemberPage() {
 
       {/* Toolbar */}
       <div className="flex justify-between gap-4 mb-6">
+  
         <SearchBox 
           value={search} 
           onChange={setSearch} 
           placeholder="Search Members"
           className="w-full max-w-md"
         />
-        
+      
+        <button className={`${GREEN_BUTTON_STYLE} ml-auto` }>
+          Invite Member
+          <PeopleAltRoundedIcon />
+        </button>
+
         <GenericFilterButton 
           options={filterOptions} 
           currentValue={roleFilter} 
