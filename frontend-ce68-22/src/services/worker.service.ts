@@ -69,7 +69,7 @@ export const workerService = {
   },
 
   unLink: async (workerId: number, projectId: number) => {
-    const { data } = await apiClient.get(`/workers/unlink/${workerId}?project_id=${projectId}`);
+    const { data } = await apiClient.patch(`/workers/unlink/${workerId}?project_id=${projectId}`);
     return data;
   },
   unLinkAll: async (projectId: number) => {

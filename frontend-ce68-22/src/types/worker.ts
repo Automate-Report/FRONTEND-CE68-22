@@ -7,7 +7,7 @@ export interface Worker {
   internal_ip: string;
   access_key_id: number;
   status: string;
-  isActive: boolean;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
   last_heartbeat: string;
