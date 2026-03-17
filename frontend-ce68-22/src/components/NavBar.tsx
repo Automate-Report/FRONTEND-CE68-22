@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNotifications } from '../hooks/noti/use-noti';
 import { NotificationStatus, NotificationType } from '../types/noti';
+import { logout } from '@/src/services/auth.service';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 
@@ -14,14 +15,18 @@ import { Divider, Button } from "@mui/material";
 // Icons
 import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import { useRouter } from 'next/navigation';
 
 export function NavBar() {
+    const router = useRouter();
     const [mounted, setMounted] = useState(false);
     const notiRef = useRef<HTMLDivElement>(null);
+    const profileRef = useRef<HTMLDivElement>(null);
     const bellRef = useRef<HTMLButtonElement>(null);
     const [showNoti, setShowNoti] = useState(false);
     const [unread, setUnread] = useState(false); // ใช้แค่ unread state เดียวเพื่อสลับ All/Unread
     const [isWaiting, setIsWaiting] = useState(false);
+    const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
     const queryClient = useQueryClient();
     // ✅ ส่งสถานะ unread เข้าไปใน Hook
@@ -31,6 +36,16 @@ export function NavBar() {
     useEffect(() => { setMounted(true); }, []);
 
     // Handle Click Outside
+    useEffect(() => {
+        function handleClickOutsideNoti(e: MouseEvent) {
+            if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+                setShowProfileDropdown(false);
+            }
+        }
+        if (showProfileDropdown) document.addEventListener("mousedown", handleClickOutsideNoti);
+        return () => document.removeEventListener("mousedown", handleClickOutsideNoti);
+    }, [showProfileDropdown]);
+
     useEffect(() => {
         function handleClickOutsideNoti(e: MouseEvent) {
             if (notiRef.current && !notiRef.current.contains(e.target as Node) &&
@@ -67,6 +82,14 @@ export function NavBar() {
         return <div className="p-4 text-sm text-gray-400 border-b border-[#272D31]">{noti.message}</div>;
     };
 
+    async function handleLogout(e: React.FormEvent) {
+        e.preventDefault();
+        setShowProfileDropdown(false)
+        const message = await logout();
+        router.push("/login");
+        router.refresh();
+    }
+
     return (
         <>
             {/* Navbar UI ... (คงเดิม) */}
@@ -93,12 +116,28 @@ export function NavBar() {
                         >
                             <NotificationsNoneIcon />
                         </Button>
-                        <Link href="/profile">
+                        <button onClick={() => setShowProfileDropdown(!showProfileDropdown)}>
                             <Avatar sx={{ width: 50, height: 50 }} />
-                        </Link>
+                        </button>
                     </div>
                 </div>
             </div>
+
+            {/* Profile Dropdown Menu */}
+            {showProfileDropdown && (
+                <div ref={profileRef} className="absolute top-[88px] right-[24px] w-[150px] bg-[#0F1518] border-2 border-[#272D31] rounded-lg shadow-lg z-50">
+                    <Link href="/profile" onClick={() => setShowProfileDropdown(false)} className="block px-4 py-2 text-sm text-[#E6F0E6] hover:bg-[#272D31]">
+                        My Profile
+                    </Link>
+                    <Link href="/profile/edit" onClick={() => setShowProfileDropdown(false)} className="block px-4 py-2 text-sm text-[#E6F0E6] hover:bg-[#272D31]">
+                        Edit Profile
+                    </Link>
+                    <button onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 text-sm text-[#E6F0E6] hover:bg-[#272D31] hover:text-[#FF6B6B]">
+                        Log Out
+                    </button>
+                </div>
+            )}
 
             {/* Notification Window */}
             {showNoti && (

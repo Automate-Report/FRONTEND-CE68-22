@@ -13,4 +13,4 @@ export const INPUT_BOX_WITH_ICON_STYLE_INPUT = "w-full h-full rounded-lg text-[#
 //   </div>
 
 export const INPUT_BOX_NO_ICON_STYLE = "relative flex items-center h-[42px] rounded-xl pl-3 shadow-sm border-[2px] border-[#404F57] focus-within:border-[#8FFF9C] transition text-[#E6F0E6] placeholder-[#9AA6A8] focus:outline-none"
-export const TEXT_AREA_STYLE = "w-full min-h-[120px] rounded-xl px-4 py-3 bg-[#0F1518] border-2 border-[#404F57] text-[#E6F0E6] placeholder-[#9AA6A8] resize-none transition-all duration-200 outline-none focus:border-[#8FFF9C] focus:shadow-[0_0_12px_rgba(143,255,156,0.25)]";
+export const TEXT_AREA_STYLE = "w-full min-h-[120px] rounded-xl px-4 py-3 border-2 border-[#404F57] text-[#E6F0E6] placeholder-[#9AA6A8] resize-none transition-all duration-200 outline-none focus:border-[#8FFF9C] focus:shadow-[0_0_12px_rgba(143,255,156,0.25)]";
