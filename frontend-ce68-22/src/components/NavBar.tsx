@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import { useNotifications } from '../hooks/noti/use-noti';
 import { NotificationStatus, NotificationType } from '../types/noti';
 import { logout } from '@/src/services/auth.service';
@@ -15,6 +15,7 @@ import { Divider, Button } from "@mui/material";
 // Icons
 import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import { useRouter } from 'next/navigation';
 
 export function NavBar() {
@@ -23,7 +24,10 @@ export function NavBar() {
     const notiRef = useRef<HTMLDivElement>(null);
     const profileRef = useRef<HTMLDivElement>(null);
     const bellRef = useRef<HTMLButtonElement>(null);
+    const inviteRef = useRef<HTMLButtonElement>(null);
+    const inviteWindowRef = useRef<HTMLDivElement>(null);
     const [showNoti, setShowNoti] = useState(false);
+    const [showInvite, setShowInvite] = useState(false);
     const [unread, setUnread] = useState(false); // ใช้แค่ unread state เดียวเพื่อสลับ All/Unread
     const [isWaiting, setIsWaiting] = useState(false);
     const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -37,13 +41,13 @@ export function NavBar() {
 
     // Handle Click Outside
     useEffect(() => {
-        function handleClickOutsideNoti(e: MouseEvent) {
+        function handleClickOutsideProfile(e: MouseEvent) {
             if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
                 setShowProfileDropdown(false);
             }
         }
-        if (showProfileDropdown) document.addEventListener("mousedown", handleClickOutsideNoti);
-        return () => document.removeEventListener("mousedown", handleClickOutsideNoti);
+        if (showProfileDropdown) document.addEventListener("mousedown", handleClickOutsideProfile);
+        return () => document.removeEventListener("mousedown", handleClickOutsideProfile);
     }, [showProfileDropdown]);
 
     useEffect(() => {
@@ -56,6 +60,18 @@ export function NavBar() {
         if (showNoti) document.addEventListener("mousedown", handleClickOutsideNoti);
         return () => document.removeEventListener("mousedown", handleClickOutsideNoti);
     }, [showNoti]);
+
+    useEffect(() => {
+        function handleClickOutsideInvite(e: MouseEvent) {
+            if (inviteWindowRef.current && !inviteWindowRef.current.contains(e.target as Node) &&
+                inviteRef.current && !inviteRef.current.contains(e.target as Node)) {
+                setShowInvite(false);
+            }
+        }
+        if (showInvite) document.addEventListener("mousedown", handleClickOutsideInvite);
+        return () => document.removeEventListener("mousedown", handleClickOutsideInvite);
+    }, [showInvite]);
+
 
     if (!mounted) return <div className="bg-[#0D1014] h-[74px] w-full border-b border-[#2D2F39]"></div>;
 
@@ -109,6 +125,13 @@ export function NavBar() {
                                 </div>
                             </Link> */}
                         </div>
+                        <Button
+                            sx={{ minHeight: 0, minWidth: 0, padding: "10px", color: "#E6F0E6", backgroundColor: "#272D31", borderRadius: "14px", "&:hover": { backgroundColor: "#3a4146" } }}
+                            onClick={() => setShowInvite(!showInvite)}
+                            ref={inviteRef}
+                        >
+                            <EmailOutlinedIcon />
+                        </Button>
                         <Button
                             sx={{ minHeight: 0, minWidth: 0, padding: "10px", color: "#E6F0E6", backgroundColor: "#272D31", borderRadius: "14px", "&:hover": { backgroundColor: "#3a4146" } }}
                             onClick={() => setShowNoti(!showNoti)}
@@ -178,6 +201,16 @@ export function NavBar() {
                             </div>
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* Invite Window */}
+            {showInvite && (
+                <div ref={inviteWindowRef} className="absolute top-[88px] right-[24px] w-[300px] bg-[#0F1518] border-2 border-[#272D31] rounded-lg shadow-lg z-50">
+                    <h3 className="text-xl font-semibold text-[#E6F0E6] p-4 border-b border-[#272D31]">Invite Users</h3>
+                    <div className="p-4">
+                        <p className="text-[#9AA6A8]">Invite new users to your team.</p>
+                    </div>
                 </div>
             )}
         </>
