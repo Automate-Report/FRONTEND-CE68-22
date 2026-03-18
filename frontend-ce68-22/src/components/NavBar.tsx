@@ -2,6 +2,7 @@
 
 import { use, useEffect, useRef, useState } from 'react';
 import { useNotifications } from '../hooks/noti/use-noti';
+import { useInvitations } from '../hooks/invitation/use-invite';
 import { NotificationStatus, NotificationType } from '../types/noti';
 import { logout } from '@/src/services/auth.service';
 import { useQueryClient } from '@tanstack/react-query';
@@ -36,6 +37,7 @@ export function NavBar() {
     // ✅ ส่งสถานะ unread เข้าไปใน Hook
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useNotifications(showNoti, unread);
     const notifications = data?.pages.flat() ?? [];
+    const { data: invitations, isLoading: isInvitationsLoading } = useInvitations();
 
     useEffect(() => { setMounted(true); }, []);
 
@@ -209,7 +211,22 @@ export function NavBar() {
                 <div ref={inviteWindowRef} className="absolute top-[88px] right-[24px] w-[300px] bg-[#0F1518] border-2 border-[#272D31] rounded-lg shadow-lg z-50">
                     <h3 className="text-xl font-semibold text-[#E6F0E6] p-4 border-b border-[#272D31]">Invite Users</h3>
                     <div className="p-4">
-                        <p className="text-[#9AA6A8]">Invite new users to your team.</p>
+                        {isInvitationsLoading ? (
+                            <div>
+                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#8FFF9C] mx-auto"></div>
+                                <p className="text-[#9AA6A8] mt-2">Loading invitations...</p>
+                            </div>
+                        ) : invitations?.length ? (
+                            invitations.map((invite, index) => (
+                                <div key={index} className="mb-4 p-3 bg-[#272D31] rounded-lg">
+                                    <p className="text-sm text-[#E6F0E6]"><span className="font-semibold">{invite.project_name}</span> - Invited by {invite.project_owner}</p>
+                                    <p className="text-sm text-[#9AA6A8]">Role: {invite.role}</p>
+                                    <p className="text-xs text-[#9AA6A8]">Invited at: {new Date(invite.invited_at).toLocaleString()}</p>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-[#9AA6A8]">No invitations at the moment.</p>
+                        )}
                     </div>
                 </div>
             )}
