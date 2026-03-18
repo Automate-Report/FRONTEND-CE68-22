@@ -2,8 +2,9 @@
 
 import { use, useEffect, useRef, useState } from 'react';
 import { useNotifications } from '../hooks/noti/use-noti';
-import { useInvitations } from '../hooks/invitation/use-invite';
+import { useInvitations, useAcceptInvitation, useDeclineInvitation } from '../hooks/invitation/use-invite';
 import { NotificationStatus, NotificationType } from '../types/noti';
+import { Invite } from '../types/invite';
 import { logout } from '@/src/services/auth.service';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
@@ -18,6 +19,8 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import { useRouter } from 'next/navigation';
+import { GREEN_BUTTON_STYLE } from '../styles/greenButton';
+import { RED_BUTTON_STYLE } from '../styles/buttonStyle';
 
 export function NavBar() {
     const router = useRouter();
@@ -38,6 +41,8 @@ export function NavBar() {
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useNotifications(showNoti, unread);
     const notifications = data?.pages.flat() ?? [];
     const { data: invitations, isLoading: isInvitationsLoading } = useInvitations();
+    const acceptInvitation = useAcceptInvitation();
+    const declineInvitation = useDeclineInvitation();
 
     useEffect(() => { setMounted(true); }, []);
 
@@ -106,6 +111,11 @@ export function NavBar() {
         const message = await logout();
         router.push("/login");
         router.refresh();
+    }
+
+    function handleAcceptInvite(invite: Invite) {
+        acceptInvitation.mutate(invite.project_id);
+        window.location.reload();
     }
 
     return (
@@ -209,8 +219,8 @@ export function NavBar() {
             {/* Invite Window */}
             {showInvite && (
                 <div ref={inviteWindowRef} className="absolute top-[88px] right-[24px] w-[300px] bg-[#0F1518] border-2 border-[#272D31] rounded-lg shadow-lg z-50">
-                    <h3 className="text-xl font-semibold text-[#E6F0E6] p-4 border-b border-[#272D31]">Invite Users</h3>
-                    <div className="p-4">
+                    <h3 className="text-xl font-semibold text-[#E6F0E6] p-4 border-b border-[#272D31]">Invitations</h3>
+                    <div className="p-3 flex flex-col max-h-[400px] overflow-y-auto">
                         {isInvitationsLoading ? (
                             <div>
                                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#8FFF9C] mx-auto"></div>
@@ -218,10 +228,22 @@ export function NavBar() {
                             </div>
                         ) : invitations?.length ? (
                             invitations.map((invite, index) => (
-                                <div key={index} className="mb-4 p-3 bg-[#272D31] rounded-lg">
-                                    <p className="text-sm text-[#E6F0E6]"><span className="font-semibold">{invite.project_name}</span> - Invited by {invite.project_owner}</p>
-                                    <p className="text-sm text-[#9AA6A8]">Role: {invite.role}</p>
-                                    <p className="text-xs text-[#9AA6A8]">Invited at: {new Date(invite.invited_at).toLocaleString()}</p>
+                                <div key={index} className="my-1 p-3 bg-[#272D31] rounded-lg">
+                                    <p className="text-m text-[#E6F0E6]"><span className="font-semibold">{invite.project_name}</span> - Invited by {invite.project_owner}</p>
+                                    <p className="text-m text-[#9AA6A8]">Role: {invite.role}</p>
+                                    <p className="text-s text-[#9AA6A8]">Invited at: {new Date(invite.invited_at).toLocaleString()}</p>
+                                    <div className='flex justify-around mt-2'>
+                                        <button className={`${GREEN_BUTTON_STYLE}`}
+                                                onClick={() => handleAcceptInvite(invite)}
+                                        >
+                                            Accept
+                                        </button>
+                                        <button className={`${RED_BUTTON_STYLE}`}
+                                                onClick={() => declineInvitation.mutate(invite.project_id)}
+                                        >
+                                            Decline
+                                        </button>
+                                    </div>
                                 </div>
                             ))
                         ) : (
