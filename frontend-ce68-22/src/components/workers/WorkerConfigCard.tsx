@@ -35,11 +35,11 @@ export function WorkerConfigCard({ worker, summaryInfoJob, handleRevokeKey, role
         { label: "Worker Name", value: worker.name, icon: <WorkerNameIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB" },
         { 
             label: "Status", 
-            value: statusConfig.label, 
+            value: statusConfig?.label || "UNKNOWN", 
             icon: <StatusIcon sx={{ fontSize: 10 }} />, 
             color: statusThemeColor, 
             isStatus: true,
-            badgeStyle: statusConfig.style
+            badgeStyle: statusConfig?.style
         },
         { label: "Hostname", value: worker.hostname || "n/a", icon: <HostIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", isMono: true },
         { label: "Internal IP (Hostname IP)", value: worker.internal_ip || "-", icon: <IpIcon sx={{ fontSize: 18 }} />, color: "#FBFBFB", isMono: true },

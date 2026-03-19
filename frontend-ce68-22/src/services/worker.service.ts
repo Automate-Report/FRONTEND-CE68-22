@@ -68,8 +68,13 @@ export const workerService = {
     return data;
   },
 
-  unLink: async (workerId: number, projectId: number) => {
-    const { data } = await apiClient.patch(`/workers/unlink/${workerId}?project_id=${projectId}`);
+  unLink: async (worker_id: number, projectId: number) => {
+    // ใช้ params แทนการต่อ string ?... เอง จะช่วยจัดการ encoding ให้ถูกต้อง
+    const { data } = await apiClient.get(`/workers/unlink/${worker_id}`, {
+        params: {
+            project_id: projectId
+        }
+    });
     return data;
   },
   unLinkAll: async (projectId: number) => {
