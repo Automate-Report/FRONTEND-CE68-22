@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { Box } from "@mui/material";
+import { redirect } from "next/navigation";
 
 // Hooks & Logic
 import { useProject } from "@/src/hooks/project/use-project";
@@ -14,7 +15,6 @@ import { CredentialForm } from "@/src/components/assets/create/CredentialForm";
 import { FormActions } from "@/src/components/assets/create/FormActions";
 
 import { useProjectRole } from "@/src/context/ProjectDetailConext";
-import { redirect } from "next/navigation";
 
 export default function CreateAssetPage() {
   const { role } = useProjectRole();
@@ -22,7 +22,7 @@ export default function CreateAssetPage() {
   const projectId = parseInt(params.id);
 
   if (role?.toLowerCase() === "developer") {
-    redirect(`/projects/${projectId}/asset`);
+    redirect(`/projects/${projectId}/asset`)
   }
 
   // 1. Fetch Data

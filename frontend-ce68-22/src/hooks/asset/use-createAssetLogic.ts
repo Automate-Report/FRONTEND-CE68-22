@@ -6,7 +6,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { assetService } from "@/src/services/asset.service";
 import { assetCredentialService } from "@/src/services/assetCredential.service";
 
-// Define Types
 export type AssetFormInputs = {
   name: string;
   target: string;
@@ -15,16 +14,15 @@ export type AssetFormInputs = {
   password?: string;
 };
 
-// ✅ เพิ่ม onSuccess callback เพื่อให้ Modal ปิดตัวเองได้
-export const useCreateAssetLogic = (projectId: number, onClose?:() => void, onSuccess?: () => void) => {
+export const useCreateAssetLogic = (projectId: number, onClose?: () => void, onSuccess?: () => void) => {
   const queryClient = useQueryClient();
   
-  // States
   const [showCredential, setShowCredential] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Form Setup
   const formMethods = useForm<AssetFormInputs>({
+    // 'all' จะเช็คทั้งตอนพิมพ์ (blur) และตอนกดส่ง
+    mode: "all", 
     defaultValues: {
       name: "",
       target: "",
@@ -34,18 +32,23 @@ export const useCreateAssetLogic = (projectId: number, onClose?:() => void, onSu
     },
   });
 
-  const { watch, handleSubmit, reset } = formMethods;
-  const currentAssetType = watch("type");
+  const { handleSubmit, reset, trigger } = formMethods;
 
-  // Submit Logic
   const onSubmit: SubmitHandler<AssetFormInputs> = async (data) => {
+    // 🛡️ STEP 1: FORCE VALIDATION
+    // trigger() จะคืนค่า true หากข้อมูลในฟอร์ม "ทั้งหมด" ถูกต้องตามเงื่อนไข required
+    const isFormValid = await trigger();
+    
+    // ถ้ากรอกไม่ครบ trigger จะเป็น false และฟังก์ชันจะหยุดทันที (ไม่ปิด Modal/ไม่ Redirect)
+    if (!isFormValid) return;
+
     let createdAssetId: number | null = null;
 
     try {
       // 1. Create Asset
       const assetPayload = {
-        name: data.name,
-        target: data.target,
+        name: data.name.trim(),
+        target: data.target.trim(),
         type: data.type,
         project_id: projectId,
         description: "",
@@ -54,46 +57,43 @@ export const useCreateAssetLogic = (projectId: number, onClose?:() => void, onSu
       const newAsset = await assetService.create(assetPayload);
       createdAssetId = parseInt(newAsset.id);
 
-      // 2. if Create Credential 
+      // 2. Create Credential (ถ้าเปิดใช้งาน)
       if (showCredential) {
         await assetCredentialService.create({
-            asset_id: createdAssetId,
-            username: data.username || "",
-            password: data.password || "",
+          asset_id: createdAssetId,
+          username: data.username?.trim() || "",
+          password: data.password?.trim() || "",
         });
       }
 
-      // ✅ 3. Success Handling for Modal
-      // สั่งให้ React Query ดึงข้อมูล Asset list ใหม่เพื่อให้ตารางหลัง Modal อัปเดต
+      // ✅ SUCCESS HANDLING
       queryClient.invalidateQueries({ queryKey: ["assets", projectId] });
       
-      // ล้างข้อมูลในฟอร์ม
       reset();
       setShowCredential(false);
 
-      if (onClose) onClose();
-      // เรียก callback เพื่อปิด Modal
+      // เรียกใช้ Callback ตามบริบท (Modal หรือ Page ปกติ)
       if (onSuccess) onSuccess();
+      if (onClose) onClose();
 
     } catch (error) {
-      console.error("Critical Error:", error);
+      console.error("Submission Error:", error);
       
-      // Rollback Logic (คงเดิม)
+      // Rollback หากสร้าง Asset สำเร็จแต่สร้าง Credential พัง
       if (createdAssetId) {
           try {
               await assetService.delete(createdAssetId); 
-              console.log("Rollback successful.");
-          } catch (deleteError) {
-              console.error("FATAL: Rollback failed.", deleteError);
+          } catch (rollbackError) {
+              console.error("FATAL: Rollback failed.", rollbackError);
           }
       }
-      alert("Failed to create asset. Please try again.");
+      alert("Failed to create asset. Please check your data and try again.");
     }
   };
 
   return {
     formMethods,
-    currentAssetType,
+    currentAssetType: formMethods.watch("type"),
     showCredential,
     setShowCredential,
     showPassword,
