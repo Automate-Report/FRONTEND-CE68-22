@@ -32,7 +32,7 @@ export const FormActions = ({ isSubmitting = false }: FormActionsProps) => {
           <>
             {/* Custom Spinner แบบ Tailwind (ไม่ต้องพึ่ง MUI) */}
             <div className="w-5 h-5 border-2 border-[#0D1014] border-t-transparent rounded-full animate-spin"></div>
-            <span>CREATING...</span>
+            <span>Creating...</span>
           </>
         ) : (
           "Create Asset"
