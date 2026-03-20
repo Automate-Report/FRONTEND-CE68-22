@@ -1,40 +1,43 @@
-import { Stack, Button } from "@mui/material";
 import { useRouter } from "next/navigation";
-import SaveIcon from '@mui/icons-material/Save';
+import { GREEN_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 
-interface Props {
-    submitLabel?: string; // เพิ่ม prop เพื่อเปลี่ยนข้อความปุ่ม
+interface FormActionsProps {
+  isSubmitting?: boolean;
 }
 
-export const FormActions = ({ submitLabel = "Create Asset" }: Props) => {
-    const router = useRouter();
+export const FormActions = ({ isSubmitting = false }: FormActionsProps) => {
+  const router = useRouter();
 
-    return (
-        <Stack direction="row" spacing={"32px"} justifyContent="flex-start" alignItems={"center"} marginTop={"16px"}>
-            <Button
-                variant="outlined"
-                onClick={() => router.back()}
-                sx={{
-                    height: "40px", padding: "16px 24px", color: "#FE3B46", borderColor: "#FE3B46",
-                    borderRadius: "8px", fontSize: "16px", textTransform: "none", fontFamily: "inherit",
-                    "&:hover": { backgroundColor: "#FE3B46", color: "#FBFBFB" }
-                }}
-            >
-                Cancel
-            </Button>
-            <Button
-                type="submit"
-                variant="contained"
-                startIcon={submitLabel !== "Create Asset"}
-                onClick={() => router.back()}
-                sx={{
-                    height: "40px", padding: "16px 24px", fontWeight: 'medium', fontSize: "16px",
-                    textTransform: "none", fontFamily: "inherit", color: "#0B0F12", backgroundColor: "#8FFF9C",
-                    borderRadius: "8px", "&:hover": { backgroundColor: "#AFFFB9" }
-                }}
-            >
-                {submitLabel}
-            </Button>
-        </Stack>
-    );
+  return (
+    <div className="mt-8 flex gap-6 justify-start items-center">
+      {/* ปุ่ม Cancel: ใช้สไตล์ตัวอักษรเรียบๆ หรือปุ่มแดงที่คุณมี */}
+      <button
+        type="button"
+        disabled={isSubmitting}
+        onClick={() => router.back()}
+        className={`${RED_BUTTON_STYLE}`}
+      >
+        CANCEL
+      </button>
+
+      {/* ปุ่ม Create: ใช้สไตล์สีเขียวเดิมของคุณ */}
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className={`${GREEN_BUTTON_STYLE} min-w-[160px] flex justify-center items-center gap-2 ${
+          isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+        }`}
+      >
+        {isSubmitting ? (
+          <>
+            {/* Custom Spinner แบบ Tailwind (ไม่ต้องพึ่ง MUI) */}
+            <div className="w-5 h-5 border-2 border-[#0D1014] border-t-transparent rounded-full animate-spin"></div>
+            <span>CREATING...</span>
+          </>
+        ) : (
+          "Create Asset"
+        )}
+      </button>
+    </div>
+  );
 };
