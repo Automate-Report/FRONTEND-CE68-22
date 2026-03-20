@@ -7,6 +7,8 @@ import { getDisplayDate } from "@/src/components/Common/GetDisplayDate";
 import { getDisplayTime } from "@/src/components/Common/GetDisplayTime";
 import { scheduleService } from "@/src/services/schedule.service";
 import { useGetAllAssetNames } from "@/src/hooks/asset/use-getAllNames";
+import { useProjectRole } from "@/src/context/ProjectDetailConext";
+import { redirect } from "next/navigation";
 
 //components
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
@@ -25,10 +27,17 @@ import AssetIcon from "@/src/components/icon/AssetIcon";
 import { INPUT_BOX_NO_ICON_STYLE } from "@/src/styles/inputBoxStyle";
 import { GREEN_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 
+
+
 export default function CreateSchedulePage() {
+    const { role } = useProjectRole();
     const router = useRouter();
     const params = useParams<{ id: string }>();
     const projectId = parseInt(params.id);
+
+    if (role?.toLowerCase() === "developer") {
+        redirect(`/projects/${projectId}/overview`)
+    }
 
     // Stepper State
     const [currentStep, setCurrentStep] = useState(1);
