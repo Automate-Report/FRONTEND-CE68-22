@@ -41,7 +41,7 @@ interface PageProps { params: Promise<{ id: string }>; }
 
 export default function WorkersPage({ params }: PageProps) {
   const resolvePrams = use(params);
-  const projectId = parseInt(resolvePrams.id);
+  const projectId = Number(resolvePrams.id);
 
   // Search
   const [searchQuery, setSearchQuery] = useState("");
@@ -70,7 +70,7 @@ export default function WorkersPage({ params }: PageProps) {
   const { data: project } = useProject(projectId);
   const { data: response, isLoading, refetch } = useWorkers(projectId, page + 1, rowsPerPage, sortBy, sortOrder, debouncedSearch, statusFilter);
   const { data: workerInfo = { total: 0, online: 0, busy: 0, total_jobs: 0 } } = useWorkerInfoSummary(projectId);
-  const { deleteState } = useWorkerPage(refetch);
+  const { deleteState } = useWorkerPage(projectId, refetch);
 
   useEffect(() => {
     handleChangePage(null, 0);
