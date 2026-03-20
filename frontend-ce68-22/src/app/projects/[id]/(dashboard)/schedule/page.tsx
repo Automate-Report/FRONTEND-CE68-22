@@ -6,7 +6,7 @@ import { useProject } from "@/src/hooks/project/use-project";
 import { useSchedule } from "@/src/hooks/schedule/use-schedule";
 import { scheduleService } from "@/src/services/schedule.service";
 import { ScheduleDelete } from "@/src/types/schedule";
-
+import { useProjectRole } from "@/src/context/ProjectDetailConext";
 
 //components
 import { GenericPagination } from "@/src/components/Common/GenericPagination";
@@ -16,13 +16,8 @@ import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import { GenericFilterButton } from "@/src/components/Common/FilterButton";
 import SearchBox from "@/src/components/Common/GenericSearchBox";
 
-import { INPUT_BOX_WITH_ICON_STYLE_DIV, INPUT_BOX_WITH_ICON_STYLE_INPUT } from "@/src/styles/inputBoxStyle";
-import { FILTER_BUTTON_STYLE } from "@/src/styles/buttonStyle";
-
 //icons
 import CreateScheduleIcon from "@/src/components/icon/CreateSchedule";
-import MagIcon from "@/src/components/icon/MagnifyingGlass";
-import FilterIcon from "@/src/components/icon/Filter";
 import { ScheduleCard } from "@/src/components/schedule/ScheduleCard";
 
 interface PageProps {
@@ -30,9 +25,21 @@ interface PageProps {
 }
 
 export default function ProjectSchedulePage({ params }: PageProps) {
+  const { role } = useProjectRole();
   const router = useRouter();
   const resolvePrams = use(params);
   const projectId = parseInt(resolvePrams.id);
+
+  useEffect(() => {
+    if (role?.toLowerCase() === "developer") {
+        router.push(`/projects/${projectId}/overview`);
+    }
+  }, [role, projectId, router]);
+
+  // ระหว่างที่รอ Redirect หรือโหลดสิทธิ์ ให้ Return null หรือ Loading เพื่อไม่ให้เห็นเนื้อหา
+  if (role?.toLowerCase() === "developer") {
+    return null; 
+  }
 
   // Search
   const [searchQuery, setSearchQuery] = useState("");

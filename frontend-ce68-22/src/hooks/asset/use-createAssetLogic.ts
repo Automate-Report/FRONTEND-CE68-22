@@ -16,7 +16,7 @@ export type AssetFormInputs = {
 };
 
 // ✅ เพิ่ม onSuccess callback เพื่อให้ Modal ปิดตัวเองได้
-export const useCreateAssetLogic = (projectId: number, onClose:() => void, onSuccess?: () => void) => {
+export const useCreateAssetLogic = (projectId: number, onClose?:() => void, onSuccess?: () => void) => {
   const queryClient = useQueryClient();
   
   // States
@@ -71,7 +71,7 @@ export const useCreateAssetLogic = (projectId: number, onClose:() => void, onSuc
       reset();
       setShowCredential(false);
 
-      onClose();
+      if (onClose) onClose();
       // เรียก callback เพื่อปิด Modal
       if (onSuccess) onSuccess();
 
