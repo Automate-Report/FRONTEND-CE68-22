@@ -2,9 +2,9 @@ import { useState } from "react";
 import { workerService } from "@/src/services/worker.service";
 import { Worker } from "@/src/types/worker"
 
-export const useWorkerPage = (refetchList: () => void) => {
+// @/src/hooks/worker/use-workerPage.ts
 
-    //  Delete Logic
+export const useWorkerPage = (projectId: number, refetchList: () => void) => { // 💡 เพิ่ม projectId ตรงนี้
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [workerToDelete, setWorkerToDelete] = useState<Worker | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -15,10 +15,11 @@ export const useWorkerPage = (refetchList: () => void) => {
     };
 
     const handleConfirmDelete = async () => {
-        if (!workerToDelete) return;
+        if (!workerToDelete || !projectId) return; // 💡 เช็คทั้งคู่
         setIsDeleting(true);
         try {
-            await workerService.delete(workerToDelete.id, workerToDelete.project_id);
+            // 💡 ใช้ projectId ที่รับมาจาก Hook แทนการดึงจากตัว worker
+            await workerService.delete(workerToDelete.id, projectId); 
             setDeleteModalOpen(false);
             setWorkerToDelete(null);
             refetchList();
@@ -30,6 +31,13 @@ export const useWorkerPage = (refetchList: () => void) => {
     };
 
     return {
-        deleteState: { isOpen: deleteModalOpen, setIsOpen: setDeleteModalOpen, isLoading: isDeleting, target: workerToDelete, handleDeleteClick, handleConfirmDelete }
+        deleteState: { 
+            isOpen: deleteModalOpen, 
+            setIsOpen: setDeleteModalOpen, 
+            isLoading: isDeleting, 
+            target: workerToDelete, 
+            handleDeleteClick, 
+            handleConfirmDelete 
+        }
     };
 }

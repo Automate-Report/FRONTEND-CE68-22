@@ -41,7 +41,7 @@ export function WorkerCard({
 }: WorkerCardProps) {
   const router = useRouter();
   const params = useParams();
-  const projectId = params.id;
+  const projectId = params?.id ? parseInt(params.id as string, 10) : 0;
   const startDownload = useDownloadStore((state) => state.startDownload);
   const globalIsLoading = useDownloadStore((state) => state.isDownloading);
   const globalProgress = useDownloadStore((state) => state.progress);
