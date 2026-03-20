@@ -13,6 +13,8 @@ import { AssetBasicInfo } from "@/src/components/assets/create/AssetBasicInfo";
 import { CredentialForm } from "@/src/components/assets/create/CredentialForm";
 import { FormActions } from "@/src/components/assets/create/FormActions";
 
+
+
 export default function CreateAssetPage() {
   const params = useParams<{ id: string }>();
   const projectId = parseInt(params.id);

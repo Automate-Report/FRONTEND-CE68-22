@@ -31,8 +31,8 @@ export default async function ProjectLayout({ children, params }: ProjectLayoutP
 
   try {
     const customHeaders = {
-            "Cookie": `access_token=${token}`,
-            "Cache-Control": "no-cache" // ป้องกันการจำค่า 401 เก่า
+      "Cookie": `access_token=${token}`,
+      "Cache-Control": "no-cache" // ป้องกันการจำค่า 401 เก่า
     };
 
     const project = await projectService.getById(projectId, customHeaders);
