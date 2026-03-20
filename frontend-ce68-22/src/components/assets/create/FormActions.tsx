@@ -17,7 +17,7 @@ export const FormActions = ({ isSubmitting = false }: FormActionsProps) => {
         onClick={() => router.back()}
         className={`${RED_BUTTON_STYLE}`}
       >
-        CANCEL
+        Cancel
       </button>
 
       {/* ปุ่ม Create: ใช้สไตล์สีเขียวเดิมของคุณ */}
