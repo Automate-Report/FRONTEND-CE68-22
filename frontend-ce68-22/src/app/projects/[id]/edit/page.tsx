@@ -99,7 +99,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: numb
                         </button>
 
                         <button className={GREEN_BUTTON_STYLE + " w-[50%] justify-center"} type="submit" disabled={status.loading}>
-                            {status.loading ? "Saving..." : "Create Project"}
+                            {status.loading ? "Saving..." : "Save Change"}
                         </button>
                     </Box>
                 </form>
