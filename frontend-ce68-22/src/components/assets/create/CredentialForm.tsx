@@ -1,13 +1,12 @@
-import { Box, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, TextField, InputAdornment, IconButton, Stack } from "@mui/material";
 import { UseFormReturn } from "react-hook-form";
 import { AssetFormInputs } from "@/src/hooks/asset/use-createAssetLogic";
 
-// Icons
-import CreateAssetIcon from "@/src/components/icon/CreateAssertIcon"; 
+// MUI Icons
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import CreateAssetIcon from "@/src/components/icon/CreateAssertIcon"; 
 
 interface Props {
     formMethods: UseFormReturn<AssetFormInputs>;
@@ -20,110 +19,118 @@ interface Props {
 export const CredentialForm = ({ formMethods, showCredential, setShowCredential, showPassword, setShowPassword }: Props) => {
     const { register, formState: { errors }, setValue, clearErrors } = formMethods;
 
-    const tableInputStyle = {
-        '& .MuiOutlinedInput-root': {
-            color: "#E6F0E6",
-            backgroundColor: "#1A2025",
-            borderRadius: "10px",
-            '& fieldset': { borderColor: "#2D2F39" },
-            '&:hover fieldset': { borderColor: "#404F57" },
-            '&.Mui-focused fieldset': { borderColor: "#8FFF9C" },
-            '&.Mui-error fieldset': { borderColor: "#FE3B46" }, // แสดงขอบแดงเมื่อมี Error
-            fontFamily: "inherit",
-            fontSize: "14px",
-        },
-    };
-
     const handleRemoveCredential = () => {
         setShowCredential(false);
         setValue("username", "");
         setValue("password", "");
-        clearErrors(["username", "password"]); // สำคัญ: ล้าง Error เพื่อให้กดส่งฟอร์มได้
+        clearErrors(["username", "password"]);
     };
 
+    // Tailwind Class สำหรับ Input
+    const inputStyle = (hasError: boolean) => `
+        w-full bg-[#1A2025] text-[#E6F0E6] text-sm px-4 py-2.5 
+        rounded-xl border transition-all duration-200 outline-none
+        ${hasError 
+            ? "border-[#FE3B46] focus:border-[#FE3B46]" 
+            : "border-[#2D2F39] focus:border-[#8FFF9C] hover:border-[#404F57]"
+        }
+        placeholder:text-[#667a85]
+    `;
+
     return (
-        <Box sx={{ mt: "32px", mb: "16px" }}>
-            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
-                <Typography sx={{ color: "#E6F0E6", fontWeight: "bold", fontSize: "20px" }}>
+        <div className="mt-8 mb-4 font-sans">
+            {/* Header: Title & Remove Button */}
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[#E6F0E6] font-bold text-xl tracking-tight">
                     Asset Credentials
-                </Typography>
+                </h3>
                 {showCredential && (
-                    <Button 
-                        onClick={handleRemoveCredential} 
-                        startIcon={<DeleteOutlineIcon />}
-                        sx={{ color: "#FE3B46", textTransform: "none", fontWeight: "bold" }}
+                    <button 
+                        type="button"
+                        onClick={handleRemoveCredential}
+                        className="flex items-center gap-1 text-[#FE3B46] font-bold text-sm hover:brightness-125 transition-all"
                     >
-                        Remove
-                    </Button>
+                        <DeleteOutlineIcon sx={{ fontSize: 20 }} />
+                        <span>Remove</span>
+                    </button>
                 )}
-            </Stack>
+            </div>
 
             {!showCredential ? (
-                <Button
-                    startIcon={<CreateAssetIcon />}
+                /* Add Credentials Button */
+                <button
+                    type="button"
                     onClick={() => setShowCredential(true)}
-                    variant="outlined"
-                    sx={{
-                        color: "#8FFF9C", borderColor: "rgba(143, 255, 156, 0.3)", borderRadius: "12px",
-                        textTransform: "none", p: "12px 28px",
-                        '&:hover': { borderColor: "#8FFF9C", bgcolor: "rgba(143, 255, 156, 0.05)" }
-                    }}
+                    className="flex items-center gap-2 px-6 py-2.5 border-1 border-[#E6F0E6] text-[#E6F0E6] 
+                               rounded-lg font-bold text-sm transition-all hover:border-[#8FFF9C] 
+                               hover:text-[#8FFF9C] hover:bg-[#8FFF9C]/5 active:scale-95"
                 >
-                    Add Asset Credentials
-                </Button>
+                    <CreateAssetIcon color="currentColor" />
+                    <span>Add New Credentials</span>
+                </button>
             ) : (
-                <Box>
-                    <TableContainer component={Paper} sx={{ backgroundColor: "#0B0F12", border: "1px solid #2D2F39", borderRadius: "16px", overflow: "hidden" }}>
-                        <Table>
-                            <TableHead>
-                                <TableRow sx={{ backgroundColor: "#1A2025" }}>
-                                    <TableCell sx={{ color: "#9AA6A8", borderBottom: "1px solid #2D2F39", fontSize: "13px", fontWeight: "bold" }}>USERNAME</TableCell>
-                                    <TableCell sx={{ color: "#9AA6A8", borderBottom: "1px solid #2D2F39", fontSize: "13px", fontWeight: "bold" }}>PASSWORD</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                <TableRow sx={{ '& td': { border: 0 } }}>
-                                    <TableCell sx={{ py: 3 }}>
-                                        <TextField
-                                            placeholder="e.g. root" fullWidth sx={tableInputStyle}
-                                            error={!!errors.username}
+                /* Credentials Table Container */
+                <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="w-full overflow-hidden border border-[#2D2F39] rounded-2xl bg-[#0B0F12]">
+                        <table className="w-full text-left">
+                            <thead>
+                                <tr className="bg-[#1A2025]">
+                                    <th className="px-6 py-3 text-[#9AA6A8] text-[11px] font-black uppercase tracking-widest border-b border-[#2D2F39]">
+                                        Username
+                                    </th>
+                                    <th className="px-6 py-3 text-[#9AA6A8] text-[11px] font-black uppercase tracking-widest border-b border-[#2D2F39]">
+                                        Password
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr className="group">
+                                    <td className="p-4 align-top">
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. root"
+                                            className={inputStyle(!!errors.username)}
                                             {...register("username", { required: showCredential })}
                                         />
-                                    </TableCell>
-                                    <TableCell sx={{ py: 3 }}>
-                                        <TextField
-                                            placeholder="••••••••"
-                                            type={showPassword ? "text" : "password"}
-                                            fullWidth sx={tableInputStyle}
-                                            error={!!errors.password}
-                                            {...register("password", { required: showCredential })}
-                                            InputProps={{
-                                                endAdornment: (
-                                                    <InputAdornment position="end">
-                                                        <IconButton onClick={() => setShowPassword(!showPassword)} sx={{ color: "#667a85" }}>
-                                                            {showPassword ? <Visibility sx={{ fontSize: 18 }} /> : <VisibilityOff sx={{ fontSize: 18 }} />}
-                                                        </IconButton>
-                                                    </InputAdornment>
-                                                )
-                                            }}
-                                        />
-                                    </TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                                    </td>
+                                    <td className="p-4 align-top">
+                                        <div className="relative">
+                                          <input
+                                              type={showPassword ? "text" : "password"}
+                                              placeholder="••••••••"
+                                              className={inputStyle(!!errors.password)}
+                                              {...register("password", { required: showCredential })}
+                                          />
+                                          <button
+                                              type="button"
+                                              onClick={() => setShowPassword(!showPassword)}
+                                              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#667a85] hover:text-[#E6F0E6] transition-colors p-1"
+                                          >
+                                              {showPassword ? <Visibility sx={{ fontSize: 20 }} /> : <VisibilityOff sx={{ fontSize: 20 }} />}
+                                          </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-                    {/* ข้อความ Error รวมด้านล่างตาราง */}
+                    {/* Error Handling UI */}
                     {(errors.username || errors.password) && (
-                        <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1.5, ml: 1 }}>
-                            <ErrorOutlineIcon sx={{ color: "#FE3B46", fontSize: 16 }} />
-                            <Typography sx={{ color: "#FE3B46", fontSize: "12px", fontWeight: "500" }}>
-                                Please fill in both fields to add credentials.
-                            </Typography>
-                        </Stack>
+                        <div className="flex items-center gap-2 px-2 py-1">
+                            <ErrorOutlineIcon sx={{ color: "#FE3B46", fontSize: 18 }} />
+                            <span className="text-[#FE3B46] text-xs font-semibold italic">
+                                Please provide both credentials to proceed.
+                            </span>
+                        </div>
                     )}
-                </Box>
+                </div>
             )}
-        </Box>
+
+            {/* Bottom Hint */}
+            <p className="mt-4 text-[#667a85] text-[11px] font-medium opacity-60">
+                * Note: Your credentials are encrypted before being stored.
+            </p>
+        </div>
     );
 };
