@@ -129,7 +129,7 @@ export default function VulnDetailPage() {
               <Chip label={vuln.asset_name} size="small" sx={{ p: 1, bgcolor: "#272D31", color: "#8FFF9C", fontWeight: 700, fontSize: '12px', border: '1px solid #404F57' }} />
             </Stack>
             <div className="w-full flex flex-col mb-6">
-              <h1 className="font-bold text-[28px]">
+              <h1 className="font-bold text-[28px] pr-40">
                 {vuln.title}
               </h1>
             </div>
@@ -193,7 +193,7 @@ export default function VulnDetailPage() {
           <div className="mt-2">
             <FormControl >
               <Tooltip title={!canChangeStatus ? "Only Owners or Developers can modify status" : ""}>
-                <span>
+                <span className="absolute right-[-40px] top-0">
                   <Typography variant="caption" sx={{ color: "#667a85", fontWeight: 700, display: 'block', mb: 1 }}>Issue Status</Typography>
                   <Select
                     value={vuln.status}
