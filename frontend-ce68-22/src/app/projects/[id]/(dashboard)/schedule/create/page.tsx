@@ -13,7 +13,6 @@ import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericPagination } from "@/src/components/Common/GenericPagination";
 import ToggleSwitch from "@/src/components/Common/ToggleSwitch";
 
-
 import ScheduleToggleSwitch from "@/src/components/schedule/ToggleSwitch";
 import CreateAssetModal from "@/src/components/assets/CreateAsset";
 
@@ -23,13 +22,8 @@ import DeleteProjectIcon from "@/src/components/icon/Delete";
 import RobotIcon from "@/src/components/icon/RobotIcon";
 import AssetIcon from "@/src/components/icon/AssetIcon";
 
-
 import { INPUT_BOX_NO_ICON_STYLE } from "@/src/styles/inputBoxStyle";
 import { GREEN_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
-
-
-import { Divider } from "@mui/material";
-
 
 export default function CreateSchedulePage() {
     const router = useRouter();
@@ -41,7 +35,7 @@ export default function CreateSchedulePage() {
 
     // fetching
     const { data: project, isLoading, isError } = useProject(projectId);
-    const { data: allAssetName } = useGetAllAssetNames(projectId);
+    const { data: allAssetName, refetch: refetchAssets } = useGetAllAssetNames(projectId);
 
     // Form States
     const [runNow, setRunNow] = useState(false);
@@ -453,6 +447,11 @@ export default function CreateSchedulePage() {
                                 open={isModalOpen}
                                 onClose={() => setIsModalOpen(false)}
                                 projectId={projectId}
+                                onSuccess={() => {
+                                    refetchAssets();
+                                    router.refresh();
+                                    alert("Asset created successfully!");
+                                }}
                             />
                         </div>
                     </div>

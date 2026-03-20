@@ -15,9 +15,10 @@ interface CreateAssetModalProps {
   open: boolean;
   onClose: () => void;
   projectId: number;
+  onSuccess?: () => void;
 }
 
-export default function CreateAssetModal({ projectName, open, onClose, projectId }: CreateAssetModalProps) {
+export default function CreateAssetModal({ projectName, open, onClose, projectId, onSuccess }: CreateAssetModalProps) {
   const {
     formMethods,
     currentAssetType,
@@ -26,7 +27,7 @@ export default function CreateAssetModal({ projectName, open, onClose, projectId
     showPassword,
     setShowPassword,
     handleFormSubmit
-  } = useCreateAssetLogic(projectId, onClose);
+  } = useCreateAssetLogic(projectId, onClose, onSuccess);
 
   // ป้องกันการ Scroll พื้นหลังเมื่อ Modal เปิด
   useEffect(() => {
