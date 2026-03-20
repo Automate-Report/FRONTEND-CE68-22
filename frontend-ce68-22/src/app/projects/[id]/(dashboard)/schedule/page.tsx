@@ -7,6 +7,7 @@ import { useSchedule } from "@/src/hooks/schedule/use-schedule";
 import { scheduleService } from "@/src/services/schedule.service";
 import { ScheduleDelete } from "@/src/types/schedule";
 import { useProjectRole } from "@/src/context/ProjectDetailConext";
+import { redirect } from "next/navigation";
 
 //components
 import { GenericPagination } from "@/src/components/Common/GenericPagination";
@@ -30,15 +31,8 @@ export default function ProjectSchedulePage({ params }: PageProps) {
   const resolvePrams = use(params);
   const projectId = parseInt(resolvePrams.id);
 
-  useEffect(() => {
-    if (role?.toLowerCase() === "developer") {
-        router.push(`/projects/${projectId}/overview`);
-    }
-  }, [role, projectId, router]);
-
-  // ระหว่างที่รอ Redirect หรือโหลดสิทธิ์ ให้ Return null หรือ Loading เพื่อไม่ให้เห็นเนื้อหา
   if (role?.toLowerCase() === "developer") {
-    return null; 
+    redirect(`/projects/${projectId}/overview`)
   }
 
   // Search
