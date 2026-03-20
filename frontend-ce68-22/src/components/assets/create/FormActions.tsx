@@ -25,7 +25,8 @@ export const FormActions = ({ submitLabel = "Create Asset" }: Props) => {
             <Button
                 type="submit"
                 variant="contained"
-                startIcon={submitLabel !== "Create Asset"} // เปลี่ยน Icon ได้ถ้าต้องการ
+                startIcon={submitLabel !== "Create Asset"}
+                onClick={() => router.back()}
                 sx={{
                     height: "40px", padding: "16px 24px", fontWeight: 'medium', fontSize: "16px",
                     textTransform: "none", fontFamily: "inherit", color: "#0B0F12", backgroundColor: "#8FFF9C",
