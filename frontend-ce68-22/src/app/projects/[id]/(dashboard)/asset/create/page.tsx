@@ -13,11 +13,17 @@ import { AssetBasicInfo } from "@/src/components/assets/create/AssetBasicInfo";
 import { CredentialForm } from "@/src/components/assets/create/CredentialForm";
 import { FormActions } from "@/src/components/assets/create/FormActions";
 
-
+import { useProjectRole } from "@/src/context/ProjectDetailConext";
+import { redirect } from "next/navigation";
 
 export default function CreateAssetPage() {
+  const { role } = useProjectRole();
   const params = useParams<{ id: string }>();
   const projectId = parseInt(params.id);
+
+  if (role?.toLowerCase() === "developer") {
+    redirect(`/projects/${projectId}/asset`);
+  }
 
   // 1. Fetch Data
   const { data: project } = useProject(projectId);

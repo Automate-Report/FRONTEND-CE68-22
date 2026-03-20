@@ -1,13 +1,12 @@
 import { ReactNode } from "react";
-
-import { SideBar } from "@/src/components/SideBar";
-
-import { projectService } from "@/src/services/project.service";
-
-import { Project } from "@/src/types/project";
-
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { Project } from "@/src/types/project";
+import { SideBar } from "@/src/components/SideBar";
+import { projectService } from "@/src/services/project.service";
+import { ProjectDetailProvider } from "@/src/context/ProjectDetailConext";
+
+
 
 interface ProjectLayoutProps {
   children: ReactNode;
@@ -53,19 +52,20 @@ export default async function ProjectLayout({ children, params }: ProjectLayoutP
   }
 
   return (
-    // ใช้ h-[calc(100vh-navbarHeight)] ถ้ามี navbar หรือใช้ h-screen ถ้า navbar อยู่ในหน้า
-    // ในกรณีของคุณ navbar อยู่ใน RootLayout ดังนั้นใช้ h-[calc(100vh-74px)] (สมมติ navbar สูง 74px)
-    <div className="flex h-[calc(100vh-74px)] w-full bg-[#0F1518]"> 
-      
-      {/* Sidebar: ล็อคความสูง h-full ของพื้นที่ที่เหลือ */}
-      <SideBar project_id={projectId} project_name={projectName} role={role} />
+    <ProjectDetailProvider role={role}>
+      <div className="flex h-[calc(100vh-74px)] w-full bg-[#0F1518]"> 
+        
+        {/* Sidebar: ล็อคความสูง h-full ของพื้นที่ที่เหลือ */}
+        <SideBar project_id={projectId} project_name={projectName} role={role} />
 
-      {/* Main Content: หัวใจหลักของการเลื่อน */}
-      <main className="flex-1 pl-[300px] h-full max-w-screen">
-        <div className="px-12 py-6"> {/* เปลี่ยนจาก mx-12 มาใช้ px-12 เพื่อกันขอบล้น */}
-            {children}
-        </div>
-      </main>
-    </div>
+        {/* Main Content: หัวใจหลักของการเลื่อน */}
+        <main className="flex-1 pl-[300px] h-full max-w-screen">
+          <div className="px-12 py-6"> {/* เปลี่ยนจาก mx-12 มาใช้ px-12 เพื่อกันขอบล้น */}
+              {children}
+          </div>
+        </main>
+      </div>
+    </ProjectDetailProvider>
+    
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { use, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useProject } from "@/src/hooks/project/use-project";
 
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
@@ -13,12 +12,15 @@ import { AssetList } from "@/src/components/assets/AssetList";
 
 import CreateAssetIcon from "@/src/components/icon/CreateAssertIcon";
 
+import { useProjectRole } from "@/src/context/ProjectDetailConext";
 
 interface PageProps{
     params: Promise<{ id: string}>;
 }
 
 export default function ProjectsAssetsPage({ params }: PageProps) {
+    const { role } = useProjectRole();
+
     // Search
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -74,11 +76,13 @@ export default function ProjectsAssetsPage({ params }: PageProps) {
                   currentValue={statusFilter} 
                   onSelect={handleFilterChange} 
                 />
-                <GenericGreenButton 
-                  name="New Asset" 
-                  href={`/projects/${projectId}/asset/create`}
-                  icon={<CreateAssetIcon />}
-                />
+                {role?.toLowerCase() !== "developer" && (
+                  <GenericGreenButton 
+                    name="New Asset" 
+                    href={`/projects/${projectId}/asset/create`}
+                    icon={<CreateAssetIcon />}
+                  />
+                )}
               </div>
             </div>
 
