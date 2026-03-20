@@ -11,6 +11,7 @@ import { assetService } from "@/src/services/asset.service";
 import { assetCredentialService } from "@/src/services/assetCredential.service";
 import { useProject } from "@/src/hooks/project/use-project";
 import { useProjectRole } from "@/src/context/ProjectDetailConext";
+import { redirect } from "next/navigation";
 
 // UI Components
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
@@ -43,8 +44,7 @@ export default function CreateAssetPage() {
 
   // --- Redirect Guard ---
   if (role?.toLowerCase() === "developer") {
-    router.replace(`/projects/${projectId}/asset`);
-    return null;
+    redirect(`/projects/${projectId}/asset`);
   }
 
   // --- Form Setup ---
