@@ -7,9 +7,7 @@ import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
 import { GenericFilterButton } from "@/src/components/Common/FilterButton";
 import SearchBox from "@/src/components/Common/GenericSearchBox";
-
 import { AssetList } from "@/src/components/assets/AssetList";
-
 import CreateAssetIcon from "@/src/components/icon/CreateAssertIcon";
 
 import { useProjectRole } from "@/src/context/ProjectDetailConext";
@@ -90,6 +88,7 @@ export default function ProjectsAssetsPage({ params }: PageProps) {
               searchQuery={searchQuery}
               filterStatus={statusFilter}
               project_id={projectId}
+              role={role}
             />
             
         </div>

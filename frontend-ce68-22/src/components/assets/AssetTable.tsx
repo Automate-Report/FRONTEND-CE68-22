@@ -13,6 +13,7 @@ type SortColumn = "name" | "updated_at";
 interface AssetTableProps {
   data: Asset[];
   totalCount: number;
+  role?: string;
   page: number;
   rowsPerPage: number;
   sortBy: string | null;
@@ -26,6 +27,7 @@ interface AssetTableProps {
 export function AssetTable({
   data,
   totalCount,
+  role,
   page,
   rowsPerPage,
   sortBy,
@@ -86,18 +88,27 @@ export function AssetTable({
       align: "right",
       sortable: false,
       width: "1%",
-      render: (row) => (
-        <div className="flex justify-around pr-2 gap-6">
-           {/* ตรงนี้คุณอาจจะใส่ onClick handler ในอนาคต */}
-          <Link href={`/projects/${row.project_id}/asset/${row.id}/edit`} className="cursor-pointer"><EditProjectIcon /></Link>
-          <div 
-            className="cursor-pointer"
-            onClick={() => onDeleteClick(row)}
-          >
-            <DeleteProjectIcon />
-          </div>
-        </div>
-      )
+      render: (row) => {
+        return (
+          // ✅ ลบเครื่องหมายปีกกา { } ที่ครอบเงื่อนไขนี้ออก
+          (role && role?.toLowerCase() !== "developer") && (
+            <div className="flex justify-around pr-2 gap-6">
+              <Link 
+                href={`/projects/${row.project_id}/asset/${row.id}/edit`} 
+                className="cursor-pointer"
+              >
+                <EditProjectIcon />
+              </Link>
+              <div 
+                className="cursor-pointer"
+                onClick={() => onDeleteClick(row)}
+              >
+                <DeleteProjectIcon />
+              </div>
+            </div>
+          )
+        );
+      }       
     }
   ];
 

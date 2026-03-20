@@ -13,10 +13,11 @@ interface AssetListProps {
   searchQuery: string;
   filterStatus: string;
   project_id: number;
+  role?: string;
 }
 
 
-export function AssetList({ searchQuery, filterStatus, project_id }: AssetListProps) {
+export function AssetList({ searchQuery, filterStatus, project_id, role }: AssetListProps) {
 
   const {
     page,
@@ -111,6 +112,7 @@ export function AssetList({ searchQuery, filterStatus, project_id }: AssetListPr
       <AssetTable 
         data={assets}           // ข้อมูล Array ของหน้านั้นๆ
         totalCount={totalCnt}   // จำนวนข้อมูลทั้งหมดใน DB (เพื่อคำนวณจำนวนหน้า)
+        role={role}
         
         // State
         page={page}
@@ -125,7 +127,7 @@ export function AssetList({ searchQuery, filterStatus, project_id }: AssetListPr
         onDeleteClick={handleDeleteClick}
       />
       {/* เรียกใช้ Generic Modal */}
-      {assetToDelete && (
+      {(assetToDelete && role && role?.toLowerCase() !== "developer") && (
         <GenericDeleteModal
           open={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
