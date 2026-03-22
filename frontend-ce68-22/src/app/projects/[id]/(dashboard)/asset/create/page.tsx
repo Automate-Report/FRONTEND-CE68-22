@@ -11,7 +11,6 @@ import { assetService } from "@/src/services/asset.service";
 import { assetCredentialService } from "@/src/services/assetCredential.service";
 import { useProject } from "@/src/hooks/project/use-project";
 import { useProjectRole } from "@/src/context/ProjectDetailConext";
-import { redirect } from "next/navigation";
 
 // UI Components
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";

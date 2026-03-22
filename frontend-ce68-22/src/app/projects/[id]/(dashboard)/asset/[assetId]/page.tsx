@@ -25,6 +25,8 @@ import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 // Types
 import { Asset, Credential } from "@/src/types/asset";
 
+import { RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
+
 export default function ViewAssetPage() {
     const router = useRouter();
     const params = useParams<{ id: string; assetId: string }>();
@@ -161,70 +163,95 @@ export default function ViewAssetPage() {
             </div>
 
             {/* --- Credentials Section --- */}
-            <h2 className="text-[#E6F0E6] font-bold text-2xl mb-4">Credentials</h2>
-            
-            {credential ? (
-                <div className="w-full overflow-hidden border border-[#E6F0E6]/30 rounded-2xl">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-[#0F1518]">
-                                <th className="px-6 py-4 text-[#E6F0E6] text-center font-bold border-b border-[#E6F0E6]/20 w-[45%]">Username</th>
-                                <th className="px-6 py-4 text-[#E6F0E6] text-center font-bold border-b border-[#E6F0E6]/20 w-[45%]">Password</th>
-                                <th className="px-6 py-4 border-b border-[#E6F0E6]/20 w-[10%]"></th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-[#FBFBFB]">
-                            <tr>
-                                <td className="px-6 py-4 text-[#404F57] text-center font-medium border-none">
-                                    {credential.username}
-                                </td>
-                                <td className="px-6 py-4 text-[#404F57] text-center font-medium border-none">
-                                    <div className="flex items-center justify-center gap-2">
-                                        <span className={showPassword ? "font-sans" : "font-mono tracking-widest text-lg"}>
-                                            {showPassword ? credential.password : "••••••••"}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 border-none text-right">
-                                    <div className="flex items-center justify-end gap-3">
-                                        <button 
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            className="text-[#9AA6A8] hover:text-[#404F57] transition-colors"
-                                        >
-                                            {showPassword ? <VisibilityOff sx={{ fontSize: 20 }} /> : <Visibility sx={{ fontSize: 20 }} />}
-                                        </button>
-                                        <button 
-                                            onClick={() => router.push(`/projects/${projectId}/asset/${assetId}/edit`)}
-                                            className="text-[#0B0F12] hover:opacity-70 transition-opacity"
-                                        >
-                                            <EditIcon />
-                                        </button>
-                                        <button 
-                                            onClick={handleDeleteCredentialClick}
-                                            className="text-[#FE3B46] hover:opacity-70 transition-opacity"
-                                        >
-                                            <DeleteOutlineIcon sx={{ fontSize: 22 }} />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            ) : (
-                <div className="p-10 bg-white/5 border border-dashed border-white/20 rounded-2xl text-center">
-                    <p className="text-[#9AA6A8] mb-2 text-lg">No credentials linked to this asset.</p>
-                    {role?.toLocaleLowerCase() !== "developer" && (
-                        <button 
-                            onClick={() => router.push(`/projects/${projectId}/asset/${assetId}/edit`)}
-                            className="text-[#8FFF9C] font-bold hover:underline"
-                        >
-                            Add Credentials
-                        </button>
+            <div className="mt-8 mb-4 font-sans">
+                {/* Header: Title & Remove/Edit Actions */}
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-[#E6F0E6] font-bold text-xl tracking-tight">
+                        Asset Credentials
+                    </h3>
+                    {credential && role?.toLowerCase() !== "developer" && (
+                        <div className="flex gap-4">
+                            <button 
+                                onClick={handleDeleteCredentialClick}
+                                className="cursor-pointer flex items-center gap-1 text-[#FE3B46] font-bold text-sm hover:brightness-125 transition-all"
+                            >
+                                <DeleteOutlineIcon sx={{ fontSize: 20 }} />
+                            </button>
+                            <button 
+                                onClick={() => router.push(`/projects/${projectId}/asset/${assetId}/edit`)}
+                                className="cursor-pointer flex items-center gap-1 text-[#8FFF9C] font-bold text-sm hover:brightness-110 transition-all"
+                            >
+                                <EditIcon />
+                            </button>
+                            
+                        </div>
                     )}
-                    
                 </div>
-            )}
+
+                {credential ? (
+                    /* Credentials Display Table: สไตล์เดียวกับหน้า Create/Edit */
+                    <div className="w-full overflow-hidden border border-[#2D2F39] rounded-2xl bg-[#0B0F12]">
+                        <table className="w-full text-left">
+                            <thead>
+                                <tr className="bg-[#1A2025]">
+                                    <th className="px-6 py-3 text-[#9AA6A8] text-[11px] font-black uppercase tracking-widest border-b border-[#2D2F39]">
+                                        Username
+                                    </th>
+                                    <th className="px-6 py-3 text-[#9AA6A8] text-[11px] font-black uppercase tracking-widest border-b border-[#2D2F39]">
+                                        Password
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr className="group">
+                                    <td className="px-6 py-4 align-middle border-none">
+                                        <div className="w-full bg-[#1A2025]/50 text-[#E6F0E6] text-sm px-4 py-2.5 rounded-xl border border-[#2D2F39]">
+                                            {credential.username}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 align-middle border-none">
+                                        <div className="relative">
+                                            <div className="w-full bg-[#1A2025]/50 text-[#E6F0E6] text-sm px-4 py-2.5 rounded-xl border border-[#2D2F39] flex items-center justify-between">
+                                                <span className={showPassword ? "font-sans" : "font-mono tracking-[0.2em] text-lg text-[#8FFF9C]"}>
+                                                    {showPassword ? credential.password : "••••••••"}
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="text-[#667a85] hover:text-[#E6F0E6] transition-colors p-1 cursor-pointer"
+                                                >
+                                                    {showPassword ? <Visibility sx={{ fontSize: 20 }} /> : <VisibilityOff sx={{ fontSize: 20 }} />}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                ) : (
+                    /* กรณีไม่มี Credential */
+                    <div className="space-y-3">
+                        {role?.toLowerCase() !== "developer" && (
+                            <button
+                                type="button"
+                                onClick={() => router.push(`/projects/${projectId}/asset/${assetId}/edit`)}
+                                className="flex items-center gap-2 px-6 py-2.5 border border-[#E6F0E6] text-[#E6F0E6] 
+                                        rounded-lg font-bold text-sm transition-all hover:border-[#8FFF9C] 
+                                        hover:text-[#8FFF9C] hover:bg-[#8FFF9C]/5 active:scale-95 cursor-pointer"
+                            >
+                                Add Asset Credentials
+                            </button>
+                        )}
+                        <p className="text-[#667a85] text-xs px-1 italic">No credentials linked to this asset.</p>
+                    </div>
+                )}
+
+                {/* Bottom Hint */}
+                <p className="mt-4 text-[#667a85] text-[11px] font-medium opacity-60">
+                    * Note: Your credentials are encrypted using AES-256 before being stored.
+                </p>
+            </div>
 
             {/* Modal */}
             {deleteTarget && (
