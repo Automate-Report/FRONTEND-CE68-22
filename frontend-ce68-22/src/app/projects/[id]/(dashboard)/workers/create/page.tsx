@@ -1,8 +1,9 @@
 "use client";
 
-import { use, useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useProject } from "@/src/hooks/project/use-project";
+import { useProjectRole } from "@/src/context/ProjectDetailConext";
 
 import { Box, Button, Typography, Tooltip, IconButton } from "@mui/material";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'; // อย่าลืมติดตั้ง @mui/icons-material
@@ -17,6 +18,7 @@ import { muiGreenButtonStyle } from "@/src/styles/greenButton";
 
 
 export default function CreateWorkerPage() {
+    const { role } = useProjectRole();
     const router = useRouter();
     const [name, setName] = useState("");
     const [threads, setThreads] = useState<number | string>(1);
@@ -26,6 +28,12 @@ export default function CreateWorkerPage() {
     const params = useParams();
 
     const projectId = params.id ? parseInt(params.id as string) : NaN;
+
+    useEffect(() => {
+        if (role?.toLowerCase() === "developer") {
+        router.replace(`/projects/${projectId}/workers`);
+        }
+    }, [role, projectId, router]);
 
     const { data: project } = useProject(projectId);
 
