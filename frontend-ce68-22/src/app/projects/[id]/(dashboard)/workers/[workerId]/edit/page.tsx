@@ -2,16 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Box, Button, Typography, Tooltip, IconButton, CircularProgress } from "@mui/material";
+import { useProjectRole } from "@/src/context/ProjectDetailConext";
+import { Typography, Tooltip, IconButton, CircularProgress } from "@mui/material";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
-import CustomTextField from "@/src/components/Common/CustomTextField";
 import { workerService } from "@/src/services/worker.service";
 import { useProject } from "@/src/hooks/project/use-project"; // ✅ ดึงชื่อโปรเจกต์มาทำ Breadcrumb
 
-import { muiRedButtonStyle } from "@/src/styles/redButton";
-import { muiGreenButtonStyle } from "@/src/styles/greenButton";
 import { castInt } from "@/src/lib/format";
 
 import { toast } from "react-hot-toast";
@@ -19,14 +17,21 @@ import { INPUT_BOX_NO_ICON_STYLE } from "@/src/styles/inputBoxStyle";
 import { GREEN_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 
 export default function EditWorkerPage() {
+    const { role } = useProjectRole();
     const router = useRouter();
     const params = useParams();
 
-    // ✅ แก้ไขจุดที่ 1: แยก ID ให้ชัดเจน
-    const projectId = castInt(params.id as string);      // เลข 21
-    const workerId = castInt(params.workerId as string); // ไอดีของ Worker จริงๆ
 
-    const { data: project } = useProject(projectId); // เพื่อเอาชื่อโปรเจกต์
+    const projectId = castInt(params.id as string);      
+    const workerId = castInt(params.workerId as string); 
+
+    const { data: project } = useProject(projectId); 
+
+    useEffect(() => {
+    if (role?.toLowerCase() === "developer") {
+        router.replace(`/projects/${projectId}/workers`);
+        }
+    }, [role, projectId, router]);
 
     const [name, setName] = useState("");
     const [threads, setThreads] = useState<number | string>(1);
