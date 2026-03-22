@@ -1,12 +1,13 @@
 "use client";
 import { useRouter, useParams } from "next/navigation";
 import { useProject } from "@/src/hooks/project/use-project";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getDisplayDate } from "@/src/components/Common/GetDisplayDate";
 import { ScheduleDelete } from "@/src/types/schedule";
 import { scheduleService } from "@/src/services/schedule.service";
 import { useGetScheduleByID } from "@/src/hooks/schedule/use-getScheduleByID";
 import { useAsset } from '@/src/hooks/asset/use-asset';
+import { useProjectRole } from "@/src/context/ProjectDetailConext";
 
 //components
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
@@ -29,11 +30,18 @@ import { formatCronExpressions } from "@/src/lib/format";
 import { RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 
 export default function ViewSchedulePage() {
+    const { role } = useProjectRole();
 
     const router = useRouter();
     const params = useParams<{ id: string; scheduleId: string }>();
     const projectId = parseInt(params.id);
     const scheduleId = parseInt(params.scheduleId);
+
+    useEffect(() => {
+    if (role?.toLowerCase() === "developer") {
+        router.replace(`/projects/${projectId}/overview`);
+        }
+    }, [role, projectId, router]);
 
     // fetching
     const { data: project, isLoading, isError } = useProject(projectId);
@@ -51,6 +59,8 @@ export default function ViewSchedulePage() {
         { label: "Schedule", href: `/projects/${projectId}/schedule` },
         { label: schedule?.schedule_name || "Loading...", href: undefined }
     ];
+
+
 
     const handleDeleteClick = (schedule: ScheduleDelete) => {
         setscheduleToDelete({ id: schedule.id, name: schedule.name });
