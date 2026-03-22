@@ -3,9 +3,10 @@ import { GREEN_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 
 interface FormActionsProps {
   isSubmitting?: boolean;
+  submitLabel: string;
 }
 
-export const FormActions = ({ isSubmitting = false }: FormActionsProps) => {
+export const FormActions = ({ isSubmitting = false, submitLabel = "Create Asset" }: FormActionsProps) => {
   const router = useRouter();
 
   return (
@@ -35,7 +36,7 @@ export const FormActions = ({ isSubmitting = false }: FormActionsProps) => {
             <span>Creating...</span>
           </>
         ) : (
-          "Create Asset"
+          submitLabel
         )}
       </button>
     </div>

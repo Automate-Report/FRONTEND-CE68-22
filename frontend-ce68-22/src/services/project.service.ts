@@ -40,6 +40,11 @@ export const projectService = {
     return data;
   },
 
+  getRole: async (id: number, customHeaders = {}) =>{
+    const { data } = await apiClient.get<String>(`/projects/${id}/role`, {headers: customHeaders});
+    return data;
+  },
+
   create: async (payload: CreateProjectPayload) => {
     const { data } = await apiClient.post("/projects/", payload);
     return data;

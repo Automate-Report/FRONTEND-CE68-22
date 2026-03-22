@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Box } from "@mui/material";
@@ -43,9 +43,11 @@ export default function CreateAssetPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // --- Redirect Guard ---
-  if (role?.toLowerCase() === "developer") {
-    redirect(`/projects/${projectId}/asset`);
-  }
+  useEffect(() => {
+    if (role?.toLowerCase() === "developer") {
+      router.replace(`/projects/${projectId}/asset`);
+    }
+  }, [role, projectId, router]);
 
   // --- Form Setup ---
   const formMethods = useForm<AssetFormInputs>({
@@ -146,7 +148,7 @@ export default function CreateAssetPage() {
       />
 
       {/* ปุ่มกด Cancel / Create */}
-      <FormActions isSubmitting={isSubmitting} />
+      <FormActions isSubmitting={isSubmitting} submitLabel="Create Asset" />
     </Box>
   );
 }
