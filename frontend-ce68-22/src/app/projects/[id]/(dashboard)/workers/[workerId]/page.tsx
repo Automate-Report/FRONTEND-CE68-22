@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 
 // Hooks
 import { useProject } from "@/src/hooks/project/use-project";
+import { useProjectRole } from "@/src/context/ProjectDetailConext";
 import { useSummaryInfoByWorker } from "@/src/hooks/job/use-summaryInfoByWorker";
 import { useGetJobByWorker } from "@/src/hooks/job/use-getJobByWorker";
 import { useWorker } from "@/src/hooks/worker/use-worker";
@@ -37,10 +38,17 @@ interface PageProps {
 }
 
 export default function WorkerDetailPage({ params }: PageProps) {
+    const { role } = useProjectRole();
     const router = useRouter();
     const resolvePrams = use(params);
     const projectId = parseInt(resolvePrams.id);
     const workerId = parseInt(resolvePrams.workerId);
+
+    useEffect(() => {
+        if (role?.toLowerCase() === "developer") {
+        router.replace(`/projects/${projectId}/overview`);
+        }
+    }, [role, projectId, router]);
 
     // --- Data Fetching ---
     const { data: project } = useProject(projectId);

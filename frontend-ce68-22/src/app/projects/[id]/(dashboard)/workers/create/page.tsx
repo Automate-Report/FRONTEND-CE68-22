@@ -31,7 +31,7 @@ export default function CreateWorkerPage() {
 
     useEffect(() => {
         if (role?.toLowerCase() === "developer") {
-        router.replace(`/projects/${projectId}/workers`);
+        router.replace(`/projects/${projectId}/overview`);
         }
     }, [role, projectId, router]);
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { use, useState, useEffect, useCallback } from "react";
 import { useProject } from "@/src/hooks/project/use-project";
 import { useWorkerPage } from "@/src/hooks/worker/use-workerPage";
@@ -12,6 +13,7 @@ import { toast } from "react-hot-toast";
 import { workerService } from "@/src/services/worker.service";
 import { Worker as WorkerType } from "@/src/types/worker";
 import { getMe } from "@/src/services/auth.service";
+import { useProjectRole } from "@/src/context/ProjectDetailConext";
 
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericGreenButton } from "@/src/components/Common/GenericGreenButton";
@@ -40,8 +42,16 @@ import MagIcon from "@/src/components/icon/MagnifyingGlass";
 interface PageProps { params: Promise<{ id: string }>; }
 
 export default function WorkersPage({ params }: PageProps) {
+  const { role } = useProjectRole();
+  const router = useRouter();
   const resolvePrams = use(params);
   const projectId = Number(resolvePrams.id);
+
+  useEffect(() => {
+    if (role?.toLowerCase() === "developer") {
+      router.replace(`/projects/${projectId}/overview`);
+    }
+  }, [role, projectId, router]);
 
   // Search
   const [searchQuery, setSearchQuery] = useState("");

@@ -45,7 +45,7 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
       items: [
         { name: "Schedule Scan", href: `/projects/${project_id}/schedule`, icon: <ScheduleIcon />, roles: ["owner", "pentester"] },
         { name: "Assets", href: `/projects/${project_id}/asset`, icon: <AssetIcon /> },
-        { name: "Worker Nodes", href: `/projects/${project_id}/workers`, icon: <EngineeringIcon sx={{ fontSize: 20 }} /> },
+        { name: "Worker Nodes", href: `/projects/${project_id}/workers`, icon: <EngineeringIcon sx={{ fontSize: 20 }} />, roles: ["owner", "pentester"] },
         { name: "Logs", href: `/projects/${project_id}/log`, icon: <LogIcon />, roles: ["owner", "pentester"] },
       ],
     },

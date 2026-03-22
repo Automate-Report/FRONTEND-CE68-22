@@ -21,7 +21,6 @@ export default function EditWorkerPage() {
     const router = useRouter();
     const params = useParams();
 
-
     const projectId = castInt(params.id as string);      
     const workerId = castInt(params.workerId as string); 
 
@@ -29,7 +28,7 @@ export default function EditWorkerPage() {
 
     useEffect(() => {
     if (role?.toLowerCase() === "developer") {
-        router.replace(`/projects/${projectId}/workers`);
+        router.replace(`/projects/${projectId}/overview`);
         }
     }, [role, projectId, router]);
 
