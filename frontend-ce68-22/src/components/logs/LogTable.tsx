@@ -9,6 +9,7 @@ type SortColumn = "name" | "updated_at";
 
 interface PenTestLogTableProps {
   project_id: number;
+  role?: string;
   data: PenTestLog[];
   totalCount: number;
   page: number;
@@ -23,6 +24,7 @@ interface PenTestLogTableProps {
 
 export function PenTestLogTable({
   project_id,
+  role,
   data,
   totalCount,
   page,

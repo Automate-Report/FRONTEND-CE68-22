@@ -3,6 +3,7 @@
 import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useProject } from "@/src/hooks/project/use-project";
+import { useProjectRole } from "@/src/context/ProjectDetailConext";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { GenericFilterButton } from "@/src/components/Common/FilterButton";
 import SearchBox from "@/src/components/Common/GenericSearchBox";
@@ -10,13 +11,23 @@ import SearchBox from "@/src/components/Common/GenericSearchBox";
 import { PenTestLogList } from "@/src/components/logs/LogList";
 
 
-import SearchIcon from '@mui/icons-material/Search';
-
 interface PageProps{
     params: Promise<{ id: string}>;
 }
 
 export default function ProjectsLogsPage({ params }: PageProps) {
+    const { role } = useProjectRole();
+    const router = useRouter();
+    const resolvePrams = use(params);
+    const projectId = parseInt(resolvePrams.id);
+
+    useEffect(() => {
+    if (role?.toLowerCase() === "developer") {
+        router.replace(`/projects/${projectId}/overview`);
+      }
+    }, [role, projectId, router]);
+
+
     // Search
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -26,8 +37,7 @@ export default function ProjectsLogsPage({ params }: PageProps) {
       { label: "Failed", value: "failed" },
     ];
 
-    const resolvePrams = use(params);
-    const projectId = parseInt(resolvePrams.id);
+    
 
     const { data: project, isLoading, isError} = useProject(projectId);
 
@@ -77,6 +87,7 @@ export default function ProjectsLogsPage({ params }: PageProps) {
               searchQuery={searchQuery}
               filterStatus={statusFilter}
               project_id={projectId}
+              role={role}
             />
         </div>
   );

@@ -13,10 +13,11 @@ interface PenTestLogListProps {
   searchQuery: string;
   filterStatus: string;
   project_id: number;
+  role?: string;
 }
 
 
-export function PenTestLogList({ searchQuery, filterStatus, project_id }: PenTestLogListProps) {
+export function PenTestLogList({ searchQuery, filterStatus, project_id, role }: PenTestLogListProps) {
 
   const {
     page,
@@ -110,6 +111,7 @@ export function PenTestLogList({ searchQuery, filterStatus, project_id }: PenTes
     <div>
       <PenTestLogTable
         project_id={project_id}
+        role={role}
         data={reports}           // ข้อมูล Array ของหน้านั้นๆ
         totalCount={totalCnt}   // จำนวนข้อมูลทั้งหมดใน DB (เพื่อคำนวณจำนวนหน้า)
         
