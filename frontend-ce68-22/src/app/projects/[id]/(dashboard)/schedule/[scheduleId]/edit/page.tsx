@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { ScheduleCreatePayload } from "@/src/types/schedule";
 import { scheduleService } from "@/src/services/schedule.service";
 import { useGetAllAssetNames } from "@/src/hooks/asset/use-getAllNames";
+import { useProjectRole } from "@/src/context/ProjectDetailConext";
 
 //components
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
@@ -21,11 +22,17 @@ import { INPUT_BOX_NO_ICON_STYLE } from "@/src/styles/inputBoxStyle";
 import { GREEN_BUTTON_STYLE, FILTER_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 
 export default function EditSchedulePage() {
-
+    const { role } = useProjectRole();
     const router = useRouter();
     const params = useParams<{ id: string; scheduleId: string }>();
     const projectId = parseInt(params.id);
     const scheduleId = parseInt(params.scheduleId);
+
+    useEffect(() => {
+        if (role?.toLowerCase() === "developer") {
+        router.replace(`/projects/${projectId}/overview`);
+        }
+    }, [role, projectId, router]);
 
     // fetching
     const { data: project, isLoading, isError } = useProject(projectId);
