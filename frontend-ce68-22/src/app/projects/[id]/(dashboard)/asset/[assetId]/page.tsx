@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 // Icons (MUI Icons)
-import EditIcon from "@/src/components/icon/Edit"; 
+import EditIcon from "@/src/components/icon/Edit";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
@@ -26,6 +26,8 @@ import { GenericDeleteModal } from "@/src/components/Common/GenericDeleteModal";
 import { Asset, Credential } from "@/src/types/asset";
 
 import { RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
+import { showToast } from "@/src/components/Common/ToastContainer";
+import { Close, Delete } from "@mui/icons-material";
 
 export default function ViewAssetPage() {
     const router = useRouter();
@@ -40,10 +42,10 @@ export default function ViewAssetPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
-    const [deleteTarget, setDeleteTarget] = useState<{ 
-        type: 'ASSET' | 'CREDENTIAL'; 
-        id: number; 
-        name: string 
+    const [deleteTarget, setDeleteTarget] = useState<{
+        type: 'ASSET' | 'CREDENTIAL';
+        id: number;
+        name: string
     } | null>(null);
 
     // --- Fetch Data ---
@@ -95,6 +97,12 @@ export default function ViewAssetPage() {
             if (deleteTarget.type === 'ASSET') {
                 if (credential) await assetCredentialService.delete(credential.id);
                 await assetService.delete(deleteTarget.id);
+                showToast({
+                    icon: <Delete sx={{ fontSize: "20px", color: "#4CAF8A" }} />,
+                    message: `Asset "${asset.name}" deleted successfully!`,
+                    borderColor: "#8FFF9C",
+                    duration: 6000,
+                });
                 router.push(`/projects/${projectId}/asset`);
             } else {
                 await assetCredentialService.delete(deleteTarget.id);
@@ -103,7 +111,12 @@ export default function ViewAssetPage() {
             setDeleteModalOpen(false);
             setDeleteTarget(null);
         } catch (error) {
-            alert("Failed to delete item");
+            showToast({
+                icon: <Close sx={{ fontSize: "20px", color: "#FE3B46" }} />,
+                message: "Failed to delete asset :(",
+                borderColor: "#FE3B46",
+                duration: 6000,
+            });
         } finally {
             setIsDeleting(false);
         }
@@ -119,11 +132,10 @@ export default function ViewAssetPage() {
                     <h1 className="text-[#E6F0E6] font-bold text-4xl tracking-tight">
                         {asset.name}
                     </h1>
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        asset.type === "IP" 
-                        ? "bg-[#8FFF9C]/20 text-[#8FFF9C]" 
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${asset.type === "IP"
+                        ? "bg-[#8FFF9C]/20 text-[#8FFF9C]"
                         : "bg-[#90caf9]/20 text-[#90caf9]"
-                    }`}>
+                        }`}>
                         {asset.type}
                     </span>
                 </div>
@@ -152,7 +164,7 @@ export default function ViewAssetPage() {
                 <h2 className="text-[#E6F0E6] font-bold text-2xl mb-4">Asset</h2>
                 <div className="flex justify-between items-center bg-[#272D31] rounded-xl px-4 py-1 border border-white/5 shadow-inner">
                     <span className="text-[#E6F0E6] text-base font-medium">{asset.target}</span>
-                    <button 
+                    <button
                         onClick={() => handleCopy(asset.target)}
                         className="text-[#9AA6A8] hover:text-[#E6F0E6] transition-colors p-1"
                         title="Copy to clipboard"
@@ -171,19 +183,19 @@ export default function ViewAssetPage() {
                     </h3>
                     {credential && role?.toLowerCase() !== "developer" && (
                         <div className="flex gap-4">
-                            <button 
+                            <button
                                 onClick={handleDeleteCredentialClick}
                                 className="cursor-pointer flex items-center gap-1 text-[#FE3B46] font-bold text-sm hover:brightness-125 transition-all"
                             >
                                 <DeleteOutlineIcon sx={{ fontSize: 20 }} />
                             </button>
-                            <button 
+                            <button
                                 onClick={() => router.push(`/projects/${projectId}/asset/${assetId}/edit`)}
                                 className="cursor-pointer flex items-center gap-1 text-[#8FFF9C] font-bold text-sm hover:brightness-110 transition-all"
                             >
                                 <EditIcon />
                             </button>
-                            
+
                         </div>
                     )}
                 </div>

@@ -43,7 +43,7 @@ export function GenericFilterButton({ options, currentValue, onSelect }: FilterP
           w-fit whitespace-nowrap transition-all duration-200
           hover:brightness-110 active:scale-[0.98]`}
       >
-        <span className="flex items-center gap-2 font-bold text-sm">
+        <span className="flex items-center gap-2 text-base">
           {selectedLabel}
           <div className="w-4 h-4 opacity-70">
             <FilterIcon />
@@ -71,9 +71,9 @@ export function GenericFilterButton({ options, currentValue, onSelect }: FilterP
                   onSelect(opt.value);
                   setIsOpen(false);
                 }}
-                className={`flex items-center h-[42px] px-5 cursor-pointer transition-colors text-sm whitespace-nowrap
+                className={`flex items-center h-[42px] px-5 cursor-pointer transition-colors text-base whitespace-nowrap
                   ${currentValue === opt.value 
-                    ? "bg-[#2D353B] text-[#8FFF9C] font-bold" 
+                    ? "bg-[#2D353B] text-[#8FFF9C]" 
                     : "text-[#E6F0E6] hover:bg-[#1D2226]"
                   }`}
               >

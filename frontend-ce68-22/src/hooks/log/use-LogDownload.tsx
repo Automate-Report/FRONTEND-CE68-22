@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { penTestLogService } from "@/src/services/penTestLog.service";
+import { Close, Download } from "@mui/icons-material";
+import { showToast } from "@/src/components/Common/ToastContainer";
 
 export const useLogDownload = () => {
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    const downloadLog = async (logId: number, fallbackName: string) => {
+  const downloadLog = async (logId: number, fallbackName: string) => {
     setIsLoading(true);
     setError(null);
 
@@ -14,8 +16,8 @@ export const useLogDownload = () => {
       const response = await penTestLogService.download(logId);
 
       // 2. ตั้งชื่อไฟล์เริ่มต้น (กรณีหา Header ไม่เจอ)
-      let filename = `${fallbackName}.txt`; 
-      
+      let filename = `${fallbackName}.txt`;
+
       const disposition = response.headers["content-disposition"];
       if (disposition && disposition.indexOf("attachment") !== -1) {
         const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
@@ -29,21 +31,31 @@ export const useLogDownload = () => {
       // ถ้าเป็น CSV ใช้ "text/csv" ถ้าเป็น Text ทั่วไปใช้ "text/plain"
       const blob = new Blob([response.data], { type: "text/plain" });
       const url = window.URL.createObjectURL(blob);
-      
+
       const link = document.createElement("a");
       link.href = url;
       link.setAttribute("download", filename);
-      
+
       document.body.appendChild(link);
       link.click();
 
       // 4. Cleanup
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
+      showToast({
+        icon: <Download sx={{ fontSize: "20px", color: "#4CAF8A" }} />,
+        message: `Log "${filename}" Downloaded successfully!`,
+        borderColor: "#8FFF9C",
+        duration: 6000,
+      });
 
     } catch (err: any) {
-      console.error("Download failed:", err);
-      setError("ไม่สามารถดาวน์โหลดไฟล์ได้");
+      showToast({
+        icon: <Close sx={{ fontSize: "20px", color: "#FE3B46" }} />,
+        message: "Failed to download log :(",
+        borderColor: "#FE3B46",
+        duration: 6000,
+      });
     } finally {
       setIsLoading(false);
     }

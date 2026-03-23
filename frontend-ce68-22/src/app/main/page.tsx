@@ -16,6 +16,8 @@ import { ProjectCard } from "@/src/components/projects/ProjectCard";
 import { projectService } from "@/src/services/project.service";
 import { ProjectSummary } from "@/src/types/project";
 import { Box, CircularProgress, Typography } from "@mui/material";
+import { showToast } from "@/src/components/Common/ToastContainer";
+import { Delete } from "@mui/icons-material";
 
 
 export default function ProjectsPage() {
@@ -107,6 +109,12 @@ export default function ProjectsPage() {
   const handleConfirmDelete = async () => {
     try {
       await projectService.delete(deleteModal.id);
+      showToast({
+        icon: <Delete sx={{ fontSize: "20px", color: "#4CAF8A" }} />,
+        message: `Project "${deleteModal.name}" deleted successfully!`,
+        borderColor: "#8FFF9C",
+        duration: 6000,
+      });
       setDeleteModal({ ...deleteModal, open: false });
       fetchProjects();
     } catch (error) {
@@ -136,17 +144,17 @@ export default function ProjectsPage() {
         <div className="flex justify-between items-center pr-5 flex-1">
 
           {/* Search bar */}
-          <SearchBox 
-            value={searchQuery} 
-            onChange={setSearchQuery} 
+          <SearchBox
+            value={searchQuery}
+            onChange={setSearchQuery}
             placeholder="Search Projects"
             className="w-full max-w-md"
           />
 
-          <GenericFilterButton 
-            options={filterOptions} 
-            currentValue={statusFilter} 
-            onSelect={handleFilterChange} 
+          <GenericFilterButton
+            options={filterOptions}
+            currentValue={statusFilter}
+            onSelect={handleFilterChange}
           />
         </div>
 

@@ -7,6 +7,8 @@ import { useTable } from "@/src/hooks/use-table";
 import { GenericDeleteModal } from "../Common/GenericDeleteModal";
 import { penTestLogService } from "@/src/services/penTestLog.service";
 import { PenTestLogTable } from "./LogTable";
+import { Delete, Close } from "@mui/icons-material";
+import { showToast } from "../Common/ToastContainer";
 
 //นิยาม Interface สำหรับ Props
 interface PenTestLogListProps {
@@ -35,17 +37,17 @@ export function PenTestLogList({ searchQuery, filterStatus, project_id, role }: 
 
   //(สำคัญ) เมื่อ Search หรือ Filter เปลี่ยน ควร reset page กลับไปหน้าแรก
   useEffect(() => {
-     handleChangePage(null, 0); 
-     // หมายเหตุ: ต้องเช็คว่า handleChangePage ของคุณรองรับ event null หรือไม่ 
-     // ถ้าไม่รองรับ อาจต้องใช้ setPage(0) ตรงๆ (ถ้า useTable expose ออกมา)
+    handleChangePage(null, 0);
+    // หมายเหตุ: ต้องเช็คว่า handleChangePage ของคุณรองรับ event null หรือไม่ 
+    // ถ้าไม่รองรับ อาจต้องใช้ setPage(0) ตรงๆ (ถ้า useTable expose ออกมา)
   }, [searchQuery, filterStatus]);
 
   const { data: response, isLoading, isError, refetch } = usePenTestLogs(
     project_id,
-    page + 1, 
-    rowsPerPage, 
-    sortBy, 
-    sortOrder, 
+    page + 1,
+    rowsPerPage,
+    sortBy,
+    sortOrder,
     searchQuery,
     filterStatus
   );
@@ -59,19 +61,28 @@ export function PenTestLogList({ searchQuery, filterStatus, project_id, role }: 
   // 2. เมื่อกดยืนยันใน Modal
   const handleConfirmDelete = async () => {
     if (!logToDelete) return;
-    
+
     setIsDeleting(true);
     try {
       await penTestLogService.delete(logToDelete.id);
-      
+      showToast({
+        icon: <Delete sx={{ fontSize: "20px", color: "#4CAF8A" }} />,
+        message: `Log "${logToDelete.file_name}" deleted successfully!`,
+        borderColor: "#8FFF9C",
+        duration: 6000,
+      });
       // ลบสำเร็จ -> ปิด Modal -> โหลดตารางใหม่
       setDeleteModalOpen(false);
       setLogToDelete(null);
       refetch(); // *สำคัญ* ดึงข้อมูลใหม่
-      
+
     } catch (error) {
-      console.error("Failed to delete", error);
-      alert("Failed to delete asset"); // หรือใช้ Snackbar/Toast
+      showToast({
+        icon: <Close sx={{ fontSize: "20px", color: "#FE3B46" }} />,
+        message: "Failed to delete asset :(",
+        borderColor: "#FE3B46",
+        duration: 6000,
+      });
     } finally {
       setIsDeleting(false);
     }
@@ -103,8 +114,8 @@ export function PenTestLogList({ searchQuery, filterStatus, project_id, role }: 
   }
 
   if (totalCnt === 0) {
-     // ... แสดงหน้า Empty State ตามเดิม ...
-     return <div className="text-center py-10">ไม่พบ Log</div>;
+    // ... แสดงหน้า Empty State ตามเดิม ...
+    return <div className="text-center py-10">ไม่พบ Log</div>;
   }
 
   return (
@@ -114,13 +125,13 @@ export function PenTestLogList({ searchQuery, filterStatus, project_id, role }: 
         role={role}
         data={reports}           // ข้อมูล Array ของหน้านั้นๆ
         totalCount={totalCnt}   // จำนวนข้อมูลทั้งหมดใน DB (เพื่อคำนวณจำนวนหน้า)
-        
+
         // State
         page={page}
         rowsPerPage={rowsPerPage}
         sortBy={sortBy}
         sortOrder={sortOrder}
-        
+
         // Functions (Actions)
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
@@ -133,10 +144,10 @@ export function PenTestLogList({ searchQuery, filterStatus, project_id, role }: 
           open={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
           onConfirm={handleConfirmDelete}
-          
+
           // --- จุดที่ส่งข้อมูล ---
-          entityType="Log"            
-          entityName={logToDelete.file_name} 
+          entityType="Log"
+          entityName={logToDelete.file_name}
           loading={isDeleting}
         />
       )}

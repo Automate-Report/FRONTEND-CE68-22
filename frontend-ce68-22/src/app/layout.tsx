@@ -4,6 +4,7 @@ import "../styles/globals.css";
 import QueryProvider from "../providers/query-provider";
 import { NavBar } from "../components/NavBar";
 import { headers } from "next/headers";
+import ToastContainer from "../components/Common/ToastContainer";
 
 const ibmPlexSansThai = IBM_Plex_Sans_Thai({
   subsets: ["latin", "thai"],
@@ -31,6 +32,7 @@ export default async function RootLayout({
     <html lang="en" className="h-full">
       <body className={`${ibmPlexSansThai.variable} font-sans antialiased h-screen bg-[#0F1518] flex flex-col overflow-hidden`} suppressHydrationWarning={true}>
         <QueryProvider>
+          <ToastContainer />
           {showNavbar && <NavBar />}
           {/* เอา overflow-hidden ออกจากตรงนี้เพื่อให้ Layout ลูกจัดการการ scroll เอง */}
           <div className="flex-1 overflow-y-auto h-0">

@@ -28,6 +28,8 @@ import { JobListByScheduleID } from '@/src/components/schedule/JobListBySchedule
 
 import { formatCronExpressions } from "@/src/lib/format";
 import { RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
+import { showToast } from "@/src/components/Common/ToastContainer";
+import { Delete, Close } from "@mui/icons-material";
 
 export default function ViewSchedulePage() {
     const { role } = useProjectRole();
@@ -38,8 +40,8 @@ export default function ViewSchedulePage() {
     const scheduleId = parseInt(params.scheduleId);
 
     useEffect(() => {
-    if (role?.toLowerCase() === "developer") {
-        router.replace(`/projects/${projectId}/overview`);
+        if (role?.toLowerCase() === "developer") {
+            router.replace(`/projects/${projectId}/overview`);
         }
     }, [role, projectId, router]);
 
@@ -74,15 +76,24 @@ export default function ViewSchedulePage() {
         setIsDeleting(true);
         try {
             await scheduleService.delete(scheduleToDelete.id);
-
+            showToast({
+                icon: <Delete sx={{ fontSize: "20px", color: "#4CAF8A" }} />,
+                message: `Schedule "${scheduleToDelete.name}" deleted successfully!`,
+                borderColor: "#8FFF9C",
+                duration: 6000,
+            });
             // ลบสำเร็จ -> ปิด Modal -> โหลดตารางใหม่
             setDeleteModalOpen(false);
             setscheduleToDelete(null);
             router.push(`/projects/${projectId}/schedule`);
 
         } catch (error) {
-            console.error("Failed to delete", error);
-            alert("Failed to delete schedule"); // หรือใช้ Snackbar/Toast
+            showToast({
+                icon: <Close sx={{ fontSize: "20px", color: "#FE3B46" }} />,
+                message: "Failed to delete schedule :(",
+                borderColor: "#FE3B46",
+                duration: 6000,
+            });
         } finally {
             setIsDeleting(false);
         }
