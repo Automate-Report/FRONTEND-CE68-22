@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -15,9 +16,6 @@ import {
   Build as FixIcon,
   History as LogIcon,
   Visibility as EvidenceIcon,
-  CheckCircle as TPIcon,
-  Cancel as FPIcon,
-  HelpOutline as PendingIcon,
   WarningAmber as WarningIcon,
   CheckCircleOutline as SuccessIcon,
   HourglassEmpty as WaitIcon
@@ -30,9 +28,10 @@ import { useProject } from "@/src/hooks/project/use-project";
 import { useAssignVuln } from "@/src/hooks/vuln/use-assignVuln";
 import { useUpdateStatus } from "@/src/hooks/vuln/use-updateStatus";
 import { useUpdateVerify } from "@/src/hooks/vuln/use-updateVerify";
-import { refresh } from "next/cache";
+
 
 export default function VulnDetailPage() {
+  const router = useRouter();
   const params = useParams();
   const vulnId = parseInt(params.vulnId as string);
   const projectId = parseInt(params.id as string);
@@ -70,7 +69,8 @@ export default function VulnDetailPage() {
 
   const handleStatusChange = (newStatus: string) => {
     updateStatus(newStatus);
-    window.location.reload()
+    router.refresh();
+    // window.location.reload();
   };
 
   const handleVerifyChange = (newVerify: string) => {
