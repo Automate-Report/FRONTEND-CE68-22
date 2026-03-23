@@ -20,6 +20,8 @@ import SearchBox from "@/src/components/Common/GenericSearchBox";
 //icons
 import CreateScheduleIcon from "@/src/components/icon/CreateSchedule";
 import { ScheduleCard } from "@/src/components/schedule/ScheduleCard";
+import { showToast } from "@/src/components/Common/ToastContainer";
+import { Close, Delete } from "@mui/icons-material";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -82,15 +84,24 @@ export default function ProjectSchedulePage({ params }: PageProps) {
     setIsDeleting(true);
     try {
       await scheduleService.delete(scheduleToDelete.id);
-
+      showToast({
+        icon: <Delete sx={{ fontSize: "20px", color: "#4CAF8A" }} />,
+        message: `Schedule "${scheduleToDelete.name}" deleted successfully!`,
+        borderColor: "#8FFF9C",
+        duration: 6000,
+      });
       // ลบสำเร็จ -> ปิด Modal -> โหลดตารางใหม่
       setDeleteModalOpen(false);
       setscheduleToDelete(null);
       refetch(); // *สำคัญ* ดึงข้อมูลใหม่
 
     } catch (error) {
-      console.error("Failed to delete", error);
-      alert("Failed to delete schedule"); // หรือใช้ Snackbar/Toast
+      showToast({
+        icon: <Close sx={{ fontSize: "20px", color: "#FE3B46" }} />,
+        message: "Failed to delete schedule :(",
+        borderColor: "#FE3B46",
+        duration: 6000,
+      });
     } finally {
       setIsDeleting(false);
     }
@@ -136,18 +147,18 @@ export default function ProjectSchedulePage({ params }: PageProps) {
       <div className="my-6 flex justify-between">
 
         {/* Search bar */}
-        <SearchBox 
-          value={searchQuery} 
-          onChange={setSearchQuery} 
+        <SearchBox
+          value={searchQuery}
+          onChange={setSearchQuery}
           placeholder="Search Schedules"
           className="w-full max-w-md"
         />
 
         {/* Buttons */}
         <div className="flex gap-8 items-center">
-          <GenericFilterButton 
-            options={filterOptions} 
-            currentValue={statusFilter} 
+          <GenericFilterButton
+            options={filterOptions}
+            currentValue={statusFilter}
             onSelect={handleFilterChange}
           />
 
@@ -187,8 +198,8 @@ export default function ProjectSchedulePage({ params }: PageProps) {
           onConfirm={handleConfirmDelete}
 
           // --- จุดที่ส่งข้อมูล ---
-          entityType="Schedule"             
-          entityName={scheduleToDelete.name} 
+          entityType="Schedule"
+          entityName={scheduleToDelete.name}
           loading={isDeleting}
         />
       )}

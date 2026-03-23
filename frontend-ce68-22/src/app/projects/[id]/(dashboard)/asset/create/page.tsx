@@ -17,7 +17,8 @@ import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import { AssetBasicInfo } from "@/src/components/assets/create/AssetBasicInfo";
 import { CredentialForm } from "@/src/components/assets/create/CredentialForm";
 import { FormActions } from "@/src/components/assets/create/FormActions";
-
+import { showToast } from "@/src/components/Common/ToastContainer";
+import { CheckCircle, Close } from "@mui/icons-material";
 
 
 // Define Form Types
@@ -96,16 +97,28 @@ export default function CreateAssetPage() {
 
       // 3. Clear Cache และย้ายหน้า
       queryClient.invalidateQueries({ queryKey: ["assets", projectId] });
+      // Success
+      showToast({
+        icon: <CheckCircle sx={{fontSize: "20px",color: "#4CAF8A"}} />,
+        message: "Asset Created successfully!",
+        borderColor: "#8FFF9C",
+        duration: 6000,
+      });
       router.push(`/projects/${projectId}/asset`);
-      
+
     } catch (error) {
-      console.error("Creation failed:", error);
-      
       // Rollback: ถ้าสร้าง Asset ได้แต่ Credential พัง ให้ลบ Asset ทิ้งป้องกันขยะ
       if (createdAssetId) {
         await assetService.delete(createdAssetId);
       }
       alert("Something went wrong. Please check your data.");
+      showToast({
+        icon: <Close sx={{fontSize: "20px",color: "#FE3B46"}} />,
+        message: "Failed to Create asset :(",
+        borderColor: "#FE3B46",
+        duration: 6000,
+      });
+
     } finally {
       setIsSubmitting(false);
     }
@@ -120,25 +133,25 @@ export default function CreateAssetPage() {
   ];
 
   return (
-    <Box 
-      component="form" 
-      onSubmit={formMethods.handleSubmit(onSubmit)} 
-      sx={{ 
-        pb: 4, 
-        opacity: isSubmitting ? 0.7 : 1, 
-        pointerEvents: isSubmitting ? 'none' : 'auto' 
+    <Box
+      component="form"
+      onSubmit={formMethods.handleSubmit(onSubmit)}
+      sx={{
+        pb: 4,
+        opacity: isSubmitting ? 0.7 : 1,
+        pointerEvents: isSubmitting ? 'none' : 'auto'
       }}
     >
       <GenericBreadcrums items={breadcrumbItems} />
 
       {/* ข้อมูลพื้นฐาน: ชื่อ Asset, Target, Type */}
-      <AssetBasicInfo 
-        formMethods={formMethods} 
-        currentAssetType={formMethods.watch("type")} 
+      <AssetBasicInfo
+        formMethods={formMethods}
+        currentAssetType={formMethods.watch("type")}
       />
 
       {/* ส่วน Credentials: Username, Password */}
-      <CredentialForm 
+      <CredentialForm
         formMethods={formMethods}
         showCredential={showCredential}
         setShowCredential={setShowCredential}

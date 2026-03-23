@@ -12,7 +12,7 @@ import SearchBox from "@/src/components/Common/GenericSearchBox";
 
 import { getMe } from "@/src/services/auth.service";
 import { penTestReportService } from "@/src/services/penTestReport.service";
- 
+
 import { CreateReportPayload } from "@/src/types/report";
 
 import { useTable } from "@/src/hooks/use-table";
@@ -23,12 +23,13 @@ import { useReportDownload } from "@/src/hooks/report/use-ReportDownload";
 import { usePenTestReports } from "@/src/hooks/report/use-penTestReports";
 
 // Icons (MUI)
-import { Description as ReportIcon, Close as CloseIcon } from "@mui/icons-material";
+import { Description as ReportIcon, Close as CloseIcon, CheckCircle, Close, Delete } from "@mui/icons-material";
 import { GREEN_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 
 // Components
 import ReportCard from "@/src/components/reports/ReportCard";
 import { Report } from "@/src/types/report";
+import { showToast } from "@/src/components/Common/ToastContainer";
 
 // ── Tiny reusable atoms ───────────────────────────────────────────────────────
 function Spinner() {
@@ -58,29 +59,29 @@ export default function ReportCenterPage() {
   const debouncedSearch = useDebounce(searchQuery, 500);
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const filterOptions = [
-    { label: "All Status", value: "ALL"},
-    { label: "Processing", value: "processing"},
-    { label: "Success", value: "success"},
-    { label: "Failed", value: "failed"}
+    { label: "All Status", value: "ALL" },
+    { label: "Processing", value: "processing" },
+    { label: "Success", value: "success" },
+    { label: "Failed", value: "failed" }
   ];
-  
-  const { 
-    page, 
-    rowsPerPage, 
-    sortBy, 
-    sortOrder, 
-    handleChangePage, 
+
+  const {
+    page,
+    rowsPerPage,
+    sortBy,
+    sortOrder,
+    handleChangePage,
     handleChangeRowsPerPage,
     setRowsPerPageDirectly
   } = useTable();
 
   const { data: response, isLoading, refetch } = usePenTestReports(
-    projectId, 
-    page + 1, 
-    rowsPerPage, 
-    sortBy, 
-    sortOrder, 
-    debouncedSearch, 
+    projectId,
+    page + 1,
+    rowsPerPage,
+    sortBy,
+    sortOrder,
+    debouncedSearch,
     statusFilter
   );
 
@@ -113,30 +114,39 @@ export default function ReportCenterPage() {
     if (!newReport.name || isNaN(projectId)) return;
 
     // ✅ Close modal immediately for better UX
-    setOpenCreate(false); 
-    setIsGenerating(true); 
+    setOpenCreate(false);
+    setIsGenerating(true);
 
     try {
       const payload: CreateReportPayload = {
         reportName: newReport.name,
-        assetIds: newReport.assets, 
+        assetIds: newReport.assets,
         startDate: newReport.startDate,
         endDate: newReport.endDate,
       };
 
       await penTestReportService.create(projectId, payload);
       await refetch();
-      
+      showToast({
+        icon: <CheckCircle sx={{ fontSize: "20px", color: "#4CAF8A" }} />,
+        message: "Report Created successfully!",
+        borderColor: "#8FFF9C",
+        duration: 6000,
+      });
       // Reset form
-      setNewReport({ 
-        name: "", 
-        assets: [], 
+      setNewReport({
+        name: "",
+        assets: [],
         startDate: new Date().toISOString().split("T")[0],
         endDate: new Date().toISOString().split("T")[0],
       });
     } catch (error) {
-      console.error("Failed to create report:", error);
-      alert("ไม่สามารถสร้าง Report ได้ กรุณาตรวจสอบข้อมูลอีกครั้ง");
+      showToast({
+        icon: <Close sx={{ fontSize: "20px", color: "#FE3B46" }} />,
+        message: "Failed to Create report :(",
+        borderColor: "#FE3B46",
+        duration: 6000,
+      });
     } finally {
       setIsGenerating(false);
     }
@@ -146,11 +156,21 @@ export default function ReportCenterPage() {
     if (!deleteTarget) return;
     try {
       await penTestReportService.delete(projectId, deleteTarget.id);
+      showToast({
+        icon: <Delete sx={{ fontSize: "20px", color: "#4CAF8A" }} />,
+        message: `Report "${deleteTarget.name}" deleted successfully!`,
+        borderColor: "#8FFF9C",
+        duration: 6000,
+      });
       setDeleteTarget(null);
       await refetch();
     } catch (error) {
-      console.error("Failed to delete report:", error);
-      alert("ไม่สามารถลบ Report ได้");
+      showToast({
+        icon: <Close sx={{ fontSize: "20px", color: "#FE3B46" }} />,
+        message: "Failed to delete report :(",
+        borderColor: "#FE3B46",
+        duration: 6000,
+      });
     }
   };
 
@@ -191,18 +211,18 @@ export default function ReportCenterPage() {
 
       <div className="my-6 mb-8 flex justify-between">
         {/* Search bar */}
-        <SearchBox 
-          value={searchQuery} 
-          onChange={setSearchQuery} 
+        <SearchBox
+          value={searchQuery}
+          onChange={setSearchQuery}
           placeholder="Search Reports"
           className="w-full max-w-md"
         />
 
         <div className="flex gap-8 items-center">
-          <GenericFilterButton 
-            options={filterOptions} 
-            currentValue={statusFilter} 
-            onSelect={handleFilterChange} 
+          <GenericFilterButton
+            options={filterOptions}
+            currentValue={statusFilter}
+            onSelect={handleFilterChange}
           />
           <button onClick={() => setOpenCreate(true)} className={`${GREEN_BUTTON_STYLE} whitespace-nowrap`}>
             Generate Report <ReportIcon className="ml-2" />
@@ -219,14 +239,14 @@ export default function ReportCenterPage() {
             {reports.map((report, idx) => (
               <ReportCard
                 index={idx}
-                key={report.id} 
+                key={report.id}
                 report={report}
                 onDelete={() => setDeleteTarget(report)}
-                onDownloadPdf={onDownloadPdf}  
-                onDownloadDocx={onDownloadDocx} 
+                onDownloadPdf={onDownloadPdf}
+                onDownloadDocx={onDownloadDocx}
               />
             ))}
-            
+
             <div className="mt-8">
               <GenericPagination
                 count={totalCnt}
@@ -249,7 +269,7 @@ export default function ReportCenterPage() {
       {openCreate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="w-full max-w-md rounded-2xl border border-[#2D2F39] bg-[#1E2429] p-6 shadow-2xl relative">
-            
+
             {/* Loading Overlay */}
             {isGenerating && (
               <div className="absolute inset-0 bg-[#1E2429]/80 z-10 flex flex-col items-center justify-center rounded-2xl">
@@ -265,8 +285,8 @@ export default function ReportCenterPage() {
               <h2 className="text-lg font-black uppercase tracking-tight text-[#FBFBFB]">
                 Generate Pentest Report
               </h2>
-              <button 
-                onClick={() => setOpenCreate(false)} 
+              <button
+                onClick={() => setOpenCreate(false)}
                 className="rounded-lg p-1 text-[#9AA6A8] transition-colors hover:bg-[#FE3B46]/10 hover:text-[#FE3B46]"
               >
                 <CloseIcon fontSize="small" />
@@ -290,26 +310,23 @@ export default function ReportCenterPage() {
                 <label className={labelCls}>
                   Asset Scope {newReport.assets.length > 0 ? `(${newReport.assets.length} Selected)` : "(All Assets)"}
                 </label>
-                
+
                 <div className="mt-2 flex flex-col gap-1 max-h-[180px] overflow-y-auto pr-2 custom-scrollbar border border-[#2D2F39] rounded-xl p-2 bg-[#0D1014]">
-                  
+
                   {/* Option: All Assets (Default) */}
-                  <div 
+                  <div
                     onClick={() => setNewReport({ ...newReport, assets: [] })}
-                    className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all border ${
-                      newReport.assets.length === 0 
-                        ? "bg-[#8FFF9C]/10 border-[#8FFF9C]/40" 
-                        : "border-transparent hover:bg-[#1E2429]"
-                    }`}
+                    className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all border ${newReport.assets.length === 0
+                      ? "bg-[#8FFF9C]/10 border-[#8FFF9C]/40"
+                      : "border-transparent hover:bg-[#1E2429]"
+                      }`}
                   >
-                    <div className={`w-5 h-5 rounded flex items-center justify-center border-2 transition-all ${
-                      newReport.assets.length === 0 ? "bg-[#8FFF9C] border-[#8FFF9C]" : "border-[#404F57]"
-                    }`}>
+                    <div className={`w-5 h-5 rounded flex items-center justify-center border-2 transition-all ${newReport.assets.length === 0 ? "bg-[#8FFF9C] border-[#8FFF9C]" : "border-[#404F57]"
+                      }`}>
                       {newReport.assets.length === 0 && <CloseIcon sx={{ fontSize: 14, color: "#0D1014" }} />}
                     </div>
-                    <span className={`text-sm font-bold uppercase tracking-wider ${
-                      newReport.assets.length === 0 ? "text-[#8FFF9C]" : "text-[#9AA6A8]"
-                    }`}>
+                    <span className={`text-sm font-bold uppercase tracking-wider ${newReport.assets.length === 0 ? "text-[#8FFF9C]" : "text-[#9AA6A8]"
+                      }`}>
                       All Assets (Default)
                     </span>
                   </div>
@@ -320,7 +337,7 @@ export default function ReportCenterPage() {
                   {allAssets?.map((asset) => {
                     const isSelected = newReport.assets.includes(asset.id);
                     return (
-                      <div 
+                      <div
                         key={asset.id}
                         onClick={() => {
                           const nextAssets = isSelected
@@ -328,15 +345,13 @@ export default function ReportCenterPage() {
                             : [...newReport.assets, asset.id];
                           setNewReport({ ...newReport, assets: nextAssets });
                         }}
-                        className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all border ${
-                          isSelected 
-                            ? "bg-[#8FFF9C]/10 border-[#8FFF9C]/40" 
-                            : "border-transparent hover:bg-[#1E2429]"
-                        }`}
+                        className={`flex items-center gap-3 p-2.5 rounded-lg cursor-pointer transition-all border ${isSelected
+                          ? "bg-[#8FFF9C]/10 border-[#8FFF9C]/40"
+                          : "border-transparent hover:bg-[#1E2429]"
+                          }`}
                       >
-                        <div className={`w-5 h-5 rounded flex items-center justify-center border-2 transition-all ${
-                          isSelected ? "bg-[#8FFF9C] border-[#8FFF9C]" : "border-[#404F57]"
-                        }`}>
+                        <div className={`w-5 h-5 rounded flex items-center justify-center border-2 transition-all ${isSelected ? "bg-[#8FFF9C] border-[#8FFF9C]" : "border-[#404F57]"
+                          }`}>
                           {isSelected && <div className="w-2.5 h-2.5 bg-[#0D1014] rounded-sm" />}
                         </div>
                         <span className={`text-sm font-medium ${isSelected ? "text-[#FBFBFB]" : "text-[#9AA6A8]"}`}>
@@ -376,8 +391,8 @@ export default function ReportCenterPage() {
 
             {/* Footer Actions */}
             <div className="mt-8 flex justify-end gap-3">
-              <button 
-                onClick={() => setOpenCreate(false)} 
+              <button
+                onClick={() => setOpenCreate(false)}
                 className="px-5 py-2 text-xs font-black uppercase tracking-widest text-[#9AA6A8] hover:text-[#FBFBFB] transition-colors"
               >
                 Cancel

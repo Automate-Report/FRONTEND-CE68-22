@@ -17,6 +17,8 @@ import EditProjectIcon from "./icon/Edit";
 import DeleteProjectIcon from "./icon/Delete";
 import EngineeringIcon from "@mui/icons-material/Engineering";
 import PeopleIcon from "@mui/icons-material/People";
+import { Close, Delete } from "@mui/icons-material";
+import { showToast } from "./Common/ToastContainer";
 
 interface SideBarProps {
   project_id: number;
@@ -71,8 +73,19 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
       setDeleteModalOpen(false);
       router.replace('/main');
       router.refresh();
+      showToast({
+        icon: <Delete sx={{ fontSize: "20px", color: "#4CAF8A" }} />,
+        message: `Project "${project_name}" deleted successfully!`,
+        borderColor: "#8FFF9C",
+        duration: 6000,
+      });
     } catch (error) {
-      console.error("Failed to delete project", error);
+      showToast({
+        icon: <Close sx={{ fontSize: "20px", color: "#FE3B46" }} />,
+        message: "Failed to delete project :(",
+        borderColor: "#FE3B46",
+        duration: 6000,
+      });
     } finally {
       setIsDeleting(false);
     }
@@ -91,7 +104,7 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
 
   return (
     <div className="h-[calc(100vh-74px)] bg-[#0D1014] p-4 flex flex-col fixed w-[300px] border-r border-[#2D2F39] font-sans">
-      
+
       <style jsx>{`
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
@@ -101,7 +114,7 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
       `}</style>
 
       {/* เมนูนำทางหลัก */}
-      <nav className="flex-1 overflow-y-auto custom-scrollbar pr-2"> 
+      <nav className="flex-1 overflow-y-auto custom-scrollbar pr-2">
         {menuSections.map((section) => {
           const filteredItems = section.items.filter(
             (item) => !item.roles || item.roles.includes(role)
@@ -141,7 +154,7 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
       {/* ส่วนล่าง: Compact Action Icons & Role Display */}
       <div className="mt-auto pt-4 bg-[#0D1014]">
         <Divider sx={{ mb: 2, borderColor: "#2D2F39", opacity: 0.3 }} />
-        
+
         {/* Horizontal Action Buttons (Only for Owner) */}
         {isOwner && (
           <div className="flex justify-between gap-2 px-2 mb-4">
@@ -149,8 +162,8 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
               <Link
                 href={`/projects/${project_id}/edit`}
                 className={`flex-1 flex justify-center py-2 rounded-lg transition-all border
-                  ${pathname === `/projects/${project_id}/edit` 
-                    ? "bg-[#8FFF9C15] border-[#8FFF9C] text-[#8FFF9C]" 
+                  ${pathname === `/projects/${project_id}/edit`
+                    ? "bg-[#8FFF9C15] border-[#8FFF9C] text-[#8FFF9C]"
                     : "border-[#2D2F39] text-[#404F57] hover:border-[#8FFF9C] hover:text-[#8FFF9C] hover:bg-[#1F1F1F]"}`}
               >
                 <EditProjectIcon />
@@ -171,12 +184,12 @@ export function SideBar({ project_id, project_name, role }: SideBarProps) {
         <div className="px-2 pb-2">
           <div className="flex flex-col gap-1.5">
             <span className="text-[#404F57] text-[9px] font-black tracking-[0.1em] uppercase ml-1">Current Identity</span>
-            <div 
+            <div
               className="inline-flex items-center justify-center py-2 px-3 rounded-md border text-[11px] font-black tracking-widest uppercase w-full shadow-lg"
-              style={{ 
-                backgroundColor: roleStyle.bg, 
-                color: roleStyle.color, 
-                borderColor: roleStyle.border 
+              style={{
+                backgroundColor: roleStyle.bg,
+                color: roleStyle.color,
+                borderColor: roleStyle.border
               }}
             >
               {role}

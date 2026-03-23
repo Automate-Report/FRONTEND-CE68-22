@@ -5,6 +5,8 @@ import { projectService } from "@/src/services/project.service";
 import { tagService } from "@/src/services/tag.service";
 import { Tag } from "@/src/types/tag";
 import { TagRow } from "@/src/types/tag";
+import { showToast } from "@/src/components/Common/ToastContainer";
+import { CheckCircle, Close } from "@mui/icons-material";
 
 export const useCreateProject = () => {
   const router = useRouter();
@@ -16,7 +18,7 @@ export const useCreateProject = () => {
   // State Tags: เปลี่ยนจาก string[] เป็น TagRow[]
   // ใช้ Date.now() เป็น ID เริ่มต้นเพื่อให้ไม่ซ้ำกัน
   const [tagRows, setTagRows] = useState<TagRow[]>([{ id: 1, tagName: "" }]);
-  
+
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
 
   // Status State
@@ -64,11 +66,11 @@ export const useCreateProject = () => {
   const createNewTagAndSelect = async (index: number, tagName: string, currentRows: TagRow[]) => {
     try {
       const newTagObj = await tagService.create(tagName);
-      
+
       // อัปเดต tagName ใน row ที่ระบุ
       currentRows[index].tagName = newTagObj.name;
       setTagRows(currentRows);
-      
+
       await fetchLatestTags();
     } catch (err) {
       console.error("Failed to create tag:", err);
@@ -79,24 +81,24 @@ export const useCreateProject = () => {
   const handleTagChange = async (index: number, newValue: string | Tag | null) => {
     // Clone array เพื่อป้องกัน mutation โดยตรง
     // เรา copy object ออกมาด้วยเพื่อให้ React detect change ได้ชัวร์ๆ
-    const newRows = tagRows.map(row => ({ ...row })); 
+    const newRows = tagRows.map(row => ({ ...row }));
 
     if (newValue === null) {
       newRows[index].tagName = "";
       setTagRows(newRows);
-    } 
+    }
     else if (typeof newValue === 'string' && newValue.startsWith('Add "')) {
       const rawName = newValue.replace('Add "', '').replace('"', '');
       await createNewTagAndSelect(index, rawName, newRows);
-    } 
+    }
     else if (typeof newValue === 'object' && 'inputValue' in newValue) {
       const rawName = (newValue as any).inputValue;
       await createNewTagAndSelect(index, rawName, newRows);
-    } 
+    }
     else if (typeof newValue === 'object' && 'name' in newValue) {
       newRows[index].tagName = newValue.name;
       setTagRows(newRows);
-    } 
+    }
     else if (typeof newValue === 'string') {
       const existingTag = availableTags.find(t => t.name.toLowerCase() === newValue.toLowerCase());
       if (existingTag) {
@@ -111,13 +113,13 @@ export const useCreateProject = () => {
   const handleDeleteTagFromDb = async (tagToDelete: Tag) => {
     try {
       await tagService.delete(tagToDelete.id);
-        
+
       // ลบ Tag ออกจาก list available
       setAvailableTags((prev) => prev.filter((t) => t.id !== tagToDelete.id));
-        
+
       // เคลียร์ค่าออกจาก Input ถ้า row ไหนเลือก Tag นี้อยู่
-      setTagRows((prev) => prev.map((row) => 
-          row.tagName === tagToDelete.name ? { ...row, tagName: "" } : row
+      setTagRows((prev) => prev.map((row) =>
+        row.tagName === tagToDelete.name ? { ...row, tagName: "" } : row
       ));
 
       fetchLatestTags();
@@ -153,10 +155,20 @@ export const useCreateProject = () => {
         tag_ids: tagIds
       });
 
+      showToast({
+        icon: <CheckCircle sx={{ fontSize: "20px", color: "#4CAF8A" }} />,
+        message: "Project Created successfully!",
+        borderColor: "#8FFF9C",
+        duration: 6000,
+      });
       router.push(`/projects/${newProject.id}/overview`);
     } catch (err: any) {
-      console.error(err);
-      setError(err.message || "Failed to create project");
+      showToast({
+        icon: <Close sx={{ fontSize: "20px", color: "#FE3B46" }} />,
+        message: "Failed to create project :(",
+        borderColor: "#FE3B46",
+        duration: 6000,
+      });
     } finally {
       setLoading(false);
     }
