@@ -101,6 +101,17 @@ export default function ViewSchedulePage() {
 
     if (isLoading) return <div className="p-8">Loading...</div>;
     if (isError || !project) return <div className="p-8 text-red-500">Project not found</div>;
+    if (!schedule) return <div className="p-8">Loading schedule...</div>;
+
+    function formatAtkTypeDisplay (atkType: string) {
+        console.log(schedule?.attack_type); // Debug log
+        switch (atkType?.trim().toLowerCase()) {
+            case "sqli": return "SQL Injection";
+            case "xss": return "Cross-site Scripting";
+            case "all": return "All Attack Types";
+            default: return atkType;
+        }
+    }
 
     return (
         <div className="flex flex-col w-full text-[#E6F0E6] max-w-7xl">
@@ -137,7 +148,7 @@ export default function ViewSchedulePage() {
                             <CardWithIcon
                                 icon={<SwordIcon />}
                                 title="ATTACK TYPE"
-                                dataDisplay={schedule?.attack_type || "Fetching Data..."}
+                                dataDisplay={formatAtkTypeDisplay(schedule?.attack_type)}
                                 description=""
                             />
                             <CardWithIcon
@@ -188,7 +199,7 @@ export default function ViewSchedulePage() {
                             <CardWithIcon
                                 icon={<SwordIcon />}
                                 title="ATTACK TYPE"
-                                dataDisplay={schedule?.attack_type || "Fetching Data..."}
+                                dataDisplay={formatAtkTypeDisplay(schedule?.attack_type)}
                                 description=""
                             />
                             <CardWithIcon
