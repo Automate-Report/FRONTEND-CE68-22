@@ -21,6 +21,8 @@ import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import { useRouter } from 'next/navigation';
 import { GREEN_BUTTON_STYLE } from '../styles/greenButton';
 import { RED_BUTTON_STYLE } from '../styles/buttonStyle';
+import { CheckCircle, CheckOutlined, Close } from '@mui/icons-material';
+import { showToast } from './Common/ToastContainer';
 
 export function NavBar() {
     const router = useRouter();
@@ -114,8 +116,17 @@ export function NavBar() {
     }
 
     function handleAcceptInvite(invite: Invite) {
-        acceptInvitation.mutate(invite.project_id);
-        window.location.reload();
+        acceptInvitation.mutate(invite.project_id, {
+            onSuccess: () => {
+                showToast({
+                    icon: <CheckCircle sx={{ fontSize: "20px", color: "#4CAF8A" }} />,
+                    message: `You are now joined "${invite.project_name}"!`,
+                    borderColor: "#8FFF9C",
+                    duration: 6000,
+                });
+                setTimeout(() => window.location.reload(), 1500);
+            },
+        });
     }
 
     return (
@@ -218,7 +229,7 @@ export function NavBar() {
 
             {/* Invite Window */}
             {showInvite && (
-                <div ref={inviteWindowRef} className="absolute top-[88px] right-[24px] w-[300px] bg-[#0F1518] border-2 border-[#272D31] rounded-lg shadow-lg z-50">
+                <div ref={inviteWindowRef} className="absolute top-[88px] right-[24px] w-[500px] bg-[#0F1518] border-2 border-[#272D31] rounded-lg shadow-lg z-50">
                     <h3 className="text-xl font-semibold text-[#E6F0E6] p-4 border-b border-[#272D31]">Invitations</h3>
                     <div className="p-3 flex flex-col max-h-[400px] overflow-y-auto">
                         {isInvitationsLoading ? (
@@ -228,20 +239,23 @@ export function NavBar() {
                             </div>
                         ) : invitations?.length ? (
                             invitations.map((invite, index) => (
-                                <div key={index} className="my-1 p-3 bg-[#272D31] rounded-lg">
-                                    <p className="text-m text-[#E6F0E6]"><span className="font-semibold">{invite.project_name}</span> - Invited by {invite.project_owner}</p>
-                                    <p className="text-m text-[#9AA6A8]">Role: {invite.role}</p>
-                                    <p className="text-s text-[#9AA6A8]">Invited at: {new Date(invite.invited_at).toLocaleString()}</p>
-                                    <div className='flex justify-around mt-2'>
-                                        <button className={`${GREEN_BUTTON_STYLE}`}
-                                                onClick={() => handleAcceptInvite(invite)}
+                                <div key={index} className="my-1 p-2 flex flex-row justify-between">
+                                    <div>
+                                        <p className="text-xs text-[#9AA6A8]">{invite.project_owner} invited you to join</p>
+                                        <p className="text-lg text-[#E6F0E6] font-semibold">{invite.project_name}</p>
+                                        <p className='text-sm text-[#9AA6A8] font-semibold'> as a {invite.role.toLocaleUpperCase()}</p>
+                                        <p className="text-xs text-[#9AA6A8] mt-3">Invited at: {new Date(invite.invited_at).toLocaleString()}</p>
+                                    </div>
+                                    <div className='flex justify-between gap-6 items-center'>
+                                        <button className={`${GREEN_BUTTON_STYLE} h-[42px] w-[42px]`}
+                                            onClick={() => handleAcceptInvite(invite)}
                                         >
-                                            Accept
+                                            <CheckOutlined sx={{ fontSize: "18px", color: "#0B0F12" }} />
                                         </button>
-                                        <button className={`${RED_BUTTON_STYLE}`}
-                                                onClick={() => declineInvitation.mutate(invite.project_id)}
+                                        <button className={`${RED_BUTTON_STYLE} h-[30px] w-[42px] justify-center`}
+                                            onClick={() => declineInvitation.mutate(invite.project_id)}
                                         >
-                                            Decline
+                                            <Close sx={{ fontSize: "18px" }} />
                                         </button>
                                     </div>
                                 </div>

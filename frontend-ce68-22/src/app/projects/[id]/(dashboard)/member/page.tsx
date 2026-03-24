@@ -39,6 +39,7 @@ import { InviteRole } from "@/src/types/invite";
 import GenericDropdown from "@/src/components/Common/GenericDropdown";
 import { INPUT_BOX_NO_ICON_STYLE } from "@/src/styles/inputBoxStyle";
 import { showToast } from "@/src/components/Common/ToastContainer";
+import axios from "axios";
 
 export default function MemberPage() {
   const params = useParams();
@@ -115,9 +116,13 @@ export default function MemberPage() {
           duration: 6000,
         });
       } catch (error) {
+        const message = axios.isAxiosError(error)
+          ? error.response?.data?.detail
+          : "Something went wrong.";
+
         showToast({
           icon: <Close sx={{ fontSize: "20px", color: "#FE3B46" }} />,
-          message: `Failed to invite ${invitePerson} :(`,
+          message: message || "Something went wrong.",
           borderColor: "#FE3B46",
           duration: 6000,
         });

@@ -1,5 +1,7 @@
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { inviteService } from "@/src/services/invite.service";
+import { showToast } from "@/src/components/Common/ToastContainer";
+import { Close } from "@mui/icons-material";
 
 export function useInvitations() {
     return useQuery({
@@ -21,8 +23,12 @@ export function useAcceptInvitation() {
             queryClient.invalidateQueries({ queryKey: ["invitations"] });
         },
         onError: (error: any) => {
-            console.error('Accept invitation failed:', error?.response?.data?.detail || error.message);
-            // Handle error - show toast, etc.
+            showToast({
+                icon: <Close sx={{ fontSize: "20px", color: "#FE3B46" }} />,
+                message: error?.response?.data?.detail || "Failed to accept the invitation. Please try again.",
+                borderColor: "#FE3B46",
+                duration: 6000,
+            });
         },
     });
 }
