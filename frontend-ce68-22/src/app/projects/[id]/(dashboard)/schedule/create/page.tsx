@@ -47,6 +47,7 @@ export default function CreateSchedulePage() {
     const { data: allAssetName, refetch: refetchAssets } = useGetAllAssetNames(projectId);
 
     // Form States
+    const timeLimit = 7;
     const [runNow, setRunNow] = useState(false);
     const [form, setForm] = useState({
         scheduleName: "",
@@ -80,7 +81,7 @@ export default function CreateSchedulePage() {
 
     // Error states
     const [errors, setErrors] = useState({ name: false, attackType: false, asset: false });
-    const [repeatedTimeError, setRepeatedTimeError] = useState<boolean>(false);
+    const [timeError, setTimeError] = useState({ repeat: false, limit: false });
     const [invalidDateError, setInvalidDateError] = useState({ start: false, end: false });
 
     // Validation Logic
@@ -106,6 +107,10 @@ export default function CreateSchedulePage() {
     const handleBack = () => setCurrentStep(prev => prev - 1);
 
     const handleAddTime = () => {
+        if (cronTimes.length >= timeLimit) {
+            setTimeError(prev => ({ ...prev, limit: true }));
+            return; 
+        }
         setCronTimes(prev => [...prev,
         {
             min: "0",
@@ -156,7 +161,7 @@ export default function CreateSchedulePage() {
 
     const changeUserInputToCronString = (month: string = "*") => {
 
-        setRepeatedTimeError(false);
+        setTimeError({ repeat: false, limit: false });
 
         // If not repeat
         if (!repeatTrue) {
@@ -166,7 +171,7 @@ export default function CreateSchedulePage() {
         // Check for repeated times
         const timeSet = new Set(cronTimes.map(t => `${t.hr}:${t.min}`));
         if (timeSet.size !== cronTimes.length) {
-            setRepeatedTimeError(true);
+            setTimeError(prev => ({ ...prev, repeat: true }));
             return;
         }
 
@@ -575,13 +580,16 @@ export default function CreateSchedulePage() {
                                                                 )}
                                                             </div>
                                                         ))}
-                                                        <button className={`${GREEN_BUTTON_STYLE}`}
+                                                        <button className={`w-[150px] whitespace-nowrap ${GREEN_BUTTON_STYLE}`}
                                                             type="button"
                                                             onClick={handleAddTime}>
                                                             Add Time <AddTime />
                                                         </button>
-                                                        {repeatedTimeError && (
+                                                        {timeError.repeat && (
                                                             <span className="text-red-500">You cannot specify the same time more than once.</span>
+                                                        )}
+                                                        {timeError.limit && (
+                                                            <span className="text-red-500">You can only have up to 7 different times</span>
                                                         )}
                                                     </div>
                                                 </div>

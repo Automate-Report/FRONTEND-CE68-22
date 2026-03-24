@@ -41,6 +41,7 @@ export default function EditSchedulePage() {
     const { data: allAssetName } = useGetAllAssetNames(projectId);
 
     // States
+    const timeLimit = 7;
     const [form, setForm] = useState({
         scheduleName: "",
         attackType: "",
@@ -68,7 +69,7 @@ export default function EditSchedulePage() {
     );
 
     // Error states
-    const [repeatedTimeError, setRepeatedTimeError] = useState<boolean>(false);
+    const [timeError, setTimeError] = useState({ repeat: false, limit: false });
     const [invalidDateError, setInvalidDateError] = useState({ start: false, end: false });
 
     // Dropdown Options
@@ -141,6 +142,10 @@ export default function EditSchedulePage() {
     }, [schedule]);
 
     const handleAddTime = () => {
+        if (cronTimes.length >= timeLimit) {
+            setTimeError(prev => ({ ...prev, limit: true }));
+            return; 
+        }
         setCronTimes(prev => [...prev,
         {
             min: "0",
@@ -191,7 +196,7 @@ export default function EditSchedulePage() {
 
     const changeUserInputToCronString = (month: string = "*") => {
 
-        setRepeatedTimeError(false);
+        setTimeError({ repeat: false, limit: false });
 
         // If not repeat
         if (!repeatTrue) {
@@ -201,7 +206,7 @@ export default function EditSchedulePage() {
         // Check for repeated times
         const timeSet = new Set(cronTimes.map(t => `${t.hr}:${t.min}`));
         if (timeSet.size !== cronTimes.length) {
-            setRepeatedTimeError(true);
+            setTimeError(prev => ({ ...prev, repeat: true }));
             return;
         }
 
@@ -382,13 +387,16 @@ export default function EditSchedulePage() {
                                                         )}
                                                     </div>
                                                 ))}
-                                                <button className={`${GREEN_BUTTON_STYLE}`}
+                                                <button className={`w-[150px] whitespace-nowrap ${GREEN_BUTTON_STYLE}`}
                                                     type="button"
                                                     onClick={handleAddTime}>
                                                     Add Time <AddTime />
                                                 </button>
-                                                {repeatedTimeError && (
+                                                {timeError.repeat && (
                                                     <span className="text-red-500">You cannot specify the same time more than once.</span>
+                                                )}
+                                                {timeError.limit && (
+                                                    <span className="text-red-500">You can only have up to 7 different times</span>
                                                 )}
                                             </div>
                                         </div>
