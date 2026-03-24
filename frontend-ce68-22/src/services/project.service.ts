@@ -85,6 +85,11 @@ export const projectService = {
 
   deleteMember: async (projectId: number, userId: string) => {
     await apiClient.delete(`/projects/rel/${projectId}/${userId}`);
-  }
+  },
+
+  inviteMember: async (projectId: number, email: string, role: string) => {
+    const { data } = await apiClient.post(`/projects/invite/${projectId}`, { email, role });
+    return data;
+  },
 
 };
