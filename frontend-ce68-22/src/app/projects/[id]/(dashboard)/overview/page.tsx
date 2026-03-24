@@ -169,7 +169,6 @@ export default function ProjectsOverviewPage({ params }: PageProps) {
                     <tr key={vuln.id} className="hover:bg-white/[0.02] transition-colors">
                       <td className="px-6 py-4">
                         <p className="font-bold text-sm">{vuln.title}</p>
-                        <p className="text-xs text-[#404F57]">{vuln.cve}</p>
                       </td>
                       <td className="px-6 py-4 text-sm text-[#9AA6A8]">{vuln.affected_asset}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
