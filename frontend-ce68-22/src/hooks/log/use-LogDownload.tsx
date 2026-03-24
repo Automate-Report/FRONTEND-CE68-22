@@ -7,13 +7,13 @@ export const useLogDownload = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const downloadLog = async (logId: number, fallbackName: string) => {
+  const downloadLog = async (logId: number, projectId: number, fallbackName: string) => {
     setIsLoading(true);
     setError(null);
 
     try {
       // 1. เรียก Service (ตรวจสอบให้แน่ใจว่าใน axios service มี { responseType: 'blob' })
-      const response = await penTestLogService.download(logId);
+      const response = await penTestLogService.download(logId, projectId);
 
       // 2. ตั้งชื่อไฟล์เริ่มต้น (กรณีหา Header ไม่เจอ)
       let filename = `${fallbackName}.txt`;

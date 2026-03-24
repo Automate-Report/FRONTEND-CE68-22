@@ -155,6 +155,7 @@ export function PenTestLogTable({
         <ReportRowActions 
           row={row}
           onDeleteClick={onDeleteClick}
+          projectId={project_id}
         />
       )
     }
