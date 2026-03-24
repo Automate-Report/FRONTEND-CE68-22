@@ -47,7 +47,6 @@ export interface ChangeRole{
 export interface RecentVulnerability {
   id: number;
   title: string;
-  cve: string;
   severity: string;
   cvss_score: number;
   affected_asset: string;

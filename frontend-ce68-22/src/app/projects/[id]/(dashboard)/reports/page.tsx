@@ -51,7 +51,7 @@ export default function ReportCenterPage() {
   const { id: projectIdStr } = useParams();
   const projectId = parseInt(projectIdStr as string);
 
-  const { downloadReport } = useReportDownload();
+  const { downloadReport } = useReportDownload(projectId);
   const { data: allAssets } = useGetAllAssetNames(projectId);
 
   // Table & Fetching Logic
@@ -179,11 +179,11 @@ export default function ReportCenterPage() {
   };
 
   const onDownloadPdf = (report: Report) => {
-    downloadReport(report.id, "pdf", report.file_path_pdf || report.name);
+    downloadReport(report.id, "pdf", projectId, report.file_path_pdf || report.name);
   };
 
   const onDownloadDocx = (report: Report) => {
-    downloadReport(report.id, "docx", report.file_path_word || report.name);
+    downloadReport(report.id, "docx", projectId, report.file_path_word || report.name);
   };
 
   if (isProjectLoading) return <Spinner />;
