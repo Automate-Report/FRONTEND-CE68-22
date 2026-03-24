@@ -213,8 +213,8 @@ export default function CreateSchedulePage() {
                 atk_type: finalAtkType,
                 asset: form.assetId,
                 cron_expression: "Not Repeat",
-                start_date: new Date(Date.now() + 60 * 1000), // run after 1 minute
-                end_date: new Date(Date.now() + 60 * 1000),
+                start_date: new Date(Date.now() + 60 * 1000).toISOString(), 
+                end_date: new Date(Date.now() + 60 * 1000).toISOString(),
             };
 
             const data = await scheduleService.create(payload);
@@ -229,8 +229,8 @@ export default function CreateSchedulePage() {
             atk_type: finalAtkType,
             asset: form.assetId,
             cron_expression: cronString,
-            start_date: new Date(`${form.startDate}T${form.startTime}:00`),
-            end_date: (!repeatTrue || form.endDate) ? new Date(form.startDate) : new Date(form.endDate),
+            start_date: new Date(`${form.startDate}T${form.startTime}:00`).toISOString(),
+            end_date: (!repeatTrue || form.endDate) ? new Date(form.startDate).toISOString() : new Date(form.endDate).toISOString(),
         };
         const data = await scheduleService.create(payload);
         router.push(`/projects/${projectId}/schedule`);
