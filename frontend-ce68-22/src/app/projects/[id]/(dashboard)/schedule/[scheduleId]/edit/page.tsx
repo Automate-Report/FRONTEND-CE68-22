@@ -19,7 +19,8 @@ import GenericDropdown from "@/src/components/Common/GenericDropdown";
 import AddTime from "@/src/components/icon/AddTime";
 import DeleteProjectIcon from "@/src/components/icon/Delete";
 import { INPUT_BOX_NO_ICON_STYLE } from "@/src/styles/inputBoxStyle";
-import { GREEN_BUTTON_STYLE, FILTER_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
+import { GREEN_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
+import { start } from "repl";
 
 export default function EditSchedulePage() {
     const { role } = useProjectRole();
@@ -68,6 +69,7 @@ export default function EditSchedulePage() {
 
     // Error states
     const [repeatedTimeError, setRepeatedTimeError] = useState<boolean>(false);
+    const [invalidDateError, setInvalidDateError] = useState({ start: false, end: false });
 
     // Dropdown Options
     const attackTypeOptions = [
@@ -233,6 +235,24 @@ export default function EditSchedulePage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setInvalidDateError({ start: false, end: false });
+
+        // Check if start date is in the past
+        const startDateTime = new Date(`${form.startDate}T${form.startTime}:00`);
+        if (startDateTime < new Date()) {
+            setInvalidDateError(prev => ({ ...prev, start: true }));
+            return;
+        }
+
+        // If repeat is true, check if end date is after start date
+        if (repeatTrue && form.endDate) {
+            const endDateTime = new Date(form.endDate);
+            if (endDateTime <= startDateTime) {
+                setInvalidDateError(prev => ({ ...prev, end: true }));
+                return;
+            }
+        }
+
         const cronString = changeUserInputToCronString();
         if (!cronString) return;
         const payload: ScheduleCreatePayload = {
@@ -312,6 +332,9 @@ export default function EditSchedulePage() {
                                 <input type="time" value={form.startTime} onChange={(e) => setForm({ ...form, startTime: e.target.value })}
                                     className={`${INPUT_BOX_NO_ICON_STYLE} pr-3`} />
                             </div>
+                            {invalidDateError.start && (
+                                <span className="text-red-500 ml-22 mt-[-15px]">Start date and time cannot be in the past.</span>
+                            )}
 
                             {/* Repeat Button */}
                             <div className="flex items-center">
@@ -446,6 +469,9 @@ export default function EditSchedulePage() {
                                             <input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })}
                                                 className={`${INPUT_BOX_NO_ICON_STYLE} pr-3`} />
                                         </div>
+                                        {invalidDateError.end && (
+                                            <span className="text-red-500 ml-28 mt-[-20px]">End date must be after start date. Please select a valid end date.</span>
+                                        )}
                                     </div>
                                 </div>
                             )}

@@ -81,13 +81,14 @@ export default function CreateSchedulePage() {
     // Error states
     const [errors, setErrors] = useState({ name: false, attackType: false, asset: false });
     const [repeatedTimeError, setRepeatedTimeError] = useState<boolean>(false);
+    const [invalidDateError, setInvalidDateError] = useState({ start: false, end: false });
 
     // Validation Logic
     const validateStep = (step: number) => {
         if (step === 1) {
             const hasError = form.scheduleName === "";
             const attackError = form.attackType.length === 0;
-            setErrors(prev => ({ ...prev, attackType: attackError , name: hasError }));
+            setErrors(prev => ({ ...prev, attackType: attackError, name: hasError }));
             return !attackError && !hasError;
         }
         if (step === 2) {
@@ -200,6 +201,23 @@ export default function CreateSchedulePage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setInvalidDateError({ start: false, end: false });
+
+        // Check if start date is in the past
+        const startDateTime = new Date(`${form.startDate}T${form.startTime}:00`);
+        if (startDateTime < new Date()) {
+            setInvalidDateError(prev => ({ ...prev, start: true }));
+            return;
+        }
+
+        // If repeat is true, check if end date is after start date
+        if (repeatTrue && form.endDate) {
+            const endDateTime = new Date(form.endDate);
+            if (endDateTime <= startDateTime) {
+                setInvalidDateError(prev => ({ ...prev, end: true }));
+                return;
+            }
+        }
 
         const cronString = changeUserInputToCronString();
         if (!cronString) return;
@@ -317,7 +335,7 @@ export default function CreateSchedulePage() {
                                         let newList: string[] = [];
                                         if (isSelected) {
                                             newList = selectedList.filter(value => value !== item.value);
-                                        } else {                                            
+                                        } else {
                                             newList = [...selectedList, item.value];
                                         }
                                         setForm({ ...form, attackType: newList });
@@ -507,6 +525,9 @@ export default function CreateSchedulePage() {
                                                 className={`${INPUT_BOX_NO_ICON_STYLE} w-full`} />
                                         </div>
                                     </div>
+                                    {invalidDateError.start && (
+                                        <span className="text-red-500 mt-[-15px]">Start date and time cannot be in the past.</span>
+                                    )}
 
                                     {/* Repeat Button */}
                                     <div className="flex items-center">
@@ -641,6 +662,9 @@ export default function CreateSchedulePage() {
                                                     <input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })}
                                                         className={`${INPUT_BOX_NO_ICON_STYLE} pr-3`} />
                                                 </div>
+                                                {invalidDateError.end && (
+                                                    <span className="text-red-500 ml-28 mt-[-20px]">End date must be after start date. Please select a valid end date.</span>
+                                                )}
                                             </div>
                                         </div>
                                     )}
