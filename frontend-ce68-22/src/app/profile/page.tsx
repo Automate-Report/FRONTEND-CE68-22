@@ -4,6 +4,8 @@ import { Box, Tab, Tabs } from "@mui/material";
 import EditIcon from '@/src/components/icon/Edit';
 import { GenericGreenButton } from '@/src/components/Common/GenericGreenButton';
 import { Assignment, Bookmark } from "@mui/icons-material";
+import { AssignedToMe } from "@/src/components/profile/AssignedToMe";
+import { BookmarkedProjects } from "@/src/components/profile/BookmarkedProjects";
 
 const Profile = () => {
     const [activeTab, setActiveTab] = useState(0);
@@ -37,7 +39,7 @@ const Profile = () => {
             </div>
 
             {/* Tabs Navigation */}
-            <Box sx={{ borderBottom: 1, borderColor: '#2D2F39', bgcolor: '#161B1F', px: 15 }}>
+            <Box sx={{ borderBottom: 1, borderColor: '#2D2F39', bgcolor: '#161B1F', px: 15, position: 'sticky', top: 0 }}>
                 <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)}
                     sx={{
                         minHeight: 52,
@@ -50,17 +52,11 @@ const Profile = () => {
                     <Tab icon={<Assignment sx={{ fontSize: 18 }} />} iconPosition="start" label="Assigned to me" sx={{ fontSize: 14, textTransform: 'none' }} />                </Tabs>
             </Box>
 
-            {/* Tabs Displays */}
-            {activeTab === 0 && (
-                <div className="p-8 text-[#E6F0E6]">
-                    show project u bookmarked
-                </div>
-            )}
-            {activeTab === 1 && (
-                <div className="p-8 text-[#E6F0E6]">
-                    show project assigned to me
-                </div>
-            )}
+            {/* Tab Content */}
+            <div className="flex-1">
+                {activeTab === 0 && <BookmarkedProjects />}
+                {activeTab === 1 && <AssignedToMe />}
+            </div>
         </div>
 
     )
