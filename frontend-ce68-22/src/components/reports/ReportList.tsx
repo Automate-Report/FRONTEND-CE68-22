@@ -61,7 +61,7 @@ export function PenTestReportList({ searchQuery, filterStatus, project_id }: Pen
     
     setIsDeleting(true);
     try {
-      await penTestReportService.delete(reportToDelete.id);
+      await penTestReportService.delete(reportToDelete.id, project_id);
       
       // ลบสำเร็จ -> ปิด Modal -> โหลดตารางใหม่
       setDeleteModalOpen(false);

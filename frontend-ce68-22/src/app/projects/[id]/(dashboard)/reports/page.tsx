@@ -155,7 +155,7 @@ export default function ReportCenterPage() {
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
     try {
-      await penTestReportService.delete(projectId, deleteTarget.id);
+      await penTestReportService.delete(deleteTarget.id, projectId);
       showToast({
         icon: <Delete sx={{ fontSize: "20px", color: "#4CAF8A" }} />,
         message: `Report "${deleteTarget.name}" deleted successfully!`,
