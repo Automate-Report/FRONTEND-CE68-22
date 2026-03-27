@@ -32,7 +32,7 @@ export const useDownloadStore = create<DownloadState>((set) => ({
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `worker_${workerName}.zip`;
+      link.download = `${workerName}.zip`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
