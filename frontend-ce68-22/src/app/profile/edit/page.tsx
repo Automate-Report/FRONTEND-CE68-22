@@ -178,7 +178,7 @@ export default function EditProfile() {
                     onClick={() => router.back()}
                     className={`${RED_BUTTON_STYLE} w-full justify-center`}
                 >
-                    Cancel
+                    Back to Profile
                 </button>
                 <button
                     onClick={handleSubmit}

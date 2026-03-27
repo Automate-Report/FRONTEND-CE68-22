@@ -10,7 +10,7 @@ import { useGetUserProfileDisplay } from "@/src/hooks/user/use-profile";
 
 const Profile = () => {
     const [activeTab, setActiveTab] = useState(0);
-    
+
     // fetching
     const { data: user_info } = useGetUserProfileDisplay();
 
@@ -57,8 +57,10 @@ const Profile = () => {
                 </div>
             </div>
 
+            {/* tbh u can just delete these since it is not required anyway */}
+            
             {/* Tabs Navigation */}
-            <Box sx={{ borderBottom: 1, borderColor: '#2D2F39', bgcolor: '#161B1F', px: 15, position: 'sticky', top: 0 }}>
+            {/* <Box sx={{ borderBottom: 1, borderColor: '#2D2F39', bgcolor: '#161B1F', px: 15, position: 'sticky', top: 0 }}>
                 <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)}
                     sx={{
                         minHeight: 52,
@@ -68,16 +70,13 @@ const Profile = () => {
                         '& .MuiTabs-indicator': { bgcolor: '#8FFF9C' }
                     }}>
                     <Tab icon={<Assignment sx={{ fontSize: 18 }} />} iconPosition="start" label="Assigned to me" sx={{ fontSize: 14, textTransform: 'none' }} />
-                    {/* <Tab icon={<Bookmark sx={{ fontSize: 18 }} />} iconPosition="start" label="Bookmarked Projects" sx={{ fontSize: 14, textTransform: 'none' }} /> */}
                 </Tabs>
-            </Box>
+            </Box> */}
 
             {/* Tab Content */}
-            <div className="flex-1 px-15">
-                {/* i think we got no time to do bookmark */}
-                {/* {activeTab === 0 && <BookmarkedProjects />} */}
+            {/* <div className="flex-1 px-15">
                 {activeTab === 0 && <AssignedToMe />}
-            </div>
+            </div> */}
         </div>
 
     )

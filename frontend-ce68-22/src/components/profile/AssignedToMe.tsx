@@ -9,7 +9,7 @@ type Status = "in_progress" | "fixed" | "open" | "wont_fix";
 interface AssignedProject {
     title: string;
     priority: Priority;
-    status: string;
+    status: Status;
     projectName: string;
 }
 
