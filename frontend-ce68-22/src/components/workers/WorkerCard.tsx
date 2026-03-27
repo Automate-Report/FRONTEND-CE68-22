@@ -42,12 +42,11 @@ export function WorkerCard({
   const router = useRouter();
   const params = useParams();
   const projectId = params?.id ? parseInt(params.id as string, 10) : 0;
-  const startDownload = useDownloadStore((state) => state.startDownload);
-  const globalIsLoading = useDownloadStore((state) => state.isDownloading);
-  const globalProgress = useDownloadStore((state) => state.progress);
-  const currentDownloadingId = useDownloadStore((state) => state.currentWorkerId);
 
-  const isThisWorkerDownloading = globalIsLoading && currentDownloadingId === worker.id;
+  const { startDownload, isDownloading, progress, currentWorkerId } = useDownloadStore();
+
+  const isThisWorkerDownloading = isDownloading && currentWorkerId === worker.id;
+
   const statusConfig = WORKER_STATUS_MAP[worker.status] || WORKER_STATUS_MAP.UNKNOWN;
   const currentLoad = worker.current_load ?? 0;
   const maxThread = worker.thread_number ?? 1;
@@ -119,19 +118,23 @@ export function WorkerCard({
               <button
                 onClick={handleDownloadClick}
                 title="Download Config"
-                disabled={globalIsLoading && !isThisWorkerDownloading}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-[#8FFF9C] hover:bg-[rgba(143,255,156,0.08)] transition-colors disabled:opacity-40"
+                // ✅ แก้ไข: disabled เมื่อกำลังโหลดตัวอื่นอยู่ หรือกำลังโหลดตัวนี้เอง
+                disabled={isDownloading} 
+                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors 
+                  ${isThisWorkerDownloading ? 'text-[#8FFF9C] bg-[rgba(143,255,156,0.1)]' : 'text-[#8FFF9C] hover:bg-[rgba(143,255,156,0.08)]'}
+                  disabled:opacity-40 disabled:cursor-not-allowed`}
               >
                 {isThisWorkerDownloading ? (
-                  <div className="flex items-center gap-1">
-                    {globalProgress > 0 ? (
-                      <>
-                        <span className="text-[10px] font-bold text-[#8FFF9C]">{globalProgress}%</span>
-                        <CircularProgress variant="determinate" value={globalProgress} size={14} sx={{ color: "#8FFF9C" }} />
-                      </>
-                    ) : (
-                      <CircularProgress size={14} sx={{ color: "#8FFF9C" }} />
-                    )}
+                  <div className="relative flex items-center justify-center w-full h-full">
+                    {/* ✅ แสดงเปอร์เซ็นต์เป็นวงกลมรอบไอคอน หรือตัวเลข */}
+                    <CircularProgress 
+                      variant="determinate" 
+                      value={progress} 
+                      size={24} 
+                      thickness={4}
+                      sx={{ color: "#8FFF9C", position: 'absolute' }} 
+                    />
+                    <span className="text-[9px] font-bold text-[#8FFF9C] z-10">{progress}%</span>
                   </div>
                 ) : (
                   <DownloadIcon sx={{ fontSize: 18 }} />
