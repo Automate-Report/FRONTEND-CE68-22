@@ -46,7 +46,13 @@ export function PenTestLogTable({
       sortable: true,
       width: "3%",
       render: (row) => (
-        <div>
+        /* ใช้ truncate เพื่อตัดบรรทัดเดียว 
+          และกำหนด max-width (เช่น w-48 หรือเป็น px) เพื่อบอกจุดที่ต้องเริ่มตัด 
+        */
+        <div 
+          className="truncate max-w-[200px] font-medium text-[#E6F0E6]" 
+          title={row.file_name} // ✅ เมื่อเอาเมาส์ชี้จะเห็นชื่อเต็ม
+        >
           {row.file_name}
         </div>
       )
@@ -104,19 +110,22 @@ export function PenTestLogTable({
       )
     },
     {
-        id: "schedule",
-        label: "Schedule",
-        align: "center",
-        width: "1%",
-        render: (row) => (
-          <Link
-            href={`/projects/${project_id}/schedule/${row.schedule_id}`}
+      id: "schedule",
+      label: "Schedule",
+      align: "center",
+      width: "1%",
+      render: (row) => (
+        <Link
+          href={`/projects/${project_id}/schedule/${row.schedule_id}`}
+          className="block group" // เพิ่ม group เพื่อทำ hover effect ที่ตัวลูก
+        >
+          <div 
+            className="truncate max-w-[150px] mx-auto font-medium transition-all"
+            title={row.schedule_name} // เอาเมาส์ชี้เพื่อดูชื่อเต็ม
           >
-            <div>
-              {row.schedule_name}
-            </div>
-          </Link>
-        
+            {row.schedule_name}
+          </div>
+        </Link>
       )
     },
     {
