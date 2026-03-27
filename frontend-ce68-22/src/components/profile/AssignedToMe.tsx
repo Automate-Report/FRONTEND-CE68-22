@@ -4,63 +4,38 @@ import { Chip, LinearProgress, Tooltip } from "@mui/material";
 import { CalendarToday, FolderOutlined } from "@mui/icons-material";
 
 type Priority = "high" | "medium" | "low";
-type Status = "in-progress" | "review" | "todo";
+type Status = "in_progress" | "fixed" | "open" | "wont_fix";
 
 interface AssignedProject {
-    id: number;
     title: string;
-    description: string;
     priority: Priority;
-    status: Status;
-    dueDate: string;
-    progress: number;
-    tags: string[];
+    status: string;
     projectName: string;
 }
 
 const MOCK_ASSIGNED: AssignedProject[] = [
     {
-        id: 1,
-        title: "Fix login redirect loop on mobile",
-        description: "Authentication fails silently on Safari iOS after session timeout, causing infinite redirect.",
+        title: "Issues name",
         priority: "high",
-        status: "in-progress",
-        dueDate: "2026-03-27",
-        progress: 65,
-        tags: ["frontend", "auth"],
-        projectName: "Pest10 Core",
+        status: "in_progress",
+        projectName: "Project name",
     },
     {
-        id: 2,
         title: "Implement CSV & PDF export",
-        description: "Add export functionality to the analytics dashboard for report generation.",
         priority: "medium",
-        status: "review",
-        dueDate: "2026-04-02",
-        progress: 90,
-        tags: ["backend", "export"],
+        status: "open",
         projectName: "Analytics Suite",
     },
     {
-        id: 3,
         title: "Build in-app notification center",
-        description: "Design and implement a notification drawer for project updates, mentions, and alerts.",
         priority: "low",
-        status: "todo",
-        dueDate: "2026-04-15",
-        progress: 10,
-        tags: ["fullstack", "ui"],
+        status: "wont_fix",
         projectName: "Pest10 Core",
     },
     {
-        id: 4,
         title: "Database query optimization",
-        description: "Slow queries on the project listing endpoint — needs indexing and caching strategy.",
         priority: "high",
-        status: "todo",
-        dueDate: "2026-03-30",
-        progress: 0,
-        tags: ["backend", "performance"],
+        status: "fixed",
         projectName: "Infrastructure",
     },
 ];
@@ -72,30 +47,32 @@ const PRIORITY_STYLES: Record<Priority, { label: string; bg: string; color: stri
 };
 
 const STATUS_STYLES: Record<Status, { label: string; dot: string }> = {
-    "in-progress": { label: "In progress", dot: "#60A5FA" },
-    "review": { label: "In review", dot: "#C084FC" },
-    "todo": { label: "To do", dot: "#6B7280" },
+    "fixed": { label: "Fixed", dot: "#8FFF9C" },
+    "in_progress": { label: "In progress", dot: "#007AFF" },
+    "open": { label: "Open", dot: "#FE3B46" },
+    "wont_fix": { label: "Won't fix", dot: "#404F57" },
 };
 
 const FILTERS: { label: string; value: "all" | Status }[] = [
     { label: "All", value: "all" },
-    { label: "In progress", value: "in-progress" },
-    { label: "In review", value: "review" },
-    { label: "To do", value: "todo" },
+    { label: "In progress", value: "in_progress" },
+    { label: "Fixed", value: "fixed" },
+    { label: "Open", value: "open" },
+    { label: "Won't fix", value: "wont_fix" },
 ];
 
-function getDueLabel(dateStr: string): { text: string; color: string } {
-    const due = new Date(dateStr);
-    const now = new Date();
-    const diff = Math.ceil((due.getTime() - now.getTime()) / 86400000);
-    if (diff < 0) return { text: "Overdue", color: "#F87171" };
-    if (diff === 0) return { text: "Due today", color: "#FB923C" };
-    if (diff <= 3) return { text: `Due in ${diff}d`, color: "#FB923C" };
-    return {
-        text: due.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-        color: "#9AA6A8",
-    };
-}
+// function getDueLabel(dateStr: string): { text: string; color: string } {
+//     const due = new Date(dateStr);
+//     const now = new Date();
+//     const diff = Math.ceil((due.getTime() - now.getTime()) / 86400000);
+//     if (diff < 0) return { text: "Overdue", color: "#F87171" };
+//     if (diff === 0) return { text: "Due today", color: "#FB923C" };
+//     if (diff <= 3) return { text: `Due in ${diff}d`, color: "#FB923C" };
+//     return {
+//         text: due.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+//         color: "#9AA6A8",
+//     };
+// }
 
 export const AssignedToMe = () => {
     const [activeFilter, setActiveFilter] = useState < "all" | Status > ("all");
@@ -105,14 +82,14 @@ export const AssignedToMe = () => {
     );
 
     return (
-        <div className="px-15 py-8 flex flex-col gap-6">
+        <div className="px-15 pb-8 flex flex-col">
             {/* Filter bar */}
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-3 flex-wrap sticky z-20 top-[52px] bg-[#0F1518] py-6">
                 {FILTERS.map((f) => (
                     <button
                         key={f.value}
                         onClick={() => setActiveFilter(f.value)}
-                        className="px-4 py-1.5 rounded-full text-sm transition-all border"
+                        className="px-4 py-2 rounded-xl text-sm transition-all border-2 min-w-[150px]"
                         style={{
                             background: activeFilter === f.value ? "#8FFF9C" : "transparent",
                             color: activeFilter === f.value ? "#0A1A0D" : "#9AA6A8",
@@ -123,7 +100,7 @@ export const AssignedToMe = () => {
                         {f.label}
                     </button>
                 ))}
-                <span className="ml-auto text-xs text-[#5A6A72] bg-[#1A2025] border border-[#2D3B42] rounded-full px-3 py-1">
+                <span className="ml-auto text-sm text-[#8fff9c] bg-[#1A2025] border border-[#2D3B42] rounded-xl px-4 py-2 ">
                     {filtered.length} task{filtered.length !== 1 ? "s" : ""}
                 </span>
             </div>
@@ -135,13 +112,12 @@ export const AssignedToMe = () => {
                 </div>
             ) : (
                 <div className="flex flex-col gap-3">
-                    {filtered.map((task) => {
-                        const due = getDueLabel(task.dueDate);
+                    {filtered.map((task,index) => {
                         const prio = PRIORITY_STYLES[task.priority];
-                        const stat = STATUS_STYLES[task.status];
+                        const stat = STATUS_STYLES[task.status as Status];
                         return (
                             <div
-                                key={task.id}
+                                key={index}
                                 className="group rounded-xl border border-[#232E34] bg-[#161B1F] hover:border-[#3A4A52] transition-all duration-150 px-5 py-4 cursor-pointer"
                             >
                                 {/* Row 1: Title + Priority badge */}
@@ -157,13 +133,8 @@ export const AssignedToMe = () => {
                                     </span>
                                 </div>
 
-                                {/* Row 2: Description */}
-                                <p className="text-[#6B7D84] text-[13px] leading-relaxed mb-3">
-                                    {task.description}
-                                </p>
-
                                 {/* Row 3: Meta */}
-                                <div className="flex items-center gap-4 flex-wrap mb-3">
+                                <div className="flex items-center gap-4 flex-wrap">
                                     {/* Status */}
                                     <div className="flex items-center gap-1.5">
                                         <span
@@ -180,45 +151,12 @@ export const AssignedToMe = () => {
                                     </div>
 
                                     {/* Due date */}
-                                    <div className="flex items-center gap-1.5">
+                                    {/* <div className="flex items-center gap-1.5">
                                         <CalendarToday sx={{ fontSize: 12, color: "#5A6A72" }} />
                                         <span className="text-xs font-medium" style={{ color: due.color }}>
                                             {due.text}
                                         </span>
-                                    </div>
-
-                                    {/* Tags */}
-                                    <div className="flex items-center gap-1.5 ml-auto">
-                                        {task.tags.map((tag) => (
-                                            <span
-                                                key={tag}
-                                                className="text-[11px] px-2 py-0.5 rounded-full border border-[#2D3B42] text-[#5A6A72]"
-                                            >
-                                                {tag}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Row 4: Progress bar */}
-                                <div>
-                                    <div className="flex justify-between text-[11px] text-[#5A6A72] mb-1.5">
-                                        <span>Progress</span>
-                                        <span>{task.progress}%</span>
-                                    </div>
-                                    <LinearProgress
-                                        variant="determinate"
-                                        value={task.progress}
-                                        sx={{
-                                            height: 4,
-                                            borderRadius: 2,
-                                            bgcolor: "#232E34",
-                                            "& .MuiLinearProgress-bar": {
-                                                bgcolor: task.progress >= 80 ? "#4ADE80" : task.progress >= 40 ? "#60A5FA" : "#6B7280",
-                                                borderRadius: 2,
-                                            },
-                                        }}
-                                    />
+                                    </div> */}
                                 </div>
                             </div>
                         );

@@ -1,15 +1,15 @@
-import axios from "axios";
+import { UserProfileDisplay } from "../types/user";
+import apiClient from "../lib/api-client";
 
-const API = process.env.NEXT_PUBLIC_API_URL;
-
-const api = axios.create({
-    baseURL: API,
-    withCredentials: true,
-});
 
 export const userService = {
     checkExist: async (email: string) => {
-        const { data } = await api.get<boolean>(`/user/check`,{ params: { email }});
+        const { data } = await apiClient.get<boolean>(`/user/check`, { params: { email } });
+        return data;
+    },
+
+    getProfile: async () => {
+        const { data } = await apiClient.get<UserProfileDisplay>(`/user/profile_display`);
         return data;
     },
 };

@@ -6,9 +6,13 @@ import { GenericGreenButton } from '@/src/components/Common/GenericGreenButton';
 import { Assignment, Bookmark } from "@mui/icons-material";
 import { AssignedToMe } from "@/src/components/profile/AssignedToMe";
 import { BookmarkedProjects } from "@/src/components/profile/BookmarkedProjects";
+import { useGetUserProfileDisplay } from "@/src/hooks/user/use-profile";
 
 const Profile = () => {
     const [activeTab, setActiveTab] = useState(0);
+    // fetching
+    const { data: user_info } = useGetUserProfileDisplay();
+    console.log("user_info", user_info);
 
     return (
         <div className="bg-[#0F1518] h-screen flex flex-col">
@@ -16,19 +20,34 @@ const Profile = () => {
             <div className='flex flex-row px-30 py-10 h-fit bg-[#1A2025]'>
 
                 {/* Image */}
-                <img className="w-[150px] h-[150px] object-cover rounded-xl" src="https://wallpaper-a-day.com/wp-content/uploads/2025/09/wallpaper2151.png?w=1440" alt="Profile Picture" />
+                {user_info?.picture ? (
+
+                    //If yes image use image
+                    <img className="w-[150px] h-[150px] object-cover rounded-xl"
+                        src={user_info?.picture}
+                        // src="https://wallpaper-a-day.com/wp-content/uploads/2025/09/wallpaper2151.png?w=1440" 
+                        alt="Profile Picture" />
+                ) : (
+
+                    //If no image, use initial 
+                    <div className="flex w-[150px] h-[150px] justify-center items-center rounded-xl text-6xl font-bold text-[#E6F0E6] border-4 border-[#8FFF9C] bg-[#2D2F39]">
+                        F
+                    </div>
+                )}
+
+
                 {/* Personal info */}\
                 <div className='ml-10 flex flex-col justify-between h-[150px]'>
                     {/* Nmae + Bio */}
                     <div>
-                        <h1 className='text-3xl text-[#E6F0E6] font-bold mb-4'>Shirakami Fubuki</h1>
+                        <h1 className='text-3xl text-[#E6F0E6] font-bold mb-4'>{user_info?.firstname} {user_info?.lastname}</h1>
                         <p className='text-[#9AA6A8] text-sm'>
-                            Very cute Japanese Vtuber also is Hinoshii's Best best friend (User's Bio)
+                            Very cute Japanese Vtuber also is Hinoshii's Best best friend (User's Bio) (Now is placeholder)
                         </p>
                     </div>
                     {/* Email */}
                     <p className='text-[#8FFF9C] text-base font-bold'>
-                        ShirakamiSoCute@gmail.com
+                        {user_info?.email}
                     </p>
                 </div>
 
@@ -48,14 +67,16 @@ const Profile = () => {
                         '& .Mui-selected': { color: '#8FFF9C !important' },
                         '& .MuiTabs-indicator': { bgcolor: '#8FFF9C' }
                     }}>
-                    <Tab icon={<Bookmark sx={{ fontSize: 18 }} />} iconPosition="start" label="Bookmarked Projects" sx={{ fontSize: 14, textTransform: 'none' }} />
-                    <Tab icon={<Assignment sx={{ fontSize: 18 }} />} iconPosition="start" label="Assigned to me" sx={{ fontSize: 14, textTransform: 'none' }} />                </Tabs>
+                    <Tab icon={<Assignment sx={{ fontSize: 18 }} />} iconPosition="start" label="Assigned to me" sx={{ fontSize: 14, textTransform: 'none' }} />
+                    {/* <Tab icon={<Bookmark sx={{ fontSize: 18 }} />} iconPosition="start" label="Bookmarked Projects" sx={{ fontSize: 14, textTransform: 'none' }} /> */}
+                </Tabs>
             </Box>
 
             {/* Tab Content */}
-            <div className="flex-1">
-                {activeTab === 0 && <BookmarkedProjects />}
-                {activeTab === 1 && <AssignedToMe />}
+            <div className="flex-1 px-15">
+                {/* i think we got no time to do bookmark */}
+                {/* {activeTab === 0 && <BookmarkedProjects />} */}
+                {activeTab === 0 && <AssignedToMe />}
             </div>
         </div>
 
