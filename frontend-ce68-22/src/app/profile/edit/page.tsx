@@ -4,11 +4,12 @@ import DeleteProjectIcon from "@/src/components/icon/Delete";
 import { useEffect, useState } from "react";
 import { FILTER_BUTTON_STYLE, GREEN_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 import { INPUT_BOX_NO_ICON_STYLE, TEXT_AREA_STYLE } from "@/src/styles/inputBoxStyle";
-import { Close, RestartAlt, WarningAmber } from "@mui/icons-material";
+import { CheckCircle, Close, RestartAlt, WarningAmber } from "@mui/icons-material";
 import { useGetUserProfileDisplay } from "@/src/hooks/user/use-profile";
 import { useRouter } from "next/navigation";
 import { userService } from "@/src/services/user.service";
 import { logout } from "@/src/services/auth.service";
+import { showToast } from "@/src/components/Common/ToastContainer";
 
 export default function EditProfile() {
 
@@ -47,6 +48,8 @@ export default function EditProfile() {
 
     const router = useRouter();
     const [errors, setErrors] = useState({ firstname: false, lastname: false });
+    const [errorsEmail, setErrorsEmail] = useState({ notMatch: false, used: false });
+    const [errorsPassword, setErrorsPassword] = useState({ notMatch: false, incorrect: false });
 
     useEffect(() => {
         if (user_info) {
@@ -68,18 +71,24 @@ export default function EditProfile() {
         }
         await userService.updateProfile(userInfoPayload);
         router.push("/profile");
+        showToast({
+            icon: <CheckCircle sx={{ fontSize: "20px", color: "#4CAF8A" }} />,
+            message: `Your changes have been saved`,
+            borderColor: "#8FFF9C",
+            duration: 6000,
+        });
     }
 
     async function handleConfirmEmailChange() {
         // check if 2 email match
         if (formEmail.newEmail !== formEmail.confirmNewEmail) {
-            alert("New email and confirm new email do not match!");
+            setErrorsEmail({ ...errorsEmail, notMatch: true });
             return;
         }
 
         const status = await userService.updateEmail(formEmail.newEmail);
         if (status === "Used") {
-            alert("This email is already associated with another account.");
+            setErrorsEmail({ ...errorsEmail, used: true });
             return;
         }
         setOpenEmailModal(false);
@@ -91,7 +100,7 @@ export default function EditProfile() {
     async function handleConfirmPasswordChange() {
         // check if 2 password match
         if (formPassword.newPassword !== formPassword.confirmNewPassword) {
-            alert("New password and confirm new password do not match!");
+            setErrorsPassword({ ...errorsPassword, notMatch: true });
             return;
         }
 
@@ -102,7 +111,7 @@ export default function EditProfile() {
 
         const status = await userService.updatePassword(passwordPayload);
         if (status === "Incorrect") {
-            alert("Current password is incorrect!");
+            setErrorsPassword({ ...errorsPassword, incorrect: true });
             return;
         }
         setOpenPasswordModal(false);
@@ -304,6 +313,7 @@ export default function EditProfile() {
                                         value={formEmail.newEmail}
                                         onChange={(e) => setFormEmail({ ...formEmail, newEmail: e.target.value })}
                                     />
+                                    {errorsEmail.used && <p className="text-[#FE3B46] text-sm font-md italic">This email is already associated with another account</p>}
                                 </div>
 
                                 <div className="w-full">
@@ -317,6 +327,7 @@ export default function EditProfile() {
                                         value={formEmail.confirmNewEmail}
                                         onChange={(e) => setFormEmail({ ...formEmail, confirmNewEmail: e.target.value })}
                                     />
+                                    {errorsEmail.notMatch && <p className="text-[#FE3B46] text-sm font-md italic">New email and confirm new email do not match</p>}
                                 </div>
                             </div>
 
@@ -385,6 +396,7 @@ export default function EditProfile() {
                                         value={formPassword.currentPassword}
                                         onChange={(e) => setFormPassword({ ...formPassword, currentPassword: e.target.value })}
                                     />
+                                    {errorsPassword.incorrect && <p className="text-[#FE3B46] text-sm font-md italic">Current password is incorrect</p>}
                                 </div>
 
                                 <div className="w-full">
@@ -411,6 +423,7 @@ export default function EditProfile() {
                                         value={formPassword.confirmNewPassword}
                                         onChange={(e) => setFormPassword({ ...formPassword, confirmNewPassword: e.target.value })}
                                     />
+                                    {errorsPassword.notMatch && <p className="text-[#FE3B46] text-sm font-md italic">New password and confirm new password do not match</p>}
                                 </div>
                             </div>
 
