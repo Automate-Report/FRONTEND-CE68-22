@@ -1,4 +1,4 @@
-import { UserProfileDisplay, UserProfileEdit } from "../types/user";
+import { PasswordPayload, UserProfileDisplay, UserProfileEdit } from "../types/user";
 import apiClient from "../lib/api-client";
 
 
@@ -16,5 +16,15 @@ export const userService = {
     updateProfile: async (payload: UserProfileEdit) => {
         const { data } = await apiClient.put(`/user/edit/info`, payload)
         return data;
-    }
+    },
+
+    updateEmail: async (newemail: string) => {
+        const { data } = await apiClient.put(`/user/edit/email`, newemail)
+        return data;
+    },
+
+    updatePassword: async (payload: PasswordPayload) => {
+        const { data } = await apiClient.put(`/user/edit/password`, payload)
+        return data;
+    },
 };

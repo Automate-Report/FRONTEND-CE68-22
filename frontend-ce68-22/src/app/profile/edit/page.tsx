@@ -8,6 +8,7 @@ import { Close, RestartAlt, WarningAmber } from "@mui/icons-material";
 import { useGetUserProfileDisplay } from "@/src/hooks/user/use-profile";
 import { useRouter } from "next/navigation";
 import { userService } from "@/src/services/user.service";
+import { logout } from "@/src/services/auth.service";
 
 export default function EditProfile() {
 
@@ -68,15 +69,46 @@ export default function EditProfile() {
         await userService.updateProfile(userInfoPayload);
         router.push("/profile");
     }
+
     async function handleConfirmEmailChange() {
-        // Implement email change logic here
-        // For now, just close the modal
+        // check if 2 email match
+        if (formEmail.newEmail !== formEmail.confirmNewEmail) {
+            alert("New email and confirm new email do not match!");
+            return;
+        }
+
+        const status = await userService.updateEmail(formEmail.newEmail);
+        if (status === "Used") {
+            alert("This email is already associated with another account.");
+            return;
+        }
         setOpenEmailModal(false);
+        await logout();
+        router.push("/login");
+        router.refresh();
     }
+
     async function handleConfirmPasswordChange() {
-        // Implement password change logic here
-        // For now, just close the modal
+        // check if 2 password match
+        if (formPassword.newPassword !== formPassword.confirmNewPassword) {
+            alert("New password and confirm new password do not match!");
+            return;
+        }
+
+        const passwordPayload = {
+            old_password: formPassword.currentPassword,
+            new_password: formPassword.newPassword,
+        }
+
+        const status = await userService.updatePassword(passwordPayload);
+        if (status === "Incorrect") {
+            alert("Current password is incorrect!");
+            return;
+        }
         setOpenPasswordModal(false);
+        await logout();
+        router.push("/login");
+        router.refresh();
     }
 
     return (

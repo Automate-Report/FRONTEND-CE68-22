@@ -16,3 +16,8 @@ export interface AssignedProject {
     status: string;
     projectName: string;
 }
+
+export interface PasswordPayload {
+    old_password: string;
+    new_password: string;
+}
