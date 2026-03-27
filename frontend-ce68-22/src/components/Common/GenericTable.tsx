@@ -151,8 +151,6 @@ export function GenericTable<T extends { id: number | string }>({
       </TableContainer>
 
       {/* Pagination Reuse */}
-      // --- ภายในไฟล์ GenericTable.tsx ---
-
       {/* --- แทนที่ TablePagination เดิมด้วยส่วนนี้ --- */}
       <Box sx={{
         display: 'flex', 
