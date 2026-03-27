@@ -1,4 +1,4 @@
-import { UserProfileDisplay } from "../types/user";
+import { UserProfileDisplay, UserProfileEdit } from "../types/user";
 import apiClient from "../lib/api-client";
 
 
@@ -12,4 +12,9 @@ export const userService = {
         const { data } = await apiClient.get<UserProfileDisplay>(`/user/profile_display`);
         return data;
     },
+
+    updateProfile: async (payload: UserProfileEdit) => {
+        const { data } = await apiClient.put(`/user/edit/info`, payload)
+        return data;
+    }
 };

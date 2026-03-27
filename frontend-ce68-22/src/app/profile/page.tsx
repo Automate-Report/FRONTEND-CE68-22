@@ -10,9 +10,9 @@ import { useGetUserProfileDisplay } from "@/src/hooks/user/use-profile";
 
 const Profile = () => {
     const [activeTab, setActiveTab] = useState(0);
+    
     // fetching
     const { data: user_info } = useGetUserProfileDisplay();
-    console.log("user_info", user_info);
 
     return (
         <div className="bg-[#0F1518] h-screen flex flex-col">

@@ -4,3 +4,8 @@ export interface UserProfileDisplay {
     email: string;
     picture: string | null;
 }
+
+export interface UserProfileEdit {
+    firstname: string;
+    lastname: string;
+}
