@@ -206,6 +206,28 @@ export default function CreateSchedulePage() {
         e.preventDefault();
         setInvalidDateError({ start: false, end: false });
 
+        const finalAtkType = form.attackType.length === 2 ? "all" : form.attackType[0];
+
+        if (runNow) {
+            const payload: ScheduleCreatePayload = {
+                project_id: projectId,
+                name: form.scheduleName,
+                atk_type: finalAtkType,
+                asset: form.assetId,
+                cron_expression: "Not Repeat",
+                start_date: new Date(`${form.startDate}T${form.startTime}:00+07:00`).toISOString(), 
+                end_date: new Date(`${form.startDate}T${form.startTime}:00+07:00`).toISOString(),
+            };
+
+            try {
+                await scheduleService.create(payload);
+                router.push(`/projects/${projectId}/schedule`);
+            } catch (error) {
+                console.error("Create failed", error);
+            }
+            return;
+        }
+
         // Check if start date is in the past
         const startDateTime = new Date(`${form.startDate}T${form.startTime}:00`);
         if (startDateTime < new Date()) {
@@ -225,24 +247,6 @@ export default function CreateSchedulePage() {
         const cronString = changeUserInputToCronString();
         if (!cronString) return;
 
-        const finalAtkType = form.attackType.length === 2 ? "all" : form.attackType[0];
-
-        if (runNow) {
-            const payload: ScheduleCreatePayload = {
-                project_id: projectId,
-                name: form.scheduleName,
-                atk_type: finalAtkType,
-                asset: form.assetId,
-                cron_expression: "Not Repeat",
-                start_date: new Date(Date.now() + 60 * 1000).toISOString(), 
-                end_date: new Date(Date.now() + 60 * 1000).toISOString(),
-            };
-
-            const data = await scheduleService.create(payload);
-            router.push(`/projects/${projectId}/schedule`);
-            setRunNow(false);
-            return
-        }
 
         const payload: ScheduleCreatePayload = {
             project_id: projectId,
