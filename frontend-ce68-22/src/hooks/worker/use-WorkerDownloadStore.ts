@@ -6,18 +6,21 @@ interface DownloadState {
   isDownloading: boolean;
   progress: number;
   currentWorkerId: number | null;
-  currentWorkerName: string | null;
-  startDownload: (workerId: number, projectId: number, workerName: string, onComplete?: () => Promise<void>) => Promise<void>;
+  startDownload: (
+    workerId: number, 
+    projectId: number, 
+    workerName: string, 
+    onComplete?: () => Promise<void>
+  ) => Promise<void>;
 }
 
 export const useDownloadStore = create<DownloadState>((set) => ({
   isDownloading: false,
   progress: 0,
   currentWorkerId: null,
-  currentWorkerName: null,
 
   startDownload: async (workerId, projectId, workerName, onComplete) => {
-    set({ isDownloading: true, progress: 0, currentWorkerId: workerId, currentWorkerName: workerName });
+    set({ isDownloading: true, progress: 0, currentWorkerId: workerId });
     const toastId = toast.loading(`Preparing ${workerName}...`);
 
     try {
@@ -26,30 +29,35 @@ export const useDownloadStore = create<DownloadState>((set) => ({
         toast.loading(`Downloading ${workerName}: ${p}%`, { id: toastId });
       });
 
-      // จัดการดาวน์โหลดไฟล์...
-      const data = response.data || response;
-      const blob = new Blob([data as BlobPart], { type: "application/zip" });
+      // สร้าง Blob จากข้อมูลที่ Stream มา
+      const blob = new Blob([response.data], { type: "application/zip" });
+      if (blob.size === 0) {
+        throw new Error("Received empty file from server");
+      }
+
+
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `worker_${workerName}.zip`;
+      link.setAttribute("download", `Pest10_${workerName}.zip`);
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      link.remove();
       window.URL.revokeObjectURL(url);
 
-      // ✅ แจ้ง Backend ให้ Connect
+      // แจ้งสถานะกับ Backend และทำ Callback
       await workerService.markAsDownloaded(workerId);
-      
-      // ✅ ทำ Callback (เช่น refetch ข้อมูลในหน้า Page)
       if (onComplete) await onComplete();
 
-      toast.success(`${workerName} Config Downloaded`, { id: toastId });
+      toast.success(`${workerName} Ready to Use!`, { id: toastId });
     } catch (err) {
-      toast.error("Process failed", { id: toastId });
+      console.error("Download Error:", err);
+      toast.error("Failed to download worker config", { id: toastId });
     } finally {
-      // หน่วงเวลาให้เห็น 100% สักพัก
-      setTimeout(() => set({ isDownloading: false, progress: 0, currentWorkerId: null, currentWorkerName: null }), 2000);
+      // หน่วงเวลาเล็กน้อยเพื่อให้ User เห็น Progress 100%
+      setTimeout(() => {
+        set({ isDownloading: false, progress: 0, currentWorkerId: null });
+      }, 1500);
     }
   },
 }));

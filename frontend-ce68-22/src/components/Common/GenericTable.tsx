@@ -10,6 +10,7 @@ import {
   TableRow,
   TablePagination,
   Paper,
+  Box
 } from "@mui/material";
 
 // Icons (Reuse ของเดิม)
@@ -150,17 +151,82 @@ export function GenericTable<T extends { id: number | string }>({
       </TableContainer>
 
       {/* Pagination Reuse */}
-      <TablePagination
-        sx = {{ color: "#747688" }}
-        rowsPerPageOptions={[5, 10, 20]}
-        component="div"
-        count={totalCount}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={onPageChange}
-        onRowsPerPageChange={onRowsPerPageChange}
-        ActionsComponent={TablePaginationActions}
-      />
+      {/* --- แทนที่ TablePagination เดิมด้วยส่วนนี้ --- */}
+      <Box sx={{
+        display: 'flex', 
+        justifyContent: 'flex-end',
+        bgcolor: "#0F1518", // ให้สีพื้นหลังกลืนไปกับตาราง
+        borderTop: "1px solid rgba(64,79,87,0.2)",
+        // จัดการกับ Toolbar หลัก
+        ".MuiTablePagination-root": {
+          color: "#9AA6A8",
+          borderBottom: "none",
+          fontSize: "13px",
+        },
+        // จัดการกับปุ่มเปลี่ยนหน้า (Actions)
+        ".MuiIconButton-root": {
+          color: "#8FFF9C",
+          transition: "0.2s",
+          "&:hover": {
+            bgcolor: "rgba(143, 255, 156, 0.1)",
+          },
+          "&:disabled": {
+            color: "rgba(154, 166, 168, 0.3)",
+          }
+        },
+        // จัดการกับ Dropdown ตัวเลือกจำนวนแถว
+        ".MuiTablePagination-selectIcon": {
+          color: "#8FFF9C",
+        },
+        ".MuiInputBase-root": {
+          marginRight: "24px",
+          bgcolor: "rgba(255,255,255,0.03)",
+          borderRadius: "8px",
+          padding: "2px 4px",
+          border: "1px solid rgba(64, 79, 87, 0.5)",
+          color: "#E6F0E6",
+        },
+        ".MuiTablePagination-actions": {
+          marginLeft: "16px",
+        }
+      }}>
+        <TablePagination
+          component="div"
+          count={totalCount}
+          page={page}
+          onPageChange={onPageChange}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={onRowsPerPageChange}
+          rowsPerPageOptions={[5, 10, 20]}
+          labelRowsPerPage="Items per page:"
+          // ส่งต่อ ActionsComponent เดิมที่คุณมี
+          ActionsComponent={TablePaginationActions}
+          // ปรับแต่ง Menu ตอนกดเลือก rowsPerPage
+          SelectProps={{
+            MenuProps: {
+              PaperProps: {
+                sx: {
+                  bgcolor: "#1A2023",
+                  color: "#E6F0E6",
+                  border: "1px solid #404F57",
+                  "& .MuiMenuItem-root": {
+                    fontSize: "13px",
+                    "&:hover": {
+                      bgcolor: "rgba(143, 255, 156, 0.1)",
+                    },
+                    "&.Mui-selected": {
+                      bgcolor: "rgba(143, 255, 156, 0.2)",
+                      "&:hover": {
+                        bgcolor: "rgba(143, 255, 156, 0.3)",
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }}
+        />
+      </Box>
     </Paper>
   );
 }

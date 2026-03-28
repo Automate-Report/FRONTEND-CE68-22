@@ -8,6 +8,7 @@ import { Invite } from '../types/invite';
 import { logout } from '@/src/services/auth.service';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
+import { Notification } from '../types/noti';
 
 // Components
 import NotiReportdone from './Notification/Noti_ReportDone';
@@ -24,6 +25,10 @@ import { RED_BUTTON_STYLE } from '../styles/buttonStyle';
 import { CheckCircle, CheckOutlined, Close } from '@mui/icons-material';
 import { showToast } from './Common/ToastContainer';
 import { useGetUserProfileDisplay } from '../hooks/user/use-profile';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 export function NavBar() {
     const router = useRouter();
@@ -100,13 +105,73 @@ export function NavBar() {
         }
     };
 
-    const chooseNotiType = (noti: any) => {
-        // ✅ ตรวจสอบเงื่อนไข type ให้ตรงกับที่ Backend ส่งมา
-        if (noti.type === "report") {
-            return <NotiReportdone projectName={noti.message} hyperlink={noti.hyperlink} status={noti.status} />;
-        }
-        // กรณีมี type อื่นๆ เพิ่มเติม
-        return <div className="p-4 text-sm text-gray-400 border-b border-[#272D31]">{noti.message}</div>;
+    
+
+    const chooseNotiType = (noti: Notification) => {
+        // กำหนด Configuration สำหรับแต่ละ Type
+        const typeConfig = {
+            info: {
+                icon: <InfoOutlinedIcon sx={{ fontSize: 18 }} />,
+                bg: "bg-[#8FFF9C]", // สีเขียวหลักของแอปคุณ
+                text: "text-[#0B0F12]",
+                glow: "shadow-[0_0_10px_rgba(143,255,156,0.5)]"
+            },
+            success: {
+                icon: <CheckCircleOutlineIcon sx={{ fontSize: 18 }} />,
+                bg: "bg-[#4CAF8A]",
+                text: "text-[#FBFBFB]",
+                glow: "shadow-[0_0_10px_rgba(76,175,138,0.4)]"
+            },
+            warning: {
+                icon: <WarningAmberOutlinedIcon sx={{ fontSize: 18 }} />,
+                bg: "bg-[#FFB74D]",
+                text: "text-[#0B0F12]",
+                glow: "shadow-[0_0_10px_rgba(255,183,77,0.4)]"
+            },
+            error: {
+                icon: <ErrorOutlineIcon sx={{ fontSize: 18 }} />,
+                bg: "bg-[#FE3B46]",
+                text: "text-[#FBFBFB]",
+                glow: "shadow-[0_0_10px_rgba(254,59,70,0.4)]"
+            }
+        };
+
+        // ดึง Config ตาม type ที่ส่งมาจาก Backend (ถ้าไม่ตรงให้ใช้ info เป็น default)
+        const config = typeConfig[noti.type as keyof typeof typeConfig] || typeConfig.info;
+
+        return (
+            <Link 
+                href={noti.hyperlink || "#"} 
+                className={`flex items-start gap-3 p-4 border-b border-[#272D31] hover:bg-[#1A2025] transition-all duration-200 
+                    ${noti.status === 'unread' ? 'bg-white/[0.02]' : 'opacity-80'}`}
+            >
+                {/* Icon Container */}
+                <div className={`mt-1 flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all
+                    ${noti.status === 'unread' ? `${config.bg} ${config.text} ${config.glow}` : 'bg-[#272D31] text-[#9AA6A8]'}`}>
+                    {config.icon}
+                </div>
+
+                {/* Message Content */}
+                <div className="flex flex-col gap-1 flex-grow">
+                    <p className={`text-sm leading-snug break-words ${noti.status === 'unread' ? 'text-[#E6F0E6] font-semibold' : 'text-[#9AA6A8]'}`}>
+                        {noti.message}
+                    </p>
+                    <span className="text-[10px] text-[#404F57] font-bold uppercase tracking-widest mt-0.5">
+                        {new Date(noti.created_at).toLocaleString('th-TH', { 
+                            hour: '2-digit', 
+                            minute: '2-digit',
+                            day: '2-digit',
+                            month: 'short'
+                        })}
+                    </span>
+                </div>
+
+                {/* Unread Indicator Dot */}
+                {noti.status === 'unread' && (
+                    <div className={`mt-2 w-2 h-2 rounded-full flex-shrink-0 ${config.bg} ${config.glow}`}></div>
+                )}
+            </Link>
+        );
     };
 
     async function handleLogout(e: React.FormEvent) {
@@ -224,7 +289,7 @@ export function NavBar() {
                     <div className='flex flex-col'>
                         {notifications.length > 0 ? (
                             notifications.map((noti) => (
-                                <div key={noti.noti_id}>{chooseNotiType(noti)}</div>
+                                <div key={noti.id}>{chooseNotiType(noti)}</div>
                             ))
                         ) : !isFetchingNextPage && (
                             <div className="p-10 text-center text-[#404F57]">No notifications</div>

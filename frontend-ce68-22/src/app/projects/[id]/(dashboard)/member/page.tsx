@@ -147,7 +147,7 @@ export default function MemberPage() {
       // toast.success("Member removed successfully"); 
 
       // ✅ สั่งให้ React Query ดึงข้อมูลใหม่เพื่ออัปเดตตาราง
-      queryClient.invalidateQueries({ queryKey: ["members", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "members"] });
 
       // ปิด Modal
       setDeleteModalOpen(false);

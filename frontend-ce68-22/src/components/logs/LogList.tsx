@@ -64,7 +64,7 @@ export function PenTestLogList({ searchQuery, filterStatus, project_id, role }: 
 
     setIsDeleting(true);
     try {
-      await penTestLogService.delete(logToDelete.id);
+      await penTestLogService.delete(logToDelete.id, project_id);
       showToast({
         icon: <Delete sx={{ fontSize: "20px", color: "#4CAF8A" }} />,
         message: `Log "${logToDelete.file_name}" deleted successfully!`,

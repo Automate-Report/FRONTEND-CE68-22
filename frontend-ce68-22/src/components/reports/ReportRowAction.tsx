@@ -9,17 +9,18 @@ import DeleteIcon from "../icon/Delete";
 interface Props {
   row: any; // หรือใส่ Type Worker ที่ถูกต้อง
   onDeleteClick: (row: any) => void;
+  projectId: number;
 }
 
-export default function ReportRowActions({ row, onDeleteClick }: Props) {
+export default function ReportRowActions({ row, onDeleteClick, projectId }: Props) {
   // ✅ เรียก Hook ตรงนี้ได้ เพราะเป็น Component
-  const { downloadReport, isLoading } = useReportDownload();
+  const { downloadReport, isLoading } = useReportDownload(projectId);
 
   return (
     <div className="flex items-center justify-end gap-6 pr-4">
         {/* Download Button */}
         <Button 
-            onClick={() => downloadReport(row.id, row.name)} // เรียกฟังก์ชันจาก Hook
+            onClick={() => downloadReport(row.id, "pdf", projectId, row.name)} // เรียกฟังก์ชันจาก Hook
             disabled={isLoading}
             sx={{ 
                 minWidth: 0,

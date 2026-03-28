@@ -50,10 +50,11 @@ export const workerService = {
   },
 
   download_worker: async (workerId: number, projectId: number, onProgress: (percent: number) => void) => {
-    return apiClient.get(`workers/download/${workerId}?project_id=${projectId}`, {
+    return apiClient.get<Blob>(`workers/download/${workerId}`, {
+      params: { project_id: projectId },
       responseType: "blob",
       onDownloadProgress: (progressEvent) => {
-        const total = progressEvent.total || 0;
+        const total = progressEvent.total ?? 0;
         const current = progressEvent.loaded;
         if (total > 0) {
           const percentCompleted = Math.round((current * 100) / total);

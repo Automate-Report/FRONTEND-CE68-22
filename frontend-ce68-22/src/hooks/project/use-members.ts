@@ -11,7 +11,7 @@ export function useMembers(
   filter?: string
 ) {
   return useQuery({
-    queryKey: ["projects", "user", projectId, page, size, sortBy, sortOrder, search, filter],
+    queryKey: ["projects", projectId, "members", page, size, sortBy, sortOrder, search, filter],
     queryFn: () => projectService.getMember(projectId, page, size, sortBy, sortOrder, search, filter),
     enabled: !!projectId,
     placeholderData: keepPreviousData, // ✅ เพิ่มบรรทัดนี้เพื่อป้องกันการกระพริบหน้าขาว
