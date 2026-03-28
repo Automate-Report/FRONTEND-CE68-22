@@ -23,15 +23,15 @@ const Profile = () => {
                 {user_info?.picture ? (
 
                     //If yes image use image
-                    <img className="w-[150px] h-[150px] object-cover rounded-xl"
+                    <img className="min-w-[150px] min-h-[150px] object-cover rounded-xl"
                         src={user_info?.picture}
                         // src="https://wallpaper-a-day.com/wp-content/uploads/2025/09/wallpaper2151.png?w=1440" 
                         alt="Profile Picture" />
                 ) : (
 
                     //If no image, use initial 
-                    <div className="flex w-[150px] h-[150px] justify-center items-center rounded-xl text-6xl font-bold text-[#E6F0E6] border-4 border-[#8FFF9C] bg-[#2D2F39]">
-                        F
+                    <div className="flex min-w-[150px] min-h-[150px] justify-center items-center rounded-xl text-6xl font-bold text-[#E6F0E6] border-4 border-[#8FFF9C] bg-[#2D2F39]">
+                        {user_info?.firstname[0].toUpperCase()}
                     </div>
                 )}
 
@@ -52,7 +52,7 @@ const Profile = () => {
                 </div>
 
                 {/* Logout and Edit button */}
-                <div className='ml-auto'>
+                <div className='ml-auto whitespace-nowrap'>
                     <GenericGreenButton name="Edit Profile" href="/profile/edit" icon={<EditIcon />} />
                 </div>
             </div>

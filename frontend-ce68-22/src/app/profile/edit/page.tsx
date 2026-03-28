@@ -87,7 +87,7 @@ export default function EditProfile() {
         }
 
         const status = await userService.updateEmail(formEmail.newEmail);
-        if (status === "Used") {
+        if (status.message === "Used") {
             setErrorsEmail({ ...errorsEmail, used: true });
             return;
         }
@@ -110,7 +110,7 @@ export default function EditProfile() {
         }
 
         const status = await userService.updatePassword(passwordPayload);
-        if (status === "Incorrect") {
+        if (status.message === "Incorrect") {
             setErrorsPassword({ ...errorsPassword, incorrect: true });
             return;
         }
@@ -121,12 +121,26 @@ export default function EditProfile() {
     }
 
     return (
-        <div className="px-20 py-8 text-[#E6F0E6]">
+        <div className="px-30 py-8 text-[#E6F0E6]">
             <GenericBreadcrums items={breadcrumbItems} />
 
             <div className='flex flex-row h-fit bg-[#151B1D] px-10 py-8 border-2 rounded-4xl border-[#1E2A30] my-8'>
                 {/* Image */}
-                <img className="w-[150px] h-[150px] object-cover rounded-xl" src="https://wallpaper-a-day.com/wp-content/uploads/2025/09/wallpaper2151.png?w=1440" alt="Profile Picture" />
+                {user_info?.picture ? (
+
+                    //If yes image use image
+                    <img className="w-[150px] h-[150px] object-cover rounded-xl"
+                        src={user_info?.picture}
+                        // src="https://wallpaper-a-day.com/wp-content/uploads/2025/09/wallpaper2151.png?w=1440" 
+                        alt="Profile Picture" />
+                ) : (
+
+                    //If no image, use initial 
+                    <div className="flex w-[150px] h-[150px] justify-center items-center rounded-xl text-6xl font-bold text-[#E6F0E6] border-4 border-[#8FFF9C] bg-[#2D2F39]">
+                        {user_info?.firstname[0].toUpperCase()}
+                    </div>
+                )}
+
                 {/* Personal info */}
                 <div className='ml-10 flex flex-col justify-between h-[150px]'>
                     <h1 className='text-3xl text-[#E6F0E6] font-bold mb-4'>{user_info?.firstname} {user_info?.lastname}</h1>
@@ -160,7 +174,7 @@ export default function EditProfile() {
                         <input
                             type="text"
                             className={`${INPUT_BOX_NO_ICON_STYLE} w-full`}
-                            placeholder="e.g., John"
+                            placeholder="John"
                             value={form.firstname}
                             onChange={(e) => setForm({ ...form, firstname: e.target.value })}
                         />
@@ -174,7 +188,7 @@ export default function EditProfile() {
                         <input
                             type="text"
                             className={`${INPUT_BOX_NO_ICON_STYLE} w-full`}
-                            placeholder="e.g., Doe"
+                            placeholder="Doe"
                             value={form.lastname}
                             onChange={(e) => setForm({ ...form, lastname: e.target.value })}
                         />
@@ -202,7 +216,7 @@ export default function EditProfile() {
                     Security Information
                 </label>
                 <div className="flex flex-col gap-6">
-                    <div className="flex flex-row items-end gap-4 w-[60%]">
+                    <div className="flex flex-row items-end gap-4 w-[50%]">
                         <div className="w-full">
                             <label className="font-semibold text-[#9AA6A8] text-sm" >
                                 Email
@@ -215,24 +229,21 @@ export default function EditProfile() {
                                 readOnly
                             />
                         </div>
-                        <button className={`${FILTER_BUTTON_STYLE} whitespace-nowrap`}
-                            onClick={() => setOpenEmailModal(true)}
-                        >
-                            Change <RestartAlt />
-                        </button>
                     </div>
-                    <div className="flex flex-row items-end gap-4 w-[60%]">
-                        <div className="w-full">
-                            <label className="font-semibold text-[#9AA6A8] text-sm" >
-                                Password
-                            </label>
-                            <input
-                                type="password"
-                                className={`${INPUT_BOX_NO_ICON_STYLE} w-full`}
-                                placeholder="********"
-                                value={form.password}
-                                readOnly
-                            />
+                    <div className="flex flex-row items-end gap-4">
+                        <div className="flex flex-row items-end gap-4 w-[50%]">
+                            <div className="w-full">
+                                <label className="font-semibold text-[#9AA6A8] text-sm" >
+                                    Password
+                                </label>
+                                <input
+                                    type="password"
+                                    className={`${INPUT_BOX_NO_ICON_STYLE} w-full`}
+                                    placeholder="********"
+                                    value={form.password}
+                                    readOnly
+                                />
+                            </div>
                         </div>
                         <button className={`${FILTER_BUTTON_STYLE} whitespace-nowrap`}
                             onClick={() => setOpenPasswordModal(true)}
@@ -244,112 +255,20 @@ export default function EditProfile() {
             </div>
 
             {/* Save Button */}
-            <div className="flex gap-6 items-center mt-[30px] justify-between">
+            <div className="flex gap-6 items-center mt-[30px] justify-end">
                 <button
-                    onClick={() => router.back()}
-                    className={`${RED_BUTTON_STYLE} w-full justify-center`}
+                    onClick={() => router.push("/profile")}
+                    className={`${RED_BUTTON_STYLE} justify-center max-w-[250px] w-[20vw]`}
                 >
                     Back to Profile
                 </button>
                 <button
                     onClick={handleSubmit}
-                    className={`${GREEN_BUTTON_STYLE} w-full`}
+                    className={`${GREEN_BUTTON_STYLE} max-w-[250px] w-[20vw]`}
                 >
                     Save Changes
                 </button>
             </div>
-
-            {/* Edit Email Modal */}
-            {openEmailModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                    <div className="w-full max-w-md rounded-2xl border-[2px] border-[#2D2F39] border-t-0 bg-[#1E2429] shadow-2xl overflow-hidden relative">
-
-                        {/* Top danger strip */}
-                        <div className="h-0.5 w-full bg-[#8FFF9C]" />
-
-                        {/* X */}
-                        <button
-                            onClick={() => setOpenEmailModal(false)}
-                            className="rounded-lg p-1.5 text-[#9AA6A8] transition-colors hover:text-[#FBFBFB] absolute top-2 right-2"
-                        >
-                            <Close fontSize="small" />
-                        </button>
-
-                        <div className="p-6">
-                            {/* Header */}
-                            <div className="flex items-center justify-between mb-5">
-                                <div className="flex items-center gap-3 text-[#8FFF9C]">
-                                    <WarningAmber sx={{ fontSize: 28 }} />
-                                    <h2 className="font-bold text-xl leading-tight text-[#8FFF9C]">
-                                        Change Email
-                                    </h2>
-                                </div>
-                            </div>
-
-                            {/* Warning description */}
-                            <p className="text-sm text-[#9AA6A8] leading-relaxed mb-5">
-                                Please be sure that you have access to the new email address, as it will be used for account recovery and important notifications.
-                            </p>
-
-                            {/* Confirm label */}
-                            <div className="flex flex-col gap-4 w-full">
-                                <div className="w-full">
-                                    <label className="font-semibold text-[#9AA6A8] text-sm" >
-                                        Old Email
-                                    </label>
-                                    <div className={`${INPUT_BOX_NO_ICON_STYLE} w-full`}>
-                                        {form.email}
-                                    </div>
-                                </div>
-
-                                <div className="w-full">
-                                    <label className="font-semibold text-[#9AA6A8] text-sm" >
-                                        New Email
-                                    </label>
-                                    <input
-                                        type="text"
-                                        className={`${INPUT_BOX_NO_ICON_STYLE} w-full`}
-                                        placeholder="you@company.com"
-                                        value={formEmail.newEmail}
-                                        onChange={(e) => setFormEmail({ ...formEmail, newEmail: e.target.value })}
-                                    />
-                                    {errorsEmail.used && <p className="text-[#FE3B46] text-sm font-md italic">This email is already associated with another account</p>}
-                                </div>
-
-                                <div className="w-full">
-                                    <label className="font-semibold text-[#9AA6A8] text-sm" >
-                                        Confirm New Email
-                                    </label>
-                                    <input
-                                        type="text"
-                                        className={`${INPUT_BOX_NO_ICON_STYLE} w-full`}
-                                        placeholder="you@company.com"
-                                        value={formEmail.confirmNewEmail}
-                                        onChange={(e) => setFormEmail({ ...formEmail, confirmNewEmail: e.target.value })}
-                                    />
-                                    {errorsEmail.notMatch && <p className="text-[#FE3B46] text-sm font-md italic">New email and confirm new email do not match</p>}
-                                </div>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="mt-6 flex justify-end gap-3">
-                                <button
-                                    onClick={() => setOpenEmailModal(false)}
-                                    className={`${FILTER_BUTTON_STYLE} disabled:opacity-50`}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleConfirmEmailChange}
-                                    className={`${GREEN_BUTTON_STYLE} disabled:cursor-not-allowed disabled:opacity-40`}
-                                >
-                                    Confirm Change
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Edit Password Modal */}
             {openPasswordModal && (
@@ -390,7 +309,7 @@ export default function EditProfile() {
                                         Current Password
                                     </label>
                                     <input
-                                        type="text"
+                                        type="password"
                                         className={`${INPUT_BOX_NO_ICON_STYLE} w-full`}
                                         placeholder=""
                                         value={formPassword.currentPassword}
@@ -404,7 +323,7 @@ export default function EditProfile() {
                                         New Password
                                     </label>
                                     <input
-                                        type="text"
+                                        type="password"
                                         className={`${INPUT_BOX_NO_ICON_STYLE} w-full`}
                                         placeholder=""
                                         value={formPassword.newPassword}
@@ -417,7 +336,7 @@ export default function EditProfile() {
                                         Confirm New Password
                                     </label>
                                     <input
-                                        type="text"
+                                        type="password"
                                         className={`${INPUT_BOX_NO_ICON_STYLE} w-full`}
                                         placeholder=""
                                         value={formPassword.confirmNewPassword}

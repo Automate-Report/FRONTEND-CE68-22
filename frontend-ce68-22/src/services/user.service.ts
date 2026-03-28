@@ -19,7 +19,9 @@ export const userService = {
     },
 
     updateEmail: async (newemail: string) => {
-        const { data } = await apiClient.put(`/user/edit/email`, newemail)
+        const { data } = await apiClient.put(`/user/edit/email`, null, {
+            params: { user_new_email: newemail }
+        })
         return data;
     },
 
