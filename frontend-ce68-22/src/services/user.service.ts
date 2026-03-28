@@ -8,8 +8,8 @@ const api = axios.create({
 });
 
 export const userService = {
-    checkExist: async (email: string) => {
-        const { data } = await api.get<boolean>(`/user/check`,{ params: { email }});
+    checkExist: async (email: string, projectId: number) => {
+        const { data } = await api.get<boolean>(`/user/check?project_id=${projectId}`,{ params: { email }});
         return data;
     },
 };

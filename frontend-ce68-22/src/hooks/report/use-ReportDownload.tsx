@@ -5,18 +5,18 @@ import { penTestReportService } from "@/src/services/penTestReport.service";
 import { showToast } from "@/src/components/Common/ToastContainer";
 import { Delete, Close } from "@mui/icons-material";
 
-export const useReportDownload = () => {
+export const useReportDownload = (projectId: number) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const downloadReport = async (reportId: number, reportType: "pdf" | "docx", fallbackName: string) => {
+  const downloadReport = async (reportId: number,  reportType: "pdf" | "docx", projectId: number, fallbackName: string) => {
     setIsLoading(true);
     setError(null);
 
     try {
       // 1. เรียก Service โดยส่ง reportType ไปด้วย 
       // (ตรวจสอบให้แน่ใจว่า service รับ parameter นี้และ axios มี responseType: 'blob')
-      const response = await penTestReportService.download(reportId, reportType);
+      const response = await penTestReportService.download(reportId, reportType, projectId);
 
       // 2. จัดการชื่อไฟล์
       let filename = `${fallbackName}.${reportType}`; // default name

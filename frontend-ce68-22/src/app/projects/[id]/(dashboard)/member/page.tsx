@@ -100,7 +100,7 @@ export default function MemberPage() {
     setError({ userExistError: false });
     if (!invitePerson) return;
     // 1. Check if user with that email exist in the system (call BE)
-    const userExists = await userService.checkExist(email);
+    const userExists = await userService.checkExist(email, projectId);
 
     // 2. If exist, send invite and assign role (also call BE)
     if (userExists) {
@@ -147,7 +147,7 @@ export default function MemberPage() {
       // toast.success("Member removed successfully"); 
 
       // ✅ สั่งให้ React Query ดึงข้อมูลใหม่เพื่ออัปเดตตาราง
-      queryClient.invalidateQueries({ queryKey: ["members", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["projects", projectId, "members"] });
 
       // ปิด Modal
       setDeleteModalOpen(false);

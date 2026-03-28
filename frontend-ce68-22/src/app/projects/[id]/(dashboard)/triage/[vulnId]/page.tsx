@@ -139,7 +139,7 @@ export default function VulnDetailPage() {
               <FormControl size="small" sx={{ width: 150 }}>
                 <Tooltip title={!canVerify ? "Only Owners or Pentesters can verify vulnerabilities" : ""}>
                   <Select
-                    value={vuln.verify || "tf"}
+                    value={vuln.verify || "none" }
                     disabled={!canVerify || isUpdatingVerify}
                     onChange={(e) => handleVerifyChange(e.target.value)}
                     MenuProps={{
@@ -164,7 +164,7 @@ export default function VulnDetailPage() {
                       "& .MuiSelect-icon": { fontSize: 16, color: 'inherit' }
                     }}
                   >
-                    <MenuItem value="tf" sx={{
+                    <MenuItem value="none" sx={{
                       fontSize: '13px', fontWeight: 600, width: 150,
                       color: '#E6F0E6', borderRadius: '12px', height: 42, pl: 1.5,
                       '&:hover': { bgcolor: '#1D2226' },
