@@ -100,7 +100,7 @@ export default function MemberPage() {
     setError({ userExistError: false });
     if (!invitePerson) return;
     // 1. Check if user with that email exist in the system (call BE)
-    const userExists = await userService.checkExist(email);
+    const userExists = await userService.checkExist(email, projectId);
 
     // 2. If exist, send invite and assign role (also call BE)
     if (userExists) {
@@ -241,10 +241,16 @@ export default function MemberPage() {
                   <tr key={member.email} className="hover:bg-[#8FFF9C]/[0.02] transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg border-2 transition-all
+                        {member.picture ? (
+                          <img className="w-10 h-10 object-cover rounded-xl"
+                            src={member.picture}
+                            alt="Profile Picture" />
+                        ) : (
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg border-2 transition-all
                           ${isMe ? "bg-[#8FFF9C]/10 text-[#8FFF9C] border-[#8FFF9C]" : "bg-[#1E2429] text-[#9AA6A8] border-[#2D2F39]"}`}>
-                          {member.firstname[0]}
-                        </div>
+                            {member.firstname[0]}
+                          </div>
+                        )}
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-base">{member.firstname} {member.lastname}</span>

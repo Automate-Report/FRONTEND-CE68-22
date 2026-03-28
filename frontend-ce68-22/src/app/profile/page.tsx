@@ -1,15 +1,10 @@
 "use client";
 import { useState } from "react";
-import { Box, Tab, Tabs } from "@mui/material";
 import EditIcon from '@/src/components/icon/Edit';
 import { GenericGreenButton } from '@/src/components/Common/GenericGreenButton';
-import { Assignment, Bookmark } from "@mui/icons-material";
-import { AssignedToMe } from "@/src/components/profile/AssignedToMe";
-import { BookmarkedProjects } from "@/src/components/profile/BookmarkedProjects";
 import { useGetUserProfileDisplay } from "@/src/hooks/user/use-profile";
 
 const Profile = () => {
-    const [activeTab, setActiveTab] = useState(0);
 
     // fetching
     const { data: user_info } = useGetUserProfileDisplay();
@@ -17,7 +12,7 @@ const Profile = () => {
     return (
         <div className="bg-[#0F1518] h-screen flex flex-col">
             {/* Personal info section */}
-            <div className='flex flex-row px-30 py-10 h-fit bg-[#1A2025]'>
+            <div className='flex flex-row px-[10vw] py-10 h-fit bg-[#1A2025]'>
 
                 {/* Image */}
                 {user_info?.picture ? (
@@ -25,7 +20,6 @@ const Profile = () => {
                     //If yes image use image
                     <img className="min-w-[150px] min-h-[150px] object-cover rounded-xl"
                         src={user_info?.picture}
-                        // src="https://wallpaper-a-day.com/wp-content/uploads/2025/09/wallpaper2151.png?w=1440" 
                         alt="Profile Picture" />
                 ) : (
 
@@ -37,12 +31,12 @@ const Profile = () => {
 
 
                 {/* Personal info */}\
-                <div className='ml-10 flex flex-col justify-between h-[150px]'>
+                <div className='mx-10 flex flex-col justify-between h-[150px]'>
                     {/* Nmae + Bio */}
-                    <div>
+                    <div className="w-[45vw]">
                         <h1 className='text-3xl text-[#E6F0E6] font-bold mb-4'>{user_info?.firstname} {user_info?.lastname}</h1>
-                        <p className='text-[#9AA6A8] text-sm'>
-                            Very cute Japanese Vtuber also is Hinoshii's Best best friend (User's Bio) (Now is placeholder)
+                        <p className='text-[#9AA6A8] text-sm break-words w-full'>
+                            {user_info?.bio ? user_info.bio : "No bio yet"}
                         </p>
                     </div>
                     {/* Email */}

@@ -44,7 +44,7 @@ export function GenericFilterButton({ options, currentValue, onSelect }: FilterP
           hover:brightness-110 active:scale-[0.98]`}
       >
         <span className="flex items-center gap-2 text-base">
-          {selectedLabel}
+          <p className="hidden lg:block">{selectedLabel}</p>
           <div className="w-4 h-4 opacity-70">
             <FilterIcon />
           </div>

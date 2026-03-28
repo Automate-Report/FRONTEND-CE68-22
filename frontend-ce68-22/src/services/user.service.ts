@@ -3,8 +3,8 @@ import apiClient from "../lib/api-client";
 
 
 export const userService = {
-    checkExist: async (email: string) => {
-        const { data } = await apiClient.get<boolean>(`/user/check`, { params: { email } });
+    checkExist: async (email: string, project_id: number) => {
+        const { data } = await apiClient.get<boolean>(`/user/check`, { params: { email, project_id } });
         return data;
     },
 
@@ -15,13 +15,6 @@ export const userService = {
 
     updateProfile: async (payload: UserProfileEdit) => {
         const { data } = await apiClient.put(`/user/edit/info`, payload)
-        return data;
-    },
-
-    updateEmail: async (newemail: string) => {
-        const { data } = await apiClient.put(`/user/edit/email`, null, {
-            params: { user_new_email: newemail }
-        })
         return data;
     },
 

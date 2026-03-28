@@ -23,6 +23,7 @@ import { GREEN_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 import { start } from "repl";
 import RobotIcon from "@/src/components/icon/RobotIcon";
 import { Check } from "@mui/icons-material";
+import { toLocalISO } from "@/src/components/Common/ToLocalISO";
 
 export default function EditSchedulePage() {
     const { role } = useProjectRole();
@@ -284,8 +285,8 @@ export default function EditSchedulePage() {
             atk_type: finalAtkType,
             asset: form.assetId,
             cron_expression: cronString,
-            start_date: new Date(`${form.startDate}T${form.startTime}:00`),
-            end_date: (!repeatTrue || form.endDate) ? new Date(form.startDate) : new Date(form.endDate),
+            start_date: toLocalISO(form.startDate, form.startTime),
+            end_date: (!repeatTrue || form.endDate) ? toLocalISO(form.startDate) : toLocalISO(form.endDate),
         };
         const data = await scheduleService.edit(scheduleId, payload);
         router.push(`/projects/${projectId}/schedule/${scheduleId}`);

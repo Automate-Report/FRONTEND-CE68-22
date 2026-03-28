@@ -37,6 +37,7 @@ export interface Member {
   lastname: string;
   role: string;
   joinned_at: string;
+  picture?: string
 }
 
 export interface ChangeRole{

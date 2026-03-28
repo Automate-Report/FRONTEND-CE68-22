@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { userService } from "@/src/services/user.service";
 import { logout } from "@/src/services/auth.service";
 import { showToast } from "@/src/components/Common/ToastContainer";
+import { set } from "react-hook-form";
 
 export default function EditProfile() {
 
@@ -26,14 +27,9 @@ export default function EditProfile() {
     const [form, setForm] = useState({
         firstname: user_info?.firstname ?? "",
         lastname: user_info?.lastname ?? "",
-        bio: "", //dont forgor to add user_info?.bio na
+        bio: user_info?.bio ?? "",
         email: user_info?.email ?? "",
         password: "",
-    });
-
-    const [formEmail, setFormEmail] = useState({
-        newEmail: "",
-        confirmNewEmail: "",
     });
 
     const [formPassword, setFormPassword] = useState({
@@ -43,12 +39,10 @@ export default function EditProfile() {
     });
 
     //Modal state
-    const [openEmailModal, setOpenEmailModal] = useState(false);
     const [openPasswordModal, setOpenPasswordModal] = useState(false);
 
     const router = useRouter();
-    const [errors, setErrors] = useState({ firstname: false, lastname: false });
-    const [errorsEmail, setErrorsEmail] = useState({ notMatch: false, used: false });
+    const [errors, setErrors] = useState({ firstname: false, lastname: false, bio: false });
     const [errorsPassword, setErrorsPassword] = useState({ notMatch: false, incorrect: false });
 
     useEffect(() => {
@@ -56,7 +50,7 @@ export default function EditProfile() {
             setForm({
                 firstname: user_info.firstname ?? "",
                 lastname: user_info.lastname ?? "",
-                bio: "", //dont forgor to add user_info?.bio na
+                bio: user_info?.bio ?? "",
                 email: user_info.email ?? "",
                 password: "********",
             });
@@ -65,10 +59,28 @@ export default function EditProfile() {
 
     // Handlers
     async function handleSubmit() {
+        setErrors({ firstname: false, lastname: false, bio: false });
+        let hasError = false;
+        if (!form.firstname) {
+            setErrors((prev) => ({ ...prev, firstname: true }));
+            hasError = true;
+        }
+        if (!form.lastname) {
+            setErrors((prev) => ({ ...prev, lastname: true }));
+            hasError = true;
+        }
+        if (form.bio.length > 255) {
+            setErrors((prev) => ({ ...prev, bio: true }));
+            return;
+        }
+
         const userInfoPayload = {
             firstname: form.firstname,
             lastname: form.lastname,
+            bio: form.bio,
         }
+        if (hasError) return;
+
         await userService.updateProfile(userInfoPayload);
         router.push("/profile");
         showToast({
@@ -77,24 +89,6 @@ export default function EditProfile() {
             borderColor: "#8FFF9C",
             duration: 6000,
         });
-    }
-
-    async function handleConfirmEmailChange() {
-        // check if 2 email match
-        if (formEmail.newEmail !== formEmail.confirmNewEmail) {
-            setErrorsEmail({ ...errorsEmail, notMatch: true });
-            return;
-        }
-
-        const status = await userService.updateEmail(formEmail.newEmail);
-        if (status.message === "Used") {
-            setErrorsEmail({ ...errorsEmail, used: true });
-            return;
-        }
-        setOpenEmailModal(false);
-        await logout();
-        router.push("/login");
-        router.refresh();
     }
 
     async function handleConfirmPasswordChange() {
@@ -131,7 +125,6 @@ export default function EditProfile() {
                     //If yes image use image
                     <img className="w-[150px] h-[150px] object-cover rounded-xl"
                         src={user_info?.picture}
-                        // src="https://wallpaper-a-day.com/wp-content/uploads/2025/09/wallpaper2151.png?w=1440" 
                         alt="Profile Picture" />
                 ) : (
 
@@ -178,8 +171,8 @@ export default function EditProfile() {
                             value={form.firstname}
                             onChange={(e) => setForm({ ...form, firstname: e.target.value })}
                         />
+                        {errors.firstname && <p className="text-[#FE3B46] text-sm font-md italic">Firstname is required</p>}
                     </div>
-                    {errors.firstname && <p className="text-[#FE3B46] text-sm font-md italic">Firstname is required</p>}
 
                     <div>
                         <label className="font-semibold text-[#9AA6A8] text-sm" >
@@ -192,8 +185,8 @@ export default function EditProfile() {
                             value={form.lastname}
                             onChange={(e) => setForm({ ...form, lastname: e.target.value })}
                         />
+                        {errors.lastname && <p className="text-[#FE3B46] text-sm font-md italic">Lastname is required</p>}
                     </div>
-                    {errors.lastname && <p className="text-[#FE3B46] text-sm font-md italic">Lastname is required</p>}
 
                     <div className="col-span-2">
                         <label className="font-semibold text-[#9AA6A8] text-sm" >
@@ -205,6 +198,10 @@ export default function EditProfile() {
                             value={form.bio}
                             onChange={(e) => setForm({ ...form, bio: e.target.value })}
                         />
+                        <div className="flex flex-row">
+                            {form.bio.length > 255 && <p className="text-[#FE3B46] text-sm font-md italic whitespace-nowrap">Bio cannot exceed 255 characters</p>}
+                            <p className={`flex w-full justify-end font-bold text-xs ${form.bio.length > 255 ? "text-[#FE3B46]" : "text-[#404F57]"}`}> {form.bio.length} / 255</p>
+                        </div>
                     </div>
 
                 </div>

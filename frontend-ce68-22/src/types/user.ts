@@ -1,6 +1,7 @@
 export interface UserProfileDisplay {
     firstname: string;
     lastname: string;
+    bio: string;
     email: string;
     picture: string | null;
 }
