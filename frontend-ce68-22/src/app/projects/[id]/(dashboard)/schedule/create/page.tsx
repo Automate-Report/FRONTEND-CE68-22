@@ -27,8 +27,6 @@ import AssetIcon from "@/src/components/icon/AssetIcon";
 import { INPUT_BOX_NO_ICON_STYLE } from "@/src/styles/inputBoxStyle";
 import { GREEN_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 
-
-
 export default function CreateSchedulePage() {
     const { role } = useProjectRole();
     const router = useRouter();
@@ -252,8 +250,15 @@ export default function CreateSchedulePage() {
             atk_type: finalAtkType,
             asset: form.assetId,
             cron_expression: cronString,
-            start_date: new Date(`${form.startDate}T${form.startTime}:00`).toISOString(),
-            end_date: (!repeatTrue || form.endDate) ? new Date(form.startDate).toISOString() : new Date(form.endDate).toISOString(),
+            start_date: new Date(`${form.startDate}T${form.startTime}:00+07:00`).toISOString(),
+            end_date: !repeatTrue 
+                ? new Date(`${form.startDate}T23:59:59+07:00`).toISOString() 
+                : (form.endDate 
+                    ? new Date(`${form.endDate}T23:59:59+07:00`).toISOString() // ซ้ำ + มีวันจบ: ใช้วันจบที่เลือก
+                    : new Date(`${form.startDate}T23:59:59+07:00`).toISOString() // ซ้ำ + ลืมเลือกวันจบ: Fallback ไปวันเริ่มก่อนเพื่อกันพัง
+                )
+                            
+            // (!repeatTrue || form.endDate) ? new Date(`${form.startDate}T23:59:59+07:00`).toISOString() : new Date(`${form.endDate}T23:59:59+07:00`).toISOString(), //?????
         };
         const data = await scheduleService.create(payload);
         router.push(`/projects/${projectId}/schedule`);
