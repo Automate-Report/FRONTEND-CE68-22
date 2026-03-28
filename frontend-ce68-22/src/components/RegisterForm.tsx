@@ -64,7 +64,7 @@ export default function RegisterCard() {
                             onChange={(e) => setFirstName(e.target.value)}
                             className="mt-1 p-2 block w-full rounded-md bg-[#FBFBFB] text-[#404F57]
                             focus:ring-1 focus:ring-[#FBFBFB]"
-                            placeholder="Fubuki"
+                            placeholder="John"
                             required
                         />
                     </div>
@@ -79,7 +79,7 @@ export default function RegisterCard() {
                             onChange={(e) => setLastName(e.target.value)}
                             className="mt-1 p-2 block w-full rounded-md bg-[#FBFBFB] text-[#404F57]
                         focus:ring-1 focus:ring-[#FBFBFB]"
-                            placeholder="Shirakami"
+                            placeholder="Doe"
                             required
                         />
                     </div>
