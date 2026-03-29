@@ -10,7 +10,7 @@ COPY . .
 
 # Set this ARG so it can be passed in during docker-compose build 
 # and baked into Next.js static files
-ENV NEXT_PUBLIC_API_URL=http://ad14eb44-0070-4ec8-8a76-6d204c46ade0.cloud.ce.kmitl.ac.th:8000
+ENV NEXT_PUBLIC_API_URL=http://ad14eb44-0070-4ec8-8a76-6d204c46ade0.cloud.ce.kmitl.ac.th/api
 
 # Build the Next.js application
 RUN npm run build
@@ -23,7 +23,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV NEXT_PUBLIC_API_URL=http://ad14eb44-0070-4ec8-8a76-6d204c46ade0.cloud.ce.kmitl.ac.th:8000
+ENV NEXT_PUBLIC_API_URL=http://ad14eb44-0070-4ec8-8a76-6d204c46ade0.cloud.ce.kmitl.ac.th/api
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
