@@ -6,6 +6,7 @@ interface DownloadState {
   isDownloading: boolean;
   progress: number;
   currentWorkerId: number | null;
+  currentWorkerName: string | null;
   startDownload: (
     workerId: number, 
     projectId: number, 
@@ -14,13 +15,15 @@ interface DownloadState {
   ) => Promise<void>;
 }
 
+
 export const useDownloadStore = create<DownloadState>((set) => ({
   isDownloading: false,
   progress: 0,
   currentWorkerId: null,
+  currentWorkerName: null,
 
   startDownload: async (workerId, projectId, workerName, onComplete) => {
-    set({ isDownloading: true, progress: 0, currentWorkerId: workerId });
+    set({ isDownloading: true, progress: 0, currentWorkerId: workerId, currentWorkerName: workerName });
     const toastId = toast.loading(`Preparing ${workerName}...`);
 
     try {
@@ -56,7 +59,7 @@ export const useDownloadStore = create<DownloadState>((set) => ({
     } finally {
       // หน่วงเวลาเล็กน้อยเพื่อให้ User เห็น Progress 100%
       setTimeout(() => {
-        set({ isDownloading: false, progress: 0, currentWorkerId: null });
+        set({ isDownloading: false, progress: 0, currentWorkerId: null, currentWorkerName: null });
       }, 1500);
     }
   },
