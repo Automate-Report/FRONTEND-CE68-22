@@ -1,10 +1,16 @@
 "use client";
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
 import DeleteProjectIcon from "@/src/components/icon/Delete";
-import { useState } from "react";
-import { FILTER_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
+import { useEffect, useState } from "react";
+import { FILTER_BUTTON_STYLE, GREEN_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 import { INPUT_BOX_NO_ICON_STYLE, TEXT_AREA_STYLE } from "@/src/styles/inputBoxStyle";
-import { RestartAlt } from "@mui/icons-material";
+import { CheckCircle, Close, RestartAlt, WarningAmber } from "@mui/icons-material";
+import { useGetUserProfileDisplay } from "@/src/hooks/user/use-profile";
+import { useRouter } from "next/navigation";
+import { userService } from "@/src/services/user.service";
+import { logout } from "@/src/services/auth.service";
+import { showToast } from "@/src/components/Common/ToastContainer";
+import { set } from "react-hook-form";
 
 export default function EditProfile() {
 
@@ -14,18 +20,123 @@ export default function EditProfile() {
         { label: "Edit Profile", href: undefined }
     ];
 
-    const [errors, setErrors] = useState({ firstname: false, lastname: false });
+    // fetching
+    const { data: user_info } = useGetUserProfileDisplay();
+
+    // Form state
+    const [form, setForm] = useState({
+        firstname: user_info?.firstname ?? "",
+        lastname: user_info?.lastname ?? "",
+        bio: user_info?.bio ?? "",
+        email: user_info?.email ?? "",
+        password: "",
+    });
+
+    const [formPassword, setFormPassword] = useState({
+        currentPassword: "",
+        newPassword: "",
+        confirmNewPassword: "",
+    });
+
+    //Modal state
+    const [openPasswordModal, setOpenPasswordModal] = useState(false);
+
+    const router = useRouter();
+    const [errors, setErrors] = useState({ firstname: false, lastname: false, bio: false });
+    const [errorsPassword, setErrorsPassword] = useState({ notMatch: false, incorrect: false });
+
+    useEffect(() => {
+        if (user_info) {
+            setForm({
+                firstname: user_info.firstname ?? "",
+                lastname: user_info.lastname ?? "",
+                bio: user_info?.bio ?? "",
+                email: user_info.email ?? "",
+                password: "********",
+            });
+        }
+    }, [user_info]);
+
+    // Handlers
+    async function handleSubmit() {
+        setErrors({ firstname: false, lastname: false, bio: false });
+        let hasError = false;
+        if (!form.firstname) {
+            setErrors((prev) => ({ ...prev, firstname: true }));
+            hasError = true;
+        }
+        if (!form.lastname) {
+            setErrors((prev) => ({ ...prev, lastname: true }));
+            hasError = true;
+        }
+        if (form.bio.length > 255) {
+            setErrors((prev) => ({ ...prev, bio: true }));
+            return;
+        }
+
+        const userInfoPayload = {
+            firstname: form.firstname,
+            lastname: form.lastname,
+            bio: form.bio,
+        }
+        if (hasError) return;
+
+        await userService.updateProfile(userInfoPayload);
+        router.push("/profile");
+        showToast({
+            icon: <CheckCircle sx={{ fontSize: "20px", color: "#4CAF8A" }} />,
+            message: `Your changes have been saved`,
+            borderColor: "#8FFF9C",
+            duration: 6000,
+        });
+    }
+
+    async function handleConfirmPasswordChange() {
+        // check if 2 password match
+        if (formPassword.newPassword !== formPassword.confirmNewPassword) {
+            setErrorsPassword({ ...errorsPassword, notMatch: true });
+            return;
+        }
+
+        const passwordPayload = {
+            old_password: formPassword.currentPassword,
+            new_password: formPassword.newPassword,
+        }
+
+        const status = await userService.updatePassword(passwordPayload);
+        if (status.message === "Incorrect") {
+            setErrorsPassword({ ...errorsPassword, incorrect: true });
+            return;
+        }
+        setOpenPasswordModal(false);
+        await logout();
+        router.push("/login");
+        router.refresh();
+    }
 
     return (
-        <div className="px-20 py-8 text-[#E6F0E6]">
+        <div className="px-30 py-8 text-[#E6F0E6]">
             <GenericBreadcrums items={breadcrumbItems} />
 
             <div className='flex flex-row h-fit bg-[#151B1D] px-10 py-8 border-2 rounded-4xl border-[#1E2A30] my-8'>
                 {/* Image */}
-                <img className="w-[150px] h-[150px] object-cover rounded-xl" src="https://wallpaper-a-day.com/wp-content/uploads/2025/09/wallpaper2151.png?w=1440" alt="Profile Picture" />
+                {user_info?.picture ? (
+
+                    //If yes image use image
+                    <img className="w-[150px] h-[150px] object-cover rounded-xl"
+                        src={user_info?.picture}
+                        alt="Profile Picture" />
+                ) : (
+
+                    //If no image, use initial 
+                    <div className="flex w-[150px] h-[150px] justify-center items-center rounded-xl text-6xl font-bold text-[#E6F0E6] border-4 border-[#8FFF9C] bg-[#2D2F39]">
+                        {user_info?.firstname[0].toUpperCase()}
+                    </div>
+                )}
+
                 {/* Personal info */}
                 <div className='ml-10 flex flex-col justify-between h-[150px]'>
-                    <h1 className='text-3xl text-[#E6F0E6] font-bold mb-4'>Shirakami Fubuki</h1>
+                    <h1 className='text-3xl text-[#E6F0E6] font-bold mb-4'>{user_info?.firstname} {user_info?.lastname}</h1>
                     {/* button */}
                     <div>
                         <div className="flex flex-row gap-4 mb-2">
@@ -56,11 +167,12 @@ export default function EditProfile() {
                         <input
                             type="text"
                             className={`${INPUT_BOX_NO_ICON_STYLE} w-full`}
-                            placeholder="e.g., John"
-                            value={"Shirakami"}
+                            placeholder="John"
+                            value={form.firstname}
+                            onChange={(e) => setForm({ ...form, firstname: e.target.value })}
                         />
+                        {errors.firstname && <p className="text-[#FE3B46] text-sm font-md italic">Firstname is required</p>}
                     </div>
-                    {errors.firstname && <p className="text-[#FE3B46] text-sm font-md italic">Schedule name is required</p>}
 
                     <div>
                         <label className="font-semibold text-[#9AA6A8] text-sm" >
@@ -69,11 +181,12 @@ export default function EditProfile() {
                         <input
                             type="text"
                             className={`${INPUT_BOX_NO_ICON_STYLE} w-full`}
-                            placeholder="e.g., Doe"
-                            value={"Fubuki"}
+                            placeholder="Doe"
+                            value={form.lastname}
+                            onChange={(e) => setForm({ ...form, lastname: e.target.value })}
                         />
+                        {errors.lastname && <p className="text-[#FE3B46] text-sm font-md italic">Lastname is required</p>}
                     </div>
-                    {errors.lastname && <p className="text-[#FE3B46] text-sm font-md italic">Schedule name is required</p>}
 
                     <div className="col-span-2">
                         <label className="font-semibold text-[#9AA6A8] text-sm" >
@@ -82,12 +195,16 @@ export default function EditProfile() {
                         <textarea
                             className={`${TEXT_AREA_STYLE}`}
                             placeholder="Tell us about yourself..."
-                            value={"Very cute Japanese Vtuber also is Hinoshii's Best best friend (User's Bio)"}
+                            value={form.bio}
+                            onChange={(e) => setForm({ ...form, bio: e.target.value })}
                         />
+                        <div className="flex flex-row">
+                            {form.bio.length > 255 && <p className="text-[#FE3B46] text-sm font-md italic whitespace-nowrap">Bio cannot exceed 255 characters</p>}
+                            <p className={`flex w-full justify-end font-bold text-xs ${form.bio.length > 255 ? "text-[#FE3B46]" : "text-[#404F57]"}`}> {form.bio.length} / 255</p>
+                        </div>
                     </div>
 
                 </div>
-
             </div>
 
             {/* Security Info */}
@@ -96,7 +213,7 @@ export default function EditProfile() {
                     Security Information
                 </label>
                 <div className="flex flex-col gap-6">
-                    <div className="flex flex-row items-end gap-4 w-[60%]">
+                    <div className="flex flex-row items-end gap-4 w-[50%]">
                         <div className="w-full">
                             <label className="font-semibold text-[#9AA6A8] text-sm" >
                                 Email
@@ -105,32 +222,147 @@ export default function EditProfile() {
                                 type="text"
                                 className={`${INPUT_BOX_NO_ICON_STYLE} w-full`}
                                 placeholder="e.g., Amongus@gmail.com"
-                                value={"ShirakamiSoCute@gmail.com"}
+                                value={form.email}
+                                readOnly
                             />
                         </div>
-                        <button className={`${FILTER_BUTTON_STYLE} whitespace-nowrap`}>
-                            Change <RestartAlt />
-                        </button>
                     </div>
-                    <div className="flex flex-row items-end gap-4 w-[60%]">
-                        <div className="w-full">
-                            <label className="font-semibold text-[#9AA6A8] text-sm" >
-                                Password
-                            </label>
-                            <input
-                                type="password"
-                                className={`${INPUT_BOX_NO_ICON_STYLE} w-full`}
-                                placeholder="********"
-                                value={"WowSuchSecure"}
-                            />
+                    <div className="flex flex-row items-end gap-4">
+                        <div className="flex flex-row items-end gap-4 w-[50%]">
+                            <div className="w-full">
+                                <label className="font-semibold text-[#9AA6A8] text-sm" >
+                                    Password
+                                </label>
+                                <input
+                                    type="password"
+                                    className={`${INPUT_BOX_NO_ICON_STYLE} w-full`}
+                                    placeholder="********"
+                                    value={form.password}
+                                    readOnly
+                                />
+                            </div>
                         </div>
-                        <button className={`${FILTER_BUTTON_STYLE} whitespace-nowrap`}>
+                        <button className={`${FILTER_BUTTON_STYLE} whitespace-nowrap`}
+                            onClick={() => setOpenPasswordModal(true)}
+                        >
                             Change <RestartAlt />
                         </button>
                     </div>
                 </div>
-
             </div>
+
+            {/* Save Button */}
+            <div className="flex gap-6 items-center mt-[30px] justify-end">
+                <button
+                    onClick={() => router.push("/profile")}
+                    className={`${RED_BUTTON_STYLE} justify-center max-w-[250px] w-[20vw]`}
+                >
+                    Back to Profile
+                </button>
+                <button
+                    onClick={handleSubmit}
+                    className={`${GREEN_BUTTON_STYLE} max-w-[250px] w-[20vw]`}
+                >
+                    Save Changes
+                </button>
+            </div>
+
+            {/* Edit Password Modal */}
+            {openPasswordModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+                    <div className="w-full max-w-md rounded-2xl border-[2px] border-[#2D2F39] border-t-0 bg-[#1E2429] shadow-2xl overflow-hidden relative">
+
+                        {/* Top danger strip */}
+                        <div className="h-0.5 w-full bg-[#8FFF9C]" />
+
+                        {/* X */}
+                        <button
+                            onClick={() => setOpenPasswordModal(false)}
+                            className="rounded-lg p-1.5 text-[#9AA6A8] transition-colors hover:text-[#FBFBFB] absolute top-2 right-2"
+                        >
+                            <Close fontSize="small" />
+                        </button>
+
+                        <div className="p-6">
+                            {/* Header */}
+                            <div className="flex items-center justify-between mb-5">
+                                <div className="flex items-center gap-3 text-[#8FFF9C]">
+                                    <WarningAmber sx={{ fontSize: 28 }} />
+                                    <h2 className="font-bold text-xl leading-tight text-[#8FFF9C]">
+                                        Change Password
+                                    </h2>
+                                </div>
+                            </div>
+
+                            {/* Warning description */}
+                            <p className="text-sm text-[#9AA6A8] leading-relaxed mb-5">
+                                Make sure your new password is at least 8 characters long.
+                            </p>
+
+                            {/* Confirm label */}
+                            <div className="flex flex-col gap-4 w-full">
+                                <div className="w-full">
+                                    <label className="font-semibold text-[#9AA6A8] text-sm" >
+                                        Current Password
+                                    </label>
+                                    <input
+                                        type="password"
+                                        className={`${INPUT_BOX_NO_ICON_STYLE} w-full`}
+                                        placeholder=""
+                                        value={formPassword.currentPassword}
+                                        onChange={(e) => setFormPassword({ ...formPassword, currentPassword: e.target.value })}
+                                    />
+                                    {errorsPassword.incorrect && <p className="text-[#FE3B46] text-sm font-md italic">Current password is incorrect</p>}
+                                </div>
+
+                                <div className="w-full">
+                                    <label className="font-semibold text-[#9AA6A8] text-sm" >
+                                        New Password
+                                    </label>
+                                    <input
+                                        type="password"
+                                        className={`${INPUT_BOX_NO_ICON_STYLE} w-full`}
+                                        placeholder=""
+                                        value={formPassword.newPassword}
+                                        onChange={(e) => setFormPassword({ ...formPassword, newPassword: e.target.value })}
+                                    />
+                                </div>
+
+                                <div className="w-full">
+                                    <label className="font-semibold text-[#9AA6A8] text-sm" >
+                                        Confirm New Password
+                                    </label>
+                                    <input
+                                        type="password"
+                                        className={`${INPUT_BOX_NO_ICON_STYLE} w-full`}
+                                        placeholder=""
+                                        value={formPassword.confirmNewPassword}
+                                        onChange={(e) => setFormPassword({ ...formPassword, confirmNewPassword: e.target.value })}
+                                    />
+                                    {errorsPassword.notMatch && <p className="text-[#FE3B46] text-sm font-md italic">New password and confirm new password do not match</p>}
+                                </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="mt-6 flex justify-end gap-3">
+                                <button
+                                    onClick={() => setOpenPasswordModal(false)}
+                                    className={`${FILTER_BUTTON_STYLE} disabled:opacity-50`}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleConfirmPasswordChange}
+                                    className={`${GREEN_BUTTON_STYLE} disabled:cursor-not-allowed disabled:opacity-40`}
+                                >
+                                    Confirm Change
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div>
     )
 }

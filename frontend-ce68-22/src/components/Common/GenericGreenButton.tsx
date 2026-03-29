@@ -13,7 +13,7 @@ export function GenericGreenButton({name, href, icon}: GenericGreenButton)
     return (
         <Link href={href}>
             <button className={GREEN_BUTTON_STYLE}>
-                {name}
+                <p className="hidden lg:block">{name}</p>
                 {icon}
             </button>
         </Link>

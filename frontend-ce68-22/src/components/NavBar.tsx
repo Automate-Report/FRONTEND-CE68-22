@@ -24,6 +24,7 @@ import { GREEN_BUTTON_STYLE } from '../styles/greenButton';
 import { RED_BUTTON_STYLE } from '../styles/buttonStyle';
 import { CheckCircle, CheckOutlined, Close } from '@mui/icons-material';
 import { showToast } from './Common/ToastContainer';
+import { useGetUserProfileDisplay } from '../hooks/user/use-profile';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
@@ -50,6 +51,7 @@ export function NavBar() {
     const { data: invitations, isLoading: isInvitationsLoading } = useInvitations();
     const acceptInvitation = useAcceptInvitation();
     const declineInvitation = useDeclineInvitation();
+    const { data: user_info } = useGetUserProfileDisplay();
 
     useEffect(() => { setMounted(true); }, []);
 
@@ -228,7 +230,20 @@ export function NavBar() {
                             <NotificationsNoneIcon />
                         </Button>
                         <button onClick={() => setShowProfileDropdown(!showProfileDropdown)}>
-                            <Avatar sx={{ width: 50, height: 50 }} />
+                            {user_info?.picture ? (
+
+                                //If yes image use image
+                                <img className="w-[48px] h-[48px] object-cover rounded-full"
+                                    src={user_info?.picture}
+                                    // src="https://wallpaper-a-day.com/wp-content/uploads/2025/09/wallpaper2151.png?w=1440" 
+                                    alt="Profile Picture" />
+                            ) : (
+
+                                //If no image, use initial 
+                                <div className="flex min-w-[48px] min-h-[48px] justify-center items-center rounded-full text-lg font-bold text-[#E6F0E6] border-2 border-[#8FFF9C] bg-[#2D2F39]">
+                                    {user_info?.firstname[0].toUpperCase()}
+                                </div>
+                            )}
                         </button>
                     </div>
                 </div>
