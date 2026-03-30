@@ -129,18 +129,6 @@ export function PenTestLogTable({
       )
     },
     {
-        id: "file_size",
-        label: "File Size",
-        align: "center",
-        sortable: true,
-        width: "1%",
-        render: (row) => (
-        <div>
-            {row.file_size}
-        </div>
-       )
-    },
-    {
       id: "create_at",
       label: "Create Date",
       align: "center",
