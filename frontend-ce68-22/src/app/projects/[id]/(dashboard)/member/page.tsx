@@ -86,9 +86,31 @@ export default function MemberPage() {
   const totalCount = membersData?.total || 0;
 
   const handleSaveRole = (email: string) => {
-    updateRole({ email, role: pendingRole }, {
-      onSuccess: () => setEditingEmail(null)
-    });
+    updateRole(
+      { email, role: pendingRole }, 
+      {
+        onSuccess: () => {
+          setEditingEmail(null);
+          
+          // ✅ เปลี่ยนจาก ["projects", "user", projectId] 
+          // เป็น ["projects", projectId, "members"] ให้ตรงกับ useMembers Hook
+          queryClient.invalidateQueries({ 
+            queryKey: ["projects", projectId, "members"],
+            exact: false // 👈 สำคัญ: เพื่อให้มันกวาดล้างทุก page/filter ภายใต้ members นี้
+          });
+          
+          // DEBUG: เพื่อดูว่า Key ตรงกันไหม
+          console.log("Invalidating Members for Project:", projectId);
+        },
+        onError: (error: any) => {
+          showToast({
+            icon: <Close sx={{ fontSize: "20px", color: "#FE3B46" }} />,
+            message: error?.response?.data?.detail || "Failed to update role",
+            borderColor: "#FE3B46",
+          });
+        }
+      }
+    );
   };
 
   const handleFilterChange = (value: string) => {
