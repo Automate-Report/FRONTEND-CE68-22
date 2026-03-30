@@ -199,8 +199,8 @@ export default function WorkerDetailPage({ params }: PageProps) {
                                 >
                                     {isActionLoading ? (
                                         <>
+                                            <span>Disconnecting</span>
                                             <CircularProgress size={15} sx={{ color: "#FF9800" }} />
-                                            <span>Disconnecting...</span>
                                         </>
                                     ) : (
                                         <>
@@ -214,23 +214,27 @@ export default function WorkerDetailPage({ params }: PageProps) {
                             (isProjectOwner || isPentester) && (
                                 <button
                                     onClick={handleDownloadAction}
+                                    // ✅ ปรับ disabled ให้เช็คจาก Store
                                     disabled={globalIsLoading}
-                                    className={GREEN_BUTTON_STYLE}
+                                    className={`${GREEN_BUTTON_STYLE} min-w-[140px]`} // เพิ่ม min-width เพื่อไม่ให้ปุ่มขยับตอนเลขเปลี่ยน
                                 >
                                     {isThisWorkerDownloading ? (
-                                        <>
-                                            {globalProgress > 0 ? (
-                                                <>
-                                                    <span>{globalProgress}%</span>
-                                                    <CircularProgress variant="determinate" value={globalProgress} size={15} sx={{ color: "#0B0F12" }} />
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <span>Downloading...</span>
-                                                    <CircularProgress size={15} sx={{ color: "#0B0F12" }} />
-                                                </>
-                                            )}
-                                        </>
+                                        <div className="flex items-center gap-3">
+                                            <div className="relative flex items-center justify-center">
+                                                {/* ✅ วงกลม Progress รอบไอคอน */}
+                                                <CircularProgress 
+                                                    variant="determinate" 
+                                                    value={globalProgress} 
+                                                    size={22} 
+                                                    thickness={5}
+                                                    sx={{ color: "#0B0F12" }} // ใช้สีเข้มเพื่อให้ตัดกับปุ่มสีเขียว
+                                                />
+                                                <span className="absolute text-[9px] font-black text-[#0B0F12]">
+                                                    {globalProgress}%
+                                                </span>
+                                            </div>
+                                            <span className="font-bold text-[#0B0F12]">Downloading...</span>
+                                        </div>
                                     ) : (
                                         <>
                                             <span>Download</span>
