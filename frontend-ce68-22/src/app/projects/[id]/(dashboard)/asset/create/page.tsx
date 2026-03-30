@@ -146,7 +146,7 @@ export default function CreateAssetPage() {
       {/* ข้อมูลพื้นฐาน: ชื่อ Asset, Target, Type */}
       <AssetBasicInfo
         formMethods={formMethods}
-        // currentAssetType={formMethods.watch("type")}
+        currentAssetType={formMethods.watch("type")}
       />
 
       {/* ส่วน Credentials: Username, Password */}
