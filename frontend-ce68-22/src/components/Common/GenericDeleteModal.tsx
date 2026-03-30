@@ -35,7 +35,7 @@ export function GenericDeleteModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-2xl border-[2px] border-[#2D2F39] border-t-0 bg-[#1E2429] shadow-2xl overflow-hidden relative">
 
         {/* Top danger strip */}

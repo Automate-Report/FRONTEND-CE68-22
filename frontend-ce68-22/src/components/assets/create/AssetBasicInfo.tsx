@@ -10,7 +10,7 @@ interface Props {
 export const AssetBasicInfo = ({ formMethods }: Props) => {
     const { register, setValue, formState: { errors } } = formMethods;
 
-    const URL_REGEX = /^(https?:\/\/)([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/[^\s]*)?$/;
+    const URL_REGEX = /^https?:\/\/\S+$/;
     const IP_REGEX = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)(\/\d{1,2})?$/;
 
     const getTargetValidation = () => {
