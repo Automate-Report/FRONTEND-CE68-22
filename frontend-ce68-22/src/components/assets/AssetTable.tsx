@@ -57,18 +57,6 @@ export function AssetTable({
       )
     },
     {
-      id: "type",
-      "label": "Type",
-      align: "center",
-      sortable: true,
-      width: "1%",
-      render: (row) => (
-        <div>
-          {row.type}
-        </div>
-      )
-    },
-    {
       id: "updated_at",
       label: "Last Updated",
       align: "center",

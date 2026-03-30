@@ -132,12 +132,12 @@ export default function ViewAssetPage() {
                     <h1 className="text-[#E6F0E6] font-bold text-4xl tracking-tight">
                         {asset.name}
                     </h1>
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${asset.type === "IP"
+                    {/* <span className={`px-3 py-1 rounded-full text-xs font-bold ${asset.type === "IP"
                         ? "bg-[#8FFF9C]/20 text-[#8FFF9C]"
                         : "bg-[#90caf9]/20 text-[#90caf9]"
                         }`}>
                         {asset.type}
-                    </span>
+                    </span> */}
                 </div>
 
                 <div className="flex items-center gap-4">

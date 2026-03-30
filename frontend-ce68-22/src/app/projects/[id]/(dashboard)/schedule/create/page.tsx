@@ -27,7 +27,7 @@ import AssetIcon from "@/src/components/icon/AssetIcon";
 import { INPUT_BOX_NO_ICON_STYLE } from "@/src/styles/inputBoxStyle";
 import { GREEN_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 import { showToast } from "@/src/components/Common/ToastContainer";
-import { Close } from "@mui/icons-material";
+import { CheckCircle, Close } from "@mui/icons-material";
 
 export default function CreateSchedulePage() {
     const { role } = useProjectRole();
@@ -498,7 +498,12 @@ export default function CreateSchedulePage() {
                                 onSuccess={() => {
                                     refetchAssets();
                                     router.refresh();
-                                    alert("Asset created successfully!");
+                                    showToast({
+                                        icon: <CheckCircle sx={{ fontSize: "20px", color: "#4CAF8A" }} />,
+                                        message: `Asset Created Successfully!`,
+                                        borderColor: "#8FFF9C",
+                                        duration: 6000,
+                                    });
                                 }}
                             />
                         </div>
