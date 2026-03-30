@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { WarningAmber as WarningAmberIcon, Close as CloseIcon } from "@mui/icons-material";
 import { FILTER_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
 interface GenericDeleteModalProps {
   open: boolean;
   onClose: () => void;
@@ -15,7 +15,6 @@ interface GenericDeleteModalProps {
   description?: React.ReactNode;
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
 export function GenericDeleteModal({
   open,
   onClose,
@@ -26,20 +25,30 @@ export function GenericDeleteModal({
   description,
 }: GenericDeleteModalProps) {
   const [inputValue, setInputValue] = useState("");
+  const [mounted, setMounted] = useState(false);
   const isMatch = inputValue === entityName;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (open) setInputValue("");
   }, [open]);
 
-  if (!open) return null;
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !loading) onClose();
+    };
+    if (open) window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [open, loading, onClose]);
 
-  return (
+  if (!open || !mounted) return null;
+
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-2xl border-[2px] border-[#2D2F39] border-t-0 bg-[#1E2429] shadow-2xl overflow-hidden relative">
-
-        {/* Top danger strip */}
-        <div className="h-0.5 w-full bg-[#FE3B46]" />
+      <div className="w-full max-w-md rounded-2xl border-[2px] border-[#2D2F39] border-t-[#FE3B46] bg-[#1E2429] shadow-2xl overflow-hidden relative">
 
         {/* X */}
         {!loading && (
@@ -54,8 +63,8 @@ export function GenericDeleteModal({
         <div className="p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-3 text-[#FE3B46]">
-              <WarningAmberIcon sx={{ fontSize: 28 }} />
+            <div className="flex items-center gap-3">
+              <WarningAmberIcon sx={{ fontSize: 28, color: "#FE3B46" }} />
               <h2 className="font-bold text-xl leading-tight text-[#FE3B46]">
                 Delete {entityType}
               </h2>
@@ -64,7 +73,7 @@ export function GenericDeleteModal({
 
           {/* Warning description */}
           <p className="text-sm text-[#9AA6A8] leading-relaxed mb-5">
-            {description ? description : (
+            {description ?? (
               <>
                 This action <strong className="text-[#FBFBFB] font-semibold">cannot</strong> be undone. This will
                 permanently delete the {entityType.toLowerCase()}{" "}
@@ -76,7 +85,7 @@ export function GenericDeleteModal({
           {/* Confirm label */}
           <p className="text-xs text-[#9AA6A8] mb-2">
             Please type{" "}
-            <strong className="select-all text-[#FBFBFB]">{entityName}</strong>{" "}
+            <span className="select-all cursor-pointer text-[#FBFBFB] font-bold">{entityName}</span>{" "}
             to confirm.
           </p>
 
@@ -87,7 +96,7 @@ export function GenericDeleteModal({
             onChange={(e) => setInputValue(e.target.value)}
             placeholder={entityName}
             disabled={loading}
-            autoComplete="off"
+            autoComplete="new-password"
           />
 
           {/* Actions */}
@@ -109,6 +118,7 @@ export function GenericDeleteModal({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
