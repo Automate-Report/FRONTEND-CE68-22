@@ -2,7 +2,7 @@
 import { useRouter, useParams } from "next/navigation";
 import { useProject } from "@/src/hooks/project/use-project";
 import { useState, useEffect } from "react";
-import { getDisplayDate } from "@/src/components/Common/GetDisplayDate";
+import { getDisplayDate } from "@/src/utils/GetDisplayDate";
 import { ScheduleDelete } from "@/src/types/schedule";
 import { scheduleService } from "@/src/services/schedule.service";
 import { useGetScheduleByID } from "@/src/hooks/schedule/use-getScheduleByID";
@@ -104,7 +104,6 @@ export default function ViewSchedulePage() {
     if (!schedule) return <div className="p-8">Loading schedule...</div>;
 
     function formatAtkTypeDisplay (atkType: string) {
-        console.log(schedule?.attack_type); // Debug log
         switch (atkType?.trim().toLowerCase()) {
             case "sqli": return "SQL Injection";
             case "xss": return "Cross-site Scripting";

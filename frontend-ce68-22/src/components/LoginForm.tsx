@@ -6,6 +6,7 @@ import { LoginPayload } from "../types/auth";
 import { useRouter } from 'next/navigation';
 import { login } from '../services/auth.service';
 import { UserKey } from '../types/auth';
+import { encryptPassword } from "../utils/crypto";
 
 export default function LoginCard() {
     const [email, setEmail] = useState<string>("");
@@ -16,8 +17,9 @@ export default function LoginCard() {
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-
-        const loginPayload: LoginPayload = { email, password };
+        
+        const encryptedPassword = await encryptPassword(password);
+        const loginPayload: LoginPayload = { email, password: encryptedPassword };
 
         try {
             const user: UserKey = await login(loginPayload);

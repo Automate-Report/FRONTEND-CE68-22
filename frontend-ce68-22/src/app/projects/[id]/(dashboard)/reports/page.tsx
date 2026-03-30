@@ -104,7 +104,9 @@ export default function ReportCenterPage() {
       try {
         const res = await getMe();
         setCurrentUser(res.user);
-      } catch (error) { console.error(error); }
+      } catch (error) {
+         // Handle error if needed}
+      }
     };
     fetchUser();
   }, []);

@@ -17,7 +17,7 @@ import { projectService } from "@/src/services/project.service";
 import { ProjectSummary } from "@/src/types/project";
 import { Box, CircularProgress, Typography } from "@mui/material";
 import { showToast } from "@/src/components/Common/ToastContainer";
-import { Delete } from "@mui/icons-material";
+import { Close, Delete } from "@mui/icons-material";
 
 
 export default function ProjectsPage() {
@@ -62,7 +62,7 @@ export default function ProjectsPage() {
       setProjects(data.items || []);
       setTotalItems(data.total || 0);
     } catch (error) {
-      console.error("Error fetching projects:", error);
+      // Handle error for fetching projects
     } finally {
       setLoading(false);
     }
@@ -118,7 +118,12 @@ export default function ProjectsPage() {
       setDeleteModal({ ...deleteModal, open: false });
       fetchProjects();
     } catch (error) {
-      console.error(error);
+      showToast({
+        icon: <Close sx={{ fontSize: "20px", color: "#FE3B46" }} />,
+        message: "Failed to delete project :(",
+        borderColor: "#FE3B46",
+        duration: 6000,
+      });
     }
   };
 

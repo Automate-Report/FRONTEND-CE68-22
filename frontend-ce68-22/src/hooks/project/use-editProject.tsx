@@ -6,6 +6,8 @@ import { tagService } from "@/src/services/tag.service";
 
 import { Tag } from "@/src/types/tag";
 import { TagRow } from "@/src/types/tag";
+import { showToast } from "@/src/components/Common/ToastContainer";
+import { Close } from "@mui/icons-material";
 
 // รับ projectId เข้ามาเพื่อดึงข้อมูล
 export const useEditProject = (projectId: number) => {
@@ -30,7 +32,7 @@ export const useEditProject = (projectId: number) => {
       const tags = await tagService.getAll();
       setAvailableTags(tags);
     } catch (err) {
-      console.error("Error fetching tags:", err);
+      // handle if needed
     } finally {
     }
   }, []);
@@ -43,9 +45,9 @@ export const useEditProject = (projectId: number) => {
 
         // รอโหลด Tags และ Project Data ให้เสร็จพร้อมกัน
         const [tagsData, projectData, selectedTag] = await Promise.all([
-           tagService.getAll(),
-           projectService.getById(projectId),
-           tagService.getAllProjectId(projectId)
+          tagService.getAll(),
+          projectService.getById(projectId),
+          tagService.getAllProjectId(projectId)
         ]);
 
         setAvailableTags(tagsData);
@@ -57,18 +59,17 @@ export const useEditProject = (projectId: number) => {
         // *** หัวใจสำคัญ: แปลง Tags จาก DB ให้กลายเป็น TagRow สำหรับ UI ***
         // เราใช้ Date.now() + index เพื่อสร้าง ID ชั่วคราวให้ UI Key ไม่ซ้ำกัน
         if (selectedTag && selectedTag.length > 0) {
-            const initialRows = selectedTag.map((t: Tag, index: number) => ({
-                id: Date.now() + index, 
-                tagName: t.name
-            }));
-            setTagRows(initialRows);
+          const initialRows = selectedTag.map((t: Tag, index: number) => ({
+            id: Date.now() + index,
+            tagName: t.name
+          }));
+          setTagRows(initialRows);
         } else {
-            // ถ้าไม่มี Tag เลย ให้สร้างแถวเปล่า 1 อัน
-            setTagRows([{ id: Date.now(), tagName: "" }]);
+          // ถ้าไม่มี Tag เลย ให้สร้างแถวเปล่า 1 อัน
+          setTagRows([{ id: Date.now(), tagName: "" }]);
         }
 
       } catch (err: any) {
-        console.error("Error init data:", err);
         setError("Failed to load project data");
       } finally {
         setFetchingData(false);
@@ -76,7 +77,7 @@ export const useEditProject = (projectId: number) => {
     };
 
     if (projectId) {
-        initData();
+      initData();
     }
   }, [projectId]); // run เมื่อ projectId เปลี่ยน
 
@@ -104,30 +105,34 @@ export const useEditProject = (projectId: number) => {
       setTagRows(currentRows);
       await fetchLatestTags();
     } catch (err) {
-      console.error(err);
-      alert("Failed to create new tag.");
+      showToast({
+        icon: <Close sx={{ fontSize: "20px", color: "#FE3B46" }} />,
+        message: "Failed to create tag :(",
+        borderColor: "#FE3B46",
+        duration: 6000,
+      });
     }
   };
 
   const handleTagChange = async (index: number, newValue: string | Tag | null) => {
-    const newRows = tagRows.map(row => ({ ...row })); 
+    const newRows = tagRows.map(row => ({ ...row }));
 
     if (newValue === null) {
       newRows[index].tagName = "";
       setTagRows(newRows);
-    } 
+    }
     else if (typeof newValue === 'string' && newValue.startsWith('Add "')) {
       const rawName = newValue.replace('Add "', '').replace('"', '');
       await createNewTagAndSelect(index, rawName, newRows);
-    } 
+    }
     else if (typeof newValue === 'object' && 'inputValue' in newValue) {
       const rawName = (newValue as any).inputValue;
       await createNewTagAndSelect(index, rawName, newRows);
-    } 
+    }
     else if (typeof newValue === 'object' && 'name' in newValue) {
       newRows[index].tagName = newValue.name;
       setTagRows(newRows);
-    } 
+    }
     else if (typeof newValue === 'string') {
       const existingTag = availableTags.find(t => t.name.toLowerCase() === newValue.toLowerCase());
       if (existingTag) {
@@ -143,15 +148,15 @@ export const useEditProject = (projectId: number) => {
     try {
       // 1. ลบจาก DB ทันที
       await tagService.delete(tagToDelete.id);
-      
+
       // 2. เอาออกจาก list available
       setAvailableTags((prev) => prev.filter((t) => t.id !== tagToDelete.id));
-      
+
       // 3. เคลียร์ออกจาก Input (ถ้าเลือกอยู่)
-      setTagRows((prev) => prev.map((row) => 
-          row.tagName === tagToDelete.name ? { ...row, tagName: "" } : row
+      setTagRows((prev) => prev.map((row) =>
+        row.tagName === tagToDelete.name ? { ...row, tagName: "" } : row
       ));
-      
+
       // 4. (Optional) Fetch ใหม่ถ้าต้องการความชัวร์
       await fetchLatestTags();
     } catch (err) {
@@ -165,7 +170,7 @@ export const useEditProject = (projectId: number) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
 
       // 1. เตรียม ID
@@ -183,7 +188,7 @@ export const useEditProject = (projectId: number) => {
       await projectService.edit(projectId, {
         name,
         description,
-        tag_ids: tagIds 
+        tag_ids: tagIds
       });
 
       // 3. กลับไปหน้า Overview

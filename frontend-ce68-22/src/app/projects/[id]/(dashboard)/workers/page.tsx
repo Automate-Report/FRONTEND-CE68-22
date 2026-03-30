@@ -93,7 +93,9 @@ export default function WorkersPage({ params }: PageProps) {
         const res = await getMe();
         // ✅ สำคัญ: ต้องเป็นฟิลด์เดียวกับที่ API ส่งมาใน worker.owner (มักจะเป็น Name หรือ Username)
         setCurrentUserId(res?.["user"]);
-      } catch (error) { console.error(error); }
+      } catch (error) { 
+          // Handle error if needed
+      }
     };
     fetchUser();
   }, []);

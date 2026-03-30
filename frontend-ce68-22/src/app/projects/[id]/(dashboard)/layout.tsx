@@ -39,7 +39,6 @@ export default async function ProjectLayout({ children, params }: ProjectLayoutP
     role = project.role;
   } catch (error: any) {
       const status = error.response?.status || error.status;
-      console.log("DEBUG: Status Code on Server:", status);
 
       if (status === 401) {
         isUnauthorized = true;

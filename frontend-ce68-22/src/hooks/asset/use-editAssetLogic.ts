@@ -72,7 +72,6 @@ export const useEditAssetLogic = (projectId: number, assetId: number) => {
   const onSubmit: SubmitHandler<AssetFormInputs> = async (data) => {
     try {
       // --- Part A: Update Asset (ทำเสมอ) ---
-      console.log("Updating Asset...");
       await assetService.edit(assetId, {
         name: data.name,
         target: data.target,
@@ -84,7 +83,6 @@ export const useEditAssetLogic = (projectId: number, assetId: number) => {
       
       // Case 1: เดิมไม่มี -> ใหม่มี (Create)
       if (!existingCredentialId && showCredential) {
-         console.log("Creating new Credential...");
          await assetCredentialService.create({
             asset_id: assetId,
             username: data.username || "",
@@ -94,7 +92,6 @@ export const useEditAssetLogic = (projectId: number, assetId: number) => {
       
       // Case 2: เดิมมี -> ใหม่มี (Update)
       else if (existingCredentialId && showCredential) {
-         console.log("Updating existing Credential...");
          await assetCredentialService.edit(existingCredentialId, {
             asset_id: assetId,
             username: data.username || "",
@@ -104,7 +101,6 @@ export const useEditAssetLogic = (projectId: number, assetId: number) => {
 
       // Case 3: เดิมมี -> ใหม่ไม่มี (Delete)
       else if (existingCredentialId && !showCredential) {
-         console.log("Deleting Credential...");
          await assetCredentialService.delete(existingCredentialId);
       }
       
@@ -115,8 +111,7 @@ export const useEditAssetLogic = (projectId: number, assetId: number) => {
       router.push(`/projects/${projectId}/asset/${assetId}`);
 
     } catch (error) {
-      console.error("Error updating asset:", error);
-      alert("เกิดข้อผิดพลาดในการแก้ไข Asset");
+      // handle error if needed
     }
   };
 
