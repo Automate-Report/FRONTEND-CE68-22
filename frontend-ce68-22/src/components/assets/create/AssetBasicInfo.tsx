@@ -5,9 +5,10 @@ import { INPUT_BOX_NO_ICON_STYLE } from "@/src/styles/inputBoxStyle";
 
 interface Props {
     formMethods: UseFormReturn<AssetFormInputs>;
+    currentAssetType: "IP" | "URL";
 }
 
-export const AssetBasicInfo = ({ formMethods }: Props) => {
+export const AssetBasicInfo = ({ formMethods, currentAssetType }: Props) => {
     const { register, setValue, formState: { errors } } = formMethods;
 
     const URL_REGEX = /^https?:\/\/\S+$/;
