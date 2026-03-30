@@ -49,7 +49,6 @@ export default function EditWorkerPage() {
                 setName(data.name);
                 setThreads(data.thread_number || 1);
             } catch (err: any) {
-                console.error(err);
                 setError("Worker not found or API error.");
             } finally {
                 setFetching(false);
@@ -65,7 +64,6 @@ export default function EditWorkerPage() {
             name: name.trim(),
             thread_number: parseInt(String(threads), 10) // ✅ บังคับให้เป็น Integer แน่นอน
         };
-        console.log("Submitting payload:", payload);
 
         try {
             await workerService.edit(workerId, projectId, payload);
@@ -75,8 +73,6 @@ export default function EditWorkerPage() {
             router.push(`/projects/${projectId}/workers`);
             router.refresh(); // บังคับให้ Server Component โหลดข้อมูลใหม่
         } catch (err: any) {
-            console.error("Update Error:", err);
-
             // ตรวจสอบว่ามีข้อมูล Error จาก Backend (FastAPI Validation) หรือไม่
             const backendError = err.response?.data?.detail;
 

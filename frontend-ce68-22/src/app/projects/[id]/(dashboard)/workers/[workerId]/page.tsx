@@ -63,7 +63,7 @@ export default function WorkerDetailPage({ params }: PageProps) {
                 const res = await getMe();
                 setCurrentUserName(res?.user?.name || res?.user?.username || res?.user);
             } catch (error) {
-                console.error("Fetch user failed", error);
+                // Handle error if needed
             }
         };
         fetchUser();

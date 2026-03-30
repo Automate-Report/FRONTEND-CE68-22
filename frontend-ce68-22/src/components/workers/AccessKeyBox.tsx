@@ -1,18 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  Box, 
-  Typography, 
-  IconButton, 
-  Tooltip, 
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
-  DialogContentText, 
-  DialogActions, 
-  Button,
-  CircularProgress
+import {
+    Box,
+    Typography,
+    IconButton,
+    Tooltip,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions,
+    Button,
+    CircularProgress
 } from "@mui/material";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -22,14 +22,15 @@ import EyeIcon from "../icon/EyeIcon";
 import CloseEyeIcon from "../icon/CloseEyeIcon";
 import { useAccessKey } from "@/src/hooks/use-accessKey";
 import { accessKeyService } from "@/src/services/accessKey.service";
+import { showToast } from "../Common/ToastContainer";
+import { Close } from "@mui/icons-material";
 
 interface AccessKeyBoxProps {
-  accessKeyId: number;
-  onRevokeSuccess: () => void;
+    accessKeyId: number;
+    onRevokeSuccess: () => void;
 }
 
-export function AccessKeyBox({ accessKeyId, onRevokeSuccess }: AccessKeyBoxProps)
-{
+export function AccessKeyBox({ accessKeyId, onRevokeSuccess }: AccessKeyBoxProps) {
     const [showKey, setShowKey] = useState(false);
     const [copied, setCopied] = useState(false);
 
@@ -48,14 +49,13 @@ export function AccessKeyBox({ accessKeyId, onRevokeSuccess }: AccessKeyBoxProps
     const handleCopy = () => {
         const accessKey = data?.key;
 
-        if (accessKey)
-        {
+        if (accessKey) {
             navigator.clipboard.writeText(accessKey);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000); // รีเซ็ตสถานะหลัง 2 วิ
-        } 
+        }
     };
-    
+
     // ฟังก์ชันลบ
     const handleRevokeClick = () => {
         setOpenConfirm(true);
@@ -67,7 +67,7 @@ export function AccessKeyBox({ accessKeyId, onRevokeSuccess }: AccessKeyBoxProps
         try {
             // 1. เรียก API ลบ (สมมติว่ามี service นี้)
             await accessKeyService.revoke(accessKeyId);
-            
+
             // 2. ปิด Modal
             setOpenConfirm(false);
 
@@ -75,8 +75,12 @@ export function AccessKeyBox({ accessKeyId, onRevokeSuccess }: AccessKeyBoxProps
             onRevokeSuccess();
 
         } catch (error) {
-            console.error("Failed to revoke key", error);
-            alert("Failed to revoke key");
+            showToast({
+                icon: <Close sx={{ fontSize: "20px", color: "#FE3B46" }} />,
+                message: "Failed to revoke key :(",
+                borderColor: "#FE3B46",
+                duration: 6000,
+            });
         } finally {
             setIsRevoking(false);
         }
@@ -89,11 +93,11 @@ export function AccessKeyBox({ accessKeyId, onRevokeSuccess }: AccessKeyBoxProps
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    backgroundColor: "#272D31", 
+                    backgroundColor: "#272D31",
                     borderRadius: "8px",
                     padding: "12px 16px",
                     width: "100%", // หรือกำหนด width: "400px" ตามต้องการ
-                    maxWidth: "600px", 
+                    maxWidth: "600px",
                     height: "40px"
                 }}
             >
@@ -102,7 +106,7 @@ export function AccessKeyBox({ accessKeyId, onRevokeSuccess }: AccessKeyBoxProps
                     variant="body1"
                     sx={{
                         color: "#E6F0E6",
-                        letterSpacing: showKey ? "0.5px" : "1px", 
+                        letterSpacing: showKey ? "0.5px" : "1px",
                         fontSize: "16px",
                         whiteSpace: "nowrap",
                         marginRight: 2
@@ -113,26 +117,26 @@ export function AccessKeyBox({ accessKeyId, onRevokeSuccess }: AccessKeyBoxProps
                     ) : (
                         showKey ? (data?.key || "ไม่พบข้อมูล Key") : "••••••••••••••••••••••••••••••••"
                     )}
-                    
+
                 </Typography>
 
                 {/* ส่วนปุ่ม Action ด้านขวา */}
                 <Box sx={{ display: 'flex', gap: 0.5 }}>
-                            
+
                     {/* ปุ่มเปิด/ปิดตา */}
                     <Tooltip title={showKey ? "Hide Key" : "Show Key"}>
-                        <IconButton 
-                            onClick={toggleVisibility} 
+                        <IconButton
+                            onClick={toggleVisibility}
                             disabled={isLoading || !data?.key}
                             sx={{ color: "#a0a0a0", "&:hover": { color: "#8FFF9C" } }}
                         >
-                            {showKey ? <CloseEyeIcon/> : <EyeIcon/>}
+                            {showKey ? <CloseEyeIcon /> : <EyeIcon />}
                         </IconButton>
                     </Tooltip>
 
                     {/* ปุ่ม Copy */}
                     <Tooltip title={copied ? "Copied!" : "Copy Key"}>
-                        <IconButton 
+                        <IconButton
                             onClick={handleCopy}
                             sx={{ color: "#a0a0a0", "&:hover": { color: "#8FFF9C" } }}
                         >
@@ -142,11 +146,11 @@ export function AccessKeyBox({ accessKeyId, onRevokeSuccess }: AccessKeyBoxProps
 
                     {/* --- ปุ่ม Revoke (ถังขยะ) --- */}
                     <Tooltip title="Revoke Key">
-                        <IconButton 
+                        <IconButton
                             onClick={handleRevokeClick}
                             disabled={isLoading}
-                            sx={{ 
-                                color: "#a0a0a0", 
+                            sx={{
+                                color: "#a0a0a0",
                                 "&:hover": { color: "#ef5350" } // สีแดงตอน Hover
                             }}
                         >
@@ -168,27 +172,27 @@ export function AccessKeyBox({ accessKeyId, onRevokeSuccess }: AccessKeyBoxProps
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText sx={{ color: "#b0b0b0" }}>
-                        Are you sure you want to revoke this access key? 
-                        <br/>
+                        Are you sure you want to revoke this access key?
+                        <br />
                         This action cannot be undone, and the worker will lose access immediately.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions sx={{ p: 2 }}>
-                    <Button 
-                        onClick={() => setOpenConfirm(false)} 
+                    <Button
+                        onClick={() => setOpenConfirm(false)}
                         disabled={isRevoking}
                         sx={{ color: "#a0a0a0" }}
                     >
                         Cancel
                     </Button>
-                    <Button 
-                        onClick={handleConfirmRevoke} 
-                        variant="contained" 
+                    <Button
+                        onClick={handleConfirmRevoke}
+                        variant="contained"
                         color="error"
                         disabled={isRevoking}
                         autoFocus
                     >
-                        {isRevoking ? <CircularProgress size={24} color="inherit"/> : "Revoke"}
+                        {isRevoking ? <CircularProgress size={24} color="inherit" /> : "Revoke"}
                     </Button>
                 </DialogActions>
             </Dialog>

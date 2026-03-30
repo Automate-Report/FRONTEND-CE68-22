@@ -17,7 +17,7 @@ export function useAcceptInvitation() {
         onSuccess: (data) => {
             // Show success message if backend returns one
             if (data?.detail) {
-                console.log('Success:', data.detail);
+                // i think i added it in the page
                 // You can use toast notifications here
             }
             queryClient.invalidateQueries({ queryKey: ["invitations"] });
@@ -40,13 +40,13 @@ export function useDeclineInvitation() {
         onSuccess: (data) => {
             // Show success message if backend returns one
             if (data?.detail) {
-                console.log('Success:', data.detail);
+                //alr handle in the page
                 // You can use toast notifications here
             }
             queryClient.invalidateQueries({ queryKey: ["invitations"] });
         },
         onError: (error: any) => {
-            console.error('Decline invitation failed:', error?.response?.data?.detail || error.message);
+            //alr handle in the page
             // Handle error - show toast, etc.
         },
     });

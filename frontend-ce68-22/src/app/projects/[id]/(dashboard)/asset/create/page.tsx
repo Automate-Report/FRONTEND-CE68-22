@@ -55,7 +55,7 @@ export default function CreateAssetPage() {
     defaultValues: {
       name: "",
       target: "",
-      type: "IP",
+      type: "URL",
       username: "",
       password: "",
     },
@@ -78,7 +78,7 @@ export default function CreateAssetPage() {
       const assetPayload = {
         name: data.name.trim(),
         target: data.target.trim(),
-        type: data.type,
+        type: "URL",
         project_id: projectId,
         description: "",
       };
@@ -111,7 +111,6 @@ export default function CreateAssetPage() {
       if (createdAssetId) {
         await assetService.delete(createdAssetId);
       }
-      alert("Something went wrong. Please check your data.");
       showToast({
         icon: <Close sx={{fontSize: "20px",color: "#FE3B46"}} />,
         message: "Failed to Create asset :(",
@@ -147,7 +146,7 @@ export default function CreateAssetPage() {
       {/* ข้อมูลพื้นฐาน: ชื่อ Asset, Target, Type */}
       <AssetBasicInfo
         formMethods={formMethods}
-        currentAssetType={formMethods.watch("type")}
+        // currentAssetType={formMethods.watch("type")}
       />
 
       {/* ส่วน Credentials: Username, Password */}

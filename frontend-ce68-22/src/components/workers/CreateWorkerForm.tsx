@@ -21,7 +21,6 @@ export function CreateWorkerForm() {
 
     setLoading(true);
     // TODO: Connect to your FastAPI Backend (e.g., POST /workers)
-    console.log({ name, threads: Number(threads) });
     
     // หลังจากสร้างเสร็จ ให้กลับไปหน้าหลักของ Worker
     // router.push("/workers");

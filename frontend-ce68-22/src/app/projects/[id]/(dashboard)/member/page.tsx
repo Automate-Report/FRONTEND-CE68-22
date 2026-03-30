@@ -152,8 +152,12 @@ export default function MemberPage() {
       // ปิด Modal
       setDeleteModalOpen(false);
     } catch (error) {
-      console.error("Delete failed", error);
-      // toast.error("Failed to remove member");
+      showToast({
+        icon: <Close sx={{ fontSize: "20px", color: "#FE3B46" }} />,
+        message: "Failed to remove member :(",
+        borderColor: "#FE3B46",
+        duration: 6000,
+      });
     } finally {
       setIsDeleting(false);
       setMemberToDelete(null);

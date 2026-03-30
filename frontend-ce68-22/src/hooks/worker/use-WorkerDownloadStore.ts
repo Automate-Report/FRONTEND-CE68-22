@@ -54,7 +54,7 @@ export const useDownloadStore = create<DownloadState>((set) => ({
 
       toast.success(`${workerName} Ready to Use!`, { id: toastId });
     } catch (err) {
-      console.error("Download Error:", err);
+      
       toast.error("Failed to download worker config", { id: toastId });
     } finally {
       // หน่วงเวลาเล็กน้อยเพื่อให้ User เห็น Progress 100%

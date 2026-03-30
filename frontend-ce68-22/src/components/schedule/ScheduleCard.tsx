@@ -4,7 +4,7 @@ import EditIcon from "../icon/Edit";
 import DeleteProjectIcon from "../icon/Delete";
 import NetworkIcon from "../icon/NetworkIcon";
 import { ScheduleDelete, ScheduleDisplay } from "@/src/types/schedule";
-import { getDisplayDate } from "../Common/GetDisplayDate";
+import { getDisplayDate } from "../../utils/GetDisplayDate";
 import Link from "next/link";
 
 interface ScheduleCardProps {

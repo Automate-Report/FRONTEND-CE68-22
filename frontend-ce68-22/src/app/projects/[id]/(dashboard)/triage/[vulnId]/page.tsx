@@ -117,6 +117,12 @@ export default function VulnDetailPage() {
 
   const statusStyle = getStatusColor(vuln.status);
 
+  const imageSrc = vuln.evidence?.screenshot 
+    ? (vuln.evidence.screenshot.startsWith('data:') 
+        ? vuln.evidence.screenshot 
+        : `data:image/jpeg;base64,${vuln.evidence.screenshot}`)
+    : null;
+
   return (
     <Box className="bg-[#161B1F] rounded-2xl border-[2px] border-[#2D2F39] overflow-hidden flex flex-col h-full animate-in fade-in duration-500 shadow-2xl">
 
@@ -356,11 +362,32 @@ export default function VulnDetailPage() {
           <Stack spacing={4} className="animate-in fade-in slide-in-from-bottom-2 duration-300">
             <Box>
               <Typography sx={{ color: "#E6F0E6", mb: 2, fontWeight: 600, fontSize: 18 }}>Screenshot Proof</Typography>
-              {vuln.evidence?.screenshot ? (
-                <Box component="img" src={vuln.evidence.screenshot.startsWith('data:') ?
-                  vuln.evidence.screenshot : "https://img.freepik.com/free-vector/night-landscape-with-lake-mountains-trees-coast-vector-cartoon-illustration-nature-scene-with-coniferous-forest-river-shore-rocks-moon-stars-dark-sky_107791-8253.jpg?semt=ais_rp_progressive&w=740&q=80"}
-                  sx={{ width: '100%', borderRadius: '12px', border: '2px solid #2D2F39' }} />
-              ) : <Box sx={{ p: 6, bgcolor: '#0D1014', textAlign: 'center', borderRadius: '12px', color: '#404F57', border: '1px dashed #2D2F39' }}>No evidence image provided</Box>}
+              {imageSrc ? (
+                  <Box 
+                      component="img" 
+                      src={imageSrc}
+                      alt="Vulnerability Evidence"
+                      sx={{ 
+                          width: '100%', 
+                          borderRadius: '12px', 
+                          border: '2px solid #2D2F39',
+                          objectFit: 'contain', // ช่วยให้รูปไม่เบี้ยวถ้าสัดส่วนไม่พอดี
+                          maxHeight: '500px'    // ป้องกันรูปยาวเกินไปจนดัน Layout พัง
+                      }} 
+                  />
+                ) : (
+                  <Box sx={{ 
+                      p: 6, 
+                      bgcolor: '#0D1014', 
+                      textAlign: 'center', 
+                      borderRadius: '12px', 
+                      color: '#404F57', 
+                      border: '1px dashed #2D2F39' 
+                  }}>
+                      No evidence image provided
+                  </Box>
+                )
+              }
             </Box>
             <Box>
               <Typography sx={{ color: "#E6F0E6", mb: 2, fontWeight: 600, fontSize: 18 }}>Reproduction cURL</Typography>

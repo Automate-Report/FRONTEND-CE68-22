@@ -10,8 +10,8 @@ import { useProjectRole } from "@/src/context/ProjectDetailConext";
 
 //components
 import { GenericBreadcrums } from "@/src/components/Common/GenericBreadCrums";
-import { getDisplayDate } from "@/src/components/Common/GetDisplayDate";
-import { getDisplayTime } from "@/src/components/Common/GetDisplayTime";
+import { getDisplayDate } from "@/src/utils/GetDisplayDate";
+import { getDisplayTime } from "@/src/utils/GetDisplayTime";
 import ToggleSwitch from "@/src/components/Common/ToggleSwitch";
 import GenericDropdown from "@/src/components/Common/GenericDropdown";
 
@@ -23,7 +23,7 @@ import { GREEN_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
 import { start } from "repl";
 import RobotIcon from "@/src/components/icon/RobotIcon";
 import { Check } from "@mui/icons-material";
-import { toLocalISO } from "@/src/components/Common/ToLocalISO";
+import { toLocalISO } from "@/src/utils/ToLocalISO";
 
 export default function EditSchedulePage() {
     const { role } = useProjectRole();

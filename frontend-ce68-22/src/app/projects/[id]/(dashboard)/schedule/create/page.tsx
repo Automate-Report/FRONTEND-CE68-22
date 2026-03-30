@@ -3,8 +3,8 @@ import { useRouter, useParams } from "next/navigation";
 import { useProject } from "@/src/hooks/project/use-project";
 import { useState } from "react";
 import { ScheduleCreatePayload } from "@/src/types/schedule";
-import { getDisplayDate } from "@/src/components/Common/GetDisplayDate";
-import { getDisplayTime } from "@/src/components/Common/GetDisplayTime";
+import { getDisplayDate } from "@/src/utils/GetDisplayDate";
+import { getDisplayTime } from "@/src/utils/GetDisplayTime";
 import { scheduleService } from "@/src/services/schedule.service";
 import { useGetAllAssetNames } from "@/src/hooks/asset/use-getAllNames";
 import { useProjectRole } from "@/src/context/ProjectDetailConext";
@@ -26,6 +26,8 @@ import AssetIcon from "@/src/components/icon/AssetIcon";
 
 import { INPUT_BOX_NO_ICON_STYLE } from "@/src/styles/inputBoxStyle";
 import { GREEN_BUTTON_STYLE, RED_BUTTON_STYLE } from "@/src/styles/buttonStyle";
+import { showToast } from "@/src/components/Common/ToastContainer";
+import { CheckCircle, Close } from "@mui/icons-material";
 
 export default function CreateSchedulePage() {
     const { role } = useProjectRole();
@@ -107,7 +109,7 @@ export default function CreateSchedulePage() {
     const handleAddTime = () => {
         if (cronTimes.length >= timeLimit) {
             setTimeError(prev => ({ ...prev, limit: true }));
-            return; 
+            return;
         }
         setCronTimes(prev => [...prev,
         {
@@ -206,6 +208,33 @@ export default function CreateSchedulePage() {
         e.preventDefault();
         setInvalidDateError({ start: false, end: false });
 
+        const finalAtkType = form.attackType.length === 2 ? "all" : form.attackType[0];
+
+        if (runNow) {
+            const payload: ScheduleCreatePayload = {
+                project_id: projectId,
+                name: form.scheduleName,
+                atk_type: finalAtkType,
+                asset: form.assetId,
+                cron_expression: "Not Repeat",
+                start_date: new Date(`${form.startDate}T${form.startTime}:00+07:00`).toISOString(),
+                end_date: new Date(`${form.startDate}T${form.startTime}:00+07:00`).toISOString(),
+            };
+
+            try {
+                await scheduleService.create(payload);
+                router.push(`/projects/${projectId}/schedule`);
+            } catch (error) {
+                showToast({
+                    icon: <Close sx={{ fontSize: "20px", color: "#FE3B46" }} />,
+                    message: "Failed to delete project :(",
+                    borderColor: "#FE3B46",
+                    duration: 6000,
+                });
+            }
+            return;
+        }
+
         // Check if start date is in the past
         const startDateTime = new Date(`${form.startDate}T${form.startTime}:00`);
         if (startDateTime < new Date()) {
@@ -225,24 +254,6 @@ export default function CreateSchedulePage() {
         const cronString = changeUserInputToCronString();
         if (!cronString) return;
 
-        const finalAtkType = form.attackType.length === 2 ? "all" : form.attackType[0];
-
-        if (runNow) {
-            const payload: ScheduleCreatePayload = {
-                project_id: projectId,
-                name: form.scheduleName,
-                atk_type: finalAtkType,
-                asset: form.assetId,
-                cron_expression: "Not Repeat",
-                start_date: new Date(Date.now() + 60 * 1000).toISOString(), 
-                end_date: new Date(Date.now() + 60 * 1000).toISOString(),
-            };
-
-            const data = await scheduleService.create(payload);
-            router.push(`/projects/${projectId}/schedule`);
-            setRunNow(false);
-            return
-        }
 
         const payload: ScheduleCreatePayload = {
             project_id: projectId,
@@ -251,13 +262,13 @@ export default function CreateSchedulePage() {
             asset: form.assetId,
             cron_expression: cronString,
             start_date: new Date(`${form.startDate}T${form.startTime}:00+07:00`).toISOString(),
-            end_date: !repeatTrue 
-                ? new Date(`${form.startDate}T23:59:59+07:00`).toISOString() 
-                : (form.endDate 
+            end_date: !repeatTrue
+                ? new Date(`${form.startDate}T23:59:59+07:00`).toISOString()
+                : (form.endDate
                     ? new Date(`${form.endDate}T23:59:59+07:00`).toISOString() // ซ้ำ + มีวันจบ: ใช้วันจบที่เลือก
                     : new Date(`${form.startDate}T23:59:59+07:00`).toISOString() // ซ้ำ + ลืมเลือกวันจบ: Fallback ไปวันเริ่มก่อนเพื่อกันพัง
                 )
-                            
+
             // (!repeatTrue || form.endDate) ? new Date(`${form.startDate}T23:59:59+07:00`).toISOString() : new Date(`${form.endDate}T23:59:59+07:00`).toISOString(), //?????
         };
         const data = await scheduleService.create(payload);
@@ -487,7 +498,12 @@ export default function CreateSchedulePage() {
                                 onSuccess={() => {
                                     refetchAssets();
                                     router.refresh();
-                                    alert("Asset created successfully!");
+                                    showToast({
+                                        icon: <CheckCircle sx={{ fontSize: "20px", color: "#4CAF8A" }} />,
+                                        message: `Asset Created Successfully!`,
+                                        borderColor: "#8FFF9C",
+                                        duration: 6000,
+                                    });
                                 }}
                             />
                         </div>

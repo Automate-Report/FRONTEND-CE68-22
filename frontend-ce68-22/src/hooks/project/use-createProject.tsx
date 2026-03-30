@@ -34,7 +34,7 @@ export const useCreateProject = () => {
       const tags = await tagService.getAll();
       setAvailableTags(tags);
     } catch (err) {
-      console.error("Error fetching tags:", err);
+      // handle error if needed
     } finally {
       setFetchingTags(false);
     }
@@ -73,8 +73,7 @@ export const useCreateProject = () => {
 
       await fetchLatestTags();
     } catch (err) {
-      console.error("Failed to create tag:", err);
-      alert("Failed to create new tag.");
+      
     }
   };
 
@@ -124,8 +123,12 @@ export const useCreateProject = () => {
 
       fetchLatestTags();
     } catch (err) {
-      console.error("Failed to delete tag:", err);
-      alert("Failed to delete tag.");
+      showToast({
+        icon: <Close sx={{ fontSize: "20px", color: "#FE3B46" }} />,
+        message: "Failed to delete tag :(",
+        borderColor: "#FE3B46",
+        duration: 6000,
+      });
     }
   };
 

@@ -77,14 +77,14 @@ export const useCreateAssetLogic = (projectId: number, onClose?: () => void, onS
       if (onClose) onClose();
 
     } catch (error) {
-      console.error("Submission Error:", error);
+      
       
       // Rollback หากสร้าง Asset สำเร็จแต่สร้าง Credential พัง
       if (createdAssetId) {
           try {
               await assetService.delete(createdAssetId); 
           } catch (rollbackError) {
-              console.error("FATAL: Rollback failed.", rollbackError);
+              // handle error if needed
           }
       }
       alert("Failed to create asset. Please check your data and try again.");
