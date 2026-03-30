@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { useParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -43,7 +44,7 @@ export default function VulnDetailPage() {
   const queryClient = useQueryClient();
 
   // --- 1. Data Fetching ---
-  const { data: vuln, isLoading: isVulnLoading, isError } = useVuln(vulnId, projectId);
+  const { data: vuln, isLoading: isVulnLoading, isError, error} = useVuln(vulnId, projectId);
   const { data: membersData, isLoading: isMembersLoading } = useMembers(
     projectId, 1, 100, "firstname", "asc", "", "ALL"
   );
@@ -61,6 +62,21 @@ export default function VulnDetailPage() {
   const assignRole = myRole === "owner";
 
   const members = membersData?.items || [];
+
+  useEffect(() => {
+    if (isError && axios.isAxiosError(error)) {
+      if (error.response?.status === 404) {
+        // ใช้ replace เพื่อไม่ให้ผู้ใช้กด Back กลับมาหน้าเดิมได้
+        router.replace(`/projects/${projectId}/issues`);
+      }
+    }
+  }, [isError, error, projectId, router]);
+
+  if (isVulnLoading) return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
+        <CircularProgress sx={{ color: "#8FFF9C" }} />
+      </Box>
+    );
 
   // --- 4. Handlers ---
   const handleAssignChange = (position: "assigned_to" | "verified_by", userId: string) => {
