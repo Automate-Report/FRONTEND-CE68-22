@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { LoginPayload, RegisterPayload, UserKey } from "../types/auth";
 import { useRouter } from 'next/navigation';
 import { login, register } from '../services/auth.service';
-import { encryptPassword } from "../utils/crypto";
 
 export default function RegisterCard() {
     const [firstName, setFirstName] = useState<string>("");
@@ -18,9 +17,9 @@ export default function RegisterCard() {
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
-        const encryptedPassword = await encryptPassword(password);
-        const registerPayload: RegisterPayload = { firstName, lastName, email, password: encryptedPassword };
-        const loginPayload: LoginPayload = { email, password: encryptedPassword };
+        // const encryptedPassword = await encryptPassword(password); [Only work in Https://]
+        const registerPayload: RegisterPayload = { firstName, lastName, email, password };
+        const loginPayload: LoginPayload = { email, password };
 
         try {
             await register(registerPayload);
