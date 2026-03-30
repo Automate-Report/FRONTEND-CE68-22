@@ -243,6 +243,14 @@ export default function CreateSchedulePage() {
         }
 
         // If repeat is true, check if end date is after start date
+        if (repeatTrue && !form.endDate) {
+            const endDateTime = new Date(form.endDate);
+            if (endDateTime <= startDateTime) {
+                setInvalidDateError(prev => ({ ...prev, end: true }));
+                return;
+            }
+        }
+
         if (repeatTrue && form.endDate) {
             const endDateTime = new Date(form.endDate);
             if (endDateTime <= startDateTime) {
