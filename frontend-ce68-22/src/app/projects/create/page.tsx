@@ -51,7 +51,7 @@ export default function CreateProjectPage() {
           </div>
 
           {/* Tag Manager Component */}
-          <TagManager
+          {/* <TagManager
             tagRows={formState.tagRows}
             availableTags={formState.availableTags}
             fetchingTags={status.fetchingTags}
@@ -60,7 +60,7 @@ export default function CreateProjectPage() {
             onTagChange={handlers.handleTagChange}
             onDeleteTagFromDb={handlers.handleDeleteTagFromDb}
             onDropdownOpen={handlers.handleDropdownOpen}
-          />
+          /> */}
 
           {/* Action Buttons */}
           {status.error && <Typography color="error" sx={{ mb: 2 }}>{status.error}</Typography>}
