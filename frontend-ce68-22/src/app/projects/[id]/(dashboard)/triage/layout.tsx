@@ -62,7 +62,7 @@ export default function TriageLayout({ children }: { children: React.ReactNode }
     };
 
     return (
-        <div className="flex flex-col w-full text-[#E6F0E6] max-w-7xl">
+        <div className="flex flex-col w-full text-[#E6F0E6] ">
             <Box>
                 <GenericBreadcrums items={[
                     { label: "Home", href: "/main" },

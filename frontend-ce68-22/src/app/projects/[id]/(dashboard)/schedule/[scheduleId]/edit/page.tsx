@@ -309,7 +309,7 @@ export default function EditSchedulePage() {
     ];
 
     return (
-        <div className="flex flex-col w-full text-[#E6F0E6] max-w-7xl">
+        <div className="flex flex-col w-full text-[#E6F0E6] ">
 
             {/* Section 1: Breadcrumbs */}
             <div className="w-full">
