@@ -304,7 +304,7 @@ export default function CreateSchedulePage() {
     ];
 
     return (
-        <div className="flex flex-col w-full text-[#E6F0E6] max-w-7xl mx-auto">
+        <div className="flex flex-col w-full text-[#E6F0E6]  mx-auto">
             <GenericBreadcrums items={breadcrumbItems} />
 
             <div className="mt-6 mb-12 flex flex-col justify-center items-center">
