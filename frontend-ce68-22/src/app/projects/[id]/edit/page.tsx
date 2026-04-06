@@ -74,7 +74,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: numb
                         />
                     </div>
 
-                    <TagManager
+                    {/* <TagManager
                         tagRows={formState.tagRows}
                         availableTags={formState.availableTags}
                         fetchingTags={false}
@@ -83,7 +83,7 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: numb
                         onTagChange={handlers.handleTagChange}
                         onDeleteTagFromDb={handlers.handleDeleteTagFromDb}
                         onDropdownOpen={handlers.handleDropdownOpen}
-                    />
+                    /> */}
 
                     {/* Error Message */}
                     {status.error && (
