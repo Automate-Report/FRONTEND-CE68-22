@@ -1,0 +1,45 @@
+import type { Metadata } from "next";
+import { IBM_Plex_Sans_Thai } from "next/font/google";
+import "../styles/globals.css";
+import QueryProvider from "../providers/query-provider";
+import { NavBar } from "../components/NavBar";
+import { headers } from "next/headers";
+import ToastContainer from "../components/Common/ToastContainer";
+
+const ibmPlexSansThai = IBM_Plex_Sans_Thai({
+  subsets: ["latin", "thai"],
+  weight: ["100", "200", "300", "400", "500", "600", "700"], // มีน้ำหนักให้เลือกเยอะมาก
+  variable: "--font-ibm-thai", // ตั้งชื่อตัวแปร CSS ใหม่
+  display: "swap",
+});
+
+export const dynamic = 'force-dynamic';
+export const metadata: Metadata = {
+  title: "Pest10",
+  description: "DAST (Dynamic Asset Scanning Tool) ที่ช่วยให้การสแกนหาช่องโหว่ของเว็บไซต์เป็นเรื่องง่ายและมีประสิทธิภาพ",
+};
+
+export default async function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+
+  const headersList = await headers();
+  const showNavbar = (headersList.get("x-show-navbar") === "true");
+  
+  return (
+    <html lang="en" className="h-full">
+      <body className={`${ibmPlexSansThai.variable} font-sans antialiased h-screen bg-[#0F1518] flex flex-col overflow-hidden`} suppressHydrationWarning={true}>
+        <QueryProvider>
+          <ToastContainer />
+          {showNavbar && <NavBar />}
+          {/* เอา overflow-hidden ออกจากตรงนี้เพื่อให้ Layout ลูกจัดการการ scroll เอง */}
+          <div className="flex-1 overflow-y-auto h-0">
+            {children}
+          </div>
+        </QueryProvider>
+      </body>
+    </html>
+  );
+}
